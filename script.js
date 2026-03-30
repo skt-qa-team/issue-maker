@@ -1,4 +1,4 @@
-const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
+const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 
 const STORAGE_KEY = 'qa_system_config_master';
 
@@ -19,11 +19,9 @@ window.onclick = function(event) { if (event.target === document.getElementById(
 
 function saveSettings() {
     const getDevices = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
-    const getCheckedServers = () => Array.from(document.querySelectorAll('.set-server-cb:checked')).map(cb => cb.value);
 
+    // 저장 데이터에서 POC와 서버 제거
     const data = {
-        poc: document.getElementById('set_poc').value,
-        servers: getCheckedServers(),
         adminUrl: document.getElementById('set_admin_url').value,
         pcUrl: document.getElementById('set_pc_url').value,
         andDevices: getDevices('set_and_devices'),
@@ -42,11 +40,8 @@ function syncEnvironmentByOS() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
     
-    document.getElementById('poc').value = config.poc || defaultConfig.poc;
-    document.querySelectorAll('.issue-server-cb').forEach(cb => {
-        if(config.servers) cb.checked = config.servers.includes(cb.value);
-    });
-
+    // OS 변경 시 메인 폼의 POC와 서버 상태를 초기화하지 않도록 해당 코드 줄 제거 완료
+    
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
     const andContainer = document.getElementById('andCheckboxes');
@@ -71,7 +66,6 @@ function syncEnvironmentByOS() {
     }
 
     let targetVer = "";
-    // [공백 제거 로직 적용] .join(' / ') -> .join('/')
     if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join('/');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
@@ -109,8 +103,6 @@ function handlePocChange() {
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
-    
-    // [공백 제거 로직 적용] .join(' / ') -> .join('/')
     const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
     
     let rawEnv = checkedServers.replace('PRD', '상용'); 
@@ -135,7 +127,6 @@ function generateTemplate() {
     } else if (rawPoc === 'PC Web') {
         envSection += `■ POC : T 멤버십 Web\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}\n■ PC URL: ${getValue('targetUrl')}`;
     } else {
-        // [공백 제거 로직 적용] .join(' / ') -> .join('/')
         const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join('/');
         envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
     }
@@ -200,17 +191,13 @@ function copyToClipboard() {
 window.onload = function() {
     const config = loadConfig(); 
     if(config) {
-        document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
+        // 모달에서 초기화 데이터 로드 (POC, 서버 제외)
         document.getElementById('set_admin_url').value = config.adminUrl || '';
         document.getElementById('set_pc_url').value = config.pcUrl || '';
         document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
         document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
         document.getElementById('set_and_ver').value = config.andVer || '';
         document.getElementById('set_ios_ver').value = config.iosVer || '';
-        
-        document.querySelectorAll('.set-server-cb').forEach(cb => {
-            if(config.servers) cb.checked = config.servers.includes(cb.value);
-        });
     }
     syncEnvironmentByOS();
     handlePocChange();
