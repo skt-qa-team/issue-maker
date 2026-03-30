@@ -1,5 +1,5 @@
 /**
- * 이슈틀 자동 생성기 - V16.3 Core Logic (UI 긴급 수정 버전)
+ * 이슈틀 자동 생성기 - V16.4 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
@@ -9,7 +9,6 @@ const STORAGE_KEY = 'qa_system_config_master';
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
-        // 하위 호환성 유지 로직 (V12 데이터 감지)
         config = JSON.parse(localStorage.getItem('qa_config_v12')) || defaultConfig;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
@@ -21,7 +20,6 @@ function closeModal() { document.getElementById('settingModal').style.display = 
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 
-// 모달 외부 클릭 시 닫기 논리
 window.onclick = function(event) { 
     if (event.target.classList.contains('modal-overlay')) {
         closeModal();
@@ -59,9 +57,7 @@ function syncEnvironmentByOS() {
 
     if (osType.includes("Android")) {
         andCol.classList.add('active');
-        if (config.andDevices.length === 0) {
-            andContainer.innerHTML = '<span class="empty-msg">기기 없음</span>';
-        } else {
+        if (config.andDevices.length > 0) {
             config.andDevices.forEach((dev, i) => {
                 andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
             });
@@ -69,9 +65,7 @@ function syncEnvironmentByOS() {
     }
     if (osType.includes("iOS")) {
         iosCol.classList.add('active');
-        if (config.iosDevices.length === 0) {
-            iosContainer.innerHTML = '<span class="empty-msg">기기 없음</span>';
-        } else {
+        if (config.iosDevices.length > 0) {
             config.iosDevices.forEach((dev, i) => {
                 iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
             });
@@ -79,8 +73,8 @@ function syncEnvironmentByOS() {
     }
 
     let targetVer = "";
-    // V15 공백 제거 로직 유지
-    if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join('/');
+    // 본문용 가이드라인: 입력 필드에 표시될 때도 공백 포함하여 시인성 확보
+    if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
     document.getElementById('appVersion').value = targetVer;
@@ -111,10 +105,12 @@ function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
-    // V15 공백 제거 유지
-    const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
+    // [V16.4 핵심 로직] 영역별 슬래시 공백 처리 분리
+    const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    const titleServers = serversArr.join('/'); // 제목용: 공백 없음
+    const bodyServers = serversArr.join(' / '); // 본문용: 공백 있음
     
-    let rawEnv = checkedServers.replace('PRD', '상용'); 
+    let rawEnv = titleServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osStr = (rawPoc === 'Admin' || rawPoc === 'PC Web') ? '' : getValue('osType');
     const pocStr = (rawPoc === 'T 멤버십' || !rawPoc) ? '' : (rawPoc === 'PC Web' ? '[PC]' : `[${rawPoc}]`);
@@ -124,21 +120,21 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
-    // [Title 조립]
+    // [제목 (Title) 조립] 슬래시 공백 없음
     const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-    // [Body 조립] - image_0, image_1 포맷 참고
+    // [본문 (Body) 조립] 슬래시 공백 포함
+    const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+    
     let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
     if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
-        envSection += `■ 서버 : ${checkedServers}\n■ URL : ${getValue('targetUrl')}`;
+        envSection += `■ 서버 : ${bodyServers}\n■ URL : ${getValue('targetUrl')}`;
     } else {
-        const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join('/');
-        envSection += `■ Device : ${checkedDevices || '(단말 미선택)'}\n■ 서버 : ${checkedServers}\n■ 버전 : ${getValue('appVersion')}`;
+        envSection += `■ Device : ${checkedDevices || '(단말 미선택)'}\n■ 서버 : ${bodyServers}\n■ 버전 : ${getValue('appVersion')}`;
     }
 
     const prdRef = getValue('ref_prd').trim();
     const notes = getValue('ref_notes').trim();
-    // image_3, image_4 포맷 참고
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
 
     const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
@@ -147,13 +143,13 @@ function generateTemplate() {
     document.getElementById('outputBody').value = body.trim();
 }
 
-// --- 클립보드 복사 및 유틸리티 ---
+// --- 유틸리티 ---
 function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el.value.trim()) return alert('복사할 내용이 없습니다.');
     el.select();
     document.execCommand('copy');
-    alert('클립보드에 복사되었습니다.');
+    alert('복사되었습니다.');
 }
 
 function copyAll() {
@@ -167,12 +163,11 @@ function copyAll() {
     t.value = combined; t.select();
     document.execCommand("copy");
     document.body.removeChild(t);
-    alert('전체 내용(제목+본문)이 복사되었습니다.');
+    alert('전체 내용이 복사되었습니다.');
 }
 
 function clearForm() {
     if(!confirm('작성 중인 내용을 초기화할까요?')) return;
-    // V15 상태 보존 로직 유지
     ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -185,8 +180,8 @@ window.onload = function() {
     if(config) {
         document.getElementById('set_admin_url').value = config.adminUrl || '';
         document.getElementById('set_pc_url').value = config.pcUrl || '';
-        document.getElementById('set_and_devices').value = config.andDevices.join('\n');
-        document.getElementById('set_ios_devices').value = config.iosDevices.join('\n');
+        document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
+        document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
         document.getElementById('set_and_ver').value = config.andVer || '';
         document.getElementById('set_ios_ver').value = config.iosVer || '';
     }
