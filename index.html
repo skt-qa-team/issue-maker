@@ -2,17 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V14 (모듈화 버전)</title>
-    <!-- 외부 CSS 파일 연결 -->
+    <title>이슈틀 자동 생성기 - V15 (설정 최적화)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 설정 기어 아이콘 -->
     <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
 
     <div class="wrapper">
-        <!-- 좌측 1단: 가이드 패널 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
@@ -36,7 +33,6 @@
             </div>
         </div>
 
-        <!-- 중앙 2단: 이슈 작성 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -93,7 +89,7 @@
             <div class="form-group">
                 <label>서버</label>
                 <div class="checkbox-group">
-                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" onchange="generateTemplate()"> STG</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" checked onchange="generateTemplate()"> STG</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="DEV" onchange="generateTemplate()"> DEV</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> PRD(상용)</label>
                 </div>
@@ -129,7 +125,6 @@
             </div>
         </div>
 
-        <!-- 우측 3단: 결과창 패널 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -140,7 +135,6 @@
         </div>
     </div>
 
-    <!-- 모달: 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -148,24 +142,7 @@
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
             
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>기본 POC</label>
-                    <select id="set_poc">
-                        <option value="T 멤버십">T 멤버십</option>
-                        <option value="PC Web">PC Web</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>기본 서버</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="STG" checked> STG</label>
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="DEV"> DEV</label>
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="PRD"> PRD</label>
-                    </div>
-                </div>
-            </div>
+            <!-- POC, 서버 설정 영역 완전 제거됨 -->
 
             <div class="setting-box">
                 <div style="color: #475569; font-weight: bold; margin-bottom: 10px;">Admin / PC Web 설정</div>
@@ -189,7 +166,6 @@
         </div>
     </div>
 
-    <!-- 외부 JavaScript 파일 연결 -->
     <script src="script.js"></script>
 </body>
 </html>
