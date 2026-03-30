@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V6 (네이밍 표준화 버전)</title>
+    <title>이슈틀 자동 생성기 - V7 (타이틀 최적화 버전)</title>
     <style>
         body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 15px; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh;}
         .wrapper { width: 95vw; display: flex; gap: 15px; align-items: flex-start; margin: 0 auto; }
@@ -28,7 +28,6 @@
         .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.9rem; margin: 0; color: #212529; }
         .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; margin: 0;}
         
-        /* [개선 1] 디바이스 높이 제한 및 커스텀 스크롤바 추가 */
         .device-split-container { display: flex; gap: 15px; width: 100%; }
         .device-col { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; display: none; }
         .device-col.active { display: block; }
@@ -83,7 +82,6 @@
                         <option value="T 멤버십">T 멤버십</option>
                         <option value="PC Web">PC Web</option>
                         <option value="Admin">Admin</option>
-                        <option value="에이닷">에이닷</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -117,36 +115,32 @@
                 <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" oninput="generateTemplate()">
             </div>
 
-            <!-- [개선 2] Prefix를 위한 상세 옵션 패널 -->
+            <!-- Prefix를 위한 상세 옵션 패널 (모두 직접 입력으로 변경) -->
             <div class="prefix-panel">
                 <label style="color: #495057; font-size: 0.85rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 10px;">
                     <div>
                         <label style="font-size: 0.8rem;">Critical 구분</label>
-                        <select id="prefix_critical" onchange="generateTemplate()">
-                            <option value="">일반 (표기안함)</option>
-                            <option value="Block">Block</option>
-                            <option value="Crash">Crash</option>
-                        </select>
+                        <input type="text" id="prefix_critical" placeholder="예: Block, Crash" oninput="generateTemplate()">
                     </div>
                     <div>
                         <label style="font-size: 0.8rem;">특수 계정 결함</label>
-                        <select id="prefix_account" onchange="generateTemplate()">
-                            <option value="">일반 (표기안함)</option>
-                            <option value="타사LITE">타사LITE</option>
-                            <option value="자사LITE">자사LITE</option>
-                        </select>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
                     </div>
-                    <div style="grid-column: span 2;">
-                        <label style="font-size: 0.8rem;">특정 Device 결함 (단일 기기 발생 시 기기명 입력)</label>
-                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5 (미입력 시 표기안함)" oninput="generateTemplate()">
+                    <div>
+                        <label style="font-size: 0.8rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
                     </div>
                 </div>
             </div>
 
             <div class="grid-2">
                 <div class="form-group">
-                    <label>OS 구분</label>
+                    <label>OS 구분 (Admin/PC Web 선택 시 제목 미표기)</label>
                     <select id="osType" onchange="syncEnvironmentByOS()">
                         <option value="[Android/iOS] 공통">[Android/iOS] 공통</option>
                         <option value="[Android]">[Android]</option>
@@ -159,13 +153,12 @@
                         <option value="T 멤버십">T 멤버십 (제목 표기안함)</option>
                         <option value="PC Web">PC Web</option>
                         <option value="Admin">Admin</option>
-                        <option value="에이닷">에이닷</option>
                     </select>
                 </div>
             </div>
             
             <div class="form-group">
-                <label>서버</label>
+                <label>서버 (STG 단일 선택 시 제목 미표기)</label>
                 <div class="checkbox-group">
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" onchange="generateTemplate()"> STG</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="DEV" onchange="generateTemplate()"> DEV</label>
@@ -219,14 +212,14 @@
                 iosVer: document.getElementById('set_ios_ver').value
             };
             
-            localStorage.setItem('qa_config_v6', JSON.stringify(data));
+            localStorage.setItem('qa_config_v7', JSON.stringify(data));
             alert('설정이 저장되었습니다.');
             syncEnvironmentByOS(); 
             switchTab('issueTab');
         }
 
         function syncEnvironmentByOS() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v6')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v7')) || defaultConfig;
             const osType = document.getElementById('osType').value;
             
             document.getElementById('poc').value = config.poc || defaultConfig.poc;
@@ -266,34 +259,43 @@
             generateTemplate();
         }
 
-        // [개선 2] 논리적 Prefix 문자열 자동 조립 함수
+        // 고도화된 타이틀 파싱 로직
         function generateTemplate() {
             const getValue = (id) => document.getElementById(id).value;
             
-            // 1. Prefix 파싱
+            // 1. 서버 파싱 (STG 단일 선택 시 미표기 로직)
             let rawEnv = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
-            rawEnv = rawEnv.replace('PRD', '상용'); // PRD를 상용으로 치환
-            const envStr = rawEnv ? `[${rawEnv}]` : '';
+            rawEnv = rawEnv.replace('PRD', '상용'); 
+            const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
             
-            const osStr = getValue('osType').replace(' 공통', ''); // '공통' 텍스트 제거
-            
+            // 2. POC 및 OS 파싱 (Admin/PC Web 선택 시 OS 제거 로직)
             const rawPoc = getValue('poc');
+            let osStr = getValue('osType').replace(' 공통', '');
+            if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
+                osStr = ''; 
+            } else {
+                osStr = osStr; // OS 텍스트 자체에 이미 브래킷이 포함되어 있음
+            }
             const pocStr = (rawPoc === 'T 멤버십' || !rawPoc) ? '' : `[${rawPoc}]`;
             
-            const rawCrit = getValue('prefix_critical');
+            // 3. 직접 입력 데이터 파싱
+            const rawCrit = getValue('prefix_critical').trim();
             const critStr = rawCrit ? `[${rawCrit}]` : '';
             
-            const rawDevPrefix = getValue('prefix_device');
+            const rawDevPrefix = getValue('prefix_device').trim();
             const devPrefixStr = rawDevPrefix ? `[${rawDevPrefix}]` : '';
             
-            const rawAcc = getValue('prefix_account');
+            const rawAcc = getValue('prefix_account').trim();
             const accStr = rawAcc ? `[${rawAcc}]` : '';
-            
-            // 최종 조립된 스마트 Title
-            const coreTitle = getValue('title');
-            const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr} ${coreTitle}`.trim();
 
-            // 2. 바디 데이터 파싱
+            const rawPage = getValue('prefix_page').trim();
+            const pageStr = rawPage ? `[${rawPage}]` : '';
+            
+            // 4. 최종 조립된 스마트 Title
+            const coreTitle = getValue('title').trim();
+            const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${coreTitle}`.trim();
+
+            // 5. 바디 데이터 파싱
             const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
             const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
             
@@ -331,9 +333,12 @@ ${getValue('notes')}`;
         }
 
         window.onload = function() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v6'));
+            const config = JSON.parse(localStorage.getItem('qa_config_v7'));
             if(config) {
-                document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
+                // 이전 버전에 '에이닷'이 저장되어 있을 경우 기본값으로 초기화
+                const pocValue = config.poc === '에이닷' ? 'T 멤버십' : (config.poc || defaultConfig.poc);
+                document.getElementById('set_poc').value = pocValue;
+                
                 document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
                 document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
                 document.getElementById('set_and_ver').value = config.andVer || '';
