@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V7 (타이틀 최적화 버전)</title>
+    <title>이슈틀 자동 생성기 - V8 (POC 맞춤형 다이내믹 UI)</title>
     <style>
         body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 15px; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh;}
         .wrapper { width: 95vw; display: flex; gap: 15px; align-items: flex-start; margin: 0 auto; }
@@ -10,58 +10,61 @@
         .tab-btn { flex: 1; padding: 12px; background-color: #e2e6ea; color: #495057; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid #ced4da; }
         .tab-btn.active { background-color: #007bff; color: white; box-shadow: 0 3px 5px rgba(0, 123, 255, 0.2); border-color: #007bff; }
         
-        .container { flex: 0 0 550px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; border: 1px solid #dee2e6; box-sizing: border-box;}
+        /* [UI 개선] 좌측 입력 컨테이너 너비를 이미지 비율에 맞춰 420px로 고정 */
+        .container { flex: 0 0 420px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; border: 1px solid #dee2e6; box-sizing: border-box; max-height: calc(100vh - 80px); overflow-y: auto;}
+        .container::-webkit-scrollbar { width: 6px; }
+        .container::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
         .container.active { display: block; }
-        .result-container { flex: 1; background: #2c3e50; padding: 25px; border-radius: 10px; color: #ecf0f1; position: sticky; top: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #1a252f; box-sizing: border-box; }
         
-        h2 { font-size: 1.2rem; margin-top: 0; color: #343a40; border-left: 4px solid #007bff; padding-left: 8px; margin-bottom: 15px; }
+        /* [UI 개선] 우측 결과 컨테이너 확장 및 다크 테마 유지 */
+        .result-container { flex: 1; background: #1e293b; padding: 25px; border-radius: 10px; color: #ecf0f1; position: sticky; top: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); border: 1px solid #0f172a; box-sizing: border-box; }
+        
+        h2 { font-size: 1.15rem; margin-top: 0; color: #343a40; border-left: 4px solid #007bff; padding-left: 8px; margin-bottom: 15px; }
         .result-container h2 { color: #f8f9fa; border-left-color: #27ae60; }
         
         .form-group { margin-bottom: 15px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.85rem; color: #495057; }
-        input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; transition: border-color 0.15s; font-family: inherit;}
+        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.8rem; color: #495057; }
+        input[type="text"], textarea, select { width: 100%; padding: 9px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 0.85rem; transition: border-color 0.15s; font-family: inherit;}
         input[type="text"]:focus, textarea:focus, select:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
-        textarea { height: 70px; resize: vertical; }
+        textarea { height: 65px; resize: vertical; }
         
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; background-color: #f8f9fa; }
-        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.9rem; margin: 0; color: #212529; }
+        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.85rem; margin: 0; color: #212529; }
         .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; margin: 0;}
         
-        .device-split-container { display: flex; gap: 15px; width: 100%; }
-        .device-col { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; display: none; }
+        .device-split-container { display: flex; gap: 10px; width: 100%; }
+        .device-col { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; display: none; }
         .device-col.active { display: block; }
-        .device-col-header { font-size: 0.9rem; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; }
+        .device-col-header { font-size: 0.85rem; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; }
         .device-col-header::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
         .header-and::before { background-color: #28a745; }
         .header-ios::before { background-color: #6c757d; }
         
-        .pill-group { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding-right: 5px; align-content: flex-start;}
-        .pill-group::-webkit-scrollbar { width: 6px; }
+        .pill-group { display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto; padding-right: 5px; align-content: flex-start;}
+        .pill-group::-webkit-scrollbar { width: 5px; }
         .pill-group::-webkit-scrollbar-track { background: #e9ecef; border-radius: 4px; }
         .pill-group::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
-        .pill-group::-webkit-scrollbar-thumb:hover { background: #6c757d; }
         
-        .pill-label { display: inline-block; padding: 6px 12px; border: 1px solid #ced4da; border-radius: 20px; font-size: 0.85rem; cursor: pointer; background: #fff; color: #495057; transition: all 0.2s ease; user-select: none; margin: 0; }
+        .pill-label { display: inline-block; padding: 5px 10px; border: 1px solid #ced4da; border-radius: 20px; font-size: 0.8rem; cursor: pointer; background: #fff; color: #495057; transition: all 0.2s ease; user-select: none; margin: 0; }
         .pill-label:hover { background: #e9ecef; }
         input[type="checkbox"].pill-cb { display: none; }
         
         input[type="checkbox"].pill-cb:checked + .pill-label.and-pill { background-color: #198754; color: white; border-color: #198754; font-weight: bold; box-shadow: 0 2px 4px rgba(25,135,84,0.2); }
         input[type="checkbox"].pill-cb:checked + .pill-label.ios-pill { background-color: #6c757d; color: white; border-color: #6c757d; font-weight: bold; box-shadow: 0 2px 4px rgba(108,117,125,0.2); }
         
-        .empty-msg { font-size: 0.8rem; color: #adb5bd; }
-        .prefix-panel { background: #eef2f5; padding: 15px; border-radius: 6px; border: 1px dashed #b1bbc4; margin-bottom: 15px; }
+        .empty-msg { font-size: 0.75rem; color: #adb5bd; }
+        .prefix-panel { background: #eef2f5; padding: 12px; border-radius: 6px; border: 1px dashed #b1bbc4; margin-bottom: 15px; }
 
-        .btn-save { background-color: #28a745; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; border: 1px solid #218838;}
+        .btn-save, .btn-copy { color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-save { background-color: #28a745; margin-top: 10px; border: 1px solid #218838;}
         .btn-save:hover { background-color: #218838; }
-        .btn-copy { background-color: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; border: 1px solid #0069d9;}
+        .btn-copy { background-color: #007bff; margin-top: 15px; border: 1px solid #0069d9;}
         .btn-copy:hover { background-color: #0069d9; }
         
-        #outputArea { width: 100%; height: calc(100vh - 160px); min-height: 600px; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border: none; background-color: #1a252f; color: #bdc3c7; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.7; border-radius: 5px; outline: none;}
+        #outputArea { width: 100%; height: calc(100vh - 160px); min-height: 600px; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border: none; background-color: #0f172a; color: #cbd5e1; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.7; border-radius: 5px; outline: none;}
         
         .setting-box { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef; }
-        .badge-and { color: #28a745; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;}
-        .badge-ios { color: #868e96; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;}
     </style>
 </head>
 <body>
@@ -93,13 +96,21 @@
                     </div>
                 </div>
             </div>
+
+            <!-- [추가] Admin / PC Web 기본 URL 설정 -->
             <div class="setting-box">
-                <span class="badge-and">Android 전용 설정</span>
+                <div style="color: #495057; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">Admin / PC Web 설정</div>
+                <div class="form-group"><label>기본 Admin URL</label><input type="text" id="set_admin_url" placeholder="https://stg-bos.sktmembership.co.kr"></div>
+                <div class="form-group"><label>기본 PC URL</label><input type="text" id="set_pc_url" placeholder="https://sktmembership.tworld.co.kr/..."></div>
+            </div>
+
+            <div class="setting-box">
+                <div style="color: #28a745; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">Android 전용 설정</div>
                 <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터로 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
             </div>
             <div class="setting-box">
-                <span class="badge-ios">iOS 전용 설정</span>
+                <div style="color: #868e96; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">iOS 전용 설정</div>
                 <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터로 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
             </div>
@@ -111,36 +122,40 @@
             <h2>📝 이슈 내용 입력</h2>
             
             <div class="form-group">
-                <label>📌 현상 요약 (AS-IS 경로 모두 제외하고 핵심만 작성)</label>
+                <label style="color:#d9534f;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
                 <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" oninput="generateTemplate()">
             </div>
 
-            <!-- Prefix를 위한 상세 옵션 패널 (모두 직접 입력으로 변경) -->
             <div class="prefix-panel">
-                <label style="color: #495057; font-size: 0.85rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+                <label style="color: #495057; font-size: 0.8rem; margin-bottom: 8px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 10px;">
                     <div>
-                        <label style="font-size: 0.8rem;">Critical 구분</label>
-                        <input type="text" id="prefix_critical" placeholder="예: Block, Crash" oninput="generateTemplate()">
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <!-- [개선 1] 드롭다운으로 변경 -->
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">일반 (미표기)</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
                     </div>
                     <div>
-                        <label style="font-size: 0.8rem;">특수 계정 결함</label>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
                         <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
                     </div>
                     <div>
-                        <label style="font-size: 0.8rem;">특정 Device 결함</label>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
                         <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
                     </div>
                     <div>
-                        <label style="font-size: 0.8rem;">이슈 발생 페이지</label>
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
                         <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
                     </div>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="form-group">
-                    <label>OS 구분 (Admin/PC Web 선택 시 제목 미표기)</label>
+                <div class="form-group" id="osGroup">
+                    <label>OS 구분</label>
                     <select id="osType" onchange="syncEnvironmentByOS()">
                         <option value="[Android/iOS] 공통">[Android/iOS] 공통</option>
                         <option value="[Android]">[Android]</option>
@@ -149,8 +164,8 @@
                 </div>
                 <div class="form-group">
                     <label>POC</label>
-                    <select id="poc" onchange="generateTemplate()">
-                        <option value="T 멤버십">T 멤버십 (제목 표기안함)</option>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십 (미표기)</option>
                         <option value="PC Web">PC Web</option>
                         <option value="Admin">Admin</option>
                     </select>
@@ -166,7 +181,7 @@
                 </div>
             </div>
             
-            <div class="form-group">
+            <div class="form-group" id="deviceGroup">
                 <label>디바이스 선택</label>
                 <div class="device-split-container">
                     <div id="andDeviceCol" class="device-col"><div class="device-col-header header-and">Android</div><div class="pill-group" id="andCheckboxes"></div></div>
@@ -174,7 +189,17 @@
                 </div>
             </div>
 
-            <div class="form-group"><label>앱 버전</label><input type="text" id="appVersion" oninput="generateTemplate()"></div>
+            <div class="form-group" id="appVersionGroup">
+                <label id="appVersionLabel">앱 버전</label>
+                <input type="text" id="appVersion" oninput="generateTemplate()">
+            </div>
+
+            <!-- [개선 2] Admin 및 PC Web 전용 URL 입력칸 (기본 숨김) -->
+            <div class="form-group" id="urlGroup" style="display: none;">
+                <label id="urlLabel">URL</label>
+                <input type="text" id="targetUrl" oninput="generateTemplate()">
+            </div>
+
             <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[재현스텝]</label><textarea id="steps" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" oninput="generateTemplate()"></textarea></div>
@@ -190,7 +215,7 @@
     </div>
 
     <script>
-        const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '' };
+        const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 
         function switchTab(tabId) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -206,20 +231,23 @@
             const data = {
                 poc: document.getElementById('set_poc').value,
                 servers: getCheckedServers(),
+                adminUrl: document.getElementById('set_admin_url').value,
+                pcUrl: document.getElementById('set_pc_url').value,
                 andDevices: getDevices('set_and_devices'),
                 andVer: document.getElementById('set_and_ver').value,
                 iosDevices: getDevices('set_ios_devices'),
                 iosVer: document.getElementById('set_ios_ver').value
             };
             
-            localStorage.setItem('qa_config_v7', JSON.stringify(data));
+            localStorage.setItem('qa_config_v8', JSON.stringify(data));
             alert('설정이 저장되었습니다.');
             syncEnvironmentByOS(); 
+            handlePocChange();
             switchTab('issueTab');
         }
 
         function syncEnvironmentByOS() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v7')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v8')) || defaultConfig;
             const osType = document.getElementById('osType').value;
             
             document.getElementById('poc').value = config.poc || defaultConfig.poc;
@@ -255,30 +283,64 @@
             else if (osType === "[Android]") targetVer = config.andVer;
             else if (osType === "[iOS]") targetVer = config.iosVer;
             document.getElementById('appVersion').value = targetVer;
+        }
 
+        // [개선 2] POC 변경 시 동적 폼 제어 로직
+        function handlePocChange() {
+            const poc = document.getElementById('poc').value;
+            const osGroup = document.getElementById('osGroup');
+            const deviceGroup = document.getElementById('deviceGroup');
+            const appVersionGroup = document.getElementById('appVersionGroup');
+            const appVersionLabel = document.getElementById('appVersionLabel');
+            const urlGroup = document.getElementById('urlGroup');
+            const urlLabel = document.getElementById('urlLabel');
+            const targetUrl = document.getElementById('targetUrl');
+            
+            const config = JSON.parse(localStorage.getItem('qa_config_v8')) || defaultConfig;
+
+            if (poc === 'Admin') {
+                osGroup.style.display = 'none';
+                deviceGroup.style.display = 'none';
+                appVersionGroup.style.display = 'none';
+                urlGroup.style.display = 'block';
+                urlLabel.innerText = 'Admin URL';
+                targetUrl.value = config.adminUrl || '';
+            } else if (poc === 'PC Web') {
+                osGroup.style.display = 'none';
+                deviceGroup.style.display = 'none';
+                appVersionGroup.style.display = 'block';
+                appVersionLabel.innerText = '브라우저 버전';
+                urlGroup.style.display = 'block';
+                urlLabel.innerText = 'PC URL';
+                targetUrl.value = config.pcUrl || '';
+            } else {
+                osGroup.style.display = 'block';
+                deviceGroup.style.display = 'block';
+                appVersionGroup.style.display = 'block';
+                appVersionLabel.innerText = '앱 버전';
+                urlGroup.style.display = 'none';
+                syncEnvironmentByOS(); // 버전 텍스트를 앱 버전으로 복구
+            }
             generateTemplate();
         }
 
-        // 고도화된 타이틀 파싱 로직
+        // 고도화된 타이틀 및 바디 파싱 로직
         function generateTemplate() {
             const getValue = (id) => document.getElementById(id).value;
+            const rawPoc = getValue('poc');
+            const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
             
-            // 1. 서버 파싱 (STG 단일 선택 시 미표기 로직)
-            let rawEnv = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
-            rawEnv = rawEnv.replace('PRD', '상용'); 
+            // 1. 타이틀 파싱
+            let rawEnv = checkedServers.replace('PRD', '상용'); 
             const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
             
-            // 2. POC 및 OS 파싱 (Admin/PC Web 선택 시 OS 제거 로직)
-            const rawPoc = getValue('poc');
             let osStr = getValue('osType').replace(' 공통', '');
-            if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
-                osStr = ''; 
-            } else {
-                osStr = osStr; // OS 텍스트 자체에 이미 브래킷이 포함되어 있음
-            }
-            const pocStr = (rawPoc === 'T 멤버십' || !rawPoc) ? '' : `[${rawPoc}]`;
+            if (rawPoc === 'Admin' || rawPoc === 'PC Web') osStr = ''; 
             
-            // 3. 직접 입력 데이터 파싱
+            // PC Web은 타이틀에서 [PC]로 표기
+            const mappedPoc = rawPoc === 'PC Web' ? 'PC' : rawPoc;
+            const pocStr = (mappedPoc === 'T 멤버십' || !mappedPoc) ? '' : `[${mappedPoc}]`;
+            
             const rawCrit = getValue('prefix_critical').trim();
             const critStr = rawCrit ? `[${rawCrit}]` : '';
             
@@ -291,20 +353,30 @@
             const rawPage = getValue('prefix_page').trim();
             const pageStr = rawPage ? `[${rawPage}]` : '';
             
-            // 4. 최종 조립된 스마트 Title
             const coreTitle = getValue('title').trim();
             const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${coreTitle}`.trim();
 
-            // 5. 바디 데이터 파싱
-            const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
-            const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
-            
+            // 2. 바디(Environment) 동적 렌더링
+            let envSection = `[Environment]\n`;
+            if (rawPoc === 'Admin') {
+                envSection += `■ POC : Admin\n`;
+                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
+                envSection += `■ Admin URL: ${getValue('targetUrl')}`;
+            } else if (rawPoc === 'PC Web') {
+                envSection += `■ POC : T 멤버십 Web\n`;
+                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
+                envSection += `■ 버전 : ${getValue('appVersion')}\n`;
+                envSection += `■ PC URL: ${getValue('targetUrl')}`;
+            } else {
+                const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+                envSection += `■ POC : ${rawPoc}\n`;
+                envSection += `■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n`;
+                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
+                envSection += `■ 버전 : ${getValue('appVersion')}`;
+            }
+
             const template = `${smartTitle}
-[Environment]
-■ POC : ${rawPoc}
-■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}
-■ 서버 : ${checkedServers || '(서버 선택 안됨)'}
-■ 버전 : ${getValue('appVersion')}
+${envSection}
 
 [Pre-Condition]
 ${getValue('preCondition')}
@@ -333,12 +405,11 @@ ${getValue('notes')}`;
         }
 
         window.onload = function() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v7'));
+            const config = JSON.parse(localStorage.getItem('qa_config_v8'));
             if(config) {
-                // 이전 버전에 '에이닷'이 저장되어 있을 경우 기본값으로 초기화
-                const pocValue = config.poc === '에이닷' ? 'T 멤버십' : (config.poc || defaultConfig.poc);
-                document.getElementById('set_poc').value = pocValue;
-                
+                document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
+                document.getElementById('set_admin_url').value = config.adminUrl || '';
+                document.getElementById('set_pc_url').value = config.pcUrl || '';
                 document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
                 document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
                 document.getElementById('set_and_ver').value = config.andVer || '';
@@ -349,6 +420,7 @@ ${getValue('notes')}`;
                 });
             }
             syncEnvironmentByOS();
+            handlePocChange(); // 초기 로드 시 폼 숨김/표시 상태 동기화
         };
     </script>
 </body>
