@@ -2,136 +2,102 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V8 (POC 맞춤형 다이내믹 UI)</title>
+    <title>이슈틀 자동 생성기 - V10 (대시보드 UI)</title>
     <style>
-        body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 15px; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh;}
-        .wrapper { width: 95vw; display: flex; gap: 15px; align-items: flex-start; margin: 0 auto; }
-        .tab-menu { width: 95vw; margin-bottom: 15px; display: flex; gap: 8px; margin-top: 5px; }
-        .tab-btn { flex: 1; padding: 12px; background-color: #e2e6ea; color: #495057; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid #ced4da; }
-        .tab-btn.active { background-color: #007bff; color: white; box-shadow: 0 3px 5px rgba(0, 123, 255, 0.2); border-color: #007bff; }
+        /* 전역 및 그리드 레이아웃 (완벽한 50:50) */
+        body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; box-sizing: border-box; height: 100vh; overflow: hidden; }
+        .wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; height: 100%; max-width: 1600px; margin: 0 auto; }
         
-        /* [UI 개선] 좌측 입력 컨테이너 너비를 이미지 비율에 맞춰 420px로 고정 */
-        .container { flex: 0 0 420px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; border: 1px solid #dee2e6; box-sizing: border-box; max-height: calc(100vh - 80px); overflow-y: auto;}
-        .container::-webkit-scrollbar { width: 6px; }
-        .container::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
-        .container.active { display: block; }
-        
-        /* [UI 개선] 우측 결과 컨테이너 확장 및 다크 테마 유지 */
-        .result-container { flex: 1; background: #1e293b; padding: 25px; border-radius: 10px; color: #ecf0f1; position: sticky; top: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); border: 1px solid #0f172a; box-sizing: border-box; }
-        
-        h2 { font-size: 1.15rem; margin-top: 0; color: #343a40; border-left: 4px solid #007bff; padding-left: 8px; margin-bottom: 15px; }
-        .result-container h2 { color: #f8f9fa; border-left-color: #27ae60; }
-        
-        .form-group { margin-bottom: 15px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.8rem; color: #495057; }
-        input[type="text"], textarea, select { width: 100%; padding: 9px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 0.85rem; transition: border-color 0.15s; font-family: inherit;}
-        input[type="text"]:focus, textarea:focus, select:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
-        textarea { height: 65px; resize: vertical; }
-        
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; background-color: #f8f9fa; }
-        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.85rem; margin: 0; color: #212529; }
-        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; margin: 0;}
-        
-        .device-split-container { display: flex; gap: 10px; width: 100%; }
-        .device-col { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; display: none; }
-        .device-col.active { display: block; }
-        .device-col-header { font-size: 0.85rem; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; }
-        .device-col-header::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-        .header-and::before { background-color: #28a745; }
-        .header-ios::before { background-color: #6c757d; }
-        
-        .pill-group { display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto; padding-right: 5px; align-content: flex-start;}
-        .pill-group::-webkit-scrollbar { width: 5px; }
-        .pill-group::-webkit-scrollbar-track { background: #e9ecef; border-radius: 4px; }
-        .pill-group::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
-        
-        .pill-label { display: inline-block; padding: 5px 10px; border: 1px solid #ced4da; border-radius: 20px; font-size: 0.8rem; cursor: pointer; background: #fff; color: #495057; transition: all 0.2s ease; user-select: none; margin: 0; }
-        .pill-label:hover { background: #e9ecef; }
-        input[type="checkbox"].pill-cb { display: none; }
-        
-        input[type="checkbox"].pill-cb:checked + .pill-label.and-pill { background-color: #198754; color: white; border-color: #198754; font-weight: bold; box-shadow: 0 2px 4px rgba(25,135,84,0.2); }
-        input[type="checkbox"].pill-cb:checked + .pill-label.ios-pill { background-color: #6c757d; color: white; border-color: #6c757d; font-weight: bold; box-shadow: 0 2px 4px rgba(108,117,125,0.2); }
-        
-        .empty-msg { font-size: 0.75rem; color: #adb5bd; }
-        .prefix-panel { background: #eef2f5; padding: 12px; border-radius: 6px; border: 1px dashed #b1bbc4; margin-bottom: 15px; }
+        /* 스크롤바 디자인 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .btn-save, .btn-copy { color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-save { background-color: #28a745; margin-top: 10px; border: 1px solid #218838;}
-        .btn-save:hover { background-color: #218838; }
-        .btn-copy { background-color: #007bff; margin-top: 15px; border: 1px solid #0069d9;}
-        .btn-copy:hover { background-color: #0069d9; }
+        /* 패널 공통 속성 */
+        .panel { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow-y: auto; padding: 25px; box-sizing: border-box; border: 1px solid #e2e8f0; }
         
-        #outputArea { width: 100%; height: calc(100vh - 160px); min-height: 600px; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border: none; background-color: #0f172a; color: #cbd5e1; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.7; border-radius: 5px; outline: none;}
+        /* 우측 결과창 다크 테마 */
+        .result-panel { background: #0f172a; border-color: #1e293b; color: #f8fafc; display: flex; flex-direction: column; }
         
-        .setting-box { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef; }
+        h2 { font-size: 1.2rem; margin-top: 0; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;}
+        .result-panel h2 { color: #f8fafc; border-left-color: #10b981; }
+        
+        /* 폼 요소 스타일 */
+        .form-group { margin-bottom: 18px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
+        input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 0.9rem; transition: all 0.2s; font-family: inherit; background: #fff;}
+        input[type="text"]:focus, textarea:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        textarea { height: 70px; resize: vertical; }
+        
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background-color: #f8fafc; }
+        .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0;}
+        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; margin: 0; cursor: pointer;}
+        
+        /* 디바이스 필(Pill) UI */
+        .device-split-container { display: flex; gap: 12px; width: 100%; }
+        .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
+        .device-col.active { display: block; }
+        .device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; }
+        .device-col-header::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .header-and::before { background-color: #10b981; }
+        .header-ios::before { background-color: #64748b; }
+        
+        .pill-group { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding-right: 5px; align-content: flex-start;}
+        .pill-label { display: inline-block; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 0.8rem; cursor: pointer; background: #fff; color: #475569; transition: all 0.2s; user-select: none; margin: 0; }
+        .pill-label:hover { background: #f1f5f9; }
+        input[type="checkbox"].pill-cb { display: none; }
+        input[type="checkbox"].pill-cb:checked + .pill-label.and-pill { background-color: #10b981; color: white; border-color: #10b981; font-weight: 600; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); }
+        input[type="checkbox"].pill-cb:checked + .pill-label.ios-pill { background-color: #64748b; color: white; border-color: #64748b; font-weight: 600; box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2); }
+        .empty-msg { font-size: 0.8rem; color: #94a3b8; }
+        
+        .prefix-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
+
+        /* 결과창 텍스트 에어리어 */
+        #outputArea { flex: 1; width: 100%; font-family: 'Consolas', monospace; padding: 15px; border: none; background-color: #1e293b; color: #e2e8f0; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.6; border-radius: 8px; outline: none; margin-bottom: 15px;}
+        
+        /* 버튼 스타일 */
+        .btn { padding: 14px; width: 100%; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-copy { background-color: #3b82f6; }
+        .btn-copy:hover { background-color: #2563eb; }
+        .btn-save { background-color: #10b981; margin-top: 15px; }
+        .btn-save:hover { background-color: #059669; }
+
+        /* 환경 설정 기어 아이콘 (고정 버튼) */
+        .setting-btn-float { position: fixed; top: 25px; right: 30px; background: #334155; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: all 0.2s; z-index: 100; border: 2px solid #1e293b; }
+        .setting-btn-float:hover { background: #475569; transform: rotate(30deg); }
+
+        /* 모달 팝업 스타일 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+        .modal-header h2 { margin: 0; border: none; padding: 0; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .close-btn:hover { color: #0f172a; }
+        .setting-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
 
-    <div class="tab-menu">
-        <button class="tab-btn active" onclick="switchTab('issueTab')" id="btnIssue">📝 이슈 작성</button>
-        <button class="tab-btn" onclick="switchTab('settingsTab')" id="btnSettings">⚙️ 환경 설정</button>
-    </div>
+    <!-- 설정 아이콘 (우측 상단) -->
+    <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
 
     <div class="wrapper">
-        <!-- 환경 설정 탭 -->
-        <div id="settingsTab" class="container">
-            <h2>⚙️ 기본 환경 설정</h2>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>기본 POC</label>
-                    <select id="set_poc">
-                        <option value="T 멤버십">T 멤버십</option>
-                        <option value="PC Web">PC Web</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>기본 서버</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="STG" checked> STG</label>
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="DEV"> DEV</label>
-                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="PRD"> PRD(상용)</label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [추가] Admin / PC Web 기본 URL 설정 -->
-            <div class="setting-box">
-                <div style="color: #495057; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">Admin / PC Web 설정</div>
-                <div class="form-group"><label>기본 Admin URL</label><input type="text" id="set_admin_url" placeholder="https://stg-bos.sktmembership.co.kr"></div>
-                <div class="form-group"><label>기본 PC URL</label><input type="text" id="set_pc_url" placeholder="https://sktmembership.tworld.co.kr/..."></div>
-            </div>
-
-            <div class="setting-box">
-                <div style="color: #28a745; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">Android 전용 설정</div>
-                <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터로 구분"></textarea></div>
-                <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
-            </div>
-            <div class="setting-box">
-                <div style="color: #868e96; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;">iOS 전용 설정</div>
-                <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터로 구분"></textarea></div>
-                <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
-            </div>
-            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 적용</button>
-        </div>
-
-        <!-- 이슈 작성 탭 -->
-        <div id="issueTab" class="container active">
+        <!-- 좌측: 이슈 작성 탭 -->
+        <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
             <div class="form-group">
-                <label style="color:#d9534f;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
+                <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
                 <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" oninput="generateTemplate()">
             </div>
 
             <div class="prefix-panel">
-                <label style="color: #495057; font-size: 0.8rem; margin-bottom: 8px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
-                <div class="grid-2" style="gap: 10px;">
+                <label style="color: #64748b; font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+                <div class="grid-2" style="gap: 12px;">
                     <div>
                         <label style="font-size: 0.75rem;">Critical 구분</label>
-                        <!-- [개선 1] 드롭다운으로 변경 -->
                         <select id="prefix_critical" onchange="generateTemplate()">
                             <option value="">일반 (미표기)</option>
                             <option value="Block">Block</option>
@@ -173,7 +139,7 @@
             </div>
             
             <div class="form-group">
-                <label>서버 (STG 단일 선택 시 제목 미표기)</label>
+                <label>서버</label>
                 <div class="checkbox-group">
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" onchange="generateTemplate()"> STG</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="DEV" onchange="generateTemplate()"> DEV</label>
@@ -194,7 +160,6 @@
                 <input type="text" id="appVersion" oninput="generateTemplate()">
             </div>
 
-            <!-- [개선 2] Admin 및 PC Web 전용 URL 입력칸 (기본 숨김) -->
             <div class="form-group" id="urlGroup" style="display: none;">
                 <label id="urlLabel">URL</label>
                 <input type="text" id="targetUrl" oninput="generateTemplate()">
@@ -204,24 +169,83 @@
             <div class="form-group"><label>[재현스텝]</label><textarea id="steps" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[기대결과]</label><textarea id="expectedResult" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[참고사항]</label><textarea id="notes" oninput="generateTemplate()"></textarea></div>
+            
+            <!-- [개선 3] 참고사항 분리 -->
+            <div class="form-group">
+                <label>[참고사항]</label>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 확인 불가, 동일하게 재현됨 등)" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="2. 기타 추가 참고 내용" oninput="generateTemplate()"></textarea>
+            </div>
         </div>
 
-        <div class="result-container">
+        <!-- 우측: 결과창 -->
+        <div class="panel result-panel">
             <h2>📄 리포트 결과</h2>
             <textarea id="outputArea" readonly></textarea>
-            <button class="btn-copy" onclick="copyToClipboard()">📋 클립보드 복사</button>
+            <button class="btn btn-copy" onclick="copyToClipboard()">📋 클립보드 복사</button>
+        </div>
+    </div>
+
+    <!-- 모달: 환경 설정 -->
+    <div class="modal-overlay" id="settingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ 기본 환경 설정</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>기본 POC</label>
+                    <select id="set_poc">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>기본 서버</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="STG" checked> STG</label>
+                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="DEV"> DEV</label>
+                        <label class="checkbox-label"><input type="checkbox" class="set-server-cb" value="PRD"> PRD</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-box">
+                <div style="color: #475569; font-weight: bold; margin-bottom: 10px;">Admin / PC Web 설정</div>
+                <div class="form-group"><label>기본 Admin URL</label><input type="text" id="set_admin_url"></div>
+                <div class="form-group"><label>기본 PC URL</label><input type="text" id="set_pc_url"></div>
+            </div>
+
+            <div class="setting-box">
+                <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">Android 전용 설정</div>
+                <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터로 구분"></textarea></div>
+                <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
+            </div>
+
+            <div class="setting-box">
+                <div style="color: #64748b; font-weight: bold; margin-bottom: 10px;">iOS 전용 설정</div>
+                <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터로 구분"></textarea></div>
+                <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
+            </div>
+
+            <button class="btn btn-save" onclick="saveSettings()">✅ 설정 저장 및 닫기</button>
         </div>
     </div>
 
     <script>
         const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+        // 모달 제어 로직
+        function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
+
+        // 모달 바깥 영역 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('settingModal');
+            if (event.target === modal) { closeModal(); }
         }
 
         function saveSettings() {
@@ -239,15 +263,14 @@
                 iosVer: document.getElementById('set_ios_ver').value
             };
             
-            localStorage.setItem('qa_config_v8', JSON.stringify(data));
-            alert('설정이 저장되었습니다.');
+            localStorage.setItem('qa_config_v10', JSON.stringify(data));
             syncEnvironmentByOS(); 
             handlePocChange();
-            switchTab('issueTab');
+            closeModal(); // 저장 후 팝업 닫기
         }
 
         function syncEnvironmentByOS() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v8')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v10')) || defaultConfig;
             const osType = document.getElementById('osType').value;
             
             document.getElementById('poc').value = config.poc || defaultConfig.poc;
@@ -285,7 +308,6 @@
             document.getElementById('appVersion').value = targetVer;
         }
 
-        // [개선 2] POC 변경 시 동적 폼 제어 로직
         function handlePocChange() {
             const poc = document.getElementById('poc').value;
             const osGroup = document.getElementById('osGroup');
@@ -296,85 +318,67 @@
             const urlLabel = document.getElementById('urlLabel');
             const targetUrl = document.getElementById('targetUrl');
             
-            const config = JSON.parse(localStorage.getItem('qa_config_v8')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v10')) || defaultConfig;
 
             if (poc === 'Admin') {
-                osGroup.style.display = 'none';
-                deviceGroup.style.display = 'none';
-                appVersionGroup.style.display = 'none';
-                urlGroup.style.display = 'block';
-                urlLabel.innerText = 'Admin URL';
-                targetUrl.value = config.adminUrl || '';
+                osGroup.style.display = 'none'; deviceGroup.style.display = 'none'; appVersionGroup.style.display = 'none';
+                urlGroup.style.display = 'block'; urlLabel.innerText = 'Admin URL'; targetUrl.value = config.adminUrl || '';
             } else if (poc === 'PC Web') {
-                osGroup.style.display = 'none';
-                deviceGroup.style.display = 'none';
-                appVersionGroup.style.display = 'block';
-                appVersionLabel.innerText = '브라우저 버전';
-                urlGroup.style.display = 'block';
-                urlLabel.innerText = 'PC URL';
-                targetUrl.value = config.pcUrl || '';
+                osGroup.style.display = 'none'; deviceGroup.style.display = 'none';
+                appVersionGroup.style.display = 'block'; appVersionLabel.innerText = '브라우저 버전';
+                urlGroup.style.display = 'block'; urlLabel.innerText = 'PC URL'; targetUrl.value = config.pcUrl || '';
             } else {
-                osGroup.style.display = 'block';
-                deviceGroup.style.display = 'block';
-                appVersionGroup.style.display = 'block';
-                appVersionLabel.innerText = '앱 버전';
+                osGroup.style.display = 'block'; deviceGroup.style.display = 'block';
+                appVersionGroup.style.display = 'block'; appVersionLabel.innerText = '앱 버전';
                 urlGroup.style.display = 'none';
-                syncEnvironmentByOS(); // 버전 텍스트를 앱 버전으로 복구
+                syncEnvironmentByOS(); 
             }
             generateTemplate();
         }
 
-        // 고도화된 타이틀 및 바디 파싱 로직
         function generateTemplate() {
             const getValue = (id) => document.getElementById(id).value;
             const rawPoc = getValue('poc');
             const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
             
-            // 1. 타이틀 파싱
+            // 1. 타이틀 조합
             let rawEnv = checkedServers.replace('PRD', '상용'); 
             const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
             
             let osStr = getValue('osType').replace(' 공통', '');
             if (rawPoc === 'Admin' || rawPoc === 'PC Web') osStr = ''; 
             
-            // PC Web은 타이틀에서 [PC]로 표기
             const mappedPoc = rawPoc === 'PC Web' ? 'PC' : rawPoc;
             const pocStr = (mappedPoc === 'T 멤버십' || !mappedPoc) ? '' : `[${mappedPoc}]`;
             
-            const rawCrit = getValue('prefix_critical').trim();
-            const critStr = rawCrit ? `[${rawCrit}]` : '';
+            const critStr = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
+            const devPrefixStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
+            const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
+            const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
             
-            const rawDevPrefix = getValue('prefix_device').trim();
-            const devPrefixStr = rawDevPrefix ? `[${rawDevPrefix}]` : '';
-            
-            const rawAcc = getValue('prefix_account').trim();
-            const accStr = rawAcc ? `[${rawAcc}]` : '';
+            const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-            const rawPage = getValue('prefix_page').trim();
-            const pageStr = rawPage ? `[${rawPage}]` : '';
-            
-            const coreTitle = getValue('title').trim();
-            const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${coreTitle}`.trim();
-
-            // 2. 바디(Environment) 동적 렌더링
+            // 2. 바디 영역 구성
             let envSection = `[Environment]\n`;
             if (rawPoc === 'Admin') {
-                envSection += `■ POC : Admin\n`;
-                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
-                envSection += `■ Admin URL: ${getValue('targetUrl')}`;
+                envSection += `■ POC : Admin\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ Admin URL: ${getValue('targetUrl')}`;
             } else if (rawPoc === 'PC Web') {
-                envSection += `■ POC : T 멤버십 Web\n`;
-                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
-                envSection += `■ 버전 : ${getValue('appVersion')}\n`;
-                envSection += `■ PC URL: ${getValue('targetUrl')}`;
+                envSection += `■ POC : T 멤버십 Web\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}\n■ PC URL: ${getValue('targetUrl')}`;
             } else {
                 const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
-                envSection += `■ POC : ${rawPoc}\n`;
-                envSection += `■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n`;
-                envSection += `■ 서버 : ${checkedServers || '(선택 안됨)'}\n`;
-                envSection += `■ 버전 : ${getValue('appVersion')}`;
+                envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
             }
 
+            // 3. 참고사항 논리적 병합 로직
+            const prdRef = getValue('ref_prd').trim();
+            const noteRef = getValue('ref_notes').trim();
+            let refOutput = '';
+            if (prdRef || noteRef) {
+                if (prdRef) refOutput += `- 상용 재현 여부 : ${prdRef}\n`;
+                if (noteRef) refOutput += `- ${noteRef}`;
+            }
+
+            // 4. 최종 출력
             const template = `${smartTitle}
 ${envSection}
 
@@ -391,7 +395,7 @@ ${getValue('actualResult')}
 ${getValue('expectedResult')}
 
 [참고사항]
-${getValue('notes')}`;
+${refOutput.trim()}`;
 
             document.getElementById('outputArea').value = template;
         }
@@ -405,7 +409,7 @@ ${getValue('notes')}`;
         }
 
         window.onload = function() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v8'));
+            const config = JSON.parse(localStorage.getItem('qa_config_v10'));
             if(config) {
                 document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
                 document.getElementById('set_admin_url').value = config.adminUrl || '';
@@ -420,7 +424,7 @@ ${getValue('notes')}`;
                 });
             }
             syncEnvironmentByOS();
-            handlePocChange(); // 초기 로드 시 폼 숨김/표시 상태 동기화
+            handlePocChange();
         };
     </script>
 </body>
