@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.7 (Full Integrity)</title>
+    <title>[SKM] 이슈틀 생성기 - V16.8 (Circular UI Integration)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 상단 헤더 바: 브랜딩, 실시간 시계, 외부 링크 -->
+    <!-- 상단 헤더 바: 브랜딩, 실시간 시계, 통일된 원형 버튼 그룹 -->
     <div class="top-action-bar">
         <div class="top-bar-left">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V16.7 (2026-03-31)</span>
+                <span class="version-info">- V16.8 (2026-03-31)</span>
             </div>
             <!-- 실시간 시계 영역 -->
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
         </div>
         
         <div class="top-bar-btns">
-            <!-- 그룹웨어 바로가기 버튼 -->
-            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="top-bar-link-btn">🏢 그룹웨어</a>
+            <!-- [UI 변경] 그룹웨어 버튼을 다른 아이콘과 동일한 원형으로 변경 -->
+            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
             <!-- 패치노트 모달 버튼 -->
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
             <!-- 환경 설정 모달 버튼 -->
@@ -58,13 +58,11 @@
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
-            <!-- 현상 요약 -->
             <div class="form-group">
                 <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
                 <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" spellcheck="true" lang="ko" oninput="generateTemplate()">
             </div>
 
-            <!-- Prefix 상세 조건 -->
             <div class="prefix-panel">
                 <label style="color: #64748b; font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
@@ -91,7 +89,6 @@
                 </div>
             </div>
 
-            <!-- OS 및 POC 선택 -->
             <div class="grid-2">
                 <div class="form-group" id="osGroup">
                     <label>OS 구분</label>
@@ -111,7 +108,6 @@
                 </div>
             </div>
             
-            <!-- 서버 선택 -->
             <div class="form-group">
                 <label>서버</label>
                 <div class="checkbox-group">
@@ -121,7 +117,6 @@
                 </div>
             </div>
             
-            <!-- 디바이스 동적 선택 영역 -->
             <div class="form-group" id="deviceGroup">
                 <label>디바이스 선택</label>
                 <div class="device-split-container">
@@ -146,7 +141,6 @@
                 <input type="text" id="targetUrl" oninput="generateTemplate()">
             </div>
 
-            <!-- 리포트 상세 항목 -->
             <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[재현스텝]</label><textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
@@ -220,22 +214,22 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.7</span><span class="changelog-date">2026-03-31</span>
+                    <span class="version-badge">V16.8</span><span class="changelog-date">2026-03-31</span>
                     <ul class="changelog-desc">
-                        <li><b>[무결성 가동]</b> 코드 누락 방지를 위한 전수 소스 코드 동기화 완료</li>
-                        <li><b>[UI/UX]</b> 상단 헤더 바 디자인 및 버튼 가독성 최종 정제</li>
+                        <li><b>[UI 통합]</b> 그룹웨어 버튼을 타원형에서 다른 아이콘과 동일한 <b>원형 버튼 스타일</b>로 통일</li>
+                        <li><b>[디자인 정제]</b> 상단 헤더 액션 버튼 그룹의 간격 및 호버 애니메이션 최적화</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.6</span>
+                    <span class="version-badge">V16.7</span>
                     <ul class="changelog-desc">
-                        <li><b>[버그 수정]</b> 시계 멈춤 현상(00:00:00) 해결 및 그룹웨어 버튼 스타일 강화</li>
+                        <li><b>[무결성 가동]</b> 코드 누락 방지를 위한 전수 소스 코드 동기화</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V16.5</span>
+                    <span class="version-badge">V1.0 ~ V16.6</span>
                     <ul class="changelog-desc">
-                        <li>스마트 제목 Prefix, 제목/본문 분리, 맞춤법 검사, 3단 그리드 레이아웃 등 고도화</li>
+                        <li>실시간 시계, 제목/본문 슬래시 공백 분리 로직, 3단 그리드 등 핵심 기능 구현</li>
                     </ul>
                 </div>
             </div>
