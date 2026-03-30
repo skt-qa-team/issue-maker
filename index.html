@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.3 (UI 긴급 수정)</title>
+    <title>[SKM] 이슈틀 생성기 - V16.4</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="top-action-bar">
         <div class="top-bar-title">
             <span class="main-title">[SKM] 이슈틀 생성기</span>
-            <span class="version-info">- V16.3 (2026-03-31)</span>
+            <span class="version-info">- V16.4 (2026-03-31)</span>
         </div>
         <div class="top-bar-btns">
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
@@ -24,22 +24,22 @@
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
                 <h3>1. 초기 환경 설정 (필수)</h3>
-                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 한 번만 저장해 두세요. 브라우저에 영구적으로 자동 반영됩니다.</p>
+                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 저장하세요. 브라우저에 영구 반영됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>2. 스마트 제목 Prefix</h3>
-                <p><b>[현상 요약]</b>칸에 결함의 핵심 현상만 적고 하단의 조건을 선택하면, 시스템이 규격화된 제목을 자동으로 조립해 줍니다.</p>
+                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면, 시스템이 규격화된 제목을 자동으로 조립합니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 제목과 본문 분리</h3>
-                <p>우측 결과창에서 조립된 <b>제목</b>과 <b>본문</b>을 개별적으로 복사하거나, 하단 버튼으로 한 번에 복사할 수 있습니다.</p>
+                <h3>3. 제목/본문 포맷팅 최적화</h3>
+                <p>V16.4부터 <b>제목은 공백 없이</b> 밀도 있게, <b>본문은 공백 포함</b>하여 가독성 높게 슬래시(/)를 자동 조절합니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>우측 상단의 문서 아이콘(📜)을 클릭하시면 V1.0부터 현재까지의 전체 개발 히스토리를 상세히 확인할 수 있습니다.</p>
+                <p>우측 상단의 문서 아이콘(📜)을 클릭하여 V1.0부터 현재까지의 전체 개발 히스토리를 확인하세요.</p>
             </div>
         </div>
 
@@ -157,32 +157,24 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.3</span><span class="changelog-date">최신 릴리스</span>
+                    <span class="version-badge">V16.4</span><span class="changelog-date">2026-03-31</span>
                     <ul class="changelog-desc">
-                        <li><b>[UI 긴급 수정]</b> 파일 분리 후 캐시 및 경로 문제로 인한 <b>UI 깨짐 현상 수정 (Pro 모드 기반 전수 코드 제공)</b></li>
-                        <li><b>[가독성]</b> 중앙 이슈 작성 패널의 입력 필드 테두리 및 그림자 효과 정제</li>
+                        <li><b>[포맷팅 최적화]</b> 제목 Prefix 내 슬래시(/) 공백 제거 (밀도 향상)</li>
+                        <li><b>[포맷팅 최적화]</b> 본문 내 슬래시(/) 양옆 공백 자동 추가 (가독성 향상)</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.2</span>
+                    <span class="version-badge">V16.3</span>
                     <ul class="changelog-desc">
-                        <li><b>[브랜딩]</b> 상단 헤더바에 공식 타이틀 <code>[SKM] 이슈틀 생성기</code> 및 버전/날짜 정보 상시 노출 적용</li>
-                        <li><b>[히스토리]</b> V1.0부터 V10.0까지의 태동기 개발 내역 상세 복원 및 전수 기록</li>
+                        <li><b>[UI 긴급 수정]</b> 파일 분리 후 캐시 문제로 인한 레이아웃 깨짐 현상 완전 해결</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.1</span>
+                    <span class="version-badge">V11.0 ~ V16.2</span>
                     <ul class="changelog-desc">
-                        <li><b>[가독성]</b> 결과창 제목(Title)에 스카이블루 강조 컬러 적용 및 시각적 위계 강화</li>
-                        <li><b>[레이아웃]</b> 아이콘 겹침 방지를 위한 독립형 '상단 헤더바' 아키텍처 도입</li>
-                    </ul>
-                </div>
-                <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V16.0</span>
-                    <ul class="changelog-desc">
-                        <li>제목/본문 출력 영역 분리 및 네이티브 맞춤법 검사 기능 도입</li>
-                        <li>통합 마스터 키 기반 데이터 마이그레이션 방어 로직 구축</li>
-                        <li>3단 그리드 레이아웃 및 파일(HTML/CSS/JS) 물리적 분리 아키텍처 수립</li>
+                        <li>제목/본문 출력 영역 분리 및 네이티브 맞춤법 검사 도입</li>
+                        <li>상단 헤더바 아키텍처 도입 및 [SKM] 브랜딩 적용</li>
+                        <li>3단 그리드 레이아웃 및 파일(HTML/CSS/JS) 물리적 분리</li>
                     </ul>
                 </div>
             </div>
