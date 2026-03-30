@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.4</title>
+    <title>[SKM] 이슈틀 생성기 - V16.5</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- [Architecture] 상단 헤더 바: 브랜딩, 실시간 시간, 외부 링크 통합 -->
     <div class="top-action-bar">
-        <div class="top-bar-title">
-            <span class="main-title">[SKM] 이슈틀 생성기</span>
-            <span class="version-info">- V16.4 (2026-03-31)</span>
+        <div class="top-bar-left">
+            <div class="top-bar-title">
+                <span class="main-title">[SKM] 이슈틀 생성기</span>
+                <span class="version-info">- V16.5 (2026-03-30)</span>
+            </div>
+            <!-- 실시간 시간 표시 영역 -->
+            <div id="currentTime" class="current-time">0000-00-00 00:00:00</div>
         </div>
+        
         <div class="top-bar-btns">
+            <!-- 회사 홈페이지 바로가기 -->
+            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="top-bar-link-btn" title="그룹웨어 바로가기">🏢 그룹웨어</a>
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
             <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
         </div>
@@ -24,22 +32,22 @@
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
                 <h3>1. 초기 환경 설정 (필수)</h3>
-                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 저장하세요. 브라우저에 영구 반영됩니다.</p>
+                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 저장하세요.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>2. 스마트 제목 Prefix</h3>
-                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면, 시스템이 규격화된 제목을 자동으로 조립합니다.</p>
+                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면 제목이 자동으로 조립됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 제목/본문 포맷팅 최적화</h3>
-                <p>V16.4부터 <b>제목은 공백 없이</b> 밀도 있게, <b>본문은 공백 포함</b>하여 가독성 높게 슬래시(/)를 자동 조절합니다.</p>
+                <h3>3. 실시간 유틸리티</h3>
+                <p>상단 헤더에서 <b>실시간 서버 시간</b>을 확인하고 <b>그룹웨어</b>로 즉시 이동할 수 있습니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>우측 상단의 문서 아이콘(📜)을 클릭하여 V1.0부터 현재까지의 전체 개발 히스토리를 확인하세요.</p>
+                <p>우측 상단의 문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 확인하세요.</p>
             </div>
         </div>
 
@@ -93,15 +101,15 @@
             
             <div class="form-group">
                 <label>[참고사항]</label>
-                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 재현됨, 확인 불가 등)" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;">
-                <textarea id="ref_notes" placeholder="기타 추가 참고 내용 (입력한 형태 그대로 출력됩니다)" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 추가 참고 내용" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
             </div>
         </div>
 
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
-                <button class="btn-clear-sm" onclick="clearForm()" title="내용만 지웁니다">🔄 새로 작성</button>
+                <button class="btn-clear-sm" onclick="clearForm()">🔄 새로 작성</button>
             </div>
             
             <div class="output-section">
@@ -124,6 +132,7 @@
         </div>
     </div>
 
+    <!-- 모달: 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -131,24 +140,24 @@
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
             <div class="setting-box">
-                <div style="color: #475569; font-weight: bold; margin-bottom: 10px;">Admin / PC Web 설정</div>
                 <div class="form-group"><label>기본 Admin URL</label><input type="text" id="set_admin_url"></div>
                 <div class="form-group"><label>기본 PC URL</label><input type="text" id="set_pc_url"></div>
             </div>
             <div class="setting-box">
-                <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">Android 전용 설정</div>
-                <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터로 구분"></textarea></div>
+                <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">Android 설정</div>
+                <div class="form-group"><textarea id="set_and_devices"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
             </div>
             <div class="setting-box">
-                <div style="color: #64748b; font-weight: bold; margin-bottom: 10px;">iOS 전용 설정</div>
-                <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터로 구분"></textarea></div>
+                <div style="color: #64748b; font-weight: bold; margin-bottom: 10px;">iOS 설정</div>
+                <div class="form-group"><textarea id="set_ios_devices"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
             </div>
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 닫기</button>
         </div>
     </div>
 
+    <!-- 모달: 통합 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -157,24 +166,22 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.4</span><span class="changelog-date">2026-03-31</span>
+                    <span class="version-badge">V16.5</span><span class="changelog-date">최신 릴리스</span>
                     <ul class="changelog-desc">
-                        <li><b>[포맷팅 최적화]</b> 제목 Prefix 내 슬래시(/) 공백 제거 (밀도 향상)</li>
-                        <li><b>[포맷팅 최적화]</b> 본문 내 슬래시(/) 양옆 공백 자동 추가 (가독성 향상)</li>
+                        <li><b>[기능 추가]</b> 상단 헤더에 <b>그룹웨어(WiseStone) 바로가기 버튼</b> 도입</li>
+                        <li><b>[기능 추가]</b> 리포팅 시 타임스탬프 확인을 위한 <b>실시간 현재 시간 표시 기능</b> 구현</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.3</span>
+                    <span class="version-badge">V16.4</span>
                     <ul class="changelog-desc">
-                        <li><b>[UI 긴급 수정]</b> 파일 분리 후 캐시 문제로 인한 레이아웃 깨짐 현상 완전 해결</li>
+                        <li><b>[포맷팅]</b> 제목 슬래시(/) 공백 제거 및 본문 슬래시 공백 추가 로직 분리 적용</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V11.0 ~ V16.2</span>
+                    <span class="version-badge">V1.0 ~ V16.3</span>
                     <ul class="changelog-desc">
-                        <li>제목/본문 출력 영역 분리 및 네이티브 맞춤법 검사 도입</li>
-                        <li>상단 헤더바 아키텍처 도입 및 [SKM] 브랜딩 적용</li>
-                        <li>3단 그리드 레이아웃 및 파일(HTML/CSS/JS) 물리적 분리</li>
+                        <li>UI 레이아웃 최적화, 맞춤법 검사, 파일 분리 아키텍처 등 고도화 완료</li>
                     </ul>
                 </div>
             </div>
