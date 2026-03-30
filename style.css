@@ -117,18 +117,56 @@ input[type="text"], textarea, select {
 input[type="text"]:focus, textarea:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 textarea { height: 70px; resize: vertical; }
 
-/* 체크박스 및 디바이스 알약 UI */
+/* 체크박스 그룹 */
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
 .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0; }
 
+/* [Device Pill UI] 결함 수정 섹션 - 디바이스 알약 UI 최적화 */
 .device-split-container { display: flex; gap: 12px; width: 100%; }
 .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
 .device-col.active { display: block; }
-.device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; }
+.device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 
-.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill-label { display: inline-block; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 0.8rem; cursor: pointer; background: #fff; transition: 0.2s; }
-input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981; color: white; border-color: #10b981; font-weight: bold; }
+.pill-group { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    align-content: flex-start;
+}
+
+/* 핵심: 실제 체크박스 인풋 숨기기 */
+input[type="checkbox"].pill-cb { 
+    display: none !important; 
+}
+
+/* 레이블을 버튼 형태로 디자인 */
+.pill-label { 
+    display: inline-block; 
+    padding: 6px 12px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 20px; 
+    font-size: 0.8rem; 
+    cursor: pointer; 
+    background: #fff; 
+    color: #475569;
+    transition: all 0.2s ease; 
+    margin: 0;
+    user-select: none;
+}
+
+.pill-label:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* 체크되었을 때 레이블 스타일 변화 */
+input[type="checkbox"].pill-cb:checked + .pill-label { 
+    background-color: #10b981; 
+    color: white; 
+    border-color: #10b981; 
+    font-weight: bold; 
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
 
 .prefix-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
 
@@ -164,7 +202,7 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981
 }
 
 .case-selector {
-    display: none; /* JS 제어용 초기값 */
+    display: none;
     align-items: center;
     gap: 4px;
     background: #f1f5f9;
