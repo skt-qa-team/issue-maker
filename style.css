@@ -86,14 +86,14 @@ body {
     border: 1px solid #e2e8f0; 
 }
 
-/* [복원] 가이드 패널 스타일 */
+/* 가이드 패널 스타일 */
 .guide-panel { background: #f8fafc; padding: 30px; }
 .guide-panel h2 { font-size: 1.25rem; margin-bottom: 25px; }
 .guide-step h3 { font-size: 1rem; color: #3b82f6; margin: 0 0 10px 0; }
 .guide-step p { font-size: 0.9rem; color: #475569; line-height: 1.6; margin: 0; word-break: keep-all; }
 .guide-divider { height: 1px; background: #e2e8f0; margin: 25px 0; }
 
-/* [복원] 폼 요소 스타일 및 테두리 정제 */
+/* 폼 요소 스타일 및 테두리 정제 */
 .form-group { margin-bottom: 18px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
@@ -122,7 +122,7 @@ textarea { height: 70px; resize: vertical; }
 input[type="checkbox"].pill-cb { display: none; }
 input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981; color: white; border-color: #10b981; }
 
-/* [복원] 결과창 패널 스타일 및 다크 모드 테마 */
+/* 결과창 패널 스타일 및 다크 모드 테마 */
 .result-panel { background: #0f172a; border-color: #1e293b; color: #f8fafc; display: flex; flex-direction: column; }
 .result-panel h2 { color: #f8fafc; border-left: none; padding-left: 0; }
 .result-header { 
@@ -141,7 +141,7 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981
 .output-field:focus { border-color: #10b981; }
 textarea.output-field { resize: none; flex: 1; height: 100%; }
 
-/* [핵심 복원] 제목 가독성 강조 디자인 */
+/* 제목 가독성 강조 디자인 */
 #outputTitle {
     font-weight: 700;
     color: #38bdf8;
@@ -150,7 +150,6 @@ textarea.output-field { resize: none; flex: 1; height: 100%; }
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
 }
 
-/* [복원] 버튼 스타일 */
 .btn-copy { 
     padding: 14px; width: 100%; border: none; border-radius: 8px; font-weight: bold; 
     cursor: pointer; color: white; background-color: #3b82f6; transition: 0.2s;
