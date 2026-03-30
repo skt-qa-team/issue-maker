@@ -1,5 +1,5 @@
 /**
- * 이슈틀 자동 생성기 - V16.8 Core Logic
+ * 이슈틀 자동 생성기 - V16.9 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
@@ -22,6 +22,19 @@ function startClock() {
     }
     update();
     setInterval(update, 1000);
+}
+
+// --- [Preset] 입력 프리셋 기능 (V16.9) ---
+function applyMultiCasePreset() {
+    if (!confirm('현재 입력된 [재현스텝], [실행결과], [기대결과] 내용이 지워지고 프리셋 서식이 입력됩니다. 진행하시겠습니까?')) return;
+
+    const multiCaseTemplate = "CASE 1. \n\nCASE 2. ";
+    
+    document.getElementById('steps').value = multiCaseTemplate;
+    document.getElementById('actualResult').value = multiCaseTemplate;
+    document.getElementById('expectedResult').value = multiCaseTemplate;
+
+    generateTemplate(); // 결과창 즉시 갱신
 }
 
 // --- [Storage] 데이터 핸들링 ---
@@ -117,7 +130,6 @@ function handlePocChange() {
     generateTemplate();
 }
 
-// --- [Core] 리포트 생성 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
@@ -150,13 +162,12 @@ function generateTemplate() {
     const notes = getValue('ref_notes').trim();
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
 
-    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
+    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
 
     document.getElementById('outputTitle').value = title;
     document.getElementById('outputBody').value = body.trim();
 }
 
-// --- [Util] 복사 및 유틸리티 ---
 function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el.value.trim()) return;
@@ -187,7 +198,6 @@ function clearForm() {
     generateTemplate();
 }
 
-// --- [Init] 실행 진입점 ---
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
     const config = loadConfig();
