@@ -1,6 +1,5 @@
 const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 
-// 데이터 마이그레이션을 위한 영구 마스터 키
 const STORAGE_KEY = 'qa_system_config_master';
 
 function loadConfig() {
@@ -167,17 +166,26 @@ ${refOutput.trim()}`;
     document.getElementById('outputArea').value = template;
 }
 
+// [개선된 부분] 환경과 단말기를 유지하는 클리어 로직
 function clearForm() {
-    if(!confirm('입력한 내용이 모두 초기화됩니다. 새로 작성하시겠습니까?')) return;
+    if(!confirm('입력한 텍스트가 초기화됩니다. 새로 작성하시겠습니까?\n(선택한 환경 정보 및 단말기는 그대로 유지됩니다)')) return;
     
+    // 1회성 텍스트 필드만 초기화
     const textInputs = ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
-    textInputs.forEach(id => document.getElementById(id).value = '');
+    textInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+    });
     
     document.getElementById('prefix_critical').value = '';
-    document.getElementById('osType').value = '[Android/iOS]';
     
-    syncEnvironmentByOS();
-    handlePocChange();
+    // OS, POC, 서버, 디바이스 체크 상태는 건드리지 않음
+    // 단, Admin/PC 환경일 경우 URL 입력창을 기본값으로 원복
+    const config = loadConfig();
+    const poc = document.getElementById('poc').value;
+    if (poc === 'Admin') document.getElementById('targetUrl').value = config.adminUrl || '';
+    if (poc === 'PC Web') document.getElementById('targetUrl').value = config.pcUrl || '';
+    
     generateTemplate();
 }
 
