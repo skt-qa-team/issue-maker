@@ -26,7 +26,6 @@ body {
 .main-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
 .version-info { font-size: 0.9rem; color: #64748b; font-weight: 500; }
 
-/* 실시간 시계 디자인 */
 .current-time {
     font-family: 'Consolas', monospace;
     font-size: 1.05rem;
@@ -56,34 +55,6 @@ body {
 .wrapper { display: grid; grid-template-columns: 350px 1fr 1fr; gap: 20px; flex: 1; max-width: 1800px; margin: 0 auto; overflow: hidden; }
 .panel { background: white; border-radius: 12px; padding: 25px; box-sizing: border-box; border: 1px solid #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; }
 
-/* 입력 패널 헤더 (타이틀 + 프리셋) */
-.panel-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.panel-header-row h2 { margin-bottom: 0; border-left: 4px solid #3b82f6; padding-left: 10px; font-size: 1.15rem; }
-
-/* 프리셋 버튼 그룹 */
-.preset-group { display: flex; gap: 8px; }
-.btn-preset {
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.btn-preset:hover {
-    background: #e2e8f0;
-    color: #1e293b;
-    border-color: #94a3b8;
-}
-
 /* 가이드 패널 */
 .guide-panel { background: #f8fafc; }
 .guide-panel h2 { font-size: 1.25rem; margin-bottom: 25px; border-left: 4px solid #3b82f6; padding-left: 10px; }
@@ -99,6 +70,61 @@ input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px s
 input[type="text"]:focus, textarea:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 textarea { height: 70px; resize: vertical; }
 
+/* [핵심] 개별 필드 컨트롤러 디자인 */
+.label-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.label-action-row label { margin-bottom: 0; }
+
+.case-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-case-toggle {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-case-toggle:hover {
+    background: #2563eb;
+    color: white;
+}
+
+.case-selector {
+    display: none; /* JS로 토글 */
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+.case-selector span {
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 2px 6px;
+    color: #475569;
+    transition: 0.2s;
+    border-radius: 3px;
+}
+.case-selector span:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+/* 나머지 폼 요소 */
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
 .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0; }
 .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
