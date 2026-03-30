@@ -1,11 +1,11 @@
 /**
- * 이슈틀 자동 생성기 - V16.6 Core Logic
+ * 이슈틀 자동 생성기 - V16.7 Core Logic (Full Restore)
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
-// --- 실시간 시간 표시 (신뢰성 개선 버전) ---
+// --- [Clock] 실시간 시간 표시 기능 ---
 function startClock() {
     const timeDisplay = document.getElementById('currentTime');
     if (!timeDisplay) return;
@@ -24,7 +24,7 @@ function startClock() {
     setInterval(update, 1000);
 }
 
-// --- 데이터 로직 ---
+// --- [Storage] 데이터 핸들링 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -32,17 +32,6 @@ function loadConfig() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
     return config;
-}
-
-function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
-function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
-function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
-function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
-
-window.onclick = function(event) { 
-    if (event.target.classList.contains('modal-overlay')) {
-        closeModal(); closeChangelogModal();
-    }
 }
 
 function saveSettings() {
@@ -59,6 +48,18 @@ function saveSettings() {
     syncEnvironmentByOS(); 
     handlePocChange();
     closeModal();
+}
+
+// --- [UI Control] 모달 및 폼 제어 ---
+function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
+function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
+function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+
+window.onclick = function(event) { 
+    if (event.target.classList.contains('modal-overlay')) {
+        closeModal(); closeChangelogModal();
+    }
 }
 
 function syncEnvironmentByOS() {
@@ -116,13 +117,15 @@ function handlePocChange() {
     generateTemplate();
 }
 
+// --- [Core] 리포트 생성 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
+    // [Slash Logic] 영역별 구분자 처리
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    const titleServers = serversArr.join('/');
-    const bodyServers = serversArr.join(' / ');
+    const titleServers = serversArr.join('/'); // 제목: 공백 없음
+    const bodyServers = serversArr.join(' / '); // 본문: 공백 있음
     
     let rawEnv = titleServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
@@ -134,7 +137,10 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
+    // 제목 조립
     const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
+
+    // 본문 디바이스 슬래시 처리
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     
     let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
@@ -154,6 +160,7 @@ function generateTemplate() {
     document.getElementById('outputBody').value = body.trim();
 }
 
+// --- [Util] 복사 및 유틸리티 ---
 function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el.value.trim()) return;
@@ -172,11 +179,11 @@ function copyAll() {
     t.value = combined; t.select();
     document.execCommand("copy");
     document.body.removeChild(t);
-    alert('전체 복사 완료!');
+    alert('전체 복사가 완료되었습니다!');
 }
 
 function clearForm() {
-    if(!confirm('작성 내용을 초기화할까요?')) return;
+    if(!confirm('작성 중인 내용을 모두 초기화할까요?')) return;
     ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -184,9 +191,9 @@ function clearForm() {
     generateTemplate();
 }
 
-// 브라우저 캐시 및 실행 순서 문제 해결을 위한 리스너
+// --- [Init] 실행 진입점 ---
 document.addEventListener('DOMContentLoaded', () => {
-    startClock(); // 시계 가동을 최우선으로 실행
+    startClock();
     const config = loadConfig();
     if(config) {
         document.getElementById('set_admin_url').value = config.adminUrl || '';
