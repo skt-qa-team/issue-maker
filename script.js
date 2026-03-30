@@ -1,5 +1,5 @@
 /**
- * 이슈틀 자동 생성기 - V16.9 Core Logic
+ * 이슈틀 자동 생성기 - V17.0 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
@@ -24,17 +24,37 @@ function startClock() {
     setInterval(update, 1000);
 }
 
-// --- [Preset] 입력 프리셋 기능 (V16.9) ---
-function applyMultiCasePreset() {
-    if (!confirm('현재 입력된 [재현스텝], [실행결과], [기대결과] 내용이 지워지고 프리셋 서식이 입력됩니다. 진행하시겠습니까?')) return;
-
-    const multiCaseTemplate = "CASE 1. \n\nCASE 2. ";
+// --- [V17.0 핵심] 개별 필드 CASE 프리셋 로직 ---
+function toggleCaseSelector(selectorId) {
+    const selector = document.getElementById(selectorId);
+    // 현재 열린 것 외에 다른 것들은 닫기 (UX 개선)
+    document.querySelectorAll('.case-selector').forEach(el => {
+        if(el.id !== selectorId) el.style.display = 'none';
+    });
     
-    document.getElementById('steps').value = multiCaseTemplate;
-    document.getElementById('actualResult').value = multiCaseTemplate;
-    document.getElementById('expectedResult').value = multiCaseTemplate;
+    const isHidden = getComputedStyle(selector).display === 'none';
+    selector.style.display = isHidden ? 'flex' : 'none';
+}
 
-    generateTemplate(); // 결과창 즉시 갱신
+function applyIndividualPreset(targetFieldId, count) {
+    const target = document.getElementById(targetFieldId);
+    
+    // 내용이 있을 경우 덮어씌울지 확인
+    if (target.value.trim() && !confirm('해당 칸의 내용이 초기화되고 CASE 서식이 입력됩니다. 진행하시겠습니까?')) {
+        return;
+    }
+
+    let presetText = "";
+    for (let i = 1; i <= count; i++) {
+        presetText += `CASE ${i}. \n\n`;
+    }
+    
+    target.value = presetText.trim();
+    
+    // 서식 입력 후 선택창 닫기
+    document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none');
+    
+    generateTemplate(); // 전체 결과 갱신
 }
 
 // --- [Storage] 데이터 핸들링 ---
@@ -195,6 +215,8 @@ function clearForm() {
         document.getElementById(id).value = '';
     });
     document.getElementById('prefix_critical').value = '';
+    // 서식 선택창들도 닫기
+    document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none');
     generateTemplate();
 }
 
