@@ -1,4 +1,4 @@
-/* 전역 스타일 */
+/* [Global] 전역 스타일링 */
 body { 
     font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; 
     background-color: #f0f2f5; 
@@ -11,7 +11,7 @@ body {
     flex-direction: column;
 }
 
-/* 헤더 레이아웃 */
+/* [Header] 상단 헤더 바 레이아웃 */
 .top-action-bar {
     max-width: 1800px;
     width: 100%;
@@ -41,11 +41,11 @@ body {
 
 .top-bar-btns { display: flex; align-items: center; gap: 12px; }
 
-/* [수정] 그룹웨어 버튼: 링크 스타일 완전 소거 및 버튼화 */
+/* 그룹웨어 바로가기 버튼 */
 .top-bar-link-btn {
     display: inline-block;
-    text-decoration: none !important; /* 밑줄 강제 제거 */
-    color: #1e293b !important; /* 기본 파란색 링크 무시 */
+    text-decoration: none !important;
+    color: #1e293b !important;
     background: #ffffff;
     padding: 8px 16px;
     border-radius: 20px;
@@ -61,6 +61,7 @@ body {
     background: #eff6ff;
 }
 
+/* 설정/히스토리 원형 버튼 */
 .setting-btn-float {
     background: #334155; color: white; width: 40px; height: 40px; border-radius: 50%;
     display: flex; justify-content: center; align-items: center; cursor: pointer;
@@ -68,34 +69,95 @@ body {
 }
 .setting-btn-float:hover { transform: translateY(-2px); background: #475569; }
 
-/* 메인 래퍼 */
+/* [Layout] 메인 3단 래퍼 */
 .wrapper { display: grid; grid-template-columns: 350px 1fr 1fr; gap: 20px; flex: 1; max-width: 1800px; margin: 0 auto; overflow: hidden; }
-.panel { background: white; border-radius: 12px; padding: 25px; box-sizing: border-box; border: 1px solid #e2e8f0; overflow-y: auto; }
 
+/* 공통 패널 스타일 */
+.panel { background: white; border-radius: 12px; padding: 25px; box-sizing: border-box; border: 1px solid #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* 가이드 패널 */
 .guide-panel { background: #f8fafc; }
+.guide-panel h2 { font-size: 1.25rem; margin-bottom: 25px; border-left: 4px solid #3b82f6; padding-left: 10px; }
 .guide-divider { height: 1px; background: #e2e8f0; margin: 20px 0; }
+.guide-step h3 { font-size: 1rem; color: #3b82f6; margin: 0 0 10px 0; }
+.guide-step p { font-size: 0.9rem; color: #475569; line-height: 1.6; margin: 0; word-break: keep-all; }
+
+/* [Form] 입력 폼 요소 */
 .form-group { margin-bottom: 18px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
 
 input[type="text"], textarea, select { 
     width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; 
-    box-sizing: border-box; font-size: 0.9rem; background: #fff;
+    box-sizing: border-box; font-size: 0.9rem; background: #fff; transition: 0.2s;
 }
+input[type="text"]:focus, textarea:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
+/* 체크박스 그룹 */
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
+.checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0; }
+
+/* 디바이스 알약 UI */
+.device-split-container { display: flex; gap: 12px; width: 100%; }
 .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
 .device-col.active { display: block; }
+.device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; }
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .pill-label { display: inline-block; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 0.8rem; cursor: pointer; background: #fff; }
-input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981; color: white; border-color: #10b981; }
+input[type="checkbox"].pill-cb { display: none; }
+input[type="checkbox"].pill-cb:checked + .pill-label { background-color: #10b981; color: white; border-color: #10b981; font-weight: bold; }
 
-.result-panel { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; }
-.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 15px; border-left: 4px solid #10b981; padding-left: 10px;}
-.output-field { width: 100%; font-family: 'Consolas', monospace; padding: 15px; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; font-size: 0.95rem; line-height: 1.6; outline: none; }
-#outputTitle { font-weight: 700; color: #38bdf8; border-color: #38bdf8; }
+/* Prefix 패널 */
+.prefix-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
 
-.btn-copy { padding: 14px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #3b82f6; }
-.btn-save { background: #10b981; margin-top: 15px; width: 100%; padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; }
+/* [Output] 결과창 다크 테마 */
+.result-panel { background: #0f172a; color: #f8fafc; }
+.result-panel h2 { color: #f8fafc; border-left: 4px solid #10b981; padding-left: 10px; }
+.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
 
+.output-section { margin-bottom: 20px; }
+.output-label-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.output-label-group label { color: #94a3b8; font-size: 0.9rem; }
+
+.output-field { 
+    width: 100%; font-family: 'Consolas', monospace; padding: 15px; 
+    background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; 
+    font-size: 0.95rem; line-height: 1.6; outline: none; transition: 0.2s;
+}
+.output-field:focus { border-color: #10b981; }
+
+/* 결과창 제목 강조 스타일 */
+#outputTitle { font-weight: 700; color: #38bdf8; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.1); }
+
+/* [Button] 공통 버튼 */
+.btn-copy { padding: 14px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #3b82f6; transition: 0.2s; }
+.btn-copy:hover { background: #2563eb; }
+.btn-copy-sm { background: #334155; color: #cbd5e1; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+.btn-copy-sm:hover { background: #475569; color: #fff; }
+
+.btn-clear-sm { background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn-clear-sm:hover { background: rgba(239, 68, 68, 0.1); }
+
+.btn-save { background: #10b981; margin-top: 15px; width: 100%; padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn-save:hover { background: #059669; }
+
+/* [Modal] 모달 스타일 */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-.modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 650px; max-height: 85vh; overflow: y: auto; }
+.modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: #1e293b; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+.close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; }
+
+.setting-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+
+/* 패치노트 리스트 */
+.changelog-list { display: flex; flex-direction: column; gap: 20px; }
+.changelog-item { border-left: 3px solid #cbd5e1; padding-left: 15px; }
+.version-badge { background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; display: inline-block; margin-bottom: 5px;}
+.changelog-date { font-size: 0.8rem; color: #64748b; margin-left: 10px; }
+.changelog-desc { font-size: 0.9rem; color: #334155; line-height: 1.6; margin: 8px 0 0 0; padding-left: 20px;}
+
+/* 스크롤바 최적화 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
