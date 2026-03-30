@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.5</title>
+    <title>[SKM] 이슈틀 생성기 - V16.6</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- [Architecture] 상단 헤더 바: 브랜딩, 실시간 시간, 외부 링크 통합 -->
     <div class="top-action-bar">
         <div class="top-bar-left">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V16.5 (2026-03-30)</span>
+                <span class="version-info">- V16.6 (2026-03-31)</span>
             </div>
-            <!-- 실시간 시간 표시 영역 -->
-            <div id="currentTime" class="current-time">0000-00-00 00:00:00</div>
+            <!-- 실시간 시계 영역 (ID: currentTime) -->
+            <div id="currentTime" class="current-time">일시 로딩 중...</div>
         </div>
         
         <div class="top-bar-btns">
-            <!-- 회사 홈페이지 바로가기 -->
-            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="top-bar-link-btn" title="그룹웨어 바로가기">🏢 그룹웨어</a>
-            <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
+            <!-- [수정] 그룹웨어 버튼: 시각적 가시성 강화 -->
+            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="top-bar-link-btn">🏢 그룹웨어</a>
+            <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
             <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
         </div>
     </div>
@@ -42,12 +41,12 @@
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>3. 실시간 유틸리티</h3>
-                <p>상단 헤더에서 <b>실시간 서버 시간</b>을 확인하고 <b>그룹웨어</b>로 즉시 이동할 수 있습니다.</p>
+                <p>상단 헤더에서 <b>초 단위 서버 시간</b>을 확인하고 그룹웨어로 즉시 이동할 수 있습니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>우측 상단의 문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 확인하세요.</p>
+                <p>문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 확인하세요.</p>
             </div>
         </div>
 
@@ -145,19 +144,19 @@
             </div>
             <div class="setting-box">
                 <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">Android 설정</div>
-                <div class="form-group"><textarea id="set_and_devices"></textarea></div>
+                <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
             </div>
             <div class="setting-box">
                 <div style="color: #64748b; font-weight: bold; margin-bottom: 10px;">iOS 설정</div>
-                <div class="form-group"><textarea id="set_ios_devices"></textarea></div>
+                <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
             </div>
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 닫기</button>
         </div>
     </div>
 
-    <!-- 모달: 통합 패치 노트 -->
+    <!-- 모달: 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -166,22 +165,16 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.5</span><span class="changelog-date">최신 릴리스</span>
+                    <span class="version-badge">V16.6</span><span class="changelog-date">최신 릴리스</span>
                     <ul class="changelog-desc">
-                        <li><b>[기능 추가]</b> 상단 헤더에 <b>그룹웨어(WiseStone) 바로가기 버튼</b> 도입</li>
-                        <li><b>[기능 추가]</b> 리포팅 시 타임스탬프 확인을 위한 <b>실시간 현재 시간 표시 기능</b> 구현</li>
+                        <li><b>[버그 수정]</b> 시계 멈춤 현상(00:00:00) 해결을 위한 실행 시점 최적화</li>
+                        <li><b>[UI 개선]</b> 그룹웨어 이동 버튼 스타일 고정 및 가독성 강화</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.4</span>
+                    <span class="version-badge">V16.5</span>
                     <ul class="changelog-desc">
-                        <li><b>[포맷팅]</b> 제목 슬래시(/) 공백 제거 및 본문 슬래시 공백 추가 로직 분리 적용</li>
-                    </ul>
-                </div>
-                <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V16.3</span>
-                    <ul class="changelog-desc">
-                        <li>UI 레이아웃 최적화, 맞춤법 검사, 파일 분리 아키텍처 등 고도화 완료</li>
+                        <li><b>[기능 추가]</b> 그룹웨어 바로가기 및 실시간 시간 표시 기능 도입</li>
                     </ul>
                 </div>
             </div>
