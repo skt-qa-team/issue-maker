@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.2</title>
+    <title>[SKM] 이슈틀 생성기 - V16.3 (UI 긴급 수정)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- [Architecture] 상단 헤더 바: 브랜딩 및 버전 정보 명시 -->
     <div class="top-action-bar">
         <div class="top-bar-title">
             <span class="main-title">[SKM] 이슈틀 생성기</span>
-            <span class="version-info">- V16.2 (2026-03-30)</span>
+            <span class="version-info">- V16.3 (2026-03-31)</span>
         </div>
         <div class="top-bar-btns">
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
@@ -21,7 +20,6 @@
     </div>
 
     <div class="wrapper">
-        <!-- 좌측: 가이드 패널 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
@@ -45,7 +43,6 @@
             </div>
         </div>
 
-        <!-- 중앙: 이슈 작성 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -101,7 +98,6 @@
             </div>
         </div>
 
-        <!-- 우측: 결과창 패널 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -128,7 +124,6 @@
         </div>
     </div>
 
-    <!-- 모달: 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -154,7 +149,6 @@
         </div>
     </div>
 
-    <!-- 모달: 통합 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -163,7 +157,14 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.2</span><span class="changelog-date">2026-03-30</span>
+                    <span class="version-badge">V16.3</span><span class="changelog-date">최신 릴리스</span>
+                    <ul class="changelog-desc">
+                        <li><b>[UI 긴급 수정]</b> 파일 분리 후 캐시 및 경로 문제로 인한 <b>UI 깨짐 현상 수정 (Pro 모드 기반 전수 코드 제공)</b></li>
+                        <li><b>[가독성]</b> 중앙 이슈 작성 패널의 입력 필드 테두리 및 그림자 효과 정제</li>
+                    </ul>
+                </div>
+                <div class="changelog-item">
+                    <span class="version-badge">V16.2</span>
                     <ul class="changelog-desc">
                         <li><b>[브랜딩]</b> 상단 헤더바에 공식 타이틀 <code>[SKM] 이슈틀 생성기</code> 및 버전/날짜 정보 상시 노출 적용</li>
                         <li><b>[히스토리]</b> V1.0부터 V10.0까지의 태동기 개발 내역 상세 복원 및 전수 기록</li>
@@ -177,19 +178,11 @@
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V11.0 ~ V16.0</span>
+                    <span class="version-badge">V1.0 ~ V16.0</span>
                     <ul class="changelog-desc">
                         <li>제목/본문 출력 영역 분리 및 네이티브 맞춤법 검사 기능 도입</li>
-                        <li>'새로 작성' 시 환경 정보 유지 로직 및 슬래시 공백 제거 최적화</li>
-                        <li>3단 그리드 레이아웃 및 가이드 패널 신설</li>
-                    </ul>
-                </div>
-                <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V10.0</span>
-                    <ul class="changelog-desc">
-                        <li><b>V10.0:</b> UI 컴포넌트 고도화 및 CSS 전역 스타일 가이드 확립</li>
-                        <li><b>V5.0:</b> 테스트 환경(STG/DEV/PRD) 구분 모듈 및 다중 선택 로직 구현</li>
-                        <li><b>V1.0:</b> 바닐라 JS 기반 이슈 템플릿 조립 엔진 최초 설계</li>
+                        <li>통합 마스터 키 기반 데이터 마이그레이션 방어 로직 구축</li>
+                        <li>3단 그리드 레이아웃 및 파일(HTML/CSS/JS) 물리적 분리 아키텍처 수립</li>
                     </ul>
                 </div>
             </div>
