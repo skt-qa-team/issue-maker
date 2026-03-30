@@ -1,5 +1,5 @@
 /**
- * 이슈틀 자동 생성기 - V16.7 Core Logic (Full Restore)
+ * 이슈틀 자동 생성기 - V16.8 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
@@ -122,10 +122,9 @@ function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
-    // [Slash Logic] 영역별 구분자 처리
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    const titleServers = serversArr.join('/'); // 제목: 공백 없음
-    const bodyServers = serversArr.join(' / '); // 본문: 공백 있음
+    const titleServers = serversArr.join('/'); 
+    const bodyServers = serversArr.join(' / '); 
     
     let rawEnv = titleServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
@@ -137,10 +136,7 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
-    // 제목 조립
     const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
-
-    // 본문 디바이스 슬래시 처리
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     
     let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
@@ -183,7 +179,7 @@ function copyAll() {
 }
 
 function clearForm() {
-    if(!confirm('작성 중인 내용을 모두 초기화할까요?')) return;
+    if(!confirm('작성 내용을 초기화할까요?')) return;
     ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         document.getElementById(id).value = '';
     });
