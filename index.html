@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.8 (Circular UI Integration)</title>
+    <title>[SKM] 이슈틀 생성기 - V16.9 (Multi-Case Preset)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,14 +13,14 @@
         <div class="top-bar-left">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V16.8 (2026-03-31)</span>
+                <span class="version-info">- V16.9 (2026-03-31)</span>
             </div>
             <!-- 실시간 시계 영역 -->
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
         </div>
         
         <div class="top-bar-btns">
-            <!-- [UI 변경] 그룹웨어 버튼을 다른 아이콘과 동일한 원형으로 변경 -->
+            <!-- 그룹웨어 버튼 (원형) -->
             <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
             <!-- 패치노트 모달 버튼 -->
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
@@ -35,28 +35,34 @@
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
                 <h3>1. 초기 환경 설정 (필수)</h3>
-                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 저장하세요. 브라우저에 영구 반영됩니다.</p>
+                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 기기 목록과 버전을 저장하세요. 브라우저에 영구 반영됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>2. 스마트 제목 Prefix</h3>
-                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면 제목이 규격에 맞춰 자동으로 조립됩니다.</p>
+                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면 제목이 자동으로 조립됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 제목/본문 포맷팅</h3>
-                <p>제목은 슬래시(/) 사이 공백 없이 밀도 있게, 본문은 공백을 포함하여 가독성 있게 자동 조절됩니다.</p>
+                <h3>3. 멀티 케이스 프리셋</h3>
+                <p>내용 입력 영역 상단의 <b>프리셋 버튼</b>을 누르면 복수 케이스 작성을 위한 서식이 자동 입력됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>문서 아이콘(📜)을 클릭하여 V1.0부터 현재까지의 전체 개발 히스토리를 상세히 확인하세요.</p>
+                <p>문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 상세히 확인하세요.</p>
             </div>
         </div>
 
         <!-- 2. 중앙 이슈 입력 패널 -->
         <div class="panel">
-            <h2>📝 이슈 내용 입력</h2>
+            <div class="panel-header-row">
+                <h2>📝 이슈 내용 입력</h2>
+                <!-- [신규] 입력 프리셋 버튼 그룹 -->
+                <div class="preset-group">
+                    <button class="btn-preset" onclick="applyMultiCasePreset()" title="CASE 1 / CASE 2 구조를 자동 입력합니다">📋 멀티 케이스(1/2) 적용</button>
+                </div>
+            </div>
             
             <div class="form-group">
                 <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
@@ -214,22 +220,22 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.8</span><span class="changelog-date">2026-03-31</span>
+                    <span class="version-badge">V16.9</span><span class="changelog-date">2026-03-31</span>
                     <ul class="changelog-desc">
-                        <li><b>[UI 통합]</b> 그룹웨어 버튼을 타원형에서 다른 아이콘과 동일한 <b>원형 버튼 스타일</b>로 통일</li>
-                        <li><b>[디자인 정제]</b> 상단 헤더 액션 버튼 그룹의 간격 및 호버 애니메이션 최적화</li>
+                        <li><b>[기능 추가]</b> 멀티 케이스 리포팅을 위한 <b>'멀티 케이스(1/2) 프리셋'</b> 엔진 도입</li>
+                        <li><b>[UI/UX]</b> 입력 패널 상단에 프리셋 버튼 그룹 영역 신설</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.7</span>
+                    <span class="version-badge">V16.8</span>
                     <ul class="changelog-desc">
-                        <li><b>[무결성 가동]</b> 코드 누락 방지를 위한 전수 소스 코드 동기화</li>
+                        <li><b>[UI 통합]</b> 그룹웨어 버튼 스타일 원형 아이콘으로 통일</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V16.6</span>
+                    <span class="version-badge">V1.0 ~ V16.7</span>
                     <ul class="changelog-desc">
-                        <li>실시간 시계, 제목/본문 슬래시 공백 분리 로직, 3단 그리드 등 핵심 기능 구현</li>
+                        <li>실시간 시계, 슬래시 공백 자동 조절, 3단 그리드 레이아웃, [SKM] 브랜딩 등 구축</li>
                     </ul>
                 </div>
             </div>
