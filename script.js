@@ -1,9 +1,26 @@
 /**
- * 이슈틀 자동 생성기 - V16.4 Core Logic
+ * 이슈틀 자동 생성기 - V16.5 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
+
+// --- 실시간 시간 표시 기능 (V16.5) ---
+function startClock() {
+    const timeDisplay = document.getElementById('currentTime');
+    function update() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        timeDisplay.innerText = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+    update();
+    setInterval(update, 1000);
+}
 
 // --- 환경 설정 및 데이터 로딩 ---
 function loadConfig() {
@@ -43,7 +60,6 @@ function saveSettings() {
     closeModal();
 }
 
-// --- 플랫폼 및 POC 제어 로직 ---
 function syncEnvironmentByOS() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
@@ -57,23 +73,18 @@ function syncEnvironmentByOS() {
 
     if (osType.includes("Android")) {
         andCol.classList.add('active');
-        if (config.andDevices.length > 0) {
-            config.andDevices.forEach((dev, i) => {
-                andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
-            });
-        }
+        config.andDevices.forEach((dev, i) => {
+            andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
+        });
     }
     if (osType.includes("iOS")) {
         iosCol.classList.add('active');
-        if (config.iosDevices.length > 0) {
-            config.iosDevices.forEach((dev, i) => {
-                iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
-            });
-        }
+        config.iosDevices.forEach((dev, i) => {
+            iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
+        });
     }
 
     let targetVer = "";
-    // 본문용 가이드라인: 입력 필드에 표시될 때도 공백 포함하여 시인성 확보
     if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
@@ -100,15 +111,14 @@ function handlePocChange() {
     generateTemplate();
 }
 
-// --- 템플릿 생성 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
-    // [V16.4 핵심 로직] 영역별 슬래시 공백 처리 분리
+    // [V16.4] 슬래시 공백 분리 로직 유지
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    const titleServers = serversArr.join('/'); // 제목용: 공백 없음
-    const bodyServers = serversArr.join(' / '); // 본문용: 공백 있음
+    const titleServers = serversArr.join('/');
+    const bodyServers = serversArr.join(' / ');
     
     let rawEnv = titleServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
@@ -120,12 +130,9 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
-    // [제목 (Title) 조립] 슬래시 공백 없음
     const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-    // [본문 (Body) 조립] 슬래시 공백 포함
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
-    
     let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
     if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
         envSection += `■ 서버 : ${bodyServers}\n■ URL : ${getValue('targetUrl')}`;
@@ -143,21 +150,17 @@ function generateTemplate() {
     document.getElementById('outputBody').value = body.trim();
 }
 
-// --- 유틸리티 ---
 function copySpecific(id) {
     const el = document.getElementById(id);
-    if (!el.value.trim()) return alert('복사할 내용이 없습니다.');
+    if (!el.value.trim()) return;
     el.select();
     document.execCommand('copy');
     alert('복사되었습니다.');
 }
 
 function copyAll() {
-    const title = document.getElementById('outputTitle').value;
-    const body = document.getElementById('outputBody').value;
-    if (!title.trim() && !body.trim()) return alert('복사할 내용이 없습니다.');
-    
-    const combined = `${title}\n${body}`;
+    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
+    if (!combined.trim()) return;
     const t = document.createElement("textarea");
     document.body.appendChild(t);
     t.value = combined; t.select();
@@ -167,7 +170,7 @@ function copyAll() {
 }
 
 function clearForm() {
-    if(!confirm('작성 중인 내용을 초기화할까요?')) return;
+    if(!confirm('내용을 초기화할까요?')) return;
     ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -185,5 +188,6 @@ window.onload = function() {
         document.getElementById('set_and_ver').value = config.andVer || '';
         document.getElementById('set_ios_ver').value = config.iosVer || '';
     }
+    startClock(); // 시계 가동
     syncEnvironmentByOS();
 };
