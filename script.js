@@ -71,7 +71,8 @@ function syncEnvironmentByOS() {
     }
 
     let targetVer = "";
-    if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
+    // [공백 제거 로직 적용] .join(' / ') -> .join('/')
+    if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join('/');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
     document.getElementById('appVersion').value = targetVer;
@@ -108,7 +109,9 @@ function handlePocChange() {
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
-    const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
+    
+    // [공백 제거 로직 적용] .join(' / ') -> .join('/')
+    const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
     
     let rawEnv = checkedServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
@@ -132,7 +135,8 @@ function generateTemplate() {
     } else if (rawPoc === 'PC Web') {
         envSection += `■ POC : T 멤버십 Web\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}\n■ PC URL: ${getValue('targetUrl')}`;
     } else {
-        const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+        // [공백 제거 로직 적용] .join(' / ') -> .join('/')
+        const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join('/');
         envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
     }
 
@@ -166,11 +170,9 @@ ${refOutput.trim()}`;
     document.getElementById('outputArea').value = template;
 }
 
-// [개선된 부분] 환경과 단말기를 유지하는 클리어 로직
 function clearForm() {
     if(!confirm('입력한 텍스트가 초기화됩니다. 새로 작성하시겠습니까?\n(선택한 환경 정보 및 단말기는 그대로 유지됩니다)')) return;
     
-    // 1회성 텍스트 필드만 초기화
     const textInputs = ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
     textInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -179,8 +181,6 @@ function clearForm() {
     
     document.getElementById('prefix_critical').value = '';
     
-    // OS, POC, 서버, 디바이스 체크 상태는 건드리지 않음
-    // 단, Admin/PC 환경일 경우 URL 입력창을 기본값으로 원복
     const config = loadConfig();
     const poc = document.getElementById('poc').value;
     if (poc === 'Admin') document.getElementById('targetUrl').value = config.adminUrl || '';
