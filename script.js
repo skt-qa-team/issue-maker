@@ -1,12 +1,16 @@
+/**
+ * 이슈틀 자동 생성기 - V16.2 Core Logic
+ */
+
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
+// --- 환경 설정 및 데이터 로딩 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
-        config = JSON.parse(localStorage.getItem('qa_config_v12')) || 
-                 JSON.parse(localStorage.getItem('qa_config_v11')) || 
-                 defaultConfig;
+        // 하위 호환성 유지 로직
+        config = JSON.parse(localStorage.getItem('qa_config_v12')) || defaultConfig;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
     return config;
@@ -17,14 +21,16 @@ function closeModal() { document.getElementById('settingModal').style.display = 
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 
+// 모달 외부 클릭 시 닫기
 window.onclick = function(event) { 
-    if (event.target === document.getElementById('settingModal')) closeModal(); 
-    if (event.target === document.getElementById('changelogModal')) closeChangelogModal(); 
+    if (event.target.classList.contains('modal-overlay')) {
+        closeModal();
+        closeChangelogModal();
+    }
 }
 
 function saveSettings() {
     const getDevices = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
-
     const data = {
         adminUrl: document.getElementById('set_admin_url').value,
         pcUrl: document.getElementById('set_pc_url').value,
@@ -33,17 +39,16 @@ function saveSettings() {
         iosDevices: getDevices('set_ios_devices'),
         iosVer: document.getElementById('set_ios_ver').value
     };
-    
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     syncEnvironmentByOS(); 
     handlePocChange();
     closeModal();
 }
 
+// --- 플랫폼 및 POC 제어 로직 ---
 function syncEnvironmentByOS() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
-    
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
     const andContainer = document.getElementById('andCheckboxes');
@@ -54,178 +59,115 @@ function syncEnvironmentByOS() {
 
     if (osType.includes("Android")) {
         andCol.classList.add('active');
-        if (config.andDevices.length === 0) andContainer.innerHTML = '<span class="empty-msg">기기 없음</span>';
-        else config.andDevices.forEach((dev, i) => {
-            andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label and-pill">${dev}</label>`;
+        config.andDevices.forEach((dev, i) => {
+            andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
         });
     }
     if (osType.includes("iOS")) {
         iosCol.classList.add('active');
-        if (config.iosDevices.length === 0) iosContainer.innerHTML = '<span class="empty-msg">기기 없음</span>';
-        else config.iosDevices.forEach((dev, i) => {
-            iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label ios-pill">${dev}</label>`;
+        config.iosDevices.forEach((dev, i) => {
+            iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
         });
     }
 
     let targetVer = "";
-    // V15에서 요청하신 슬래시 사이 공백 제거 로직 유지
     if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join('/');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
     document.getElementById('appVersion').value = targetVer;
+    generateTemplate();
 }
 
 function handlePocChange() {
     const poc = document.getElementById('poc').value;
     const osGroup = document.getElementById('osGroup');
     const deviceGroup = document.getElementById('deviceGroup');
-    const appVersionGroup = document.getElementById('appVersionGroup');
-    const appVersionLabel = document.getElementById('appVersionLabel');
     const urlGroup = document.getElementById('urlGroup');
-    const urlLabel = document.getElementById('urlLabel');
-    const targetUrl = document.getElementById('targetUrl');
-    
     const config = loadConfig();
 
-    if (poc === 'Admin') {
-        osGroup.style.display = 'none'; deviceGroup.style.display = 'none'; appVersionGroup.style.display = 'none';
-        urlGroup.style.display = 'block'; urlLabel.innerText = 'Admin URL'; targetUrl.value = config.adminUrl || '';
-    } else if (poc === 'PC Web') {
+    if (poc === 'Admin' || poc === 'PC Web') {
         osGroup.style.display = 'none'; deviceGroup.style.display = 'none';
-        appVersionGroup.style.display = 'block'; appVersionLabel.innerText = '브라우저 버전';
-        urlGroup.style.display = 'block'; urlLabel.innerText = 'PC URL'; targetUrl.value = config.pcUrl || '';
+        urlGroup.style.display = 'block';
+        document.getElementById('targetUrl').value = poc === 'Admin' ? config.adminUrl : config.pcUrl;
     } else {
         osGroup.style.display = 'block'; deviceGroup.style.display = 'block';
-        appVersionGroup.style.display = 'block'; appVersionLabel.innerText = '앱 버전';
         urlGroup.style.display = 'none';
         syncEnvironmentByOS(); 
     }
     generateTemplate();
 }
 
+// --- 템플릿 생성 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
-    
-    // V15에서 요청하신 서버 공백 제거 유지
     const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
     
     let rawEnv = checkedServers.replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
-    
-    let osStr = getValue('osType'); 
-    if (rawPoc === 'Admin' || rawPoc === 'PC Web') osStr = ''; 
-    
-    const mappedPoc = rawPoc === 'PC Web' ? 'PC' : rawPoc;
-    const pocStr = (mappedPoc === 'T 멤버십' || !mappedPoc) ? '' : `[${mappedPoc}]`;
+    const osStr = (rawPoc === 'Admin' || rawPoc === 'PC Web') ? '' : getValue('osType');
+    const pocStr = (rawPoc === 'T 멤버십' || !rawPoc) ? '' : (rawPoc === 'PC Web' ? '[PC]' : `[${rawPoc}]`);
     
     const critStr = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
-    const devPrefixStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
+    const devStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
-    // 분리된 Title
-    const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
+    // [Title 조립]
+    const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-    // 분리된 Body
-    let envSection = `[Environment]\n`;
-    if (rawPoc === 'Admin') {
-        envSection += `■ POC : Admin\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ Admin URL: ${getValue('targetUrl')}`;
-    } else if (rawPoc === 'PC Web') {
-        envSection += `■ POC : T 멤버십 Web\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}\n■ PC URL: ${getValue('targetUrl')}`;
+    // [Body 조립]
+    let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
+    if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
+        envSection += `■ 서버 : ${checkedServers}\n■ URL : ${getValue('targetUrl')}`;
     } else {
-        // 단말기 배열 공백 제거 유지
         const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join('/');
-        envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
+        envSection += `■ Device : ${checkedDevices || '(단말 미선택)'}\n■ 서버 : ${checkedServers}\n■ 버전 : ${getValue('appVersion')}`;
     }
 
     const prdRef = getValue('ref_prd').trim();
-    const noteRef = getValue('ref_notes').trim();
-    let refOutput = '';
-    
-    if (prdRef || noteRef) {
-        if (prdRef) refOutput += `1. 상용 재현 여부 : ${prdRef}\n`;
-        if (noteRef) refOutput += `${noteRef}`; 
-    }
+    const notes = getValue('ref_notes').trim();
+    const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
 
-    const bodyTemplate = `${envSection}
+    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
 
-[Pre-Condition]
-${getValue('preCondition')}
-
-[재현스텝]
-${getValue('steps')}
-
-[실행결과-문제현상]
-${getValue('actualResult')}
-
-[기대결과]
-${getValue('expectedResult')}
-
-[참고사항]
-${refOutput.trim()}`;
-
-    // DOM 분리 렌더링
-    document.getElementById('outputTitle').value = smartTitle;
-    document.getElementById('outputBody').value = bodyTemplate.trim();
+    document.getElementById('outputTitle').value = title;
+    document.getElementById('outputBody').value = body.trim();
 }
 
-function copySpecific(elementId) {
-    const outputText = document.getElementById(elementId);
-    if(!outputText.value.trim()) return alert('복사할 내용이 없습니다.');
-    outputText.select();
+// --- 유틸리티 ---
+function copySpecific(id) {
+    const el = document.getElementById(id);
+    el.select();
     document.execCommand('copy');
-    
-    const label = elementId === 'outputTitle' ? '제목이' : '본문이';
-    alert(`${label} 클립보드에 복사되었습니다.`);
+    alert('복사되었습니다.');
 }
 
 function copyAll() {
-    const title = document.getElementById('outputTitle').value;
-    const body = document.getElementById('outputBody').value;
-    
-    if(!title.trim() && !body.trim()) return alert('생성된 내용이 없습니다.');
-    
-    const combinedText = `${title}\n${body}`;
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = combinedText;
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
+    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
+    const t = document.createElement("textarea");
+    document.body.appendChild(t);
+    t.value = combined; t.select();
     document.execCommand("copy");
-    document.body.removeChild(tempTextArea);
-    
-    alert('전체 내용(제목+본문)이 복사되었습니다.');
+    document.body.removeChild(t);
+    alert('전체 내용이 복사되었습니다.');
 }
 
 function clearForm() {
-    if(!confirm('입력한 텍스트가 초기화됩니다. 새로 작성하시겠습니까?\n(선택한 환경 정보 및 단말기는 그대로 유지됩니다)')) return;
-    
-    const textInputs = ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
-    textInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.value = '';
-    });
-    
-    document.getElementById('prefix_critical').value = '';
-    
-    const config = loadConfig();
-    const poc = document.getElementById('poc').value;
-    if (poc === 'Admin') document.getElementById('targetUrl').value = config.adminUrl || '';
-    if (poc === 'PC Web') document.getElementById('targetUrl').value = config.pcUrl || '';
-    
+    if(!confirm('작성 중인 내용을 초기화할까요?')) return;
+    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => document.getElementById(id).value = '');
     generateTemplate();
 }
 
 window.onload = function() {
-    const config = loadConfig(); 
+    const config = loadConfig();
     if(config) {
         document.getElementById('set_admin_url').value = config.adminUrl || '';
         document.getElementById('set_pc_url').value = config.pcUrl || '';
-        document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
-        document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
+        document.getElementById('set_and_devices').value = config.andDevices.join('\n');
+        document.getElementById('set_ios_devices').value = config.iosDevices.join('\n');
         document.getElementById('set_and_ver').value = config.andVer || '';
         document.getElementById('set_ios_ver').value = config.iosVer || '';
     }
     syncEnvironmentByOS();
-    handlePocChange();
 };
