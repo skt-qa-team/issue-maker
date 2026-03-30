@@ -2,28 +2,23 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V10 (대시보드 UI)</title>
+    <title>이슈틀 자동 생성기 - V11 (Clear 기능 및 UI 최적화)</title>
     <style>
-        /* 전역 및 그리드 레이아웃 (완벽한 50:50) */
+        /* 전역 및 그리드 레이아웃 */
         body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; box-sizing: border-box; height: 100vh; overflow: hidden; }
         .wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; height: 100%; max-width: 1600px; margin: 0 auto; }
         
-        /* 스크롤바 디자인 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* 패널 공통 속성 */
         .panel { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow-y: auto; padding: 25px; box-sizing: border-box; border: 1px solid #e2e8f0; }
-        
-        /* 우측 결과창 다크 테마 */
         .result-panel { background: #0f172a; border-color: #1e293b; color: #f8fafc; display: flex; flex-direction: column; }
         
         h2 { font-size: 1.2rem; margin-top: 0; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;}
         .result-panel h2 { color: #f8fafc; border-left-color: #10b981; }
         
-        /* 폼 요소 스타일 */
         .form-group { margin-bottom: 18px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
@@ -35,7 +30,6 @@
         .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0;}
         .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; margin: 0; cursor: pointer;}
         
-        /* 디바이스 필(Pill) UI */
         .device-split-container { display: flex; gap: 12px; width: 100%; }
         .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
         .device-col.active { display: block; }
@@ -54,21 +48,22 @@
         
         .prefix-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* 결과창 텍스트 에어리어 */
         #outputArea { flex: 1; width: 100%; font-family: 'Consolas', monospace; padding: 15px; border: none; background-color: #1e293b; color: #e2e8f0; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.6; border-radius: 8px; outline: none; margin-bottom: 15px;}
         
-        /* 버튼 스타일 */
-        .btn { padding: 14px; width: 100%; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
-        .btn-copy { background-color: #3b82f6; }
+        /* 버튼 스타일 고도화 (Clear 버튼 추가) */
+        .btn { padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; display: flex; justify-content: center; align-items: center; gap: 6px;}
+        .btn-container { display: flex; gap: 10px; width: 100%; }
+        .btn-copy { background-color: #3b82f6; flex: 2; }
         .btn-copy:hover { background-color: #2563eb; }
-        .btn-save { background-color: #10b981; margin-top: 15px; }
+        .btn-clear { background-color: #ef4444; flex: 1; }
+        .btn-clear:hover { background-color: #dc2626; }
+        
+        .btn-save { background-color: #10b981; margin-top: 15px; width: 100%;}
         .btn-save:hover { background-color: #059669; }
 
-        /* 환경 설정 기어 아이콘 (고정 버튼) */
         .setting-btn-float { position: fixed; top: 25px; right: 30px; background: #334155; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: all 0.2s; z-index: 100; border: 2px solid #1e293b; }
         .setting-btn-float:hover { background: #475569; transform: rotate(30deg); }
 
-        /* 모달 팝업 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
@@ -80,11 +75,10 @@
 </head>
 <body>
 
-    <!-- 설정 아이콘 (우측 상단) -->
     <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
 
     <div class="wrapper">
-        <!-- 좌측: 이슈 작성 탭 -->
+        <!-- 좌측: 이슈 작성 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -99,7 +93,7 @@
                     <div>
                         <label style="font-size: 0.75rem;">Critical 구분</label>
                         <select id="prefix_critical" onchange="generateTemplate()">
-                            <option value="">일반 (미표기)</option>
+                            <option value="">해당 없음</option>
                             <option value="Block">Block</option>
                             <option value="Crash">Crash</option>
                         </select>
@@ -123,7 +117,7 @@
                 <div class="form-group" id="osGroup">
                     <label>OS 구분</label>
                     <select id="osType" onchange="syncEnvironmentByOS()">
-                        <option value="[Android/iOS] 공통">[Android/iOS] 공통</option>
+                        <option value="[Android/iOS]">[Android/iOS]</option>
                         <option value="[Android]">[Android]</option>
                         <option value="[iOS]">[iOS]</option>
                     </select>
@@ -131,7 +125,7 @@
                 <div class="form-group">
                     <label>POC</label>
                     <select id="poc" onchange="handlePocChange()">
-                        <option value="T 멤버십">T 멤버십 (미표기)</option>
+                        <option value="T 멤버십">T 멤버십</option>
                         <option value="PC Web">PC Web</option>
                         <option value="Admin">Admin</option>
                     </select>
@@ -170,19 +164,21 @@
             <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[기대결과]</label><textarea id="expectedResult" oninput="generateTemplate()"></textarea></div>
             
-            <!-- [개선 3] 참고사항 분리 -->
             <div class="form-group">
                 <label>[참고사항]</label>
-                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 확인 불가, 동일하게 재현됨 등)" oninput="generateTemplate()" style="margin-bottom: 8px;">
-                <textarea id="ref_notes" placeholder="2. 기타 추가 참고 내용" oninput="generateTemplate()"></textarea>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 재현됨, 확인 불가 등)" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 추가 참고 내용 (입력한 형태 그대로 출력됩니다)" oninput="generateTemplate()"></textarea>
             </div>
         </div>
 
-        <!-- 우측: 결과창 -->
+        <!-- 우측: 결과창 패널 -->
         <div class="panel result-panel">
             <h2>📄 리포트 결과</h2>
             <textarea id="outputArea" readonly></textarea>
-            <button class="btn btn-copy" onclick="copyToClipboard()">📋 클립보드 복사</button>
+            <div class="btn-container">
+                <button class="btn btn-clear" onclick="clearForm()">🔄 새로 작성</button>
+                <button class="btn btn-copy" onclick="copyToClipboard()">📋 클립보드 복사</button>
+            </div>
         </div>
     </div>
 
@@ -238,11 +234,9 @@
     <script>
         const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 
-        // 모달 제어 로직
         function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 
-        // 모달 바깥 영역 클릭 시 닫기
         window.onclick = function(event) {
             const modal = document.getElementById('settingModal');
             if (event.target === modal) { closeModal(); }
@@ -263,14 +257,14 @@
                 iosVer: document.getElementById('set_ios_ver').value
             };
             
-            localStorage.setItem('qa_config_v10', JSON.stringify(data));
+            localStorage.setItem('qa_config_v11', JSON.stringify(data));
             syncEnvironmentByOS(); 
             handlePocChange();
-            closeModal(); // 저장 후 팝업 닫기
+            closeModal();
         }
 
         function syncEnvironmentByOS() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v10')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v11')) || defaultConfig;
             const osType = document.getElementById('osType').value;
             
             document.getElementById('poc').value = config.poc || defaultConfig.poc;
@@ -302,7 +296,7 @@
             }
 
             let targetVer = "";
-            if (osType === "[Android/iOS] 공통") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
+            if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
             else if (osType === "[Android]") targetVer = config.andVer;
             else if (osType === "[iOS]") targetVer = config.iosVer;
             document.getElementById('appVersion').value = targetVer;
@@ -318,7 +312,7 @@
             const urlLabel = document.getElementById('urlLabel');
             const targetUrl = document.getElementById('targetUrl');
             
-            const config = JSON.parse(localStorage.getItem('qa_config_v10')) || defaultConfig;
+            const config = JSON.parse(localStorage.getItem('qa_config_v11')) || defaultConfig;
 
             if (poc === 'Admin') {
                 osGroup.style.display = 'none'; deviceGroup.style.display = 'none'; appVersionGroup.style.display = 'none';
@@ -341,11 +335,10 @@
             const rawPoc = getValue('poc');
             const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
             
-            // 1. 타이틀 조합
             let rawEnv = checkedServers.replace('PRD', '상용'); 
             const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
             
-            let osStr = getValue('osType').replace(' 공통', '');
+            let osStr = getValue('osType'); // 마이크로 카피 변경으로 치환식 불필요
             if (rawPoc === 'Admin' || rawPoc === 'PC Web') osStr = ''; 
             
             const mappedPoc = rawPoc === 'PC Web' ? 'PC' : rawPoc;
@@ -358,7 +351,6 @@
             
             const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-            // 2. 바디 영역 구성
             let envSection = `[Environment]\n`;
             if (rawPoc === 'Admin') {
                 envSection += `■ POC : Admin\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ Admin URL: ${getValue('targetUrl')}`;
@@ -369,16 +361,16 @@
                 envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
             }
 
-            // 3. 참고사항 논리적 병합 로직
+            // 고도화된 참고사항 병합 로직
             const prdRef = getValue('ref_prd').trim();
             const noteRef = getValue('ref_notes').trim();
             let refOutput = '';
+            
             if (prdRef || noteRef) {
-                if (prdRef) refOutput += `- 상용 재현 여부 : ${prdRef}\n`;
-                if (noteRef) refOutput += `- ${noteRef}`;
+                if (prdRef) refOutput += `1. 상용 재현 여부 : ${prdRef}\n`;
+                if (noteRef) refOutput += `${noteRef}`; // 마크다운 기호 없이 입력 데이터 그대로 출력
             }
 
-            // 4. 최종 출력
             const template = `${smartTitle}
 ${envSection}
 
@@ -400,6 +392,26 @@ ${refOutput.trim()}`;
             document.getElementById('outputArea').value = template;
         }
 
+        // [신규 로직] 폼 초기화 (안전한 State Management)
+        function clearForm() {
+            if(!confirm('입력한 내용이 모두 초기화됩니다. 새로 작성하시겠습니까?')) return;
+            
+            // 1회성 텍스트 필드 완전 소거
+            const textInputs = ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
+            textInputs.forEach(id => document.getElementById(id).value = '');
+            
+            // 드롭다운 초기화
+            document.getElementById('prefix_critical').value = '';
+            document.getElementById('osType').value = '[Android/iOS]';
+            
+            // 환경 설정 변수 재호출(Re-injection)
+            syncEnvironmentByOS();
+            handlePocChange();
+            
+            // 템플릿 화면 즉시 갱신
+            generateTemplate();
+        }
+
         function copyToClipboard() {
             const outputText = document.getElementById('outputArea');
             if(!outputText.value) return alert('생성된 내용이 없습니다.');
@@ -409,7 +421,7 @@ ${refOutput.trim()}`;
         }
 
         window.onload = function() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v10'));
+            const config = JSON.parse(localStorage.getItem('qa_config_v11'));
             if(config) {
                 document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
                 document.getElementById('set_admin_url').value = config.adminUrl || '';
