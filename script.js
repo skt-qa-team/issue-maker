@@ -1,7 +1,6 @@
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
-// --- 환경 설정 및 모달 제어 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -15,7 +14,6 @@ function loadConfig() {
 
 function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
-
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 
@@ -42,7 +40,6 @@ function saveSettings() {
     closeModal();
 }
 
-// --- DOM 및 폼 제어 ---
 function syncEnvironmentByOS() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
@@ -71,6 +68,7 @@ function syncEnvironmentByOS() {
     }
 
     let targetVer = "";
+    // V15에서 요청하신 슬래시 사이 공백 제거 로직 유지
     if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join('/');
     else if (osType === "[Android]") targetVer = config.andVer;
     else if (osType === "[iOS]") targetVer = config.iosVer;
@@ -105,10 +103,11 @@ function handlePocChange() {
     generateTemplate();
 }
 
-// --- 템플릿 생성 및 출력 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
+    
+    // V15에서 요청하신 서버 공백 제거 유지
     const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join('/');
     
     let rawEnv = checkedServers.replace('PRD', '상용'); 
@@ -125,16 +124,17 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
-    // Title 조립
+    // 분리된 Title
     const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
-    // Body 조립
+    // 분리된 Body
     let envSection = `[Environment]\n`;
     if (rawPoc === 'Admin') {
         envSection += `■ POC : Admin\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ Admin URL: ${getValue('targetUrl')}`;
     } else if (rawPoc === 'PC Web') {
         envSection += `■ POC : T 멤버십 Web\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}\n■ PC URL: ${getValue('targetUrl')}`;
     } else {
+        // 단말기 배열 공백 제거 유지
         const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join('/');
         envSection += `■ POC : ${rawPoc}\n■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ 버전 : ${getValue('appVersion')}`;
     }
@@ -165,11 +165,11 @@ ${getValue('expectedResult')}
 [참고사항]
 ${refOutput.trim()}`;
 
+    // DOM 분리 렌더링
     document.getElementById('outputTitle').value = smartTitle;
     document.getElementById('outputBody').value = bodyTemplate.trim();
 }
 
-// --- 클립보드 복사 및 유틸리티 ---
 function copySpecific(elementId) {
     const outputText = document.getElementById(elementId);
     if(!outputText.value.trim()) return alert('복사할 내용이 없습니다.');
