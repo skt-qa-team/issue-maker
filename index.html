@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V16.1 (UI 완벽 분리 및 최적화)</title>
+    <title>이슈틀 자동 생성기 - V16.1 (통합 패치노트 적용)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- [구조 개선] 겹침 방지를 위해 툴바를 메인 래퍼 상단으로 분리 -->
+    <!-- 상단 헤더 바 (아이콘 겹침 원천 차단 구조) -->
     <div class="top-action-bar">
         <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
         <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
@@ -34,7 +34,7 @@
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>우측 상단의 문서 아이콘(📜)을 클릭하시면 이 툴의 최신 업데이트 및 코드 수정 내역(Patch Notes)을 확인할 수 있습니다.</p>
+                <p>우측 상단의 문서 아이콘(📜)을 클릭하시면 이 툴의 전체 업데이트 및 시스템 진화 내역을 확인할 수 있습니다.</p>
             </div>
         </div>
 
@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <!-- 우측: 결과창 패널 (제목/본문 완전 분리) -->
+        <!-- 우측: 결과창 패널 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -106,7 +106,6 @@
                     <label>📌 제목 (Title)</label>
                     <button class="btn-copy-sm" onclick="copySpecific('outputTitle')">제목만 복사</button>
                 </div>
-                <!-- 제목 가독성을 위한 전용 ID 적용 -->
                 <input type="text" id="outputTitle" class="output-field" readonly>
             </div>
 
@@ -148,11 +147,11 @@
         </div>
     </div>
 
-    <!-- 모달: 패치 노트 -->
+    <!-- 모달: 통합 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📜 업데이트 히스토리 (Patch Notes)</h2>
+                <h2>📜 시스템 진화 히스토리 (Patch Notes)</h2>
                 <button class="close-btn" onclick="closeChangelogModal()">×</button>
             </div>
             
@@ -160,34 +159,67 @@
                 <div class="changelog-item">
                     <span class="version-badge">V16.1</span><span class="changelog-date">최신 릴리스</span>
                     <ul class="changelog-desc">
-                        <li>결함 제목(Title)의 폰트 및 컬러를 강조하여 <b>가독성 극대화</b></li>
-                        <li>화면 겹침 현상 원천 차단을 위한 <b>상단 헤더바(Top Action Bar)</b> 아키텍처 도입</li>
+                        <li>결함 제목(Title)의 폰트 사이즈 및 컬러(Skyblue)를 강조하여 <b>시각적 직관성 극대화</b></li>
+                        <li>해상도 변동 시 플로팅 아이콘이 메인 화면과 겹치는 현상을 원천 차단하는 <b>독립 헤더바(Top Action Bar) 레이아웃</b> 적용</li>
                     </ul>
                 </div>
 
                 <div class="changelog-item">
                     <span class="version-badge">V16.0</span>
                     <ul class="changelog-desc">
-                        <li>결함 제목(Title)과 본문(Description) 출력 영역 완전 분리 적용</li>
-                        <li>브라우저 내장 네이티브 맞춤법 검사 엔진(Spellcheck) 활성화</li>
-                        <li>소프트웨어 수정 이력을 확인할 수 있는 패치 노트 모달 탑재</li>
+                        <li>BTS(JIRA 등) 입력 편의를 위한 <b>결함 제목(Title)과 본문(Description) 렌더링 영역 완전 분리</b> 설계</li>
+                        <li>브라우저 내장 <b>네이티브 맞춤법 검사 엔진(Spellcheck)</b>을 활성화하여 자연어 작성 영역 오타 검출 지원</li>
+                        <li>소프트웨어 수정 이력을 체계적으로 확인할 수 있는 <b>패치 노트(Changelog) 모달 탑재</b></li>
                     </ul>
                 </div>
                 
                 <div class="changelog-item">
                     <span class="version-badge">V15.0</span>
                     <ul class="changelog-desc">
-                        <li>환경 설정 내 불필요한 POC / 서버 기본값 항목 제거 (UI 최적화)</li>
-                        <li>OS 전환 시 메인 화면의 환경 상태가 보존되도록 종속성 제거</li>
-                        <li>출력 포맷의 구분자 양옆 공백 완전히 제거 (예: STG/DEV/상용)</li>
+                        <li>'새로 작성' 버튼 클릭 시 선택해 둔 <b>환경 정보(단말기, 서버 등)는 안전하게 보존</b>하고 텍스트만 지우도록 알고리즘 개선</li>
+                        <li>출력 포맷의 구분자 양옆 <b>공백 완전 제거 (예: STG/DEV/상용)</b>로 문자열 밀도 최적화</li>
+                        <li>환경 설정 내 불필요한 기본 POC 및 기본 서버 항목을 제거하여 <b>설정 모달 UI 복잡도 최소화</b></li>
                     </ul>
                 </div>
 
                 <div class="changelog-item">
                     <span class="version-badge">V14.0</span>
                     <ul class="changelog-desc">
-                        <li>좌측 사용 설명서 패널 폭을 350px로 확장하여 가독성 개선</li>
-                        <li>HTML, CSS, JS 소스 코드를 물리적 파일로 분리하여 모듈화 아키텍처 적용</li>
+                        <li>단일 HTML 구조에서 <b>HTML, CSS, JS 소스 코드를 분리하는 모듈러 아키텍처(Modular Architecture)</b> 선언</li>
+                        <li>팀원 온보딩을 위한 <b>좌측 사용 설명서 패널 너비 확장 (280px → 350px)</b> 및 텍스트 가독성 개선</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V13.0</span>
+                    <ul class="changelog-desc">
+                        <li>소프트웨어 업데이트 시 로컬 스토리지 데이터가 증발하는 현상을 막기 위한 <b>통합 마스터 키(Master Key) 도입</b></li>
+                        <li>과거 버전 데이터를 자동 감지하여 끌어오는 <b>데이터 마이그레이션(Data Migration) 방어 로직</b> 구축</li>
+                    </ul>
+                </div>
+                
+                <div class="changelog-item">
+                    <span class="version-badge">V12.0</span>
+                    <ul class="changelog-desc">
+                        <li>기존 2분할 화면에서 <b>3단 그리드(Grid) 레이아웃(가이드-입력-결과)</b>으로 전체 UI 프레임워크 확장</li>
+                        <li>실수를 방지하기 위해 <b>Fitts의 법칙</b>을 적용, '초기화(위)'와 '복사(아래)' 버튼의 물리적 거리 완전 분리</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V11.0</span>
+                    <ul class="changelog-desc">
+                        <li>선택 항목의 <b>마이크로 카피(Microcopy) 대거 정제</b> (예: '(미표기)' 제거, Critical 기본값을 '해당 없음'으로 명확화)</li>
+                        <li>작성 내용 일괄 소거를 위한 <b>'새로 작성(Clear)' 알고리즘</b> 및 Confirm 안전장치 최초 도입</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V1.0 ~ V10.0</span>
+                    <ul class="changelog-desc">
+                        <li><b>(초기 아키텍처 구축)</b> 결함 리포트 포맷팅을 위한 기본 DOM 구조 및 렌더링 파이프라인 설계</li>
+                        <li>Android/iOS OS 분기 처리 및 다중 단말기 선택 기능 개발</li>
+                        <li>Admin / PC Web 등 특수 POC 동적 폼(Dynamic Form) 전환 로직 구현</li>
                     </ul>
                 </div>
             </div>
