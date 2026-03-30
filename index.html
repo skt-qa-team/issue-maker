@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V16.9 (Multi-Case Preset)</title>
+    <title>[SKM] 이슈틀 생성기 - V17.0 (Individual Case Engine)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <div class="top-bar-left">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V16.9 (2026-03-31)</span>
+                <span class="version-info">- V17.0 (2026-03-31)</span>
             </div>
             <!-- 실시간 시계 영역 -->
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
@@ -44,8 +44,8 @@
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 멀티 케이스 프리셋</h3>
-                <p>내용 입력 영역 상단의 <b>프리셋 버튼</b>을 누르면 복수 케이스 작성을 위한 서식이 자동 입력됩니다.</p>
+                <h3>3. 개별 필드 CASE 프리셋</h3>
+                <p>입력창 레이블 옆의 <b>CASE +</b>를 누르고 숫자를 선택하면 해당 칸에만 케이스 서식이 주입됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
@@ -56,13 +56,7 @@
 
         <!-- 2. 중앙 이슈 입력 패널 -->
         <div class="panel">
-            <div class="panel-header-row">
-                <h2>📝 이슈 내용 입력</h2>
-                <!-- [신규] 입력 프리셋 버튼 그룹 -->
-                <div class="preset-group">
-                    <button class="btn-preset" onclick="applyMultiCasePreset()" title="CASE 1 / CASE 2 구조를 자동 입력합니다">📋 멀티 케이스(1/2) 적용</button>
-                </div>
-            </div>
+            <h2>📝 이슈 내용 입력</h2>
             
             <div class="form-group">
                 <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
@@ -147,10 +141,59 @@
                 <input type="text" id="targetUrl" oninput="generateTemplate()">
             </div>
 
-            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[재현스텝]</label><textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[기대결과]</label><textarea id="expectedResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <!-- [Pre-Condition] -->
+            <div class="form-group">
+                <label>[Pre-Condition]</label>
+                <textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <!-- [재현스텝] with 개별 컨트롤러 -->
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[재현스텝]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_steps')">CASE +</button>
+                        <div id="selector_steps" class="case-selector">
+                            <span onclick="applyIndividualPreset('steps', 2)">2</span>
+                            <span onclick="applyIndividualPreset('steps', 3)">3</span>
+                            <span onclick="applyIndividualPreset('steps', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <!-- [실행결과-문제현상] with 개별 컨트롤러 -->
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[실행결과-문제현상]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_actual')">CASE +</button>
+                        <div id="selector_actual" class="case-selector">
+                            <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('actualResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <!-- [기대결과] with 개별 컨트롤러 -->
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[기대결과]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_expected')">CASE +</button>
+                        <div id="selector_expected" class="case-selector">
+                            <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="expectedResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
             
             <div class="form-group">
                 <label>[참고사항]</label>
@@ -220,22 +263,17 @@
             </div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V16.9</span><span class="changelog-date">2026-03-31</span>
+                    <span class="version-badge">V17.0</span><span class="changelog-date">2026-03-31</span>
                     <ul class="changelog-desc">
-                        <li><b>[기능 추가]</b> 멀티 케이스 리포팅을 위한 <b>'멀티 케이스(1/2) 프리셋'</b> 엔진 도입</li>
-                        <li><b>[UI/UX]</b> 입력 패널 상단에 프리셋 버튼 그룹 영역 신설</li>
+                        <li><b>[기능 혁신]</b> 각 입력 필드 레이블 옆에 <b>'개별 CASE 컨트롤러'</b> 탑재</li>
+                        <li><b>[UX 최적화]</b> 필요한 칸에만 CASE 서식(1~4)을 선택하여 주입 가능</li>
+                        <li><b>[코드 무결성]</b> 누락 없는 전수 소스 코드 동기화 완료</li>
                     </ul>
                 </div>
                 <div class="changelog-item">
-                    <span class="version-badge">V16.8</span>
+                    <span class="version-badge">V1.0 ~ V16.9</span>
                     <ul class="changelog-desc">
-                        <li><b>[UI 통합]</b> 그룹웨어 버튼 스타일 원형 아이콘으로 통일</li>
-                    </ul>
-                </div>
-                <div class="changelog-item">
-                    <span class="version-badge">V1.0 ~ V16.7</span>
-                    <ul class="changelog-desc">
-                        <li>실시간 시계, 슬래시 공백 자동 조절, 3단 그리드 레이아웃, [SKM] 브랜딩 등 구축</li>
+                        <li>멀티 케이스 기초 설계, 실시간 시계, 그룹웨어 연동, 3단 그리드 레이아웃 등 구축</li>
                     </ul>
                 </div>
             </div>
