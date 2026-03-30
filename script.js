@@ -1,7 +1,7 @@
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
-
 const STORAGE_KEY = 'qa_system_config_master';
 
+// --- 환경 설정 및 모달 제어 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -15,12 +15,18 @@ function loadConfig() {
 
 function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
-window.onclick = function(event) { if (event.target === document.getElementById('settingModal')) closeModal(); }
+
+function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
+function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+
+window.onclick = function(event) { 
+    if (event.target === document.getElementById('settingModal')) closeModal(); 
+    if (event.target === document.getElementById('changelogModal')) closeChangelogModal(); 
+}
 
 function saveSettings() {
     const getDevices = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
 
-    // 저장 데이터에서 POC와 서버 제거
     const data = {
         adminUrl: document.getElementById('set_admin_url').value,
         pcUrl: document.getElementById('set_pc_url').value,
@@ -36,11 +42,10 @@ function saveSettings() {
     closeModal();
 }
 
+// --- DOM 및 폼 제어 ---
 function syncEnvironmentByOS() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
-    
-    // OS 변경 시 메인 폼의 POC와 서버 상태를 초기화하지 않도록 해당 코드 줄 제거 완료
     
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
@@ -100,6 +105,7 @@ function handlePocChange() {
     generateTemplate();
 }
 
+// --- 템플릿 생성 및 출력 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
@@ -119,8 +125,10 @@ function generateTemplate() {
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
+    // Title 조립
     const smartTitle = `${envStr}${osStr}${pocStr}${critStr}${devPrefixStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
 
+    // Body 조립
     let envSection = `[Environment]\n`;
     if (rawPoc === 'Admin') {
         envSection += `■ POC : Admin\n■ 서버 : ${checkedServers || '(선택 안됨)'}\n■ Admin URL: ${getValue('targetUrl')}`;
@@ -140,8 +148,7 @@ function generateTemplate() {
         if (noteRef) refOutput += `${noteRef}`; 
     }
 
-    const template = `${smartTitle}
-${envSection}
+    const bodyTemplate = `${envSection}
 
 [Pre-Condition]
 ${getValue('preCondition')}
@@ -158,7 +165,36 @@ ${getValue('expectedResult')}
 [참고사항]
 ${refOutput.trim()}`;
 
-    document.getElementById('outputArea').value = template;
+    document.getElementById('outputTitle').value = smartTitle;
+    document.getElementById('outputBody').value = bodyTemplate.trim();
+}
+
+// --- 클립보드 복사 및 유틸리티 ---
+function copySpecific(elementId) {
+    const outputText = document.getElementById(elementId);
+    if(!outputText.value.trim()) return alert('복사할 내용이 없습니다.');
+    outputText.select();
+    document.execCommand('copy');
+    
+    const label = elementId === 'outputTitle' ? '제목이' : '본문이';
+    alert(`${label} 클립보드에 복사되었습니다.`);
+}
+
+function copyAll() {
+    const title = document.getElementById('outputTitle').value;
+    const body = document.getElementById('outputBody').value;
+    
+    if(!title.trim() && !body.trim()) return alert('생성된 내용이 없습니다.');
+    
+    const combinedText = `${title}\n${body}`;
+    const tempTextArea = document.createElement("textarea");
+    tempTextArea.value = combinedText;
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempTextArea);
+    
+    alert('전체 내용(제목+본문)이 복사되었습니다.');
 }
 
 function clearForm() {
@@ -180,18 +216,9 @@ function clearForm() {
     generateTemplate();
 }
 
-function copyToClipboard() {
-    const outputText = document.getElementById('outputArea');
-    if(!outputText.value) return alert('생성된 내용이 없습니다.');
-    outputText.select();
-    document.execCommand('copy');
-    alert('클립보드에 복사되었습니다.');
-}
-
 window.onload = function() {
     const config = loadConfig(); 
     if(config) {
-        // 모달에서 초기화 데이터 로드 (POC, 서버 제외)
         document.getElementById('set_admin_url').value = config.adminUrl || '';
         document.getElementById('set_pc_url').value = config.pcUrl || '';
         document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
