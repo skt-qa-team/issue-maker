@@ -2,55 +2,62 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V3 (다중 기기 & 서버 지원)</title>
+    <title>이슈틀 자동 생성기 - V4 (PC 와이드 버전)</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .wrapper { width: 100%; max-width: 1200px; display: flex; gap: 20px; align-items: flex-start; }
-        .tab-menu { width: 100%; max-width: 1200px; margin-bottom: 20px; display: flex; gap: 10px; }
-        .tab-btn { flex: 1; padding: 15px; background-color: #e4e6eb; color: #333; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .tab-btn.active { background-color: #0d6efd; color: white; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2); }
-        .container { flex: 1.3; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: none; }
+        /* 기본 스타일 초기화 및 PC 레이아웃 설정 */
+        body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 15px; background-color: #f4f6f9; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh;}
+        
+        /* [개선 2] PC 전체 화면 활용을 위한 너비 확장 */
+        .wrapper { width: 95vw; display: flex; gap: 15px; align-items: flex-start; margin: 0 auto; }
+        .tab-menu { width: 95vw; margin-bottom: 15px; display: flex; gap: 8px; margin-top: 5px; }
+        
+        .tab-btn { flex: 1; padding: 12px; background-color: #e2e6ea; color: #495057; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid #ced4da; }
+        .tab-btn.active { background-color: #007bff; color: white; box-shadow: 0 3px 5px rgba(0, 123, 255, 0.2); border-color: #007bff; }
+        
+        /* [개선 2] 입력 폼 너비 고정 */
+        .container { flex: 0 0 550px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; border: 1px solid #dee2e6; box-sizing: border-box;}
         .container.active { display: block; }
-        .result-container { flex: 0.7; background: #212529; padding: 30px; border-radius: 12px; color: #fff; position: sticky; top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        h2 { font-size: 1.3rem; margin-top: 0; color: #212529; border-left: 5px solid #0d6efd; padding-left: 10px; margin-bottom: 20px; }
-        .result-container h2 { color: #f8f9fa; border-left-color: #198754; }
+        /* [개선 2] 리포트 결과창 나머지 너비 모두 차지 (와이드) */
+        .result-container { flex: 1; background: #2c3e50; padding: 25px; border-radius: 10px; color: #ecf0f1; position: sticky; top: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #1a252f; box-sizing: border-box; }
         
-        .form-group { margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9rem; color: #495057; }
-        input[type="text"], textarea, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; transition: border-color 0.15s; }
-        input[type="text"]:focus, textarea:focus, select:focus { border-color: #86b7fe; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
-        textarea { height: 80px; resize: vertical; }
+        h2 { font-size: 1.2rem; margin-top: 0; color: #343a40; border-left: 4px solid #007bff; padding-left: 8px; margin-bottom: 15px; }
+        .result-container h2 { color: #f8f9fa; border-left-color: #27ae60; }
         
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; background-color: #f8f9fa; }
-        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.95rem; margin: 0; color: #212529; }
-        .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .form-group { margin-bottom: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.85rem; color: #495057; }
+        input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; transition: border-color 0.15s; font-family: inherit;}
+        input[type="text"]:focus, textarea:focus, select:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+        textarea { height: 70px; resize: vertical; }
         
-        .btn-save { background-color: #198754; color: white; padding: 15px; width: 100%; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn-save:hover { background-color: #157347; }
-        .btn-copy { background-color: #0d6efd; color: white; padding: 15px; width: 100%; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-        .btn-copy:hover { background-color: #0b5ed7; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; background-color: #f8f9fa; }
+        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; font-size: 0.9rem; margin: 0; color: #212529; }
+        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; margin: 0;}
         
-        #outputArea { width: 100%; height: 550px; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border: none; background-color: #2b3035; color: #f8f9fa; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.6; border-radius: 6px; }
+        .btn-save { background-color: #28a745; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; border: 1px solid #218838;}
+        .btn-save:hover { background-color: #218838; }
+        .btn-copy { background-color: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; border: 1px solid #0069d9;}
+        .btn-copy:hover { background-color: #0069d9; }
         
-        .setting-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
-        .badge-and { color: #198754; font-weight: bold; margin-bottom: 15px; display: block; border-bottom: 1px solid #dee2e6; padding-bottom: 5px;}
-        .badge-ios { color: #6c757d; font-weight: bold; margin-bottom: 15px; display: block; border-bottom: 1px solid #dee2e6; padding-bottom: 5px;}
+        /* [개선 2] 가독성 향상을 위한 폰트 크기 및 높이 조정 */
+        #outputArea { width: 100%; height: calc(100vh - 160px); min-height: 600px; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border: none; background-color: #1a252f; color: #bdc3c7; white-space: pre-wrap; box-sizing: border-box; resize: none; font-size: 0.95rem; line-height: 1.7; border-radius: 5px; outline: none;}
+        
+        .setting-box { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef; }
+        .badge-and { color: #28a745; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;}
+        .badge-ios { color: #868e96; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 3px; display: block; margin-bottom: 10px;}
     </style>
 </head>
 <body>
 
     <div class="tab-menu">
         <button class="tab-btn active" onclick="switchTab('issueTab')" id="btnIssue">📝 이슈 작성</button>
-        <button class="tab-btn" onclick="switchTab('settingsTab')" id="btnSettings">⚙️ 환경 설정 (기본값 설정)</button>
+        <button class="tab-btn" onclick="switchTab('settingsTab')" id="btnSettings">⚙️ 환경 설정</button>
     </div>
 
     <div class="wrapper">
-        <!-- 환경 설정 탭 -->
         <div id="settingsTab" class="container">
             <h2>⚙️ 기본 환경 설정</h2>
-            
             <div class="grid-2">
                 <div class="form-group">
                     <label>기본 POC</label>
@@ -69,23 +76,21 @@
                     </div>
                 </div>
             </div>
-
             <div class="setting-box">
                 <span class="badge-and">Android 전용 설정</span>
                 <div class="form-group">
-                    <label>Android 디바이스 (엔터로 구분하여 여러 기기 입력)</label>
-                    <textarea id="set_and_devices" placeholder="갤럭시 폴드7(16)&#10;갤럭시 S24 Ultra(14)"></textarea>
+                    <label>Android 디바이스 (엔터로 구분하여 다중 입력)</label>
+                    <textarea id="set_and_devices" placeholder="갤럭시 폴드7(16)&#10;갤럭시 S24(14)"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Android 앱 버전 (Apptest)</label>
                     <input type="text" id="set_and_ver" placeholder="예: App Tester_20.5.11(855)">
                 </div>
             </div>
-
             <div class="setting-box">
                 <span class="badge-ios">iOS 전용 설정</span>
                 <div class="form-group">
-                    <label>iOS 디바이스 (엔터로 구분하여 여러 기기 입력)</label>
+                    <label>iOS 디바이스 (엔터로 구분하여 다중 입력)</label>
                     <textarea id="set_ios_devices" placeholder="iPhone 11 Pro(17.2.1)&#10;iPhone 15(17.4)"></textarea>
                 </div>
                 <div class="form-group">
@@ -93,21 +98,18 @@
                     <input type="text" id="set_ios_ver" placeholder="예: TestFlight_20.5.10(3)">
                 </div>
             </div>
-
-            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 적용하기</button>
+            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 적용</button>
         </div>
 
-        <!-- 이슈 작성 탭 -->
         <div id="issueTab" class="container active">
             <h2>📝 이슈 내용 입력</h2>
             <div class="form-group">
                 <label>제목 (현상 요약)</label>
                 <input type="text" id="title" placeholder="현상을 간략히 작성하세요" oninput="generateTemplate()">
             </div>
-
             <div class="grid-2">
                 <div class="form-group">
-                    <label>OS 구분 (선택 시 디바이스/버전 자동 변경)</label>
+                    <label>OS 구분 (선택 시 기기/버전 갱신)</label>
                     <select id="osType" onchange="syncEnvironmentByOS()">
                         <option value="[Android/iOS]">[Android/iOS] 공통</option>
                         <option value="[Android]">[Android]</option>
@@ -123,28 +125,20 @@
                     </select>
                 </div>
             </div>
-
             <div class="form-group">
-                <label>서버 (다중 선택 가능)</label>
-                <div class="checkbox-group" id="serverCheckboxes">
+                <label>서버 (다중 선택)</label>
+                <div class="checkbox-group">
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" onchange="generateTemplate()"> STG</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="DEV" onchange="generateTemplate()"> DEV</label>
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> PRD</label>
                 </div>
             </div>
-            
             <div class="form-group">
-                <label>디바이스 선택 (OS 변경 시 자동 갱신)</label>
+                <label>디바이스 선택 (기본 체크해제)</label>
                 <div class="checkbox-group" id="deviceCheckboxes">
-                    <!-- 자바스크립트를 통해 동적으로 체크박스가 생성됩니다 -->
-                </div>
+                    </div>
             </div>
-            
-            <div class="form-group">
-                <label>앱 버전</label>
-                <input type="text" id="appVersion" oninput="generateTemplate()">
-            </div>
-
+            <div class="form-group"><label>앱 버전</label><input type="text" id="appVersion" oninput="generateTemplate()"></div>
             <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[재현스텝]</label><textarea id="steps" oninput="generateTemplate()"></textarea></div>
             <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" oninput="generateTemplate()"></textarea></div>
@@ -152,7 +146,6 @@
             <div class="form-group"><label>[참고사항]</label><textarea id="notes" oninput="generateTemplate()"></textarea></div>
         </div>
 
-        <!-- 결과 탭 -->
         <div class="result-container">
             <h2>📄 리포트 결과</h2>
             <textarea id="outputArea" readonly></textarea>
@@ -161,7 +154,8 @@
     </div>
 
     <script>
-        // 탭 전환 로직
+        const defaultConfig = { poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '' };
+
         function switchTab(tabId) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -169,9 +163,7 @@
             event.currentTarget.classList.add('active');
         }
 
-        // 설정 저장 로직 (localStorage 활용)
         function saveSettings() {
-            // 다중 기기 입력을 줄바꿈 기준으로 배열로 변환
             const getDevices = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
             const getCheckedServers = () => Array.from(document.querySelectorAll('.set-server-cb:checked')).map(cb => cb.value);
 
@@ -184,74 +176,61 @@
                 iosVer: document.getElementById('set_ios_ver').value
             };
             
-            localStorage.setItem('qa_config_v3', JSON.stringify(data));
-            alert('환경 설정이 저장되었습니다.');
+            localStorage.setItem('qa_config_v4', JSON.stringify(data));
+            alert('설정이 저장되었습니다.');
             syncEnvironmentByOS(); 
             switchTab('issueTab');
         }
 
-        // OS 선택에 따른 디바이스/버전 동기화 (가장 핵심 로직)
         function syncEnvironmentByOS() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v3')) || { 
-                poc: 'T 멤버십', servers: ['STG'], andDevices: [], iosDevices: [], andVer: '', iosVer: '' 
-            };
+            const config = JSON.parse(localStorage.getItem('qa_config_v4')) || defaultConfig;
             const osType = document.getElementById('osType').value;
             
-            // 1. POC 동기화
-            document.getElementById('poc').value = config.poc;
+            document.getElementById('poc').value = config.poc || defaultConfig.poc;
 
-            // 2. 서버 체크박스 동기화
             document.querySelectorAll('.issue-server-cb').forEach(cb => {
-                cb.checked = config.servers.includes(cb.value);
+                if(config.servers) cb.checked = config.servers.includes(cb.value);
             });
 
-            // 3. 디바이스 체크박스 동적 렌더링
             const deviceContainer = document.getElementById('deviceCheckboxes');
-            deviceContainer.innerHTML = ''; // 기존 목록 초기화
+            deviceContainer.innerHTML = '';
             let devicesToRender = [];
 
-            if (osType === "[Android]" || osType === "[Android/iOS]") {
-                devicesToRender = devicesToRender.concat(config.andDevices);
-            }
-            if (osType === "[iOS]" || osType === "[Android/iOS]") {
-                devicesToRender = devicesToRender.concat(config.iosDevices);
-            }
+            if (osType === "[Android]" || osType === "[Android/iOS]") devicesToRender = devicesToRender.concat(config.andDevices);
+            if (osType === "[iOS]" || osType === "[Android/iOS]") devicesToRender = devicesToRender.concat(config.iosDevices);
 
             if (devicesToRender.length === 0) {
-                deviceContainer.innerHTML = '<span style="color:#6c757d; font-size:0.9rem;">설정에서 디바이스를 먼저 등록해주세요.</span>';
+                deviceContainer.innerHTML = '<span style="color:#6c757d; font-size:0.85rem;">설정에서 디바이스를 먼저 등록해주세요.</span>';
             } else {
                 devicesToRender.forEach(dev => {
                     const label = document.createElement('label');
                     label.className = 'checkbox-label';
-                    label.innerHTML = `<input type="checkbox" class="issue-device-cb" value="${dev}" onchange="generateTemplate()" checked> ${dev}`;
+                    /* [개선 1] checked 속성 제거 - 기본 체크해제 상태로 생성 */
+                    label.innerHTML = `<input type="checkbox" class="issue-device-cb" value="${dev}" onchange="generateTemplate()"> ${dev}`;
                     deviceContainer.appendChild(label);
                 });
             }
 
-            // 4. 앱 버전 동기화
             let targetVer = "";
             if (osType === "[Android/iOS]") targetVer = [config.andVer, config.iosVer].filter(Boolean).join(' / ');
             else if (osType === "[Android]") targetVer = config.andVer;
             else if (osType === "[iOS]") targetVer = config.iosVer;
-            
             document.getElementById('appVersion').value = targetVer;
 
-            generateTemplate(); // 변경 후 결과 렌더링
+            generateTemplate();
         }
 
-        // 결과물 조합 및 렌더링 로직
         function generateTemplate() {
             const getValue = (id) => document.getElementById(id).value;
             
-            // 체크된 서버 및 기기 수집 후 슬래시(/)로 결합
             const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value).join(' / ');
             const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
             
             const template = `${getValue('osType')} ${getValue('title')}
 [Environment]
 ■ POC : ${getValue('poc')}
-■ Device(OS Ver.) : ${checkedDevices || '선택된 기기 없음'}
-■ 서버 : ${checkedServers || '선택된 서버 없음'}
+■ Device(OS Ver.) : ${checkedDevices || '(단말 선택 안됨)'}
+■ 서버 : ${checkedServers || '(서버 선택 안됨)'}
 ■ 버전 : ${getValue('appVersion')}
 
 [Pre-Condition]
@@ -272,19 +251,18 @@ ${getValue('notes')}`;
             document.getElementById('outputArea').value = template;
         }
 
-        // 클립보드 복사
         function copyToClipboard() {
             const outputText = document.getElementById('outputArea');
+            if(!outputText.value) return alert('생성된 내용이 없습니다.');
             outputText.select();
             document.execCommand('copy');
-            alert('클립보드 복사 완료!');
+            alert('클립보드에 와이드하게 복사되었습니다!');
         }
 
-        // 초기 구동 시 데이터 로딩
         window.onload = function() {
-            const config = JSON.parse(localStorage.getItem('qa_config_v3'));
+            const config = JSON.parse(localStorage.getItem('qa_config_v4'));
             if(config) {
-                document.getElementById('set_poc').value = config.poc || 'T 멤버십';
+                document.getElementById('set_poc').value = config.poc || defaultConfig.poc;
                 document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
                 document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
                 document.getElementById('set_and_ver').value = config.andVer || '';
