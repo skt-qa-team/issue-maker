@@ -1,13 +1,15 @@
 /**
- * 이슈틀 자동 생성기 - V16.5 Core Logic
+ * 이슈틀 자동 생성기 - V16.6 Core Logic
  */
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
-// --- 실시간 시간 표시 기능 (V16.5) ---
+// --- 실시간 시간 표시 (신뢰성 개선 버전) ---
 function startClock() {
     const timeDisplay = document.getElementById('currentTime');
+    if (!timeDisplay) return;
+
     function update() {
         const now = new Date();
         const year = now.getFullYear();
@@ -22,7 +24,7 @@ function startClock() {
     setInterval(update, 1000);
 }
 
-// --- 환경 설정 및 데이터 로딩 ---
+// --- 데이터 로직 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -39,8 +41,7 @@ function closeChangelogModal() { document.getElementById('changelogModal').style
 
 window.onclick = function(event) { 
     if (event.target.classList.contains('modal-overlay')) {
-        closeModal();
-        closeChangelogModal();
+        closeModal(); closeChangelogModal();
     }
 }
 
@@ -73,15 +74,19 @@ function syncEnvironmentByOS() {
 
     if (osType.includes("Android")) {
         andCol.classList.add('active');
-        config.andDevices.forEach((dev, i) => {
-            andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
-        });
+        if (config.andDevices.length > 0) {
+            config.andDevices.forEach((dev, i) => {
+                andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`;
+            });
+        }
     }
     if (osType.includes("iOS")) {
         iosCol.classList.add('active');
-        config.iosDevices.forEach((dev, i) => {
-            iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
-        });
+        if (config.iosDevices.length > 0) {
+            config.iosDevices.forEach((dev, i) => {
+                iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="issue-device-cb pill-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`;
+            });
+        }
     }
 
     let targetVer = "";
@@ -102,7 +107,7 @@ function handlePocChange() {
     if (poc === 'Admin' || poc === 'PC Web') {
         osGroup.style.display = 'none'; deviceGroup.style.display = 'none';
         urlGroup.style.display = 'block';
-        document.getElementById('targetUrl').value = poc === 'Admin' ? config.adminUrl : config.pcUrl;
+        document.getElementById('targetUrl').value = (poc === 'Admin') ? config.adminUrl : config.pcUrl;
     } else {
         osGroup.style.display = 'block'; deviceGroup.style.display = 'block';
         urlGroup.style.display = 'none';
@@ -115,7 +120,6 @@ function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
-    // [V16.4] 슬래시 공백 분리 로직 유지
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     const titleServers = serversArr.join('/');
     const bodyServers = serversArr.join(' / ');
@@ -131,8 +135,8 @@ function generateTemplate() {
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
     const title = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
-
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+    
     let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
     if (rawPoc === 'Admin' || rawPoc === 'PC Web') {
         envSection += `■ 서버 : ${bodyServers}\n■ URL : ${getValue('targetUrl')}`;
@@ -159,18 +163,20 @@ function copySpecific(id) {
 }
 
 function copyAll() {
-    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
-    if (!combined.trim()) return;
+    const title = document.getElementById('outputTitle').value;
+    const body = document.getElementById('outputBody').value;
+    if (!title.trim() && !body.trim()) return;
+    const combined = `${title}\n${body}`;
     const t = document.createElement("textarea");
     document.body.appendChild(t);
     t.value = combined; t.select();
     document.execCommand("copy");
     document.body.removeChild(t);
-    alert('전체 내용이 복사되었습니다.');
+    alert('전체 복사 완료!');
 }
 
 function clearForm() {
-    if(!confirm('내용을 초기화할까요?')) return;
+    if(!confirm('작성 내용을 초기화할까요?')) return;
     ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -178,7 +184,9 @@ function clearForm() {
     generateTemplate();
 }
 
-window.onload = function() {
+// 브라우저 캐시 및 실행 순서 문제 해결을 위한 리스너
+document.addEventListener('DOMContentLoaded', () => {
+    startClock(); // 시계 가동을 최우선으로 실행
     const config = loadConfig();
     if(config) {
         document.getElementById('set_admin_url').value = config.adminUrl || '';
@@ -188,6 +196,5 @@ window.onload = function() {
         document.getElementById('set_and_ver').value = config.andVer || '';
         document.getElementById('set_ios_ver').value = config.iosVer || '';
     }
-    startClock(); // 시계 가동
     syncEnvironmentByOS();
-};
+});
