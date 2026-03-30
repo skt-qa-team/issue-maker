@@ -2,88 +2,64 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이슈틀 자동 생성기 - V15 (설정 최적화)</title>
+    <title>이슈틀 자동 생성기 - V16 (패치 노트 & 맞춤법 검사)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
+    <!-- 플로팅 버튼 영역 -->
+    <div class="floating-btn-group">
+        <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역 (Patch Notes)">📜</div>
+        <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
+    </div>
 
     <div class="wrapper">
+        <!-- 좌측: 가이드 패널 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
                 <h3>1. 초기 환경 설정 (필수)</h3>
-                <p>우측 상단의 <b>톱니바퀴(⚙️) 아이콘</b>을 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 한 번만 저장해 두세요. 브라우저에 영구적으로 자동 반영됩니다.</p>
+                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 본인이 주로 테스트하는 기기 목록, 앱 버전 등을 한 번만 저장해 두세요.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>2. 스마트 제목 Prefix</h3>
-                <p><b>[현상 요약]</b>칸에 결함의 핵심 현상만 적고 하단의 조건을 선택하면, 시스템이 <code>[환경][OS][POC]...</code> 형태의 완벽하게 규격화된 제목을 자동으로 조립해 줍니다.</p>
+                <p><b>[현상 요약]</b>칸에 핵심 현상만 적고 조건을 선택하면, 시스템이 규격화된 제목을 자동으로 조립해 줍니다. (맞춤법 자동 검사 지원)</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 동적 폼 (Admin / PC)</h3>
-                <p>POC 영역에서 <b>Admin</b>이나 <b>PC Web</b>을 선택하면 해당 리포트에 불필요한 OS, 기기 선택창이 알아서 숨겨지고 각 환경에 맞는 전용 URL 입력창이 나타납니다.</p>
+                <h3>3. 제목과 본문 분리</h3>
+                <p>우측 결과창에서 조립된 <b>제목</b>과 <b>본문</b>을 개별적으로 복사하거나, 하단 버튼으로 한 번에 복사할 수 있습니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>4. 데이터 초기화 및 복사</h3>
-                <p>결함 티켓 작성이 끝난 후 우측 상단의 <b>[🔄 새로 작성]</b> 버튼을 누르시면, 미리 세팅해둔 환경 설정 값은 안전하게 유지된 채로 이번 리포트에 썼던 1회성 텍스트들만 깔끔하게 지워집니다.</p>
+                <h3>4. 업데이트 확인</h3>
+                <p>우측 상단의 문서 아이콘(📜)을 클릭하시면 이 툴의 최신 업데이트 및 코드 수정 내역(Patch Notes)을 확인할 수 있습니다.</p>
             </div>
         </div>
 
+        <!-- 중앙: 이슈 작성 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
             <div class="form-group">
                 <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
-                <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" oninput="generateTemplate()">
+                <input type="text" id="title" placeholder="예: 돈 버는 교통의 개인정보 동의 팝업 동의 시 App종료되는 현상" spellcheck="true" lang="ko" oninput="generateTemplate()">
             </div>
 
             <div class="prefix-panel">
                 <label style="color: #64748b; font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
-                    <div>
-                        <label style="font-size: 0.75rem;">Critical 구분</label>
-                        <select id="prefix_critical" onchange="generateTemplate()">
-                            <option value="">해당 없음</option>
-                            <option value="Block">Block</option>
-                            <option value="Crash">Crash</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
-                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
-                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
-                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
-                    </div>
+                    <div><label style="font-size: 0.75rem;">Critical 구분</label><select id="prefix_critical" onchange="generateTemplate()"><option value="">해당 없음</option><option value="Block">Block</option><option value="Crash">Crash</option></select></div>
+                    <div><label style="font-size: 0.75rem;">특수 계정 결함</label><input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()"></div>
+                    <div><label style="font-size: 0.75rem;">특정 Device 결함</label><input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()"></div>
+                    <div><label style="font-size: 0.75rem;">이슈 발생 페이지</label><input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()"></div>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="form-group" id="osGroup">
-                    <label>OS 구분</label>
-                    <select id="osType" onchange="syncEnvironmentByOS()">
-                        <option value="[Android/iOS]">[Android/iOS]</option>
-                        <option value="[Android]">[Android]</option>
-                        <option value="[iOS]">[iOS]</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>POC</label>
-                    <select id="poc" onchange="handlePocChange()">
-                        <option value="T 멤버십">T 멤버십</option>
-                        <option value="PC Web">PC Web</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
+                <div class="form-group" id="osGroup"><label>OS 구분</label><select id="osType" onchange="syncEnvironmentByOS()"><option value="[Android/iOS]">[Android/iOS]</option><option value="[Android]">[Android]</option><option value="[iOS]">[iOS]</option></select></div>
+                <div class="form-group"><label>POC</label><select id="poc" onchange="handlePocChange()"><option value="T 멤버십">T 멤버십</option><option value="PC Web">PC Web</option><option value="Admin">Admin</option></select></div>
             </div>
             
             <div class="form-group">
@@ -103,66 +79,135 @@
                 </div>
             </div>
 
-            <div class="form-group" id="appVersionGroup">
-                <label id="appVersionLabel">앱 버전</label>
-                <input type="text" id="appVersion" oninput="generateTemplate()">
-            </div>
+            <div class="form-group" id="appVersionGroup"><label id="appVersionLabel">앱 버전</label><input type="text" id="appVersion" oninput="generateTemplate()"></div>
+            <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
 
-            <div class="form-group" id="urlGroup" style="display: none;">
-                <label id="urlLabel">URL</label>
-                <input type="text" id="targetUrl" oninput="generateTemplate()">
-            </div>
-
-            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[재현스텝]</label><textarea id="steps" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" oninput="generateTemplate()"></textarea></div>
-            <div class="form-group"><label>[기대결과]</label><textarea id="expectedResult" oninput="generateTemplate()"></textarea></div>
+            <!-- 자연어 영역 맞춤법 검사 -->
+            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group"><label>[재현스텝]</label><textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group"><label>[실행결과-문제현상]</label><textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group"><label>[기대결과]</label><textarea id="expectedResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
             
             <div class="form-group">
                 <label>[참고사항]</label>
-                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 재현됨, 확인 불가 등)" oninput="generateTemplate()" style="margin-bottom: 8px;">
-                <textarea id="ref_notes" placeholder="기타 추가 참고 내용 (입력한 형태 그대로 출력됩니다)" oninput="generateTemplate()"></textarea>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부 (예: 재현됨, 확인 불가 등)" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 추가 참고 내용 (입력한 형태 그대로 출력됩니다)" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
             </div>
         </div>
 
+        <!-- 우측: 결과창 패널 (제목/본문 분리) -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
-                <button class="btn-clear-sm" onclick="clearForm()" title="내용 초기화">🔄 새로 작성</button>
+                <button class="btn-clear-sm" onclick="clearForm()" title="선택한 환경은 유지하고 내용만 지웁니다">🔄 새로 작성</button>
             </div>
-            <textarea id="outputArea" readonly></textarea>
-            <button class="btn-copy" onclick="copyToClipboard()">📋 클립보드 복사</button>
+            
+            <div class="output-section">
+                <div class="output-label-group">
+                    <label>📌 제목 (Title)</label>
+                    <button class="btn-copy-sm" onclick="copySpecific('outputTitle')">제목만 복사</button>
+                </div>
+                <input type="text" id="outputTitle" class="output-field" readonly>
+            </div>
+
+            <div class="output-section" style="flex:1; display:flex; flex-direction:column;">
+                <div class="output-label-group">
+                    <label>📝 본문 (Description)</label>
+                    <button class="btn-copy-sm" onclick="copySpecific('outputBody')">본문만 복사</button>
+                </div>
+                <textarea id="outputBody" class="output-field" readonly></textarea>
+            </div>
+
+            <button class="btn-copy" onclick="copyAll()">📋 전체 복사 (제목 + 본문)</button>
         </div>
     </div>
 
+    <!-- 모달: 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>⚙️ 기본 환경 설정</h2>
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            
-            <!-- POC, 서버 설정 영역 완전 제거됨 -->
-
             <div class="setting-box">
                 <div style="color: #475569; font-weight: bold; margin-bottom: 10px;">Admin / PC Web 설정</div>
                 <div class="form-group"><label>기본 Admin URL</label><input type="text" id="set_admin_url"></div>
                 <div class="form-group"><label>기본 PC URL</label><input type="text" id="set_pc_url"></div>
             </div>
-
             <div class="setting-box">
                 <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">Android 전용 설정</div>
                 <div class="form-group"><textarea id="set_and_devices" placeholder="기기명 엔터로 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_and_ver"></div>
             </div>
-
             <div class="setting-box">
                 <div style="color: #64748b; font-weight: bold; margin-bottom: 10px;">iOS 전용 설정</div>
                 <div class="form-group"><textarea id="set_ios_devices" placeholder="기기명 엔터로 구분"></textarea></div>
                 <div class="form-group"><label>앱 버전</label><input type="text" id="set_ios_ver"></div>
             </div>
-
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장 및 닫기</button>
+        </div>
+    </div>
+
+    <!-- 모달: 패치 노트 (코드 수정 히스토리) -->
+    <div class="modal-overlay" id="changelogModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 업데이트 히스토리 (Patch Notes)</h2>
+                <button class="close-btn" onclick="closeChangelogModal()">×</button>
+            </div>
+            
+            <div class="changelog-list">
+                <div class="changelog-item">
+                    <span class="version-badge">V16.0</span><span class="changelog-date">최신 릴리스</span>
+                    <ul class="changelog-desc">
+                        <li>결함 제목(Title)과 본문(Description) 출력 영역 완전 분리 적용</li>
+                        <li>브라우저 내장 네이티브 맞춤법 검사 엔진(Spellcheck) 활성화</li>
+                        <li>소프트웨어 수정 이력을 확인할 수 있는 패치 노트 모달 탑재</li>
+                    </ul>
+                </div>
+                
+                <div class="changelog-item">
+                    <span class="version-badge">V15.0</span>
+                    <ul class="changelog-desc">
+                        <li>환경 설정 내 불필요한 POC / 서버 기본값 항목 제거 (UI 최적화)</li>
+                        <li>OS 전환 시 메인 화면의 환경 상태가 보존되도록 종속성 제거</li>
+                        <li>출력 포맷의 구분자 양옆 공백 완전히 제거 (예: STG/DEV/상용)</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V14.0</span>
+                    <ul class="changelog-desc">
+                        <li>좌측 사용 설명서 패널 폭을 350px로 확장하여 가독성 개선</li>
+                        <li>HTML, CSS, JS 소스 코드를 물리적 파일로 분리하여 모듈화 아키텍처 적용</li>
+                        <li>'새로 작성' 버튼 클릭 시 선택한 단말기 상태가 보존되도록 로직 수정</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V13.0</span>
+                    <ul class="changelog-desc">
+                        <li>브라우저 저장소 데이터 마이그레이션 방어 로직 추가 (데이터 영구 보존)</li>
+                        <li>저장소 마스터 키(Master Key) 도입으로 업데이트 시 초기화 문제 해결</li>
+                    </ul>
+                </div>
+                
+                <div class="changelog-item">
+                    <span class="version-badge">V12.0</span>
+                    <ul class="changelog-desc">
+                        <li>3단 그리드(Grid) 레이아웃 적용 및 좌측 가이드 패널 신설</li>
+                        <li>Fitts의 법칙을 적용하여 초기화 버튼과 복사 버튼의 물리적 거리 분리</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <span class="version-badge">V11.0</span>
+                    <ul class="changelog-desc">
+                        <li>휴먼 에러 방지를 위한 '새로 작성(Clear)' 기능 및 확인 팝업 추가</li>
+                        <li>마이크로 카피(Microcopy) 정제 및 '해당 없음' 상태 명확화</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
