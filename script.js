@@ -1,10 +1,9 @@
 /**
- * [SKM] 이슈틀 생성기 - V18.1 Core Logic (UX Optimized)
+ * [SKM] 이슈틀 생성기 - V18.3 Core Logic (Changelog Modularized)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
 
-// 1. Firebase 설정 (싱가포르 asia-southeast1 리전 및 대장님의 API Key)
 const firebaseConfig = {
     apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
     authDomain: "skm-issue-helper.firebaseapp.com",
@@ -16,42 +15,47 @@ const firebaseConfig = {
     measurementId: "G-98H9S1FQB0"
 };
 
-// Firebase 초기화
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
+let currentUserId = null;
 
-let currentUserId = null; // 현재 로그인한 사용자 ID
+// --- [Changelog Engine] 패치노트 동적 렌더링 ---
+function renderChangelog() {
+    const container = document.getElementById('changelog-container');
+    if (!container || typeof changelogData === 'undefined') return;
 
-// --- [Auth & Presence] 구글 로그인 및 실시간 접속자 시스템 (V18.1) ---
+    let htmlString = '';
+    changelogData.forEach(log => {
+        let listItems = log.changes.map(change => `<li>${change}</li>`).join('');
+        htmlString += `
+            <div class="changelog-item">
+                <span class="version-badge">${log.version}</span>
+                <span class="changelog-date">${log.date}</span>
+                <ul class="changelog-desc">${listItems}</ul>
+            </div>
+        `;
+    });
+    container.innerHTML = htmlString;
+}
 
+// --- [Auth & Presence] ---
 function initPresenceSystem() {
     const list = document.getElementById('presence-list');
     const allUsersRef = database.ref('presence');
     const authBtn = document.getElementById('auth-btn');
 
-    // 1. 모든 접속자 상태를 실시간으로 그려주는 리스너 (로그인 안 해도 다른 사람 볼 수 있음)
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
-        
         if (users) {
             Object.keys(users).forEach((id) => {
                 const userData = users[id];
                 const isMe = (id === currentUserId);
-                
-                // 구글 프로필 이미지가 있으면 img 태그 렌더링 (referrerpolicy 속성 필수)
-                let avatarContent = '';
-                if (userData.photo) {
-                    avatarContent = `<img src="${userData.photo}" alt="profile" referrerpolicy="no-referrer">`;
-                } else {
-                    avatarContent = isMe ? "Me" : userData.name.charAt(0);
-                }
+                let avatarContent = userData.photo ? `<img src="${userData.photo}" alt="profile" referrerpolicy="no-referrer">` : (isMe ? "Me" : userData.name.charAt(0));
                 
                 list.innerHTML += `
                     <div class="user-avatar" 
@@ -63,20 +67,14 @@ function initPresenceSystem() {
         }
     });
 
-    // 2. 내 로그인 상태 감지 및 내 상태(Presence) DB에 쓰기
     auth.onAuthStateChanged((user) => {
-        // [UX 개선] 파이어베이스 인증 상태 확인이 끝나면 버튼 활성화 (깜빡임 방지)
         authBtn.disabled = false;
-        
         if (user) {
-            // [로그인 성공 상태]
             currentUserId = user.uid;
             authBtn.innerText = 'G 로그아웃';
             authBtn.classList.add('logged-in');
 
             const myUserRef = database.ref('presence/' + currentUserId);
-            
-            // 서버와 연결이 확인되면 내 구글 정보를 DB에 등록
             database.ref('.info/connected').on('value', (snapshot) => {
                 if (snapshot.val() === true && currentUserId) {
                     myUserRef.set({
@@ -84,16 +82,11 @@ function initPresenceSystem() {
                         photo: user.photoURL || "",
                         lastActive: firebase.database.ServerValue.TIMESTAMP
                     });
-                    // 브라우저 닫을 때 내 정보 자동 삭제
                     myUserRef.onDisconnect().remove();
                 }
             });
         } else {
-            // [로그아웃 상태]
-            if (currentUserId) {
-                // 로그아웃 시 서버에서 내 정보 즉시 삭제
-                database.ref('presence/' + currentUserId).remove();
-            }
+            if (currentUserId) database.ref('presence/' + currentUserId).remove();
             currentUserId = null;
             authBtn.innerText = 'G 로그인';
             authBtn.classList.remove('logged-in');
@@ -101,63 +94,42 @@ function initPresenceSystem() {
     });
 }
 
-// 구글 로그인/로그아웃 버튼 클릭 함수
 function toggleAuth() {
     if (auth.currentUser) {
-        // 로그아웃 처리
-        auth.signOut().catch((error) => alert('로그아웃 실패: ' + error.message));
+        auth.signOut().catch(e => alert('로그아웃 실패: ' + e.message));
     } else {
-        // 구글 로그인 팝업 호출
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch((error) => {
-            alert('로그인 에러: ' + error.message);
-        });
+        auth.signInWithPopup(provider).catch(e => alert('로그인 에러: ' + e.message));
     }
 }
 
-// --- [Clock] 실시간 시간 표시 ---
+// --- [Utils & Core] ---
 function startClock() {
     const timeDisplay = document.getElementById('currentTime');
     if (!timeDisplay) return;
-
     function update() {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        timeDisplay.innerText = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        timeDisplay.innerText = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     }
-    update();
-    setInterval(update, 1000);
+    update(); setInterval(update, 1000);
 }
 
-// --- [Case Engine] 개별 필드 CASE 프리셋 제어 ---
 function toggleCaseSelector(selectorId) {
     const selector = document.getElementById(selectorId);
-    document.querySelectorAll('.case-selector').forEach(el => {
-        if(el.id !== selectorId) el.style.display = 'none';
-    });
-    const isHidden = getComputedStyle(selector).display === 'none';
-    selector.style.display = isHidden ? 'flex' : 'none';
+    document.querySelectorAll('.case-selector').forEach(el => { if(el.id !== selectorId) el.style.display = 'none'; });
+    selector.style.display = (getComputedStyle(selector).display === 'none') ? 'flex' : 'none';
 }
 
 function applyIndividualPreset(targetFieldId, count) {
     const target = document.getElementById(targetFieldId);
     if (target.value.trim() && !confirm('내용이 초기화되고 CASE 서식이 입력됩니다. 진행하시겠습니까?')) return;
-
     let presetText = "";
-    for (let i = 1; i <= count; i++) {
-        presetText += `CASE ${i}. \n\n`;
-    }
+    for (let i = 1; i <= count; i++) presetText += `CASE ${i}. \n\n`;
     target.value = presetText.trim();
     document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none');
     generateTemplate();
 }
 
-// --- [Data Logic] 로컬 설정 데이터 로딩 및 동기화 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -179,9 +151,7 @@ function saveSettings() {
         iosVer: config.iosVer || ""
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    syncEnvironmentByOS(); 
-    handlePocChange();
-    closeModal();
+    syncEnvironmentByOS(); handlePocChange(); closeModal();
 }
 
 function syncEnvironmentByOS() {
@@ -228,7 +198,6 @@ function handlePocChange() {
     generateTemplate();
 }
 
-// --- [Template Engine] 리포트 조립 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
@@ -267,46 +236,18 @@ function generateTemplate() {
     document.getElementById('outputBody').value = body.trim();
 }
 
-// --- [Modals] 모달 제어 ---
 function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+function copySpecific(id) { const el = document.getElementById(id); if (!el.value.trim()) return; el.select(); document.execCommand('copy'); alert('복사되었습니다.'); }
+function copyAll() { const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`; if (!combined.trim()) return; const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combined; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 내용이 복사되었습니다.'); }
+function clearForm() { if(!confirm('내용을 초기화할까요?')) return; ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('prefix_critical').value = ''; document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none'); generateTemplate(); }
 
-// --- [Utility] 복사 및 초기화 ---
-function copySpecific(id) {
-    const el = document.getElementById(id);
-    if (!el.value.trim()) return;
-    el.select();
-    document.execCommand('copy');
-    alert('복사되었습니다.');
-}
-
-function copyAll() {
-    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
-    if (!combined.trim()) return;
-    const t = document.createElement("textarea");
-    document.body.appendChild(t);
-    t.value = combined; t.select();
-    document.execCommand("copy");
-    document.body.removeChild(t);
-    alert('전체 내용이 복사되었습니다.');
-}
-
-function clearForm() {
-    if(!confirm('내용을 초기화할까요?')) return;
-    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
-    document.getElementById('prefix_critical').value = '';
-    document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none');
-    generateTemplate();
-}
-
-// --- [Start] 시스템 초기화 ---
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
-    initPresenceSystem(); // 구글 로그인 및 접속자 감지 시작
+    initPresenceSystem();
+    renderChangelog(); // 패치 노트 동적 렌더링 실행
     
     const config = loadConfig();
     if(config) {
