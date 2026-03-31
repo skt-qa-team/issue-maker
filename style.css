@@ -1,5 +1,5 @@
 /* =========================================
-   [V18.7 Theme Engine] CSS 변수 정의
+   [V18.8 Theme Engine] CSS 변수 정의
    ========================================= */
 :root {
     --bg-color: #f0f2f5;        /* 전체 배경 */
@@ -12,7 +12,7 @@
 /* [Global] 전역 스타일 및 초기화 */
 body { 
     font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; 
-    background-color: var(--bg-color); /* 변수 적용 */
+    background-color: var(--bg-color); 
     color: var(--text-main);
     margin: 0; 
     padding: 20px; 
@@ -21,7 +21,7 @@ body {
     overflow: hidden; 
     display: flex; 
     flex-direction: column;
-    transition: background-color 0.3s ease, color 0.3s ease; /* 색상 변경 시 부드러운 전환 효과 */
+    transition: background-color 0.3s ease, color 0.3s ease; 
 }
 
 /* [Header] 상단 헤더 바 레이아웃 (100% 확장) */
@@ -297,6 +297,21 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 .modal-header h2 { margin: 0; border: none; padding: 0; }
 .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-sub); transition: 0.3s;}
 .setting-box { background: var(--bg-color); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border-color); transition: 0.3s;}
+
+/* [V18.8 신규] 프리셋 원형 버튼 디자인 */
+.preset-group { display: flex; justify-content: center; gap: 15px; padding: 10px 0; }
+.preset-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+}
+.preset-circle:hover {
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
 
 .changelog-list { display: flex; flex-direction: column; gap: 20px; }
 .changelog-item { border-left: 3px solid #cbd5e1; padding-left: 15px; transition: 0.2s; }
