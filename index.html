@@ -8,15 +8,12 @@
 </head>
 <body>
 
-    <!-- [Header] V19.0 3단 그리드 레이아웃 -->
     <div class="top-action-bar">
-        <!-- 1. [좌측] 실시간 시계 및 접속자 명단 -->
         <div class="top-bar-left-group">
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
             <div id="presence-list" class="presence-list"></div>
         </div>
         
-        <!-- 2. [중앙] 메인 타이틀 및 버전 정보 -->
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
@@ -24,7 +21,6 @@
             </div>
         </div>
 
-        <!-- 3. [우측] 시스템 제어 버튼 그룹 -->
         <div class="top-bar-btns">
             <button id="auth-btn" class="auth-btn" onclick="toggleAuth()" disabled>⏳ 서버 연결 중...</button>
             <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
@@ -34,10 +30,7 @@
         </div>
     </div>
 
-    <!-- [Main Content] 3단 패널 구조 -->
     <div class="wrapper">
-        
-        <!-- Panel 1: 사용 가이드 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
@@ -61,7 +54,6 @@
             </div>
         </div>
 
-        <!-- Panel 2: 데이터 입력 폼 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -205,7 +197,6 @@
             </div>
         </div>
 
-        <!-- Panel 3: 리포트 출력 결과 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -232,7 +223,6 @@
         </div>
     </div>
 
-    <!-- [Modal] 테마 팔레트 모달 -->
     <div class="modal-overlay" id="themeModal">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header">
@@ -271,7 +261,6 @@
         </div>
     </div>
 
-    <!-- [Modal] 환경 설정 모달 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -294,7 +283,6 @@
         </div>
     </div>
 
-    <!-- [Modal] 패치 노트 모달 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -305,7 +293,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
