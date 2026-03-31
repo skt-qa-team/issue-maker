@@ -125,11 +125,19 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
-.guide-panel { background: var(--bg-color); }
+.guide-panel { background: var(--bg-color); display: flex; flex-direction: column; height: 100%; }
 .guide-panel h2 { font-size: 1.3rem; margin-bottom: 25px; border-left: 5px solid var(--accent-blue); padding-left: 12px; color: var(--text-main); }
 .guide-divider { height: 1px; background: var(--border-color); margin: 20px 0; }
 .guide-step h3 { font-size: 1rem; color: var(--accent-blue); margin: 0 0 10px 0; }
 .guide-step p { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin: 0; word-break: keep-all; }
+
+.extra-input-section {
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
 
 .form-group { margin-bottom: 20px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
