@@ -1,5 +1,5 @@
 /**
- * [SKM] 이슈틀 생성기 - V18.5 Core Logic (Hybrid Presence + Anti-Ghosting)
+ * [SKM] 이슈틀 생성기 - V18.7 Core Logic (Custom Color Palette)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
@@ -35,6 +35,64 @@ if (!myAnonName) {
     sessionStorage.setItem('anonColor', myAnonColor);
 }
 
+// --- [Theme Engine] 커스텀 컬러 팔레트 로직 ---
+function initCustomTheme() {
+    const savedTheme = JSON.parse(localStorage.getItem('skm_custom_palette'));
+    if(savedTheme) {
+        applyTheme(savedTheme.bg, savedTheme.panel, savedTheme.text);
+        // 모달창의 컬러 피커 값도 저장된 색으로 세팅
+        const pickerBg = document.getElementById('picker_bg');
+        const pickerPanel = document.getElementById('picker_panel');
+        const pickerText = document.getElementById('picker_text');
+        
+        if (pickerBg) pickerBg.value = savedTheme.bg;
+        if (pickerPanel) pickerPanel.value = savedTheme.panel;
+        if (pickerText) pickerText.value = savedTheme.text;
+    }
+}
+
+function applyTheme(bgColor, panelColor, textColor) {
+    // CSS :root 변수의 값을 실시간으로 변경 (화면 즉시 반영)
+    document.documentElement.style.setProperty('--bg-color', bgColor);
+    document.documentElement.style.setProperty('--panel-bg', panelColor);
+    document.documentElement.style.setProperty('--text-main', textColor);
+    document.documentElement.style.setProperty('--text-sub', textColor);
+}
+
+function previewTheme() {
+    // 사용자가 컬러 피커를 드래그할 때 실시간으로 색상이 바뀌어 보이게 함
+    const bg = document.getElementById('picker_bg').value;
+    const panel = document.getElementById('picker_panel').value;
+    const text = document.getElementById('picker_text').value;
+    applyTheme(bg, panel, text);
+}
+
+function saveTheme() {
+    const themeData = {
+        bg: document.getElementById('picker_bg').value,
+        panel: document.getElementById('picker_panel').value,
+        text: document.getElementById('picker_text').value
+    };
+    localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
+    closeThemeModal();
+}
+
+function resetTheme() {
+    // 기본 라이트 테마 색상으로 복구
+    const defBg = '#f0f2f5', defPanel = '#ffffff', defText = '#475569';
+    applyTheme(defBg, defPanel, defText);
+    document.getElementById('picker_bg').value = defBg;
+    document.getElementById('picker_panel').value = defPanel;
+    document.getElementById('picker_text').value = defText;
+    localStorage.removeItem('skm_custom_palette');
+}
+
+function openThemeModal() { document.getElementById('themeModal').style.display = 'flex'; }
+function closeThemeModal() { 
+    document.getElementById('themeModal').style.display = 'none'; 
+    initCustomTheme(); // 취소 시 원래 저장된 색으로 원복
+}
+
 // --- [Changelog Engine] 패치노트 동적 렌더링 ---
 function renderChangelog() {
     const container = document.getElementById('changelog-container');
@@ -60,7 +118,6 @@ function initPresenceSystem() {
     const allUsersRef = database.ref('presence');
     const authBtn = document.getElementById('auth-btn');
 
-    // 1. 모든 접속자 렌더링 리스너
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
@@ -89,12 +146,11 @@ function initPresenceSystem() {
         }
     });
 
-    // 2. 하이브리드 인증 상태 감지 로직
     auth.onAuthStateChanged((user) => {
         authBtn.disabled = false;
         
         if (user) {
-            // [V18.5 버그 픽스] UID가 변경되었다면 (예: 익명 -> 구글 로그인 전환 시) 과거의 유령 세션 강제 삭제
+            // 안티 고스팅: UID 변경 시 과거 세션 삭제
             if (currentUserId && currentUserId !== user.uid) {
                 database.ref('presence/' + currentUserId).remove();
             }
@@ -103,7 +159,6 @@ function initPresenceSystem() {
             const myUserRef = database.ref('presence/' + currentUserId);
             
             if (user.isAnonymous) {
-                // [익명 로그인 상태]
                 authBtn.innerText = 'G 로그인';
                 authBtn.classList.remove('logged-in');
                 
@@ -119,7 +174,6 @@ function initPresenceSystem() {
                     }
                 });
             } else {
-                // [구글 로그인 상태]
                 authBtn.innerText = 'G 로그아웃';
                 authBtn.classList.add('logged-in');
                 
@@ -136,7 +190,6 @@ function initPresenceSystem() {
                 });
             }
         } else {
-            // [로그아웃 됨] 기존 구글 세션 정보 삭제 (고스트 방지)
             if (currentUserId) {
                 database.ref('presence/' + currentUserId).remove();
                 currentUserId = null;
@@ -304,6 +357,7 @@ function copyAll() { const combined = `${document.getElementById('outputTitle').
 function clearForm() { if(!confirm('내용을 초기화할까요?')) return; ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('prefix_critical').value = ''; document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none'); generateTemplate(); }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initCustomTheme(); // 페이지 진입 시 저장된 커스텀 색상 즉시 로드
     startClock();
     initPresenceSystem();
     renderChangelog();
