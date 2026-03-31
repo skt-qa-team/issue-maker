@@ -1,5 +1,5 @@
 /**
- * [SKM] 이슈틀 생성기 - V18.4 Core Logic (Hybrid Presence: Anon + Google)
+ * [SKM] 이슈틀 생성기 - V18.5 Core Logic (Hybrid Presence + Anti-Ghosting)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
@@ -94,6 +94,11 @@ function initPresenceSystem() {
         authBtn.disabled = false;
         
         if (user) {
+            // [V18.5 버그 픽스] UID가 변경되었다면 (예: 익명 -> 구글 로그인 전환 시) 과거의 유령 세션 강제 삭제
+            if (currentUserId && currentUserId !== user.uid) {
+                database.ref('presence/' + currentUserId).remove();
+            }
+
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
             
@@ -123,7 +128,7 @@ function initPresenceSystem() {
                         myUserRef.set({
                             name: user.displayName || "이름 없음",
                             photo: user.photoURL || "",
-                            color: "#3b82f6", // 구글 유저는 기본 테마색 지정
+                            color: "#3b82f6", 
                             lastActive: firebase.database.ServerValue.TIMESTAMP
                         });
                         myUserRef.onDisconnect().remove();
@@ -131,7 +136,12 @@ function initPresenceSystem() {
                 });
             }
         } else {
-            // [로그아웃 됨] 버튼 딜레이 방지 및 즉시 익명 로그인 재시도
+            // [로그아웃 됨] 기존 구글 세션 정보 삭제 (고스트 방지)
+            if (currentUserId) {
+                database.ref('presence/' + currentUserId).remove();
+                currentUserId = null;
+            }
+
             authBtn.innerText = '⏳ 연결 중...';
             authBtn.disabled = true;
             auth.signInAnonymously().catch(e => console.error("Anon Auth Error:", e));
@@ -141,10 +151,8 @@ function initPresenceSystem() {
 
 function toggleAuth() {
     if (auth.currentUser && !auth.currentUser.isAnonymous) {
-        // 구글 로그인 상태에서 로그아웃 시도 -> 로그아웃 후 onAuthStateChanged가 익명 로그인 실행
         auth.signOut().catch(e => alert('로그아웃 실패: ' + e.message));
     } else {
-        // 익명 상태에서 구글 로그인 시도
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(e => {
             if (e.code !== 'auth/popup-closed-by-user') {
