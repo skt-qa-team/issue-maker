@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V19.0 (Balanced Layout)</title>
+    <title>[SKM] 이슈틀 생성기 - V19.1</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V19.0</span>
+                <span class="version-info">- V19.1</span>
             </div>
         </div>
 
@@ -131,7 +131,13 @@
             </div>
 
             <div class="form-group" id="appVersionGroup">
-                <label id="appVersionLabel">앱 버전</label>
+                <div class="label-action-row">
+                    <label id="appVersionLabel">앱 버전</label>
+                    <div id="ios-ver-toggle" style="display: none; gap: 8px;">
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="radio" name="ios_ver_type" value="TestFlight" checked onchange="generateTemplate()"> TF</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="radio" name="ios_ver_type" value="App Distribution" onchange="generateTemplate()"> AD</label>
+                    </div>
+                </div>
                 <input type="text" id="appVersion" oninput="generateTemplate()">
             </div>
 
@@ -272,10 +278,17 @@
                 <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
             </div>
             <div class="setting-box">
+                <label style="color: #10b981;">🟢 Android 기본 버전</label>
+                <div class="form-group"><label style="font-size: 0.75rem;">App Tester</label><input type="text" id="set_and_apptester" placeholder="예: 1.2.3"></div>
                 <label>Android 기기 (엔터 구분)</label>
                 <textarea id="set_and_devices"></textarea>
             </div>
             <div class="setting-box">
+                <label style="color: #3b82f6;">🔵 iOS 기본 버전</label>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size: 0.75rem;">TestFlight</label><input type="text" id="set_ios_testflight" placeholder="예: 1.2.3"></div>
+                    <div class="form-group"><label style="font-size: 0.75rem;">App Distribution</label><input type="text" id="set_ios_distribution" placeholder="예: 1.2.3"></div>
+                </div>
                 <label>iOS 기기 (엔터 구분)</label>
                 <textarea id="set_ios_devices"></textarea>
             </div>
