@@ -269,6 +269,52 @@ function generateTemplate() {
     document.getElementById('outputBody').value = bodyText.trim();
 }
 
+function openCompletionModal() {
+    const config = loadConfig();
+    const osType = document.getElementById('osType').value;
+    const deviceList = document.getElementById('comp_device_list');
+    deviceList.innerHTML = '';
+
+    let devices = [];
+    if (osType.includes("Android")) devices = devices.concat(config.andDevices);
+    if (osType.includes("iOS")) devices = devices.concat(config.iosDevices);
+
+    devices.forEach((dev, i) => {
+        deviceList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" onchange="updateCompletionPreview()"> ${dev}</label>`;
+    });
+
+    document.getElementById('comp_version').value = document.getElementById('appVersion').value;
+    document.getElementById('comp_server').value = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value)[0] || 'STG';
+    document.getElementById('comp_check').value = '수정 확인 완료';
+    
+    document.getElementById('completionModal').style.display = 'flex';
+    updateCompletionPreview();
+}
+
+function closeCompletionModal() { document.getElementById('completionModal').style.display = 'none'; }
+
+function updateCompletionPreview() {
+    const devices = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
+    const version = document.getElementById('comp_version').value;
+    const server = document.getElementById('comp_server').value;
+    const check = document.getElementById('comp_check').value;
+
+    const report = `■ Device(OS Ver.) : ${devices}\n■ 버젼 : ${version}\n■ 서버 : ${server}\n■ 현상 check : ${check}`;
+    document.getElementById('comp_preview').value = report;
+}
+
+function copyCompletionReport() {
+    const el = document.getElementById('comp_preview');
+    el.select();
+    document.execCommand('copy');
+    alert('완료문이 복사되었습니다.');
+    closeCompletionModal();
+}
+
+document.getElementById('comp_version').addEventListener('input', updateCompletionPreview);
+document.getElementById('comp_server').addEventListener('change', updateCompletionPreview);
+document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
+
 function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
