@@ -67,6 +67,38 @@ const changelogData = [
         ]
     },
     {
+        version: "V16.0",
+        date: "2026-03-24",
+        changes: [
+            "<b>[템플릿 엔진]</b> 리포트 자동 생성 로직(Template Engine) 전면 리팩토링 및 텍스트 조합 성능 최적화",
+            "<b>[버그 픽스]</b> 특정 조건에서 Prefix가 중복 출력되던 현상 수정"
+        ]
+    },
+    {
+        version: "V15.0",
+        date: "2026-03-22",
+        changes: [
+            "<b>[UI/UX]</b> 우측 결과 출력 패널(Result Panel) 다크 테마(Dark Theme) 전면 적용 및 코드 가독성 향상",
+            "<b>[기능 추가]</b> '제목만 복사', '본문만 복사' 개별 클립보드 복사 버튼 추가"
+        ]
+    },
+    {
+        version: "V14.0",
+        date: "2026-03-20",
+        changes: [
+            "<b>[로직 개선]</b> POC(Admin, PC Web) 전환 시 불필요한 OS 및 단말기 선택 영역 자동 숨김/표시 처리 로직 고도화",
+            "<b>[시스템]</b> 환경 설정 및 패치 노트 모달(Modal) 창 UI 디자인 개선"
+        ]
+    },
+    {
+        version: "V13.0",
+        date: "2026-03-18",
+        changes: [
+            "<b>[기능 추가]</b> 제목 Prefix 상세 조건(Critical, 특수 계정, 특정 Device, 이슈 페이지) 세분화 및 개별 입력 폼 신설",
+            "<b>[UI/UX]</b> 폼 요소 간격(Margin/Padding) 미세 조정 및 전체 레이아웃 안정성 강화"
+        ]
+    },
+    {
         version: "V12.0",
         date: "2026-03-15",
         changes: [
