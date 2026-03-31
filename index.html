@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V20.0</title>
+    <title>[SKM] 이슈틀 생성기 - V20.1</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 상단 액션 바 -->
+    <!-- [상단 액션 바] -->
     <div class="top-action-bar">
         <div class="top-bar-left-group">
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
@@ -18,7 +18,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V20.0</span>
+                <span class="version-info">- V20.1</span>
             </div>
         </div>
 
@@ -52,27 +52,21 @@
         </div>
     </div>
 
-    <!-- 헤더 구분선 -->
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
-        <!-- 좌측 가이드 및 고정 입력 패널 -->
+        <!-- [좌측 패널] -->
         <div class="panel guide-panel">
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. 독립형 단말 스위칭 (V20.0)</h3>
-                    <p>Android와 iOS 각각의 헤더에 위치한 버튼으로 검증/특수단말 목록을 개별 전환할 수 있습니다.</p>
+                    <h3>1. 독립형 스위칭 (V20.1)</h3>
+                    <p>Android와 iOS 헤더 우측의 [검증/특수] 버튼으로 목록을 개별 제어하세요.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
                     <h3>2. 스마트 초기화</h3>
-                    <p>'새로 작성' 시에도 에픽 링크와 검증 참고사항은 유지되어 반복 작업 효율을 높입니다.</p>
-                </div>
-                <div class="guide-divider"></div>
-                <div class="guide-step">
-                    <h3>3. 환경 설정</h3>
-                    <p>기기 리스트와 URL, 기본 버전 정보를 내 입맛에 맞게 저장하세요.</p>
+                    <p>'새로 작성' 시에도 에픽 링크와 검증 참고사항은 유지됩니다.</p>
                 </div>
             </div>
 
@@ -88,7 +82,7 @@
             </div>
         </div>
 
-        <!-- 중앙 이슈 입력 패널 -->
+        <!-- [중앙 입력 패널] -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -154,7 +148,6 @@
             <div class="form-group" id="deviceGroup">
                 <label>디바이스 선택</label>
                 <div class="device-split-container">
-                    <!-- Android 섹션 -->
                     <div id="andDeviceCol" class="device-col">
                         <div class="device-col-header">
                             <span style="color: #10b981;">Android</span>
@@ -166,7 +159,6 @@
                         <div id="andNormalList" class="pill-group"></div>
                         <div id="andSpecialList" class="pill-group" style="display:none;"></div>
                     </div>
-                    <!-- iOS 섹션 -->
                     <div id="iosDeviceCol" class="device-col">
                         <div class="device-col-header">
                             <span style="color: #64748b;">iOS</span>
@@ -199,7 +191,7 @@
 
             <div class="form-group">
                 <label>[Pre-Condition]</label>
-                <textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <textarea id="preCondition" oninput="generateTemplate()"></textarea>
             </div>
 
             <div class="form-group">
@@ -214,7 +206,7 @@
                         </div>
                     </div>
                 </div>
-                <textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <textarea id="steps" oninput="generateTemplate()"></textarea>
             </div>
 
             <div class="form-group">
@@ -229,7 +221,7 @@
                         </div>
                     </div>
                 </div>
-                <textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <textarea id="actualResult" oninput="generateTemplate()"></textarea>
             </div>
 
             <div class="form-group">
@@ -244,17 +236,17 @@
                         </div>
                     </div>
                 </div>
-                <textarea id="expectedResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <textarea id="expectedResult" oninput="generateTemplate()"></textarea>
             </div>
             
             <div class="form-group">
                 <label>[참고사항]</label>
-                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;">
-                <textarea id="ref_notes" placeholder="기타 참고 내용" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 참고 내용" oninput="generateTemplate()"></textarea>
             </div>
         </div>
 
-        <!-- 우측 결과 리포트 패널 -->
+        <!-- [우측 패널] -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -281,16 +273,16 @@
         </div>
     </div>
 
-    <!-- 완료문 작성 모달 -->
-    <div class="modal-overlay" id="completionModal">
+    <!-- [모달 레이어 시스템] -->
+    <div class="modal-overlay" id="completionModal" style="display: none;">
         <div class="modal-content" style="max-width: 1100px; width: 90%;">
             <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                     <h2 style="margin: 0;">✅ 완료문 작성</h2>
                     <button class="close-btn" onclick="closeCompletionModal()">×</button>
                 </div>
-                <div style="width: 100%; background: #fff1f2; border: 1px solid #fda4af; padding: 10px 15px; border-radius: 8px; color: #e11d48; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                    🚨 <span style="text-decoration: underline;">이슈 수정 후 Fix Owner 잊지 말기</span>
+                <div style="width: 100%; background: #fff1f2; border: 1px solid #fda4af; padding: 10px 15px; border-radius: 8px; color: #e11d48; font-weight: 800; font-size: 0.95rem;">
+                    🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 15px;">
@@ -309,67 +301,48 @@
                         </div>
                     </div>
                     <div class="grid-2">
-                        <div class="form-group">
-                            <label>■ 버전</label>
-                            <div id="comp_version_list" class="checkbox-group" style="min-height:50px; flex-direction:column; align-items:flex-start;"></div>
-                        </div>
-                        <div class="form-group">
-                            <label>■ 서버</label>
-                            <div id="comp_server_list" class="checkbox-group" style="min-height:50px; flex-direction:column; align-items:flex-start;"></div>
-                        </div>
+                        <div class="form-group"><label>■ 버전</label><div id="comp_version_list" class="checkbox-group" style="flex-direction:column; align-items:flex-start;"></div></div>
+                        <div class="form-group"><label>■ 서버</label><div id="comp_server_list" class="checkbox-group" style="flex-direction:column; align-items:flex-start;"></div></div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>■ 현상 check</label>
-                        <textarea id="comp_check" style="height: 100px;" placeholder="확인 내용을 입력하세요"></textarea>
-                    </div>
+                    <div class="form-group" style="margin-bottom:0;"><label>■ 현상 check</label><textarea id="comp_check" style="height: 80px;" placeholder="확인 내용을 입력하세요"></textarea></div>
                 </div>
                 <div style="display:flex; flex-direction:column;">
                     <div class="setting-box" style="background: #1e293b; flex:1; display:flex; flex-direction:column; margin-bottom:15px;">
                         <label style="color: #94a3b8; margin-bottom:10px;">📊 미리보기</label>
-                        <textarea id="comp_preview" class="output-field" style="flex:1; width:100%; font-size: 0.95rem; line-height:1.8; resize:none;" readonly></textarea>
+                        <textarea id="comp_preview" class="output-field" style="flex:1; width:100%; font-size: 0.9rem; line-height:1.8; resize:none;" readonly></textarea>
                     </div>
-                    <button class="btn-save" onclick="copyCompletionReport()" style="margin-top:0; height:60px; font-size:1.2rem;">📋 완료문 복사하기</button>
+                    <button class="btn-save" onclick="copyCompletionReport()" style="margin-top:0; height:50px;">📋 완료문 복사하기</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 테마 설정 모달 -->
-    <div class="modal-overlay" id="themeModal">
+    <div class="modal-overlay" id="themeModal" style="display: none;">
         <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header">
-                <h2>🎨 테마 커스텀</h2>
-                <button class="close-btn" onclick="closeThemeModal()">×</button>
-            </div>
-            <div class="setting-box" style="margin-bottom: 20px;">
-                <label style="margin-bottom: 12px; font-weight:bold; display:block;">🌟 테마 프리셋</label>
+            <div class="modal-header"><h2>🎨 테마 커스텀</h2><button class="close-btn" onclick="closeThemeModal()">×</button></div>
+            <div class="setting-box">
+                <label style="font-weight:bold; display:block; margin-bottom:10px;">🌟 프리셋</label>
                 <div class="preset-group">
-                    <div class="preset-circle" style="background: #ffffff; border: 1px solid #cbd5e1;" onclick="applyPreset('#f0f2f5', '#ffffff', '#475569')" title="기본"></div>
-                    <div class="preset-circle" style="background: #1e293b;" onclick="applyPreset('#0f172a', '#1e293b', '#cbd5e1')" title="다크"></div>
-                    <div class="preset-circle" style="background: #fff9f2;" onclick="applyPreset('#fbf0e6', '#fff9f2', '#5c4b37')" title="세피아"></div>
-                    <div class="preset-circle" style="background: #ffffff; border: 1px solid #bfdbfe;" onclick="applyPreset('#eff6ff', '#ffffff', '#1e3a8a')" title="네이비"></div>
-                    <div class="preset-circle" style="background: #15201d;" onclick="applyPreset('#0f1714', '#15201d', '#a7f3d0')" title="해커"></div>
+                    <div class="preset-circle" style="background: #f0f2f5;" onclick="applyPreset('#f0f2f5','#ffffff','#475569')"></div>
+                    <div class="preset-circle" style="background: #0f172a;" onclick="applyPreset('#0f172a','#1e293b','#cbd5e1')"></div>
+                    <div class="preset-circle" style="background: #fbf0e6;" onclick="applyPreset('#fbf0e6','#fff9f2','#5c4b37')"></div>
                 </div>
             </div>
-            <div class="setting-box" style="display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;"><label>배경 색상</label><input type="color" id="picker_bg" value="#f0f2f5" oninput="previewTheme()"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;"><label>패널 색상</label><input type="color" id="picker_panel" value="#ffffff" oninput="previewTheme()"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;"><label>텍스트 색상</label><input type="color" id="picker_text" value="#475569" oninput="previewTheme()"></div>
+            <div class="setting-box" style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><label>배경</label><input type="color" id="picker_bg" oninput="previewTheme()"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><label>패널</label><input type="color" id="picker_panel" oninput="previewTheme()"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><label>글자</label><input type="color" id="picker_text" oninput="previewTheme()"></div>
             </div>
-            <div class="grid-2" style="margin-top: 20px;">
-                <button class="btn-clear-sm" onclick="resetTheme()" style="width: 100%;">초기화</button>
-                <button class="btn-save" onclick="saveTheme()" style="margin-top:0;">✅ 저장</button>
+            <div class="grid-2" style="margin-top: 15px;">
+                <button class="btn-clear-sm" onclick="resetTheme()" style="width:100%;">초기화</button>
+                <button class="btn-save" onclick="saveTheme()" style="margin:0;">✅ 저장</button>
             </div>
         </div>
     </div>
 
-    <!-- 환경 설정 모달 -->
-    <div class="modal-overlay" id="settingModal">
+    <div class="modal-overlay" id="settingModal" style="display: none;">
         <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header">
-                <h2>⚙️ 환경 설정</h2>
-                <button class="close-btn" onclick="closeModal()">×</button>
-            </div>
+            <div class="modal-header"><h2>⚙️ 환경 설정</h2><button class="close-btn" onclick="closeModal()">×</button></div>
             <div class="setting-box">
                 <div class="grid-2">
                     <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
@@ -377,40 +350,32 @@
                 </div>
             </div>
             <div class="setting-box">
-                <label style="color: #10b981; font-weight:bold;">🟢 Android 설정</label>
-                <div class="form-group" style="margin-top:10px;"><label style="font-size: 0.75rem;">App Tester 기본 버전</label><input type="text" id="set_and_apptester" placeholder="예: 1.2.3"></div>
+                <label style="color:#10b981; font-weight:bold;">🟢 Android</label>
+                <div class="form-group"><label style="font-size:0.75rem;">버전</label><input type="text" id="set_and_apptester"></div>
                 <div class="grid-2">
-                    <div class="form-group"><label style="font-size: 0.75rem;">검증단말 리스트 (엔터 구분)</label><textarea id="set_and_devices" style="height:120px;"></textarea></div>
-                    <div class="form-group"><label style="font-size: 0.75rem;">특수단말 리스트 (엔터 구분)</label><textarea id="set_and_special" style="height:120px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_and_devices" style="height:100px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_and_special" style="height:100px;"></textarea></div>
                 </div>
             </div>
             <div class="setting-box">
-                <label style="color: #3b82f6; font-weight:bold;">🔵 iOS 설정</label>
-                <div class="grid-2" style="margin-top:10px;">
-                    <div class="form-group"><label style="font-size: 0.75rem;">TestFlight 버전</label><input type="text" id="set_ios_testflight" placeholder="예: 1.2.3"></div>
-                    <div class="form-group"><label style="font-size: 0.75rem;">App Distribution 버전</label><input type="text" id="set_ios_distribution" placeholder="예: 1.2.3"></div>
+                <label style="color:#3b82f6; font-weight:bold;">🔵 iOS</label>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size:0.75rem;">TF 버전</label><input type="text" id="set_ios_testflight"></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">AD 버전</label><input type="text" id="set_ios_distribution"></div>
                 </div>
                 <div class="grid-2">
-                    <div class="form-group"><label style="font-size: 0.75rem;">검증단말 리스트 (엔터 구분)</label><textarea id="set_ios_devices" style="height:120px;"></textarea></div>
-                    <div class="form-group"><label style="font-size: 0.75rem;">특수단말 리스트 (엔터 구분)</label><textarea id="set_ios_special" style="height:120px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_ios_devices" style="height:100px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_ios_special" style="height:100px;"></textarea></div>
                 </div>
             </div>
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
         </div>
     </div>
 
-    <!-- 변경사항 모달 -->
-    <div class="modal-overlay" id="changelogModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📜 업데이트 내역</h2>
-                <button class="close-btn" onclick="closeChangelogModal()">×</button>
-            </div>
-            <div class="changelog-list" id="changelog-container"></div>
-        </div>
+    <div class="modal-overlay" id="changelogModal" style="display: none;">
+        <div class="modal-content"><div class="modal-header"><h2>📜 업데이트 내역</h2><button class="close-btn" onclick="closeChangelogModal()">×</button></div><div class="changelog-list" id="changelog-container"></div></div>
     </div>
 
-    <!-- 외부 스크립트 연동 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
