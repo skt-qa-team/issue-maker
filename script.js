@@ -1,14 +1,13 @@
 /**
- * [SKM] 이슈틀 생성기 - V17.4 Core Logic (Firebase Singapore Region)
+ * [SKM] 이슈틀 생성기 - V18.0 Core Logic (Google Auth & Real-time Presence)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
 
-// 1. Firebase 설정 (싱가포르 asia-southeast1 리전 주소 반영)
+// 1. Firebase 설정 (싱가포르 asia-southeast1 리전 및 대장님의 API Key)
 const firebaseConfig = {
     apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
     authDomain: "skm-issue-helper.firebaseapp.com",
-    // [중요] 싱가포르 리전 전용 Realtime Database URL
     databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app", 
     projectId: "skm-issue-helper",
     storageBucket: "skm-issue-helper.firebasestorage.app",
@@ -22,38 +21,20 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const database = firebase.database();
+const auth = firebase.auth();
 
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
-// --- [Presence] 실시간 접속자 시스템 (V17.4) ---
-function initPresence() {
-    const list = document.getElementById('presence-list');
-    const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
-    
-    // 세션별 고유 ID 및 익명 이름 부여
-    const myId = Math.random().toString(36).substring(7);
-    const myName = "동료_" + myId.substring(0, 3);
-    const myColor = colors[Math.floor(Math.random() * colors.length)];
+let currentUserId = null; // 현재 로그인한 사용자 ID
 
-    const userRef = database.ref('presence/' + myId);
+// --- [Auth & Presence] 구글 로그인 및 실시간 접속자 시스템 (V18.0) ---
+
+function initPresenceSystem() {
+    const list = document.getElementById('presence-list');
     const allUsersRef = database.ref('presence');
 
-    // 서버 연결 상태 감시 (Firebase 전용 내부 경로)
-    database.ref('.info/connected').on('value', (snapshot) => {
-        if (snapshot.val() === true) {
-            // 접속 정보 등록
-            userRef.set({
-                name: myName,
-                color: myColor,
-                lastActive: firebase.database.ServerValue.TIMESTAMP
-            });
-            // 브라우저 종료 또는 탭 닫기 시 서버에서 즉시 내 데이터 자동 삭제
-            userRef.onDisconnect().remove();
-        }
-    });
-
-    // 접속자 명단 실시간 리스너
+    // 1. 모든 접속자 상태를 실시간으로 그려주는 리스너 (로그인 안 해도 다른 사람 볼 수 있음)
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
@@ -61,18 +42,75 @@ function initPresence() {
         if (users) {
             Object.keys(users).forEach((id) => {
                 const userData = users[id];
-                const isMe = (id === myId);
-                const initial = isMe ? "Me" : userData.name.split('_')[1].charAt(0);
+                const isMe = (id === currentUserId);
+                
+                // 구글 프로필 이미지가 있으면 img 태그 렌더링 (referrerpolicy 속성 필수)
+                let avatarContent = '';
+                if (userData.photo) {
+                    avatarContent = `<img src="${userData.photo}" alt="profile" referrerpolicy="no-referrer">`;
+                } else {
+                    avatarContent = isMe ? "Me" : userData.name.charAt(0);
+                }
                 
                 list.innerHTML += `
                     <div class="user-avatar" 
-                         style="background: ${userData.color}; ${isMe ? 'border-color: #3b82f6; z-index:5;' : ''}" 
+                         style="${isMe ? 'border-color: #3b82f6; z-index:5;' : 'border-color: #ffffff;'}" 
                          data-name="${userData.name}${isMe ? ' (나)' : ''}">
-                         ${initial}
+                         ${avatarContent}
                     </div>`;
             });
         }
     });
+
+    // 2. 내 로그인 상태 감지 및 내 상태(Presence) DB에 쓰기
+    auth.onAuthStateChanged((user) => {
+        const authBtn = document.getElementById('auth-btn');
+        
+        if (user) {
+            // [로그인 성공 상태]
+            currentUserId = user.uid;
+            authBtn.innerText = 'G 로그아웃';
+            authBtn.classList.add('logged-in');
+
+            const myUserRef = database.ref('presence/' + currentUserId);
+            
+            // 서버와 연결이 확인되면 내 구글 정보를 DB에 등록
+            database.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true && currentUserId) {
+                    myUserRef.set({
+                        name: user.displayName || "이름 없음",
+                        photo: user.photoURL || "",
+                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    // 브라우저 닫을 때 내 정보 자동 삭제
+                    myUserRef.onDisconnect().remove();
+                }
+            });
+        } else {
+            // [로그아웃 상태]
+            if (currentUserId) {
+                // 로그아웃 시 서버에서 내 정보 즉시 삭제
+                database.ref('presence/' + currentUserId).remove();
+            }
+            currentUserId = null;
+            authBtn.innerText = 'G 로그인';
+            authBtn.classList.remove('logged-in');
+        }
+    });
+}
+
+// 구글 로그인/로그아웃 버튼 클릭 함수
+function toggleAuth() {
+    if (auth.currentUser) {
+        // 로그아웃 처리
+        auth.signOut().catch((error) => alert('로그아웃 실패: ' + error.message));
+    } else {
+        // 구글 로그인 팝업 호출
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch((error) => {
+            alert('로그인 에러: ' + error.message);
+        });
+    }
 }
 
 // --- [Clock] 실시간 시간 표시 ---
@@ -117,7 +155,7 @@ function applyIndividualPreset(targetFieldId, count) {
     generateTemplate();
 }
 
-// --- [Data Logic] 데이터 로딩 및 동기화 ---
+// --- [Data Logic] 로컬 설정 데이터 로딩 및 동기화 ---
 function loadConfig() {
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!config) {
@@ -188,7 +226,7 @@ function handlePocChange() {
     generateTemplate();
 }
 
-// --- [Template Engine] 리포트 조립 ---
+// --- [Template Engine] 리포트 조립 엔진 ---
 function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
@@ -266,7 +304,8 @@ function clearForm() {
 // --- [Start] 시스템 초기화 ---
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
-    initPresence();
+    initPresenceSystem(); // 구글 로그인 및 접속자 감지 시작
+    
     const config = loadConfig();
     if(config) {
         document.getElementById('set_admin_url').value = config.adminUrl || '';
