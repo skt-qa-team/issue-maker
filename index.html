@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V19.4</title>
+    <title>[SKM] 이슈틀 생성기 - V19.5</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V19.4</span>
+                <span class="version-info">- V19.5</span>
             </div>
         </div>
 
@@ -35,8 +35,8 @@
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
-                <h3>1. 완료문 정교화 (V19.4)</h3>
-                <p>단말기 OS별 구분 및 이슈 입력창과의 실시간 연동 기능이 추가되었습니다. 버전과 서버도 체크박스로 다중 선택이 가능합니다.</p>
+                <h3>1. 와이드 완료문 (V19.5)</h3>
+                <p>완료문 작성창이 좌우 2단 구성으로 확장되었습니다. 왼쪽에서 입력하고 오른쪽에서 실시간으로 결과물을 확인하세요.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
@@ -51,7 +51,7 @@
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>4. 업데이트 확인</h3>
-                <p>📜 아이콘을 클릭하여 시스템의 진화 히스토리 및 V19.4 변경 사항을 확인하세요.</p>
+                <p>📜 아이콘을 클릭하여 시스템의 진화 히스토리 및 V19.5 변경 사항을 확인하세요.</p>
             </div>
         </div>
 
@@ -231,45 +231,49 @@
     </div>
 
     <div class="modal-overlay" id="completionModal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 1100px; width: 90%;">
             <div class="modal-header">
                 <h2>✅ 완료문 작성</h2>
                 <button class="close-btn" onclick="closeCompletionModal()">×</button>
             </div>
-            <div class="setting-box">
-                <div class="form-group">
-                    <label>■ Device(OS Ver.)</label>
-                    <div id="comp_device_area" style="display:flex; flex-direction:column; gap:10px; max-height:180px; overflow-y:auto; background:var(--bg-color); padding:10px; border-radius:8px;">
-                        <div id="comp_and_section">
-                            <div style="font-size:0.7rem; color:#10b981; font-weight:bold; margin-bottom:5px;">Android</div>
-                            <div id="comp_and_list" class="checkbox-group" style="border:none; padding:0;"></div>
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px;">
+                <div class="setting-box" style="margin-bottom:0;">
+                    <div class="form-group">
+                        <label>■ Device(OS Ver.)</label>
+                        <div id="comp_device_area" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; max-height:280px; overflow-y:auto; background:var(--bg-color); padding:15px; border-radius:8px;">
+                            <div id="comp_and_section">
+                                <div style="font-size:0.75rem; color:#10b981; font-weight:bold; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Android</div>
+                                <div id="comp_and_list" class="pill-group"></div>
+                            </div>
+                            <div id="comp_ios_section">
+                                <div style="font-size:0.75rem; color:#3b82f6; font-weight:bold; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">iOS</div>
+                                <div id="comp_ios_list" class="pill-group"></div>
+                            </div>
                         </div>
-                        <div id="comp_ios_section">
-                            <div style="font-size:0.7rem; color:#3b82f6; font-weight:bold; margin-bottom:5px;">iOS</div>
-                            <div id="comp_ios_list" class="checkbox-group" style="border:none; padding:0;"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>■ 버전</label>
+                            <div id="comp_version_list" class="checkbox-group" style="min-height:50px; flex-direction:column; align-items:flex-start;"></div>
                         </div>
+                        <div class="form-group">
+                            <label>■ 서버</label>
+                            <div id="comp_server_list" class="checkbox-group" style="min-height:50px; flex-direction:column; align-items:flex-start;"></div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>■ 현상 check</label>
+                        <textarea id="comp_check" style="height: 100px;" placeholder="확인 내용을 입력하세요"></textarea>
                     </div>
                 </div>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>■ 버전</label>
-                        <div id="comp_version_list" class="checkbox-group" style="min-height:45px;"></div>
+                <div style="display:flex; flex-direction:column;">
+                    <div class="setting-box" style="background: #1e293b; flex:1; display:flex; flex-direction:column; margin-bottom:15px;">
+                        <label style="color: #94a3b8; margin-bottom:10px;">📊 미리보기 (오른쪽 배치)</label>
+                        <textarea id="comp_preview" class="output-field" style="flex:1; width:100%; font-size: 0.95rem; line-height:1.8; resize:none;" readonly></textarea>
                     </div>
-                    <div class="form-group">
-                        <label>■ 서버</label>
-                        <div id="comp_server_list" class="checkbox-group" style="min-height:45px;"></div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>■ 현상 check</label>
-                    <textarea id="comp_check" style="height: 80px;" placeholder="확인 내용을 입력하세요"></textarea>
+                    <button class="btn-save" onclick="copyCompletionReport()" style="margin-top:0; height:60px; font-size:1.2rem;">📋 완료문 복사하기</button>
                 </div>
             </div>
-            <div class="setting-box" style="background: #1e293b;">
-                <label style="color: #94a3b8;">미리보기</label>
-                <textarea id="comp_preview" class="output-field" style="height: 110px; font-size: 0.85rem;" readonly></textarea>
-            </div>
-            <button class="btn-save" onclick="copyCompletionReport()">📋 완료문 복사하기</button>
         </div>
     </div>
 
