@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V18.4 (Hybrid Presence)</title>
+    <title>[SKM] 이슈틀 생성기 - V18.7 (Custom Palette)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
             <div class="title-area">
                 <div class="top-bar-title">
                     <span class="main-title">[SKM] 이슈틀 생성기</span>
-                    <span class="version-info">- V18.4</span>
+                    <span class="version-info">- V18.7</span>
                 </div>
                 <!-- 실시간 접속자 아바타 리스트 -->
                 <div id="presence-list" class="presence-list"></div>
@@ -23,20 +23,23 @@
         </div>
         
         <div class="top-bar-btns">
-            <!-- [아키텍처 변경] 익명/구글 하이브리드 처리를 위해 대기 텍스트 변경 -->
+            <!-- 하이브리드 서버 연결 버튼 -->
             <button id="auth-btn" class="auth-btn" onclick="toggleAuth()" disabled>⏳ 서버 연결 중...</button>
             <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
+            <!-- [신규 기능] 커스텀 테마 팔레트 모달 호출 버튼 -->
+            <div class="setting-btn-float" onclick="openThemeModal()" title="테마 색상 커스텀">🎨</div>
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
             <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
         </div>
     </div>
 
     <div class="wrapper">
+        <!-- 1. 좌측 가이드 패널 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
-                <h3>1. 초기 환경 설정 (필수)</h3>
-                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 기기 목록과 버전을 저장하세요. 브라우저에 영구 반영됩니다.</p>
+                <h3>1. 환경/테마 설정</h3>
+                <p>우측 상단의 버튼으로 기기 목록을 저장하거나 <b>테마 커스텀(🎨)</b>으로 나만의 색상을 지정하세요.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
@@ -46,7 +49,7 @@
             <div class="guide-divider"></div>
             <div class="guide-step">
                 <h3>3. 하이브리드 계정 연동</h3>
-                <p>비로그인 시 <b>익명의 동료</b>로 참여되며, 우측 상단 버튼으로 로그인하면 <b>구글 프로필 사진과 이름</b>으로 전환됩니다.</p>
+                <p>비로그인 시 <b>익명의 동료</b>로 참여되며, 로그인 시 <b>구글 프로필</b>로 즉시 전환됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
@@ -55,16 +58,17 @@
             </div>
         </div>
 
+        <!-- 2. 중앙 이슈 내용 입력 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
             <div class="form-group">
-                <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
+                <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
                 <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
             </div>
 
             <div class="prefix-panel">
-                <label style="color: #64748b; font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+                <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
                     <div>
                         <label style="font-size: 0.75rem;">Critical 구분</label>
@@ -198,6 +202,7 @@
             </div>
         </div>
 
+        <!-- 3. 우측 결과 출력 패널 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -221,6 +226,34 @@
             </div>
 
             <button class="btn-copy" onclick="copyAll()">📋 전체 복사 (제목 + 본문)</button>
+        </div>
+    </div>
+
+    <!-- [Modal] 테마 팔레트 설정 (V18.7 신규) -->
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2>🎨 나만의 테마 색상 커스텀</h2>
+                <button class="close-btn" onclick="closeThemeModal()">×</button>
+            </div>
+            <div class="setting-box" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="margin:0; font-weight:bold;">전체 배경 색상</label>
+                    <input type="color" id="picker_bg" value="#f0f2f5" oninput="previewTheme()" style="width: 60px; height: 40px; padding: 2px; cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="margin:0; font-weight:bold;">패널(입력창) 배경</label>
+                    <input type="color" id="picker_panel" value="#ffffff" oninput="previewTheme()" style="width: 60px; height: 40px; padding: 2px; cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="margin:0; font-weight:bold;">기본 텍스트 색상</label>
+                    <input type="color" id="picker_text" value="#475569" oninput="previewTheme()" style="width: 60px; height: 40px; padding: 2px; cursor: pointer;">
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top: 20px;">
+                <button class="btn-clear-sm" onclick="resetTheme()" style="width: 100%; padding: 12px; font-size: 1rem;">기본값 초기화</button>
+                <button class="btn-save" onclick="saveTheme()" style="margin-top: 0; padding: 12px;">✅ 색상 저장</button>
+            </div>
         </div>
     </div>
 
