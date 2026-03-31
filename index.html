@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V17.4 (Real-time Cloud)</title>
+    <title>[SKM] 이슈틀 생성기 - V18.0 (Google Presence)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- [Architecture] 상단 헤더 바 -->
     <div class="top-action-bar">
         <div class="top-bar-left">
             <div class="title-area">
                 <div class="top-bar-title">
                     <span class="main-title">[SKM] 이슈틀 생성기</span>
-                    <span class="version-info">- V17.4 (2026-03-31)</span>
+                    <span class="version-info">- V18.0 (2026-03-31)</span>
                 </div>
-                <!-- 실시간 접속자 아바타 리스트 -->
                 <div id="presence-list" class="presence-list"></div>
             </div>
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
         </div>
         
         <div class="top-bar-btns">
+            <button id="auth-btn" class="auth-btn" onclick="toggleAuth()">G 로그인</button>
             <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
             <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
@@ -30,7 +29,6 @@
     </div>
 
     <div class="wrapper">
-        <!-- 1. 좌측 가이드 패널 -->
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
             <div class="guide-step">
@@ -44,8 +42,8 @@
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
-                <h3>3. 실시간 서버 연동</h3>
-                <p>현재 <b>V17.4</b>는 Firebase 싱가포르 서버와 실시간으로 동기화되어 팀원의 접속 상태를 공유합니다.</p>
+                <h3>3. 구글 계정 실시간 연동</h3>
+                <p>우측 상단의 <b>[G 로그인]</b> 버튼을 누르면 나의 구글 프로필 사진과 이름이 팀원들에게 실시간으로 표시됩니다.</p>
             </div>
             <div class="guide-divider"></div>
             <div class="guide-step">
@@ -54,7 +52,6 @@
             </div>
         </div>
 
-        <!-- 2. 중앙 이슈 입력 패널 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -152,7 +149,6 @@
             </div>
         </div>
 
-        <!-- 3. 우측 결과 출력 패널 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -173,7 +169,6 @@
         </div>
     </div>
 
-    <!-- [Modal] 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
             <div class="modal-header"><h2>⚙️ 환경 설정</h2><button class="close-btn" onclick="closeModal()">×</button></div>
@@ -184,26 +179,25 @@
         </div>
     </div>
 
-    <!-- [Modal] 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <div class="modal-header"><h2>📜 시스템 진화 히스토리</h2><button class="close-btn" onclick="closeChangelogModal()">×</button></div>
             <div class="changelog-list">
                 <div class="changelog-item">
-                    <span class="version-badge">V17.4</span><span class="changelog-date">최신</span>
+                    <span class="version-badge">V18.0</span><span class="changelog-date">최신</span>
                     <ul class="changelog-desc">
-                        <li><b>[실시간]</b> Firebase 싱가포르 리전 연동 및 실시간 접속자 기능 활성화</li>
+                        <li><b>[계정 연동]</b> 구글 로그인(Google Auth) 연동 완료</li>
+                        <li><b>[실시간]</b> 익명의 동물 대신 <b>실제 팀원의 구글 프로필 사진 및 이름</b> 표시 기능 도입</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- [Firebase SDK] 핵심: script.js 실행 전 로드되어야 함 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <!-- [Main Script] -->
     <script src="script.js"></script>
 </body>
 </html>
