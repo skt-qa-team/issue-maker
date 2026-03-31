@@ -190,12 +190,14 @@ function syncEnvironmentByOS() {
 
     let ver = "";
     if (osType === "[Android/iOS]") {
-        const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        ver = `App Tester_${config.andAppTester} / ${iosType}_${(iosType==='TestFlight'?config.iosTestFlight:config.iosDistribution)}`;
-    } else if (osType === "[Android]") ver = config.andAppTester;
-    else if (osType === "[iOS]") {
-        const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        ver = (iosType==='TestFlight'?config.iosTestFlight:config.iosDistribution);
+        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        const iosVer = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
+        ver = `App Tester_${config.andAppTester} / ${iosTypeSelected}_${iosVer}`;
+    } else if (osType === "[Android]") {
+        ver = config.andAppTester;
+    } else if (osType === "[iOS]") {
+        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        ver = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
     }
     document.getElementById('appVersion').value = ver;
 
@@ -205,13 +207,12 @@ function syncEnvironmentByOS() {
 
 function toggleDeviceMode(platform) {
     const mode = document.querySelector(`input[name="${platform}_dev_mode"]:checked`).value;
-    if (platform === 'and') {
-        document.getElementById('andNormalList').style.display = mode === 'normal' ? 'flex' : 'none';
-        document.getElementById('andSpecialList').style.display = mode === 'special' ? 'flex' : 'none';
-    } else {
-        document.getElementById('iosNormalList').style.display = mode === 'normal' ? 'flex' : 'none';
-        document.getElementById('iosSpecialList').style.display = mode === 'special' ? 'flex' : 'none';
-    }
+    const normalList = document.getElementById(`${platform}NormalList`);
+    const specialList = document.getElementById(`${platform}SpecialList`);
+    
+    normalList.style.display = mode === 'normal' ? 'flex' : 'none';
+    specialList.style.display = mode === 'special' ? 'flex' : 'none';
+    
     generateTemplate();
 }
 
@@ -232,7 +233,7 @@ function generateTemplate() {
     const poc = getV('poc'); const os = getV('osType');
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     
-    // 현재 화면에 보이는(활성화된) 리스트에서 체크된 단말기만 추출
+    // 핵심 필터링: 화면에 보이고 있는(style.display !== 'none') 리스트의 체크된 단말기만 추출
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked'))
         .filter(cb => cb.closest('.pill-group').style.display !== 'none')
         .map(cb => cb.value)
@@ -241,13 +242,17 @@ function generateTemplate() {
     let ver = getV('appVersion');
     if (poc === 'T 멤버십') {
         if (os === "[Android]") ver = `App Tester_${ver}`;
-        else if (os === "[iOS]") ver = `${document.querySelector('input[name="ios_ver_type"]:checked').value}_${ver}`;
+        else if (os === "[iOS]") {
+            const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
+            ver = `${iosType}_${ver}`;
+        }
     }
 
     const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`; 
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os; 
     const pocPrefix = (poc === 'T 멤버십' || !poc) ? '' : (poc === 'PC Web' ? '[PC]' : `[${poc}]`);
+    
     const critStr = getV('prefix_critical') ? `[${getV('prefix_critical')}]` : ''; 
     const devStr = getV('prefix_device').trim() ? `[${getV('prefix_device').trim()}]` : ''; 
     const accStr = getV('prefix_account').trim() ? `[${getV('prefix_account').trim()}]` : ''; 
@@ -259,12 +264,10 @@ function generateTemplate() {
     if (poc === 'Admin' || poc === 'PC Web') envSection += `■ 서버 : ${serversArr.join(' / ')}\n■ URL : ${getV('targetUrl')}`;
     else envSection += `■ Device : ${checkedDevices || '-'}\n■ 서버 : ${serversArr.join(' / ')}\n■ 버전 : ${ver}`;
     
-    const prdRef = getV('ref_prd').trim(); 
-    const notes = getV('ref_notes').trim(); 
-    const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
+    const refSection = (getV('ref_prd').trim() || getV('ref_notes').trim()) 
+        ? `\n\n[참고사항]\n${getV('ref_prd').trim() ? '1. 상용 재현 여부 : ' + getV('ref_prd').trim() + '\n' : ''}${getV('ref_notes').trim()}` : '';
     
-    const extraNotes = getV('extra_notes').trim();
-    const extraStr = extraNotes ? `\n\n[검증 참고사항]\n${extraNotes}` : '';
+    const extraStr = getV('extra_notes').trim() ? `\n\n[검증 참고사항]\n${getV('extra_notes').trim()}` : '';
 
     const bodyText = `${envSection}\n\n[Pre-Condition]\n${getV('preCondition')}\n\n[재현스텝]\n${getV('steps')}\n\n[실행결과-문제현상]\n${getV('actualResult')}\n\n[기대결과]\n${getV('expectedResult')}${refSection}${extraStr}`;
     
@@ -303,7 +306,9 @@ function openCompletionModal() {
         sList.innerHTML += `<label class="checkbox-label" style="display:flex; align-items:center; gap:8px;"><input type="checkbox" class="comp-srv-cb" value="${label}" ${chk} onchange="updateCompletionPreview()"> ${label}</label>`;
     });
 
-    document.getElementById('comp_check').value = ''; document.getElementById('completionModal').style.display = 'flex'; updateCompletionPreview();
+    document.getElementById('comp_check').value = ''; 
+    document.getElementById('completionModal').style.display = 'flex'; 
+    updateCompletionPreview();
 }
 
 function closeCompletionModal() { document.getElementById('completionModal').style.display = 'none'; }
@@ -317,10 +322,15 @@ function copyCompletionReport() { const el = document.getElementById('comp_previ
 
 function openModal() {
     const cfg = loadConfig(); document.getElementById('settingModal').style.display = 'flex';
-    document.getElementById('set_admin_url').value = cfg.adminUrl || ''; document.getElementById('set_pc_url').value = cfg.pcUrl || '';
-    document.getElementById('set_and_apptester').value = cfg.andAppTester || ''; document.getElementById('set_ios_testflight').value = cfg.iosTestFlight || ''; document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
-    document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n'); document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
-    document.getElementById('set_ios_devices').value = (cfg.iosDevices || []).join('\n'); document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
+    document.getElementById('set_admin_url').value = cfg.adminUrl || ''; 
+    document.getElementById('set_pc_url').value = cfg.pcUrl || '';
+    document.getElementById('set_and_apptester').value = cfg.andAppTester || ''; 
+    document.getElementById('set_ios_testflight').value = cfg.iosTestFlight || ''; 
+    document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
+    document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n'); 
+    document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
+    document.getElementById('set_ios_devices').value = (cfg.iosDevices || []).join('\n'); 
+    document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
 }
 
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
@@ -328,14 +338,16 @@ function openChangelogModal() { document.getElementById('changelogModal').style.
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 function copySpecific(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); alert('복사되었습니다.'); }
 function copyAll() { 
-    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
-    const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combined; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 복사되었습니다.'); 
+    const combinedText = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
+    const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combinedText; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 복사 완료!'); 
 }
 
 function clearForm() {
     if(!confirm('초기화하시겠습니까? (에픽/참고사항 제외)')) return;
-    ['title','prefix_account','prefix_device','prefix_page','preCondition','steps','actualResult','expectedResult','ref_prd','ref_notes'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('osType').value = '[Android/iOS]'; document.getElementById('poc').value = 'T 멤버십';
+    ['title','prefix_account','prefix_device','prefix_page','preCondition','steps','actualResult','expectedResult','ref_prd', 'ref_notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('prefix_critical').value = '';
+    document.getElementById('osType').value = '[Android/iOS]'; 
+    document.getElementById('poc').value = 'T 멤버십';
     syncEnvironmentByOS(); handlePocChange();
 }
 
