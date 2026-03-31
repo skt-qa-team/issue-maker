@@ -230,8 +230,13 @@ function handlePocChange() {
 function generateTemplate() {
     const getV = (id) => document.getElementById(id).value;
     const poc = getV('poc'); const os = getV('osType');
-    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+    const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    
+    // 현재 화면에 보이는(활성화된) 리스트에서 체크된 단말기만 추출
+    const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked'))
+        .filter(cb => cb.closest('.pill-group').style.display !== 'none')
+        .map(cb => cb.value)
+        .join(' / ');
     
     let ver = getV('appVersion');
     if (poc === 'T 멤버십') {
@@ -239,13 +244,32 @@ function generateTemplate() {
         else if (os === "[iOS]") ver = `${document.querySelector('input[name="ios_ver_type"]:checked').value}_${ver}`;
     }
 
-    const title = `[${servers.join('/').replace('PRD','상용')}]${poc.includes('Web')?'':os}${poc==='T 멤버십'?'':(poc==='PC Web'?'[PC]':`[${poc}]`)} ${getV('title').trim()}`;
-    const env = `[Environment]\n■ POC : ${poc}\n${poc.includes('Web')?`■ 서버 : ${servers.join(' / ')}\n■ URL : ${getV('targetUrl')}`:`■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`}`;
+    const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
+    const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`; 
+    const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os; 
+    const pocPrefix = (poc === 'T 멤버십' || !poc) ? '' : (poc === 'PC Web' ? '[PC]' : `[${poc}]`);
+    const critStr = getV('prefix_critical') ? `[${getV('prefix_critical')}]` : ''; 
+    const devStr = getV('prefix_device').trim() ? `[${getV('prefix_device').trim()}]` : ''; 
+    const accStr = getV('prefix_account').trim() ? `[${getV('prefix_account').trim()}]` : ''; 
+    const pageStr = getV('prefix_page').trim() ? `[${getV('prefix_page').trim()}]` : '';
     
-    const body = `${env}\n\n[Pre-Condition]\n${getV('preCondition')}\n\n[재현스텝]\n${getV('steps')}\n\n[실행결과-문제현상]\n${getV('actualResult')}\n\n[기대결과]\n${getV('expectedResult')}\n\n[참고사항]\n${getV('ref_prd')?'1. 상용 재현 여부 : '+getV('ref_prd')+'\n':''}${getV('ref_notes')}\n\n[검증 참고사항]\n${getV('extra_notes')}`;
+    const titleText = `${envPrefix}${osPrefix}${pocPrefix}${critStr}${devStr}${accStr}${pageStr} ${getV('title').trim()}`.trim();
     
-    document.getElementById('outputTitle').value = title; 
-    document.getElementById('outputBody').value = body.trim();
+    let envSection = `[Environment]\n■ POC : ${poc}\n`;
+    if (poc === 'Admin' || poc === 'PC Web') envSection += `■ 서버 : ${serversArr.join(' / ')}\n■ URL : ${getV('targetUrl')}`;
+    else envSection += `■ Device : ${checkedDevices || '-'}\n■ 서버 : ${serversArr.join(' / ')}\n■ 버전 : ${ver}`;
+    
+    const prdRef = getV('ref_prd').trim(); 
+    const notes = getV('ref_notes').trim(); 
+    const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
+    
+    const extraNotes = getV('extra_notes').trim();
+    const extraStr = extraNotes ? `\n\n[검증 참고사항]\n${extraNotes}` : '';
+
+    const bodyText = `${envSection}\n\n[Pre-Condition]\n${getV('preCondition')}\n\n[재현스텝]\n${getV('steps')}\n\n[실행결과-문제현상]\n${getV('actualResult')}\n\n[기대결과]\n${getV('expectedResult')}${refSection}${extraStr}`;
+    
+    document.getElementById('outputTitle').value = titleText; 
+    document.getElementById('outputBody').value = bodyText.trim();
 }
 
 function openCompletionModal() {
