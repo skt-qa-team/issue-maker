@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V18.3 (Changelog Modularized)</title>
+    <title>[SKM] 이슈틀 생성기 - V18.4 (Hybrid Presence)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,15 +13,18 @@
             <div class="title-area">
                 <div class="top-bar-title">
                     <span class="main-title">[SKM] 이슈틀 생성기</span>
-                    <span class="version-info">- V18.3</span>
+                    <span class="version-info">- V18.4</span>
                 </div>
+                <!-- 실시간 접속자 아바타 리스트 -->
                 <div id="presence-list" class="presence-list"></div>
             </div>
+            <!-- 실시간 시계 표시 -->
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
         </div>
         
         <div class="top-bar-btns">
-            <button id="auth-btn" class="auth-btn" onclick="toggleAuth()" disabled>⏳ 인증 확인 중...</button>
+            <!-- [아키텍처 변경] 익명/구글 하이브리드 처리를 위해 대기 텍스트 변경 -->
+            <button id="auth-btn" class="auth-btn" onclick="toggleAuth()" disabled>⏳ 서버 연결 중...</button>
             <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
             <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
             <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
@@ -31,32 +34,78 @@
     <div class="wrapper">
         <div class="panel guide-panel">
             <h2>📘 사용 설명서</h2>
-            <div class="guide-step"><h3>1. 초기 환경 설정 (필수)</h3><p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 기기 목록과 버전을 저장하세요.</p></div>
+            <div class="guide-step">
+                <h3>1. 초기 환경 설정 (필수)</h3>
+                <p>우측 상단의 <b>톱니바퀴(⚙️)</b>를 눌러 기기 목록과 버전을 저장하세요. 브라우저에 영구 반영됩니다.</p>
+            </div>
             <div class="guide-divider"></div>
-            <div class="guide-step"><h3>2. 개별 필드 CASE 프리셋</h3><p>입력창 레이블 옆의 <b>CASE +</b>를 누르고 숫자를 선택하면 해당 칸에만 서식이 주입됩니다.</p></div>
+            <div class="guide-step">
+                <h3>2. 개별 필드 CASE 프리셋</h3>
+                <p>입력창 레이블 옆의 <b>CASE +</b>를 누르고 숫자를 선택하면 해당 칸에만 서식이 주입됩니다.</p>
+            </div>
             <div class="guide-divider"></div>
-            <div class="guide-step"><h3>3. 구글 계정 연동</h3><p>우측 상단의 버튼으로 로그인하면 구글 프로필 사진과 이름이 실시간 표시됩니다.</p></div>
+            <div class="guide-step">
+                <h3>3. 하이브리드 계정 연동</h3>
+                <p>비로그인 시 <b>익명의 동료</b>로 참여되며, 우측 상단 버튼으로 로그인하면 <b>구글 프로필 사진과 이름</b>으로 전환됩니다.</p>
+            </div>
             <div class="guide-divider"></div>
-            <div class="guide-step"><h3>4. 업데이트 확인</h3><p>문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 상세히 확인하세요.</p></div>
+            <div class="guide-step">
+                <h3>4. 업데이트 확인</h3>
+                <p>문서 아이콘(📜)을 클릭하여 전체 개발 히스토리를 상세히 확인하세요.</p>
+            </div>
         </div>
 
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
-            <div class="form-group"><label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label><input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()"></div>
+            
+            <div class="form-group">
+                <label style="color:#ef4444;">📌 현상 요약 (AS-IS 경로 제외하고 핵심만)</label>
+                <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
+            </div>
 
             <div class="prefix-panel">
                 <label style="color: #64748b; font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
-                    <div><label style="font-size: 0.75rem;">Critical 구분</label><select id="prefix_critical" onchange="generateTemplate()"><option value="">해당 없음</option><option value="Block">Block</option><option value="Crash">Crash</option></select></div>
-                    <div><label style="font-size: 0.75rem;">특수 계정 결함</label><input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">특정 Device 결함</label><input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">이슈 발생 페이지</label><input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()"></div>
+                    <div>
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">해당 없음</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+                    </div>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="form-group" id="osGroup"><label>OS 구분</label><select id="osType" onchange="syncEnvironmentByOS()"><option value="[Android/iOS]">[Android/iOS]</option><option value="[Android]">[Android]</option><option value="[iOS]">[iOS]</option></select></div>
-                <div class="form-group"><label>POC</label><select id="poc" onchange="handlePocChange()"><option value="T 멤버십">T 멤버십</option><option value="PC Web">PC Web</option><option value="Admin">Admin</option></select></div>
+                <div class="form-group" id="osGroup">
+                    <label>OS 구분</label>
+                    <select id="osType" onchange="syncEnvironmentByOS()">
+                        <option value="[Android/iOS]">[Android/iOS]</option>
+                        <option value="[Android]">[Android]</option>
+                        <option value="[iOS]">[iOS]</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>POC</label>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
             </div>
             
             <div class="form-group">
@@ -71,38 +120,106 @@
             <div class="form-group" id="deviceGroup">
                 <label>디바이스 선택</label>
                 <div class="device-split-container">
-                    <div id="andDeviceCol" class="device-col"><div class="device-col-header" style="color: #10b981;">Android</div><div class="pill-group" id="andCheckboxes"></div></div>
-                    <div id="iosDeviceCol" class="device-col"><div class="device-col-header" style="color: #64748b;">iOS</div><div class="pill-group" id="iosCheckboxes"></div></div>
+                    <div id="andDeviceCol" class="device-col">
+                        <div class="device-col-header" style="color: #10b981;">Android</div>
+                        <div class="pill-group" id="andCheckboxes"></div>
+                    </div>
+                    <div id="iosDeviceCol" class="device-col">
+                        <div class="device-col-header" style="color: #64748b;">iOS</div>
+                        <div class="pill-group" id="iosCheckboxes"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group" id="appVersionGroup"><label id="appVersionLabel">앱 버전</label><input type="text" id="appVersion" oninput="generateTemplate()"></div>
-            <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
+            <div class="form-group" id="appVersionGroup">
+                <label id="appVersionLabel">앱 버전</label>
+                <input type="text" id="appVersion" oninput="generateTemplate()">
+            </div>
 
-            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group" id="urlGroup" style="display: none;">
+                <label id="urlLabel">URL</label>
+                <input type="text" id="targetUrl" oninput="generateTemplate()">
+            </div>
 
             <div class="form-group">
-                <div class="label-action-row"><label>[재현스텝]</label><div class="case-ctrl"><button class="btn-case-toggle" onclick="toggleCaseSelector('selector_steps')">CASE +</button><div id="selector_steps" class="case-selector"><span onclick="applyIndividualPreset('steps', 2)">2</span><span onclick="applyIndividualPreset('steps', 3)">3</span><span onclick="applyIndividualPreset('steps', 4)">4</span></div></div></div>
+                <label>[Pre-Condition]</label>
+                <textarea id="preCondition" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[재현스텝]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_steps')">CASE +</button>
+                        <div id="selector_steps" class="case-selector">
+                            <span onclick="applyIndividualPreset('steps', 2)">2</span>
+                            <span onclick="applyIndividualPreset('steps', 3)">3</span>
+                            <span onclick="applyIndividualPreset('steps', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
                 <textarea id="steps" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
             </div>
 
             <div class="form-group">
-                <div class="label-action-row"><label>[실행결과-문제현상]</label><div class="case-ctrl"><button class="btn-case-toggle" onclick="toggleCaseSelector('selector_actual')">CASE +</button><div id="selector_actual" class="case-selector"><span onclick="applyIndividualPreset('actualResult', 2)">2</span><span onclick="applyIndividualPreset('actualResult', 3)">3</span><span onclick="applyIndividualPreset('actualResult', 4)">4</span></div></div></div>
+                <div class="label-action-row">
+                    <label>[실행결과-문제현상]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_actual')">CASE +</button>
+                        <div id="selector_actual" class="case-selector">
+                            <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('actualResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
                 <textarea id="actualResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
             </div>
 
             <div class="form-group">
-                <div class="label-action-row"><label>[기대결과]</label><div class="case-ctrl"><button class="btn-case-toggle" onclick="toggleCaseSelector('selector_expected')">CASE +</button><div id="selector_expected" class="case-selector"><span onclick="applyIndividualPreset('expectedResult', 2)">2</span><span onclick="applyIndividualPreset('expectedResult', 3)">3</span><span onclick="applyIndividualPreset('expectedResult', 4)">4</span></div></div></div>
+                <div class="label-action-row">
+                    <label>[기대결과]</label>
+                    <div class="case-ctrl">
+                        <button class="btn-case-toggle" onclick="toggleCaseSelector('selector_expected')">CASE +</button>
+                        <div id="selector_expected" class="case-selector">
+                            <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
                 <textarea id="expectedResult" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
             </div>
             
-            <div class="form-group"><label>[참고사항]</label><input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;"><textarea id="ref_notes" placeholder="기타 추가 참고 내용" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group">
+                <label>[참고사항]</label>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" spellcheck="true" lang="ko" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 추가 참고 내용" spellcheck="true" lang="ko" oninput="generateTemplate()"></textarea>
+            </div>
         </div>
 
         <div class="panel result-panel">
-            <div class="result-header"><h2>📄 리포트 결과</h2><button class="btn-clear-sm" onclick="clearForm()">🔄 새로 작성</button></div>
-            <div class="output-section"><div class="output-label-group"><label>📌 제목 (Title)</label><button class="btn-copy-sm" onclick="copySpecific('outputTitle')">제목만 복사</button></div><input type="text" id="outputTitle" class="output-field" readonly></div>
-            <div class="output-section" style="flex:1; display:flex; flex-direction:column; min-height: 200px;"><div class="output-label-group"><label>📝 본문 (Description)</label><button class="btn-copy-sm" onclick="copySpecific('outputBody')">본문만 복사</button></div><textarea id="outputBody" class="output-field" readonly style="flex: 1; resize: none;"></textarea></div>
+            <div class="result-header">
+                <h2>📄 리포트 결과</h2>
+                <button class="btn-clear-sm" onclick="clearForm()">🔄 새로 작성</button>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-label-group">
+                    <label>📌 제목 (Title)</label>
+                    <button class="btn-copy-sm" onclick="copySpecific('outputTitle')">제목만 복사</button>
+                </div>
+                <input type="text" id="outputTitle" class="output-field" readonly>
+            </div>
+
+            <div class="output-section" style="flex:1; display:flex; flex-direction:column; min-height: 200px;">
+                <div class="output-label-group">
+                    <label>📝 본문 (Description)</label>
+                    <button class="btn-copy-sm" onclick="copySpecific('outputBody')">본문만 복사</button>
+                </div>
+                <textarea id="outputBody" class="output-field" readonly style="flex: 1; resize: none;"></textarea>
+            </div>
+
             <button class="btn-copy" onclick="copyAll()">📋 전체 복사 (제목 + 본문)</button>
         </div>
     </div>
@@ -110,31 +227,42 @@
     <!-- [Modal] 환경 설정 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content">
-            <div class="modal-header"><h2>⚙️ 환경 설정</h2><button class="close-btn" onclick="closeModal()">×</button></div>
-            <div class="setting-box"><div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div><div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div></div>
-            <div class="setting-box"><label>Android 기기 (엔터 구분)</label><textarea id="set_and_devices"></textarea></div>
-            <div class="setting-box"><label>iOS 기기 (엔터 구분)</label><textarea id="set_ios_devices"></textarea></div>
+            <div class="modal-header">
+                <h2>⚙️ 환경 설정</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="setting-box">
+                <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
+                <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
+            </div>
+            <div class="setting-box">
+                <label>Android 기기 (엔터 구분)</label>
+                <textarea id="set_and_devices"></textarea>
+            </div>
+            <div class="setting-box">
+                <label>iOS 기기 (엔터 구분)</label>
+                <textarea id="set_ios_devices"></textarea>
+            </div>
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
         </div>
     </div>
 
-    <!-- [Modal] 패치 노트 (동적 렌더링 영역으로 변경) -->
+    <!-- [Modal] 패치 노트 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
-            <div class="modal-header"><h2>📜 시스템 전체 진화 히스토리</h2><button class="close-btn" onclick="closeChangelogModal()">×</button></div>
-            <!-- JS가 이 안을 채웁니다 -->
+            <div class="modal-header">
+                <h2>📜 시스템 전체 진화 히스토리</h2>
+                <button class="close-btn" onclick="closeChangelogModal()">×</button>
+            </div>
             <div class="changelog-list" id="changelog-container"></div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <!-- [신규 추가] 패치 노트 데이터 로드 -->
     <script src="changelog.js"></script>
-    <!-- [Main Script] -->
     <script src="script.js"></script>
 </body>
 </html>
