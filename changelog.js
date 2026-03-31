@@ -1,254 +1,237 @@
-/**
- * [SKM] 이슈틀 생성기 - Patch Notes Data
- * 새로운 업데이트 발생 시 이 배열의 맨 위에 객체를 추가하면 자동으로 렌더링됩니다.
- */
+:root {
+    --bg-color: #f0f2f5;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sub: #475569;
+    --border-color: #e2e8f0;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+}
 
-const changelogData = [
-    {
-        version: "V19.1",
-        date: "2026-03-31",
-        changes: [
-            "<b>[데이터 관리]</b> 환경 설정 내 플랫폼별 상세 앱 버전(App Tester, TestFlight, App Distribution) 필드 신설",
-            "<b>[템플릿 로직]</b> 이슈 리포트 내 버전 표기 양식 고도화 (예: TestFlight_20.6.0(STG))",
-            "<b>[UI 개선]</b> iOS 버전 선택(TestFlight / App Distribution) 토글 기능 추가"
-        ]
-    },
-    {
-        version: "V19.0",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UI/UX]</b> 상단 헤더 레이아웃 전면 재구조화 (좌: 시계/접속자, 중: 제목/버전, 우: 액션버튼)",
-            "<b>[UI/UX]</b> 그리드(Grid) 시스템 도입을 통한 완벽한 중앙 정렬 및 시각적 균형 최적화"
-        ]
-    },
-    {
-        version: "V18.9",
-        date: "2026-03-31",
-        changes: [
-            "<b>[데이터 무결성]</b> 환경 설정 모달 내 '기본 앱 버전(Android/iOS)' 저장 필드 신설 및 연동",
-            "<b>[엔진 고도화]</b> 테마 프리셋 선택 시 컬러 피커 실시간 동기화 로직 및 예외 처리 강화"
-        ]
-    },
-    {
-        version: "V18.8",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UI/UX]</b> 눈이 편안하고 가독성이 뛰어난 테마 프리셋(Preset) 5종 탑재 (다크, 세피아, 네이비 등)",
-            "<b>[기능 추가]</b> 원클릭 프리셋 적용 및 커스텀 컬러 피커(Color Picker) 값 자동 동기화 로직 구현"
-        ]
-    },
-    {
-        version: "V18.7",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UI/UX]</b> CSS 변수(Variables) 아키텍처 도입 및 무한 색상 커스텀 팔레트(Color Picker) 기능 탑재",
-            "<b>[개인화]</b> 배경, 패널, 텍스트 색상을 자유롭게 선택하고 실시간 프리뷰 및 개별 로컬 저장하는 테마 엔진 구축"
-        ]
-    },
-    {
-        version: "V18.5",
-        date: "2026-03-31",
-        changes: [
-            "<b>[버그 픽스]</b> 익명 -> 구글 계정 전환 시 이전 아바타가 지워지지 않고 남아있는 유령 세션(Ghost Session) 현상 해결",
-            "<b>[보안]</b> onAuthStateChanged 내부에 강제 삭제(Remove) 로직 탑재하여 안티 고스팅(Anti-Ghosting) 적용"
-        ]
-    },
-    {
-        version: "V18.4",
-        date: "2026-03-31",
-        changes: [
-            "<b>[아키텍처]</b> 익명 게스트 + 구글 인증 사용자 하이브리드(Hybrid) 접속 시스템 구축",
-            "<b>[세션 관리]</b> 백그라운드 익명 자동 로그인 및 무중단 세션 전환(업그레이드/다운그레이드) 로직 적용"
-        ]
-    },
-    {
-        version: "V18.3",
-        date: "2026-03-31",
-        changes: [
-            "<b>[아키텍처]</b> 패치 노트 시스템 모듈화 (changelog.js 분리)",
-            "<b>[최적화]</b> index.html 코드 경량화 및 동적 렌더링 엔진 탑재"
-        ]
-    },
-    {
-        version: "V18.2",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UI/UX]</b> 화면 100% 풀스크린 와이드 레이아웃(Full-bleed) 적용",
-            "<b>[UI/UX]</b> 좌측 가이드 350px 고정, 중앙 및 우측 패널 1:1 유동적 공간 분배"
-        ]
-    },
-    {
-        version: "V18.1",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UX 최적화]</b> 디바이스 선택창 세로 1열 고정 정렬 적용",
-            "<b>[UX 최적화]</b> 텍스트 입력칸 기본 높이 120px 확장 및 로그인 딜레이 깜빡임(Flickering) 방지"
-        ]
-    },
-    {
-        version: "V18.0",
-        date: "2026-03-31",
-        changes: [
-            "<b>[계정 연동]</b> 구글 로그인(Google Auth) 연동 시스템 구축",
-            "<b>[실시간]</b> 익명의 동물 대신 실제 구글 프로필 사진 및 실명 연동"
-        ]
-    },
-    {
-        version: "V17.4",
-        date: "2026-03-31",
-        changes: [
-            "<b>[실시간 서버]</b> Firebase Realtime Database (싱가포르 리전) 연동 완료",
-            "<b>[보안]</b> 익명 인증(Anonymous Auth) 및 onDisconnect를 통한 실시간 접속자 세션 관리 로직 구축"
-        ]
-    },
-    {
-        version: "V17.2",
-        date: "2026-03-31",
-        changes: [
-            "<b>[UI/UX]</b> 구글 스프레드시트 스타일의 '실시간 접속자(Presence)' UI 헤더 탑재"
-        ]
-    },
-    {
-        version: "V17.0",
-        date: "2026-03-31",
-        changes: [
-            "<b>[기능 추가]</b> 개별 필드 CASE 주입 컨트롤러 탑재 (CASE 1~4 자동 생성)",
-            "<b>[버그 픽스]</b> 디바이스 선택 필드 내 체크박스 중복 노출 결함 해결 (Pill UI 최적화)"
-        ]
-    },
-    {
-        version: "V16.4",
-        date: "2026-03-30",
-        changes: [
-            "<b>[로직 개선]</b> 서버 배열 처리 시 슬래시(/) 공백 분리 로직 적용 (제목: 공백X / 본문: 공백O)"
-        ]
-    },
-    {
-        version: "V16.0",
-        date: "2026-03-24",
-        changes: [
-            "<b>[템플릿 엔진]</b> 리포트 자동 생성 로직(Template Engine) 전면 리팩토링 및 텍스트 조합 성능 최적화",
-            "<b>[버그 픽스]</b> 특정 조건에서 Prefix가 중복 출력되던 현상 수정"
-        ]
-    },
-    {
-        version: "V15.0",
-        date: "2026-03-22",
-        changes: [
-            "<b>[UI/UX]</b> 우측 결과 출력 패널(Result Panel) 다크 테마(Dark Theme) 전면 적용 및 코드 가독성 향상",
-            "<b>[기능 추가]</b> '제목만 복사', '본문만 복사' 개별 클립보드 복사 버튼 추가"
-        ]
-    },
-    {
-        version: "V14.0",
-        date: "2026-03-20",
-        changes: [
-            "<b>[로직 개선]</b> POC(Admin, PC Web) 전환 시 불필요한 OS 및 단말기 선택 영역 자동 숨김/표시 처리 로직 고도화",
-            "<b>[시스템]</b> 환경 설정 및 패치 노트 모달(Modal) 창 UI 디자인 개선"
-        ]
-    },
-    {
-        version: "V13.0",
-        date: "2026-03-18",
-        changes: [
-            "<b>[기능 추가]</b> 제목 Prefix 상세 조건(Critical, 특수 계정, 특정 Device, 이슈 페이지) 세분화 및 개별 입력 폼 신설",
-            "<b>[UI/UX]</b> 폼 요소 간격(Margin/Padding) 미세 조정 및 전체 레이아웃 안정성 강화"
-        ]
-    },
-    {
-        version: "V12.0",
-        date: "2026-03-15",
-        changes: [
-            "<b>[아키텍처]</b> 구버전(V12) 호환성 체크 후 데이터 마이그레이션 로직 추가",
-            "<b>[로직 개선]</b> 로컬 스토리지 마스터 키(STORAGE_KEY) 체계 통합"
-        ]
-    },
-    {
-        version: "V11.0",
-        date: "2026-03-12",
-        changes: [
-            "<b>[기능 추가]</b> 원클릭 클립보드 복사(전체/제목/본문) 모듈 탑재",
-            "<b>[UI/UX]</b> 하단 고정형 결과 패널 및 복사 버튼 시각화 디자인 적용"
-        ]
-    },
-    {
-        version: "V10.0",
-        date: "2026-03-10",
-        changes: [
-            "<b>[시스템]</b> 환경 설정(Admin URL, PC URL, 기기 목록) 로컬 스토리지(Local Storage) 저장 로직 구현",
-            "<b>[UI/UX]</b> 톱니바퀴(⚙️) 아이콘 및 환경 설정 모달(Modal) 창 신규 개발"
-        ]
-    },
-    {
-        version: "V9.0",
-        date: "2026-03-08",
-        changes: [
-            "<b>[아키텍처]</b> 업무 효율 극대화를 위한 화면 3단 분할 그리드(Grid) 레이아웃 적용",
-            "<b>[기능 추가]</b> 상단 헤더 바(Header) 및 실시간 시스템 시계(Clock) 렌더링 도입"
-        ]
-    },
-    {
-        version: "V8.0",
-        date: "2026-03-06",
-        changes: [
-            "<b>[로직 개선]</b> OS(Android/iOS) 선택에 따른 테스트 디바이스 체크박스 동적 분리 렌더링",
-            "<b>[UI/UX]</b> 알약(Pill) 형태의 체크박스 UI 디자인 최초 도입"
-        ]
-    },
-    {
-        version: "V7.0",
-        date: "2026-03-05",
-        changes: [
-            "<b>[기능 추가]</b> 테스트 환경(STG, DEV, PRD) 다중 선택 및 자동 변환(PRD -> 상용) 로직 적용",
-            "<b>[기능 추가]</b> 앱 버전 입력 필드 추가 및 OS 선택 기반 자동 매핑 기능 구현"
-        ]
-    },
-    {
-        version: "V6.0",
-        date: "2026-03-04",
-        changes: [
-            "<b>[로직 개선]</b> POC(T 멤버십, PC Web, Admin) 선택에 따른 동적 UI 변경(URL 필드 토글) 로직 개발",
-            "<b>[템플릿]</b> POC 유형에 따라 리포트의 [Environment] 양식이 자동으로 변경되도록 엔진 고도화"
-        ]
-    },
-    {
-        version: "V5.0",
-        date: "2026-03-03",
-        changes: [
-            "<b>[코어 엔진]</b> 스마트 Prefix 조립 로직(Critical, 계정, 단말, 페이지) 최초 탑재",
-            "<b>[기능 추가]</b> 현상 요약 필드와 Prefix를 결합하여 최종 Title을 실시간으로 조립하는 엔진 구현"
-        ]
-    },
-    {
-        version: "V4.0",
-        date: "2026-02-28",
-        changes: [
-            "<b>[기능 추가]</b> 입력 즉시 결과가 만들어지는 실시간 프리뷰(Real-time Preview) 템플릿 엔진 적용 (oninput 이벤트)",
-            "<b>[기능 추가]</b> 참고사항(상용 재현 여부, 기타 내용) 입력 필드 추가"
-        ]
-    },
-    {
-        version: "V3.0",
-        date: "2026-02-26",
-        changes: [
-            "<b>[기능 추가]</b> 결함 리포트 필수 4대 요소(Pre-Condition, 재현스텝, 문제현상, 기대결과) 텍스트 에어리어 구축",
-            "<b>[UI/UX]</b> 폼(Form) 요소의 레이블 및 입력 영역 디자인 개선 (가독성 향상)"
-        ]
-    },
-    {
-        version: "V2.0",
-        date: "2026-02-25",
-        changes: [
-            "<b>[설계]</b> 외부 CSS 파일(style.css) 분리 및 글로벌 기본 타이포그래피/색상 테마 적용",
-            "<b>[기능 추가]</b> 초기화(새로 작성) 버튼 로직 추가"
-        ]
-    },
-    {
-        version: "V1.0",
-        date: "2026-02-24",
-        changes: [
-            "<b>[프로토타입]</b> 이슈틀 생성기 최초 HTML 뼈대 구축",
-            "<b>[설계]</b> 자바스크립트 기반의 원시적인 문자열 합치기(String Concatenation) 로직 테스트"
-        ]
-    }
-];
+body { 
+    font-family: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main);
+    margin: 0; 
+    padding: 20px; 
+    box-sizing: border-box; 
+    height: 100vh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease; 
+    -webkit-font-smoothing: antialiased;
+}
+
+.top-action-bar {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 0 15px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    z-index: 100;
+}
+
+.top-bar-left-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-self: start;
+}
+
+.top-bar-center-group {
+    justify-self: center;
+    text-align: center;
+}
+
+.top-bar-btns {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+}
+
+.main-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.8px; transition: 0.3s; }
+.version-info { font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
+
+.current-time {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 1.05rem;
+    color: #2563eb;
+    background: var(--panel-bg);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    transition: 0.3s;
+}
+
+.presence-list { display: flex; align-items: center; gap: -8px; }
+.user-avatar {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ffffff;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 0.75rem; font-weight: 800; color: white; background: #cbd5e1;
+    cursor: pointer; position: relative; transition: transform 0.2s, z-index 0.2s;
+    margin-left: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;
+}
+.user-avatar:first-child { margin-left: 0; }
+.user-avatar:hover { transform: translateY(-4px) scale(1.1); z-index: 50; }
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-avatar::after {
+    content: attr(data-name); position: absolute; bottom: -35px; left: 50%;
+    transform: translateX(-50%); background: #1e293b; color: white;
+    padding: 4px 12px; border-radius: 4px; font-size: 0.75rem;
+    white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); z-index: 100;
+}
+.user-avatar:hover::after { opacity: 1; }
+
+.auth-btn {
+    background: var(--accent-blue); color: white; border: none; padding: 10px 20px;
+    border-radius: 25px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+.auth-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+.auth-btn.logged-in { background: var(--accent-red); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
+.auth-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+.setting-btn-float {
+    background: #334155; color: white; width: 44px; height: 44px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center; cursor: pointer;
+    font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid #1e293b;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.setting-btn-float:hover { transform: translateY(-3px) scale(1.08); background: #475569; }
+.groupware-btn { background: var(--panel-bg); color: var(--text-main) !important; border-color: var(--border-color); text-decoration: none; }
+
+.wrapper { 
+    display: grid; 
+    grid-template-columns: 350px 1fr 1fr;
+    gap: 20px; 
+    flex: 1; 
+    max-width: 100%; 
+    width: 100%; 
+    margin: 0; 
+    overflow: hidden; 
+}
+
+.panel { 
+    background: var(--panel-bg); border-radius: 14px; padding: 25px; 
+    box-sizing: border-box; border: 1px solid var(--border-color); 
+    overflow-y: auto; display: flex; flex-direction: column; transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.guide-panel { background: var(--bg-color); }
+.guide-panel h2 { font-size: 1.3rem; margin-bottom: 25px; border-left: 5px solid var(--accent-blue); padding-left: 12px; color: var(--text-main); }
+.guide-divider { height: 1px; background: var(--border-color); margin: 20px 0; }
+.guide-step h3 { font-size: 1rem; color: var(--accent-blue); margin: 0 0 10px 0; }
+.guide-step p { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin: 0; word-break: keep-all; }
+
+.form-group { margin-bottom: 20px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.88rem; color: var(--text-sub); transition: 0.3s; }
+
+input[type="text"], textarea, select { 
+    width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; 
+    box-sizing: border-box; font-size: 0.95rem; background: var(--bg-color); 
+    color: var(--text-main); transition: 0.3s;
+}
+input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent-blue); outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+textarea { height: 130px; resize: vertical; line-height: 1.5; }
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: var(--bg-color); }
+.checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
+
+.device-split-container { display: flex; gap: 15px; width: 100%; }
+.device-col { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: none; }
+.device-col.active { display: block; }
+.device-col-header { font-size: 0.9rem; margin-bottom: 12px; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; color: var(--text-main); }
+
+.pill-group { display: flex; flex-direction: column; gap: 10px; }
+.pill-label { 
+    display: block; width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; 
+    border-radius: 8px; font-size: 0.85rem; cursor: pointer; background: var(--panel-bg); 
+    color: var(--text-sub); text-align: left; transition: all 0.2s ease; box-sizing: border-box; font-weight: 500;
+}
+.pill-label:hover { border-color: #94a3b8; background: #f8fafc; }
+input[type="checkbox"].pill-cb { display: none !important; }
+input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--accent-green); color: white; border-color: var(--accent-green); font-weight: 700; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25); }
+
+.prefix-panel { background: var(--bg-color); padding: 18px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 22px; }
+
+.label-action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.case-ctrl { display: flex; align-items: center; gap: 8px; }
+.btn-case-toggle { background: #eff6ff; color: var(--accent-blue); border: 1.5px solid #bfdbfe; padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+.btn-case-toggle:hover { background: var(--accent-blue); color: white; }
+.case-selector { display: none; align-items: center; gap: 6px; background: var(--panel-bg); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+.case-selector span { font-size: 0.8rem; font-weight: 800; cursor: pointer; padding: 4px 8px; color: var(--text-sub); border-radius: 4px; transition: 0.2s; }
+.case-selector span:hover { background: var(--accent-blue); color: white; }
+
+#ios-ver-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-color);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.result-panel { background: #0f172a !important; color: #f8fafc; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
+.result-panel h2 { color: #f8fafc; border-left: 5px solid var(--accent-green); padding-left: 12px; }
+.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 18px; }
+
+.output-section { margin-bottom: 22px; }
+.output-label-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.output-label-group label { color: #94a3b8 !important; font-size: 0.9rem; margin-bottom: 0; }
+
+.output-field { 
+    width: 100%; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; 
+    padding: 18px; background: #1e293b !important; color: #e2e8f0 !important; 
+    border: 1.5px solid #334155 !important; border-radius: 10px; outline: none; 
+    line-height: 1.7; font-size: 0.98rem; transition: 0.2s;
+}
+.output-field:focus { border-color: var(--accent-green) !important; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+#outputTitle { font-weight: 800; color: #38bdf8 !important; border-color: #38bdf8 !important; }
+
+.preset-group { display: flex; justify-content: center; gap: 18px; padding: 15px 0; }
+.preset-circle { 
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+    border: 3px solid transparent;
+}
+.preset-circle:hover { transform: scale(1.2) translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(6px); }
+.modal-content { background: var(--panel-bg); padding: 35px; border-radius: 16px; width: 92%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: var(--text-main); position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
+.modal-header h2 { margin: 0; font-size: 1.4rem; font-weight: 800; }
+.close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text-sub); line-height: 1; transition: color 0.2s; }
+.close-btn:hover { color: var(--accent-red); }
+
+.setting-box { background: var(--bg-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+
+.btn-copy { padding: 16px; width: 100%; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; color: white; background: var(--accent-blue); font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.btn-copy:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); }
+.btn-copy-sm { background: #334155; color: #cbd5e1; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.btn-copy-sm:hover { background: #475569; color: white; }
+.btn-clear-sm { background: transparent; color: var(--accent-red); border: 2px solid var(--accent-red); padding: 7px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+.btn-clear-sm:hover { background: var(--accent-red); color: white; }
+.btn-save { background: var(--accent-green); margin-top: 15px; width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: 0.2s; }
+.btn-save:hover { background: #059669; transform: translateY(-2px); }
+
+.changelog-list { display: flex; flex-direction: column; gap: 25px; }
+.changelog-item { border-left: 4px solid #cbd5e1; padding-left: 18px; transition: 0.2s; }
+.changelog-item:hover { border-left-color: var(--accent-blue); }
+.version-badge { background: #eff6ff; color: var(--accent-blue); padding: 5px 10px; border-radius: 6px; font-weight: 800; font-size: 0.9rem; display: inline-block; margin-bottom: 8px;}
+.changelog-date { font-size: 0.85rem; color: #94a3b8; margin-left: 10px; font-weight: 500; }
+.changelog-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.7; margin: 10px 0 0 0; padding-left: 20px; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
