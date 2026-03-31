@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V19.7</title>
+    <title>[SKM] 이슈틀 생성기 - V19.8</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,41 +17,63 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V19.7</span>
+                <span class="version-info">- V19.8</span>
             </div>
         </div>
 
         <div class="top-bar-btns">
             <button id="auth-btn" class="auth-btn" onclick="toggleAuth()" disabled>⏳ 서버 연결 중...</button>
-            <div class="setting-btn-float" onclick="openCompletionModal()" title="완료문 작성" style="background: #10b981; border-color: #059669;">✅</div>
-            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="setting-btn-float groupware-btn" title="WiseStone 그룹웨어">🏢</a>
-            <div class="setting-btn-float" onclick="openThemeModal()" title="테마 색상 커스텀">🎨</div>
-            <div class="setting-btn-float" onclick="openChangelogModal()" title="업데이트 내역">📜</div>
-            <div class="setting-btn-float" onclick="openModal()" title="환경 설정">⚙️</div>
+            
+            <div class="menu-item-wrapper" onclick="openCompletionModal()">
+                <div class="setting-btn-float" style="background: #10b981; border-color: #059669;">✅</div>
+                <span class="menu-label">완료문</span>
+            </div>
+
+            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="menu-item-wrapper no-underline">
+                <div class="setting-btn-float groupware-btn">🏢</div>
+                <span class="menu-label">그룹웨어</span>
+            </a>
+
+            <div class="menu-item-wrapper" onclick="openThemeModal()">
+                <div class="setting-btn-float">🎨</div>
+                <span class="menu-label">테마</span>
+            </div>
+
+            <div class="menu-item-wrapper" onclick="openChangelogModal()">
+                <div class="setting-btn-float">📜</div>
+                <span class="menu-label">변경사항</span>
+            </div>
+
+            <div class="menu-item-wrapper" onclick="openModal()">
+                <div class="setting-btn-float">⚙️</div>
+                <span class="menu-label">설정</span>
+            </div>
         </div>
     </div>
+
+    <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
         <div class="panel guide-panel">
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. 스마트 초기화 (V19.7)</h3>
-                    <p>'새로 작성' 시 에픽 링크와 검증 참고사항은 유지되며, 버전 및 기기 정보는 설정된 기본값으로 자동 리셋됩니다.</p>
+                    <h3>1. 직관적 UI (V19.8)</h3>
+                    <p>상단 메뉴 아이콘 하단에 설명 문구가 추가되었습니다. 필요한 기능을 더 빠르게 찾으세요.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
-                    <h3>2. 본문 최적화</h3>
-                    <p>본문 내 Epic Link 중복 노출을 제거하여 리포트의 가독성을 높였습니다.</p>
+                    <h3>2. 스마트 데이터 연동</h3>
+                    <p>선택된 단말, 서버, 버전 정보는 완료문 작성 시 실시간으로 반영됩니다.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
-                    <h3>3. 환경 설정 연동</h3>
-                    <p>초기화 후에도 환경 설정에서 지정한 기본 앱 버전과 POC가 즉시 적용됩니다.</p>
+                    <h3>3. 영속적 컨텍스트</h3>
+                    <p>에픽 링크와 검증 참고사항은 '새로 작성' 시에도 유지되어 대량 리포팅 효율을 극대화합니다.</p>
                 </div>
             </div>
 
-            <div class="extra-input-section" id="bottom_left_box" style="margin-top: 20px; padding-top: 25px; border-top: 2px dashed var(--border-color);">
+            <div class="extra-input-section" style="margin-top: 20px; padding-top: 25px; border-top: 2px dashed var(--border-color);">
                 <div class="form-group">
                     <label>🔗 Epic Link (유지 필드)</label>
                     <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
