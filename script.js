@@ -198,19 +198,19 @@ function syncEnvironmentByOS() {
         andCol.classList.add('active');
         iosCol.classList.add('active');
         iosVerToggle.style.display = 'flex';
-        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
-        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
         const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
         const iosVer = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
         document.getElementById('appVersion').value = `App Tester_${config.andAppTester} / ${iosTypeSelected}_${iosVer}`;
     } else if (osType === "[Android]") {
         andCol.classList.add('active');
-        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
         document.getElementById('appVersion').value = config.andAppTester || '';
     } else if (osType === "[iOS]") {
         iosCol.classList.add('active');
         iosVerToggle.style.display = 'flex';
-        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
         const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
         document.getElementById('appVersion').value = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
     }
@@ -272,21 +272,39 @@ function generateTemplate() {
 function openCompletionModal() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
-    const deviceList = document.getElementById('comp_device_list');
-    deviceList.innerHTML = '';
+    const currentChecked = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    
+    const andList = document.getElementById('comp_and_list');
+    const iosList = document.getElementById('comp_ios_list');
+    andList.innerHTML = ''; iosList.innerHTML = '';
 
-    let devices = [];
-    if (osType.includes("Android")) devices = devices.concat(config.andDevices);
-    if (osType.includes("iOS")) devices = devices.concat(config.iosDevices);
+    document.getElementById('comp_and_section').style.display = osType.includes("Android") ? 'block' : 'none';
+    document.getElementById('comp_ios_section').style.display = osType.includes("iOS") ? 'block' : 'none';
 
-    devices.forEach((dev, i) => {
-        deviceList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" onchange="updateCompletionPreview()"> ${dev}</label>`;
+    config.andDevices.forEach((dev, i) => {
+        const isChecked = currentChecked.includes(dev) ? 'checked' : '';
+        andList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
+    });
+    config.iosDevices.forEach((dev, i) => {
+        const isChecked = currentChecked.includes(dev) ? 'checked' : '';
+        iosList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
     });
 
-    document.getElementById('comp_version').value = document.getElementById('appVersion').value;
-    document.getElementById('comp_server').value = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value)[0] || 'STG';
-    document.getElementById('comp_check').value = '수정 확인 완료';
-    
+    const vList = document.getElementById('comp_version_list');
+    vList.innerHTML = '';
+    const versions = document.getElementById('appVersion').value.split(' / ');
+    versions.forEach((v, i) => {
+        vList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-ver-cb" value="${v}" checked onchange="updateCompletionPreview()"> ${v}</label>`;
+    });
+
+    const sList = document.getElementById('comp_server_list');
+    sList.innerHTML = '';
+    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    servers.forEach((s, i) => {
+        sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${s}" checked onchange="updateCompletionPreview()"> ${s}</label>`;
+    });
+
+    document.getElementById('comp_check').value = '';
     document.getElementById('completionModal').style.display = 'flex';
     updateCompletionPreview();
 }
@@ -295,11 +313,11 @@ function closeCompletionModal() { document.getElementById('completionModal').sty
 
 function updateCompletionPreview() {
     const devices = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
-    const version = document.getElementById('comp_version').value;
-    const server = document.getElementById('comp_server').value;
+    const versions = Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value).join(' / ') || '-';
+    const servers = Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value).join(' / ') || '-';
     const check = document.getElementById('comp_check').value;
 
-    const report = `■ Device(OS Ver.) : ${devices}\n■ 버젼 : ${version}\n■ 서버 : ${server}\n■ 현상 check : ${check}`;
+    const report = `■ Device(OS Ver.) : ${devices}\n■ 버젼 : ${versions}\n■ 서버 : ${servers}\n■ 현상 check : ${check}`;
     document.getElementById('comp_preview').value = report;
 }
 
@@ -311,8 +329,6 @@ function copyCompletionReport() {
     closeCompletionModal();
 }
 
-document.getElementById('comp_version').addEventListener('input', updateCompletionPreview);
-document.getElementById('comp_server').addEventListener('change', updateCompletionPreview);
 document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
 
 function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
