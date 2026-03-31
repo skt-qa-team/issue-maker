@@ -245,8 +245,6 @@ function generateTemplate() {
         formattedVer = `${iosType}_${formattedVer}`;
     }
 
-    const epicLink = getValue('epic_link').trim();
-    const epicStr = epicLink ? `[Epic Link] ${epicLink}\n` : '';
     const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`; 
     const osStr = (rawPoc === 'Admin' || rawPoc === 'PC Web') ? '' : osType; 
@@ -258,7 +256,7 @@ function generateTemplate() {
     const titleText = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     
-    let envSection = `${epicStr}[Environment]\n■ POC : ${rawPoc}\n`;
+    let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
     if (rawPoc === 'Admin' || rawPoc === 'PC Web') envSection += `■ 서버 : ${bodyServers}\n■ URL : ${getValue('targetUrl')}`;
     else envSection += `■ Device : ${checkedDevices || '-'}\n■ 서버 : ${bodyServers}\n■ 버전 : ${formattedVer}`;
     
@@ -345,13 +343,20 @@ function openChangelogModal() { document.getElementById('changelogModal').style.
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 function copySpecific(id) { const el = document.getElementById(id); if (!el.value.trim()) return; el.select(); document.execCommand('copy'); alert('복사되었습니다.'); }
 function copyAll() { const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`; if (!combined.trim()) return; const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combined; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 내용이 복사되었습니다.'); }
+
 function clearForm() { 
-    if(!confirm('내용을 초기화할까요?')) return; 
-    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes', 'epic_link', 'extra_notes'].forEach(id => { 
+    if(!confirm('내용을 초기화할까요? (에픽 링크/검증 참고사항 제외)')) return; 
+    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => { 
         document.getElementById(id).value = ''; 
     }); 
     document.getElementById('prefix_critical').value = ''; 
     document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none'); 
+    
+    document.getElementById('osType').value = '[Android/iOS]';
+    document.getElementById('poc').value = 'T 멤버십';
+    
+    syncEnvironmentByOS();
+    handlePocChange();
     generateTemplate(); 
 }
 
