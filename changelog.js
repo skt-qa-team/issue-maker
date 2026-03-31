@@ -5,6 +5,39 @@
 
 const changelogData = [
     {
+        version: "V19.1",
+        date: "2026-03-31",
+        changes: [
+            "<b>[데이터 관리]</b> 환경 설정 내 플랫폼별 상세 앱 버전(App Tester, TestFlight, App Distribution) 필드 신설",
+            "<b>[템플릿 로직]</b> 이슈 리포트 내 버전 표기 양식 고도화 (예: TestFlight_20.6.0(STG))",
+            "<b>[UI 개선]</b> iOS 버전 선택(TestFlight / App Distribution) 토글 기능 추가"
+        ]
+    },
+    {
+        version: "V19.0",
+        date: "2026-03-31",
+        changes: [
+            "<b>[UI/UX]</b> 상단 헤더 레이아웃 전면 재구조화 (좌: 시계/접속자, 중: 제목/버전, 우: 액션버튼)",
+            "<b>[UI/UX]</b> 그리드(Grid) 시스템 도입을 통한 완벽한 중앙 정렬 및 시각적 균형 최적화"
+        ]
+    },
+    {
+        version: "V18.9",
+        date: "2026-03-31",
+        changes: [
+            "<b>[데이터 무결성]</b> 환경 설정 모달 내 '기본 앱 버전(Android/iOS)' 저장 필드 신설 및 연동",
+            "<b>[엔진 고도화]</b> 테마 프리셋 선택 시 컬러 피커 실시간 동기화 로직 및 예외 처리 강화"
+        ]
+    },
+    {
+        version: "V18.8",
+        date: "2026-03-31",
+        changes: [
+            "<b>[UI/UX]</b> 눈이 편안하고 가독성이 뛰어난 테마 프리셋(Preset) 5종 탑재 (다크, 세피아, 네이비 등)",
+            "<b>[기능 추가]</b> 원클릭 프리셋 적용 및 커스텀 컬러 피커(Color Picker) 값 자동 동기화 로직 구현"
+        ]
+    },
+    {
         version: "V18.7",
         date: "2026-03-31",
         changes: [
