@@ -27,7 +27,8 @@ body {
 .top-action-bar {
     max-width: 100%;
     width: 100%;
-    margin: 0 0 15px 0;
+    margin: 0;
+    padding-bottom: 15px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
@@ -48,9 +49,34 @@ body {
 
 .top-bar-btns {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 20px;
     justify-self: end;
+}
+
+.menu-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.menu-item-wrapper:hover { transform: translateY(-2px); }
+.no-underline { text-decoration: none; }
+
+.menu-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-sub);
+    white-space: nowrap;
+}
+
+.header-horizontal-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
+    margin-bottom: 15px;
 }
 
 .main-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.8px; transition: 0.3s; }
@@ -90,22 +116,23 @@ body {
 .user-avatar:hover::after { opacity: 1; }
 
 .auth-btn {
-    background: var(--accent-blue); color: white; border: none; padding: 10px 20px;
-    border-radius: 25px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    background: var(--accent-blue); color: white; border: none; padding: 10px 18px;
+    border-radius: 20px; font-size: 0.8rem; font-weight: 800; cursor: pointer;
     transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    margin-top: 4px;
 }
 .auth-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
 .auth-btn.logged-in { background: var(--accent-red); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
 .auth-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
 .setting-btn-float {
-    background: #334155; color: white; width: 44px; height: 44px; border-radius: 50%;
+    background: #334155; color: white; width: 42px; height: 42px; border-radius: 50%;
     display: flex; justify-content: center; align-items: center; cursor: pointer;
-    font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid #1e293b;
+    font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #1e293b;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .setting-btn-float:hover { transform: translateY(-3px) scale(1.08); background: #475569; }
-.groupware-btn { background: var(--panel-bg); color: var(--text-main) !important; border-color: var(--border-color); text-decoration: none; }
+.groupware-btn { background: var(--panel-bg); color: var(--text-main) !important; border-color: var(--border-color); }
 
 .wrapper { 
     display: grid; 
