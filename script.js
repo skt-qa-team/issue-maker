@@ -198,19 +198,19 @@ function syncEnvironmentByOS() {
         andCol.classList.add('active');
         iosCol.classList.add('active');
         iosVerToggle.style.display = 'flex';
-        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
-        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.andDevices.forEach(dev => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${dev}" class="pill-label">${dev}</label>`; });
+        config.iosDevices.forEach(dev => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${dev}" class="pill-label">${dev}</label>`; });
         const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
         const iosVer = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
         document.getElementById('appVersion').value = `App Tester_${config.andAppTester} / ${iosTypeSelected}_${iosVer}`;
     } else if (osType === "[Android]") {
         andCol.classList.add('active');
-        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.andDevices.forEach(dev => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${dev}" class="pill-label">${dev}</label>`; });
         document.getElementById('appVersion').value = config.andAppTester || '';
     } else if (osType === "[iOS]") {
         iosCol.classList.add('active');
         iosVerToggle.style.display = 'flex';
-        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.iosDevices.forEach(dev => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${dev}" class="pill-label">${dev}</label>`; });
         const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
         document.getElementById('appVersion').value = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
     }
@@ -245,6 +245,8 @@ function generateTemplate() {
         formattedVer = `${iosType}_${formattedVer}`;
     }
 
+    const epicLink = getValue('epic_link').trim();
+    const epicStr = epicLink ? `[Epic Link] ${epicLink}\n` : '';
     const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
     const envStr = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`; 
     const osStr = (rawPoc === 'Admin' || rawPoc === 'PC Web') ? '' : osType; 
@@ -256,14 +258,18 @@ function generateTemplate() {
     const titleText = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     
-    let envSection = `[Environment]\n■ POC : ${rawPoc}\n`;
+    let envSection = `${epicStr}[Environment]\n■ POC : ${rawPoc}\n`;
     if (rawPoc === 'Admin' || rawPoc === 'PC Web') envSection += `■ 서버 : ${bodyServers}\n■ URL : ${getValue('targetUrl')}`;
     else envSection += `■ Device : ${checkedDevices || '-'}\n■ 서버 : ${bodyServers}\n■ 버전 : ${formattedVer}`;
     
     const prdRef = getValue('ref_prd').trim(); 
     const notes = getValue('ref_notes').trim(); 
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
-    const bodyText = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
+    
+    const extraNotes = getValue('extra_notes').trim();
+    const extraStr = extraNotes ? `\n\n[검증 참고사항]\n${extraNotes}` : '';
+
+    const bodyText = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}${extraStr}`;
     
     document.getElementById('outputTitle').value = titleText; 
     document.getElementById('outputBody').value = bodyText.trim();
@@ -341,7 +347,9 @@ function copySpecific(id) { const el = document.getElementById(id); if (!el.valu
 function copyAll() { const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`; if (!combined.trim()) return; const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combined; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 내용이 복사되었습니다.'); }
 function clearForm() { 
     if(!confirm('내용을 초기화할까요?')) return; 
-    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => { document.getElementById(id).value = ''; }); 
+    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes', 'epic_link', 'extra_notes'].forEach(id => { 
+        document.getElementById(id).value = ''; 
+    }); 
     document.getElementById('prefix_critical').value = ''; 
     document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none'); 
     generateTemplate(); 
