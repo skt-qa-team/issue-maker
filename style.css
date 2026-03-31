@@ -24,7 +24,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* 상단 액션 바 레이아웃 정밀 조정 */
+/* 상단 액션 바 레이아웃 */
 .top-action-bar {
     max-width: 100%;
     width: 100%;
@@ -135,7 +135,7 @@ textarea { height: 120px; resize: none; line-height: 1.5; }
 .radio-tab span { display: block; padding: 4px 10px; border-radius: 5px; font-size: 0.72rem; font-weight: 800; color: #64748b; transition: 0.2s; white-space: nowrap; }
 .radio-tab input:checked + span { background: #ffffff; color: var(--accent-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-/* 디바이스 영역 UI 수정 */
+/* 디바이스 영역 정렬 수정 */
 .device-split-container { display: flex; gap: 15px; margin-top: 10px; flex: 1; }
 .device-col { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; min-width: 0; }
 .device-col-header { 
@@ -150,24 +150,15 @@ textarea { height: 120px; resize: none; line-height: 1.5; }
     border-radius: 10px; font-size: 0.88rem; cursor: pointer; background: var(--panel-bg); 
     color: var(--text-sub); text-align: left; font-weight: 600; transition: 0.2s; box-sizing: border-box;
 }
-.pill-label:hover { border-color: var(--accent-blue); background: #f8fafc; }
 input[type="checkbox"].pill-cb { display: none !important; }
 input[type="checkbox"].pill-cb:checked + .pill-label { background: var(--accent-green); color: white; border-color: var(--accent-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
 
-/* Prefix 패널 */
 .prefix-panel { background: var(--bg-color); padding: 18px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 22px; }
-
-.label-action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.case-ctrl { display: flex; align-items: center; gap: 8px; }
-.btn-case-toggle { background: #eff6ff; color: var(--accent-blue); border: 1.5px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
 
 /* 결과 리포트 패널 (Dark) */
 .result-panel { background: #162135 !important; color: #f8fafc; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
 .result-panel h2 { color: #f8fafc; border-left: 5px solid var(--accent-green); padding-left: 12px; }
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #2e3c52; padding-bottom: 15px; }
-
-.output-label-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.output-label-group label { color: #94a3b8 !important; font-size: 0.85rem; }
 
 .output-field { 
     width: 100%; font-family: 'JetBrains Mono', 'Consolas', monospace; padding: 18px; 
@@ -176,17 +167,49 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background: var(--accent-
 }
 #outputTitle { font-weight: 800; color: #38bdf8 !important; border-color: #38bdf8 !important; }
 
-/* 하단 복사 버튼 */
-.btn-copy { 
-    padding: 18px; width: 100%; border: none; border-radius: 12px; 
-    font-weight: 800; cursor: pointer; color: white; background: var(--accent-blue); 
-    font-size: 1.1rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: 0.2s; 
-    margin-top: 20px;
+/* 핵심 수정: 모달 레이어 시스템 (스크린샷 문제 해결) */
+.modal-overlay { 
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh; 
+    background: rgba(15, 23, 42, 0.8); 
+    display: none; /* 기본 숨김 */
+    justify-content: center; 
+    align-items: center; 
+    z-index: 5000; /* 최상단 배치 */
+    backdrop-filter: blur(8px); 
 }
-.btn-copy:hover { transform: translateY(-2px); background: #2563eb; }
 
-/* 스크롤바 커스텀 */
+.modal-content { 
+    background: var(--panel-bg); 
+    padding: 35px; 
+    border-radius: 20px; 
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4); 
+    color: var(--text-main); 
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close-btn { 
+    background: #f1f5f9; border: none; font-size: 1.5rem; cursor: pointer; 
+    color: var(--text-sub); width: 32px; height: 32px; border-radius: 8px;
+    display: flex; justify-content: center; align-items: center; transition: 0.2s;
+}
+.close-btn:hover { background: var(--accent-red); color: white; }
+
+/* 버튼 공통 스타일 */
+.btn-copy { padding: 18px; width: 100%; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; background: var(--accent-blue); font-size: 1.1rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: 0.2s; margin-top: 20px; }
+.btn-save { background: var(--accent-green); width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: 800; cursor: pointer; transition: 0.2s; }
+
+.preset-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid #ddd; transition: 0.2s; }
+.preset-circle:hover { transform: scale(1.1); }
+
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
