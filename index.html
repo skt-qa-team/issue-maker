@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V19.9</title>
+    <title>[SKM] 이슈틀 생성기 - V20.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V19.9</span>
+                <span class="version-info">- V20.0</span>
             </div>
         </div>
 
@@ -61,8 +61,8 @@
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. 단말기 스위칭 (V19.9)</h3>
-                    <p>중앙의 라디오 버튼으로 검증단말과 특수단말 목록을 즉시 교체할 수 있습니다.</p>
+                    <h3>1. 독립형 단말 스위칭 (V20.0)</h3>
+                    <p>Android와 iOS 각각의 헤더에 위치한 버튼으로 검증/특수단말 목록을 개별 전환할 수 있습니다.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
@@ -72,12 +72,11 @@
                 <div class="guide-divider"></div>
                 <div class="guide-step">
                     <h3>3. 환경 설정</h3>
-                    <h3>⚙️</h3>
                     <p>기기 리스트와 URL, 기본 버전 정보를 내 입맛에 맞게 저장하세요.</p>
                 </div>
             </div>
 
-            <div class="extra-input-section" style="margin-top: 20px; padding-top: 25px; border-top: 2px dashed var(--border-color);">
+            <div class="extra-input-section">
                 <div class="form-group">
                     <label>🔗 Epic Link (유지 필드)</label>
                     <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
@@ -153,21 +152,29 @@
             </div>
             
             <div class="form-group" id="deviceGroup">
-                <div class="label-action-row">
-                    <label>디바이스 선택</label>
-                    <div class="radio-tab-group">
-                        <label class="radio-tab"><input type="radio" name="dev_mode" value="normal" checked onchange="toggleDeviceMode()"> <span>검증단말</span></label>
-                        <label class="radio-tab"><input type="radio" name="dev_mode" value="special" onchange="toggleDeviceMode()"> <span>특수단말</span></label>
-                    </div>
-                </div>
+                <label>디바이스 선택</label>
                 <div class="device-split-container">
+                    <!-- Android 섹션 -->
                     <div id="andDeviceCol" class="device-col">
-                        <div class="device-col-header" style="color: #10b981;">Android</div>
+                        <div class="device-col-header">
+                            <span style="color: #10b981;">Android</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked onchange="toggleDeviceMode('and')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
+                            </div>
+                        </div>
                         <div id="andNormalList" class="pill-group"></div>
                         <div id="andSpecialList" class="pill-group" style="display:none;"></div>
                     </div>
+                    <!-- iOS 섹션 -->
                     <div id="iosDeviceCol" class="device-col">
-                        <div class="device-col-header" style="color: #64748b;">iOS</div>
+                        <div class="device-col-header">
+                            <span style="color: #64748b;">iOS</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
+                            </div>
+                        </div>
                         <div id="iosNormalList" class="pill-group"></div>
                         <div id="iosSpecialList" class="pill-group" style="display:none;"></div>
                     </div>
