@@ -11,15 +11,14 @@ body {
     flex-direction: column;
 }
 
-/* [Header] 상단 헤더 바 레이아웃 */
+/* [Header] 상단 헤더 바 레이아웃 (100% 확장) */
 .top-action-bar {
-    max-width: 1800px;
+    max-width: 100%; /* 화면 100% 사용 */
     width: 100%;
-    margin: 0 auto 15px auto;
+    margin: 0 0 15px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 5px;
 }
 
 .top-bar-left { display: flex; align-items: center; gap: 30px; }
@@ -28,7 +27,7 @@ body {
 .main-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
 .version-info { font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
 
-/* [Presence] 실시간 접속자 아바타 리스트 (V18.0 구글 프로필 지원) */
+/* [Presence] 실시간 접속자 아바타 리스트 */
 .presence-list {
     display: flex;
     align-items: center;
@@ -46,25 +45,17 @@ body {
     font-size: 0.75rem;
     font-weight: 800;
     color: white;
-    background: #cbd5e1; /* 이미지 로드 전 기본 배경 */
+    background: #cbd5e1; 
     cursor: pointer;
     position: relative;
     transition: transform 0.2s;
     margin-left: -6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    overflow: hidden; /* 영역 밖 이미지 자르기 */
+    overflow: hidden; 
 }
 .user-avatar:first-child { margin-left: 0; }
 .user-avatar:hover { transform: translateY(-3px); z-index: 10; }
-
-/* 프로필 이미지가 동그랗게 꽉 차도록 설정 */
-.user-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* 아바타 이름 툴팁 */
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .user-avatar::after {
     content: attr(data-name);
     position: absolute;
@@ -85,7 +76,6 @@ body {
 }
 .user-avatar:hover::after { opacity: 1; }
 
-/* 실시간 시계 디자인 */
 .current-time {
     font-family: 'Consolas', monospace;
     font-size: 1.05rem;
@@ -100,7 +90,7 @@ body {
 
 .top-bar-btns { display: flex; align-items: center; gap: 12px; }
 
-/* [V18.1] 구글 로그인 버튼 전용 스타일 및 비활성화 상태 추가 */
+/* 구글 로그인 버튼 전용 스타일 */
 .auth-btn {
     background: #3b82f6;
     color: white;
@@ -119,14 +109,13 @@ body {
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
 }
 .auth-btn.logged-in {
-    background: #ef4444; /* 로그아웃 상태일 때 빨간색으로 변경 */
+    background: #ef4444; 
     box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
 }
 .auth-btn.logged-in:hover {
     background: #dc2626;
     box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
 }
-/* 인증 확인 중일 때의 비활성화 디자인 */
 .auth-btn:disabled {
     background: #94a3b8;
     cursor: not-allowed;
@@ -151,31 +140,23 @@ body {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none !important;
 }
-
 .setting-btn-float:hover { 
     transform: translateY(-3px) scale(1.05); 
     background: #475569; 
     box-shadow: 0 5px 12px rgba(0,0,0,0.2);
 }
+.groupware-btn { background: #ffffff; color: #1e293b !important; border-color: #cbd5e1; }
+.groupware-btn:hover { background: #eff6ff; border-color: #2563eb; }
 
-.groupware-btn {
-    background: #ffffff;
-    color: #1e293b !important;
-    border-color: #cbd5e1;
-}
-.groupware-btn:hover {
-    background: #eff6ff;
-    border-color: #2563eb;
-}
-
-/* [Layout] 메인 3단 래퍼 및 패널 */
+/* [Layout] 메인 3단 래퍼 및 패널 (Full-Screen 대응) */
 .wrapper { 
     display: grid; 
-    grid-template-columns: 350px 1fr 1fr; 
+    grid-template-columns: 350px 1fr 1fr; /* 좌측 패널 350px 고정, 중앙/우측 패널 남은 공간 1:1 분배 */
     gap: 20px; 
     flex: 1; 
-    max-width: 1800px; 
-    margin: 0 auto; 
+    max-width: 100%; /* 리미트 해제 (전체화면) */
+    width: 100%; 
+    margin: 0; 
     overflow: hidden; 
 }
 
@@ -206,28 +187,19 @@ input[type="text"], textarea, select {
     box-sizing: border-box; font-size: 0.9rem; background: #fff; transition: 0.2s;
 }
 input[type="text"]:focus, textarea:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-
-/* [V18.1] UX 개선: 입력창 기본 높이를 120px로 확장 */
 textarea { height: 120px; resize: vertical; }
 
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
 .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0; }
 
-/* [V18.1] 디바이스 알약 UI 최적화: 1열 세로 정렬 */
+/* 디바이스 알약 UI 최적화: 1열 세로 정렬 */
 .device-split-container { display: flex; gap: 12px; width: 100%; }
 .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
 .device-col.active { display: block; }
 .device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 
-/* 가로 나열(flex-wrap)에서 세로 1열 나열(flex-direction: column)로 변경 */
-.pill-group { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 8px; 
-}
+.pill-group { display: flex; flex-direction: column; gap: 8px; }
 input[type="checkbox"].pill-cb { display: none !important; }
-
-/* 버튼을 100% 꽉 채우고 텍스트를 좌측 정렬 */
 .pill-label { 
     display: block; 
     width: 100%;
@@ -259,69 +231,37 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 .label-action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .label-action-row label { margin-bottom: 0; }
 .case-ctrl { display: flex; align-items: center; gap: 8px; }
-
 .btn-case-toggle {
-    background: #eff6ff;
-    color: #2563eb;
-    border: 1px solid #bfdbfe;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
+    background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;
+    padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: 0.2s;
 }
 .btn-case-toggle:hover { background: #2563eb; color: white; }
-
-.case-selector {
-    display: none;
-    align-items: center;
-    gap: 4px;
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.case-selector span {
-    font-size: 0.75rem;
-    font-weight: 800;
-    cursor: pointer;
-    padding: 2px 6px;
-    color: #475569;
-    transition: 0.2s;
-    border-radius: 3px;
-}
+.case-selector { display: none; align-items: center; gap: 4px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.case-selector span { font-size: 0.75rem; font-weight: 800; cursor: pointer; padding: 2px 6px; color: #475569; transition: 0.2s; border-radius: 3px; }
 .case-selector span:hover { background: #3b82f6; color: white; }
 
 /* [Output] 결과창 패널 디자인 (다크 테마) */
 .result-panel { background: #0f172a; color: #f8fafc; }
 .result-panel h2 { color: #f8fafc; border-left: 4px solid #10b981; padding-left: 10px; }
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
-
 .output-section { margin-bottom: 20px; }
 .output-label-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .output-label-group label { color: #94a3b8; font-size: 0.9rem; }
-
 .output-field { 
     width: 100%; font-family: 'Consolas', monospace; padding: 15px; 
     background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; 
     font-size: 0.95rem; line-height: 1.6; outline: none; transition: 0.2s;
 }
 .output-field:focus { border-color: #10b981; }
-
 #outputTitle { font-weight: 700; color: #38bdf8; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.1); }
 
 /* [Button] 하단 및 유틸리티 버튼 */
 .btn-copy { padding: 14px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #3b82f6; transition: 0.2s; font-size: 1rem;}
 .btn-copy:hover { background: #2563eb; }
-
 .btn-copy-sm { background: #334155; color: #cbd5e1; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
 .btn-copy-sm:hover { background: #475569; color: #fff; }
-
 .btn-clear-sm { background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
 .btn-clear-sm:hover { background: rgba(239, 68, 68, 0.1); }
-
 .btn-save { background: #10b981; margin-top: 15px; width: 100%; padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
 .btn-save:hover { background: #059669; }
 
@@ -334,7 +274,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
 .modal-header h2 { margin: 0; border: none; padding: 0; }
 .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; }
-
 .setting-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
 
 .changelog-list { display: flex; flex-direction: column; gap: 20px; }
