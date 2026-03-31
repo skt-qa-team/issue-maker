@@ -1,9 +1,10 @@
 /**
- * [SKM] 이슈틀 생성기 - V18.3 Core Logic (Changelog Modularized)
+ * [SKM] 이슈틀 생성기 - V18.4 Core Logic (Hybrid Presence: Anon + Google)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
 
+// 1. Firebase 설정
 const firebaseConfig = {
     apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
     authDomain: "skm-issue-helper.firebaseapp.com",
@@ -22,6 +23,17 @@ const auth = firebase.auth();
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 let currentUserId = null;
+
+// 익명 사용자용 고정 정보 생성 (세션 유지)
+const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+let myAnonName = sessionStorage.getItem('anonName');
+let myAnonColor = sessionStorage.getItem('anonColor');
+if (!myAnonName) {
+    myAnonName = "동료_" + Math.random().toString(36).substring(7, 10).toUpperCase();
+    myAnonColor = colors[Math.floor(Math.random() * colors.length)];
+    sessionStorage.setItem('anonName', myAnonName);
+    sessionStorage.setItem('anonColor', myAnonColor);
+}
 
 // --- [Changelog Engine] 패치노트 동적 렌더링 ---
 function renderChangelog() {
@@ -42,12 +54,13 @@ function renderChangelog() {
     container.innerHTML = htmlString;
 }
 
-// --- [Auth & Presence] ---
+// --- [Auth & Presence] 하이브리드 인증 및 접속자 렌더링 ---
 function initPresenceSystem() {
     const list = document.getElementById('presence-list');
     const allUsersRef = database.ref('presence');
     const authBtn = document.getElementById('auth-btn');
 
+    // 1. 모든 접속자 렌더링 리스너
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
@@ -55,11 +68,20 @@ function initPresenceSystem() {
             Object.keys(users).forEach((id) => {
                 const userData = users[id];
                 const isMe = (id === currentUserId);
-                let avatarContent = userData.photo ? `<img src="${userData.photo}" alt="profile" referrerpolicy="no-referrer">` : (isMe ? "Me" : userData.name.charAt(0));
                 
+                let avatarContent = '';
+                if (userData.photo) {
+                    avatarContent = `<img src="${userData.photo}" alt="profile" referrerpolicy="no-referrer">`;
+                } else {
+                    const displayChar = userData.name.includes('_') ? userData.name.split('_')[1].charAt(0) : userData.name.charAt(0);
+                    avatarContent = isMe ? "Me" : displayChar;
+                }
+                
+                const bgColor = userData.color || '#cbd5e1';
+
                 list.innerHTML += `
                     <div class="user-avatar" 
-                         style="${isMe ? 'border-color: #3b82f6; z-index:5;' : 'border-color: #ffffff;'}" 
+                         style="background: ${bgColor}; ${isMe ? 'border-color: #3b82f6; z-index:5;' : 'border-color: #ffffff;'}" 
                          data-name="${userData.name}${isMe ? ' (나)' : ''}">
                          ${avatarContent}
                     </div>`;
@@ -67,43 +89,72 @@ function initPresenceSystem() {
         }
     });
 
+    // 2. 하이브리드 인증 상태 감지 로직
     auth.onAuthStateChanged((user) => {
         authBtn.disabled = false;
+        
         if (user) {
             currentUserId = user.uid;
-            authBtn.innerText = 'G 로그아웃';
-            authBtn.classList.add('logged-in');
-
             const myUserRef = database.ref('presence/' + currentUserId);
-            database.ref('.info/connected').on('value', (snapshot) => {
-                if (snapshot.val() === true && currentUserId) {
-                    myUserRef.set({
-                        name: user.displayName || "이름 없음",
-                        photo: user.photoURL || "",
-                        lastActive: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    myUserRef.onDisconnect().remove();
-                }
-            });
+            
+            if (user.isAnonymous) {
+                // [익명 로그인 상태]
+                authBtn.innerText = 'G 로그인';
+                authBtn.classList.remove('logged-in');
+                
+                database.ref('.info/connected').on('value', (snapshot) => {
+                    if (snapshot.val() === true && currentUserId === user.uid) {
+                        myUserRef.set({
+                            name: myAnonName,
+                            color: myAnonColor,
+                            photo: "",
+                            lastActive: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        myUserRef.onDisconnect().remove();
+                    }
+                });
+            } else {
+                // [구글 로그인 상태]
+                authBtn.innerText = 'G 로그아웃';
+                authBtn.classList.add('logged-in');
+                
+                database.ref('.info/connected').on('value', (snapshot) => {
+                    if (snapshot.val() === true && currentUserId === user.uid) {
+                        myUserRef.set({
+                            name: user.displayName || "이름 없음",
+                            photo: user.photoURL || "",
+                            color: "#3b82f6", // 구글 유저는 기본 테마색 지정
+                            lastActive: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        myUserRef.onDisconnect().remove();
+                    }
+                });
+            }
         } else {
-            if (currentUserId) database.ref('presence/' + currentUserId).remove();
-            currentUserId = null;
-            authBtn.innerText = 'G 로그인';
-            authBtn.classList.remove('logged-in');
+            // [로그아웃 됨] 버튼 딜레이 방지 및 즉시 익명 로그인 재시도
+            authBtn.innerText = '⏳ 연결 중...';
+            authBtn.disabled = true;
+            auth.signInAnonymously().catch(e => console.error("Anon Auth Error:", e));
         }
     });
 }
 
 function toggleAuth() {
-    if (auth.currentUser) {
+    if (auth.currentUser && !auth.currentUser.isAnonymous) {
+        // 구글 로그인 상태에서 로그아웃 시도 -> 로그아웃 후 onAuthStateChanged가 익명 로그인 실행
         auth.signOut().catch(e => alert('로그아웃 실패: ' + e.message));
     } else {
+        // 익명 상태에서 구글 로그인 시도
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(e => alert('로그인 에러: ' + e.message));
+        auth.signInWithPopup(provider).catch(e => {
+            if (e.code !== 'auth/popup-closed-by-user') {
+                alert('로그인 에러: ' + e.message);
+            }
+        });
     }
 }
 
-// --- [Utils & Core] ---
+// --- [Utils & Core Engine] ---
 function startClock() {
     const timeDisplay = document.getElementById('currentTime');
     if (!timeDisplay) return;
@@ -247,7 +298,7 @@ function clearForm() { if(!confirm('내용을 초기화할까요?')) return; ['t
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
     initPresenceSystem();
-    renderChangelog(); // 패치 노트 동적 렌더링 실행
+    renderChangelog();
     
     const config = loadConfig();
     if(config) {
