@@ -1,15 +1,15 @@
 /**
- * [SKM] 이슈틀 생성기 - V17.3 Core Logic (Firebase Real-time)
+ * [SKM] 이슈틀 생성기 - V17.4 Core Logic (Firebase Singapore Region)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
 
-// 1. Firebase 설정 (대장님의 실제 API 키 적용)
+// 1. Firebase 설정 (싱가포르 asia-southeast1 리전 주소 반영)
 const firebaseConfig = {
     apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
     authDomain: "skm-issue-helper.firebaseapp.com",
-    // Realtime Database URL (지역 설정에 따라 다를 수 있으나 표준 주소 적용)
-    databaseURL: "https://skm-issue-helper-default-rtdb.firebasedatabase.app", 
+    // [중요] 싱가포르 리전 전용 Realtime Database URL
+    databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app", 
     projectId: "skm-issue-helper",
     storageBucket: "skm-issue-helper.firebasestorage.app",
     messagingSenderId: "315338055920",
@@ -26,7 +26,7 @@ const database = firebase.database();
 const defaultConfig = { andDevices: [], iosDevices: [], andVer: '', iosVer: '', adminUrl: '', pcUrl: '' };
 const STORAGE_KEY = 'qa_system_config_master';
 
-// --- [Presence] 실시간 접속자 시스템 (V17.3) ---
+// --- [Presence] 실시간 접속자 시스템 (V17.4) ---
 function initPresence() {
     const list = document.getElementById('presence-list');
     const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
@@ -39,7 +39,7 @@ function initPresence() {
     const userRef = database.ref('presence/' + myId);
     const allUsersRef = database.ref('presence');
 
-    // 서버 연결 상태 감시
+    // 서버 연결 상태 감시 (Firebase 전용 내부 경로)
     database.ref('.info/connected').on('value', (snapshot) => {
         if (snapshot.val() === true) {
             // 접속 정보 등록
@@ -48,7 +48,7 @@ function initPresence() {
                 color: myColor,
                 lastActive: firebase.database.ServerValue.TIMESTAMP
             });
-            // 브라우저 종료 또는 탭 닫기 시 자동 데이터 삭제
+            // 브라우저 종료 또는 탭 닫기 시 서버에서 즉시 내 데이터 자동 삭제
             userRef.onDisconnect().remove();
         }
     });
@@ -106,7 +106,7 @@ function toggleCaseSelector(selectorId) {
 
 function applyIndividualPreset(targetFieldId, count) {
     const target = document.getElementById(targetFieldId);
-    if (target.value.trim() && !confirm('해당 칸의 내용이 초기화되고 CASE 서식이 입력됩니다. 진행하시겠습니까?')) return;
+    if (target.value.trim() && !confirm('내용이 초기화되고 CASE 서식이 입력됩니다. 진행하시겠습니까?')) return;
 
     let presetText = "";
     for (let i = 1; i <= count; i++) {
@@ -129,13 +129,14 @@ function loadConfig() {
 
 function saveSettings() {
     const getDevices = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
+    const config = loadConfig();
     const data = {
         adminUrl: document.getElementById('set_admin_url').value,
         pcUrl: document.getElementById('set_pc_url').value,
         andDevices: getDevices('set_and_devices'),
         iosDevices: getDevices('set_ios_devices'),
-        andVer: loadConfig().andVer || "",
-        iosVer: loadConfig().iosVer || ""
+        andVer: config.andVer || "",
+        iosVer: config.iosVer || ""
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     syncEnvironmentByOS(); 
@@ -192,7 +193,6 @@ function generateTemplate() {
     const getValue = (id) => document.getElementById(id).value;
     const rawPoc = getValue('poc');
     
-    // 슬래시 공백 로직 (제목: 공백X / 본문: 공백O)
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     const titleServers = serversArr.join('/'); 
     const bodyServers = serversArr.join(' / '); 
