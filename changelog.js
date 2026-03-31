@@ -5,6 +5,14 @@
 
 const changelogData = [
     {
+        version: "V18.7",
+        date: "2026-03-31",
+        changes: [
+            "<b>[UI/UX]</b> CSS 변수(Variables) 아키텍처 도입 및 무한 색상 커스텀 팔레트(Color Picker) 기능 탑재",
+            "<b>[개인화]</b> 배경, 패널, 텍스트 색상을 자유롭게 선택하고 실시간 프리뷰 및 개별 로컬 저장하는 테마 엔진 구축"
+        ]
+    },
+    {
         version: "V18.5",
         date: "2026-03-31",
         changes: [
