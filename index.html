@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V19.5</title>
+    <title>[SKM] 이슈틀 생성기 - V19.6</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V19.5</span>
+                <span class="version-info">- V19.6</span>
             </div>
         </div>
 
@@ -33,25 +33,33 @@
 
     <div class="wrapper">
         <div class="panel guide-panel">
-            <h2>📘 사용 설명서</h2>
-            <div class="guide-step">
-                <h3>1. 와이드 완료문 (V19.5)</h3>
-                <p>완료문 작성창이 좌우 2단 구성으로 확장되었습니다. 왼쪽에서 입력하고 오른쪽에서 실시간으로 결과물을 확인하세요.</p>
+            <div style="flex: 1;">
+                <h2>📘 사용 설명서</h2>
+                <div class="guide-step">
+                    <h3>1. 와이드 완료문</h3>
+                    <p>상단 ✅ 버튼을 눌러 수정 확인 리포트를 작성하세요. Fix Owner 설정을 잊지 마세요!</p>
+                </div>
+                <div class="guide-divider"></div>
+                <div class="guide-step">
+                    <h3>2. 실시간 연동</h3>
+                    <p>입력 필드값은 리포트 결과와 완료문 모달에 실시간으로 반영됩니다.</p>
+                </div>
+                <div class="guide-divider"></div>
+                <div class="guide-step">
+                    <h3>3. 업데이트 확인</h3>
+                    <p>📜 아이콘을 클릭하여 V19.6의 새로운 필드 추가 내역을 확인하세요.</p>
+                </div>
             </div>
-            <div class="guide-divider"></div>
-            <div class="guide-step">
-                <h3>2. 환경/테마 설정</h3>
-                <p>우측 상단의 버튼으로 기기 목록을 저장하거나 <b>🎨(팔레트)</b> 버튼을 눌러 나만의 가독성 테마를 설정하세요.</p>
-            </div>
-            <div class="guide-divider"></div>
-            <div class="guide-step">
-                <h3>3. 하이브리드 계정 연동</h3>
-                <p>좌측 상단에서 접속 중인 팀원을 확인하세요. 로그인 시 구글 프로필 사진과 실명이 연동됩니다.</p>
-            </div>
-            <div class="guide-divider"></div>
-            <div class="guide-step">
-                <h3>4. 업데이트 확인</h3>
-                <p>📜 아이콘을 클릭하여 시스템의 진화 히스토리 및 V19.5 변경 사항을 확인하세요.</p>
+
+            <div class="extra-input-section" style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed var(--border-color);">
+                <div class="form-group">
+                    <label>🔗 Epic Link</label>
+                    <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>💡 이번 검증 참고사항</label>
+                    <textarea id="extra_notes" style="height: 100px; font-size: 0.85rem;" placeholder="검증 시 참고할 내용을 입력하세요" oninput="generateTemplate()"></textarea>
+                </div>
             </div>
         </div>
 
@@ -232,11 +240,16 @@
 
     <div class="modal-overlay" id="completionModal">
         <div class="modal-content" style="max-width: 1100px; width: 90%;">
-            <div class="modal-header">
-                <h2>✅ 완료문 작성</h2>
-                <button class="close-btn" onclick="closeCompletionModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <h2 style="margin: 0;">✅ 완료문 작성</h2>
+                    <button class="close-btn" onclick="closeCompletionModal()">×</button>
+                </div>
+                <div style="width: 100%; background: #fff1f2; border: 1px solid #fda4af; padding: 10px 15px; border-radius: 8px; color: #e11d48; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                    🚨 <span style="text-decoration: underline;">이슈 수정 후 Fix Owner 잊지 말기</span>
+                </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px;">
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 15px;">
                 <div class="setting-box" style="margin-bottom:0;">
                     <div class="form-group">
                         <label>■ Device(OS Ver.)</label>
@@ -268,7 +281,7 @@
                 </div>
                 <div style="display:flex; flex-direction:column;">
                     <div class="setting-box" style="background: #1e293b; flex:1; display:flex; flex-direction:column; margin-bottom:15px;">
-                        <label style="color: #94a3b8; margin-bottom:10px;">📊 미리보기 (오른쪽 배치)</label>
+                        <label style="color: #94a3b8; margin-bottom:10px;">📊 미리보기</label>
                         <textarea id="comp_preview" class="output-field" style="flex:1; width:100%; font-size: 0.95rem; line-height:1.8; resize:none;" readonly></textarea>
                     </div>
                     <button class="btn-save" onclick="copyCompletionReport()" style="margin-top:0; height:60px; font-size:1.2rem;">📋 완료문 복사하기</button>
