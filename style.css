@@ -28,7 +28,7 @@ body {
 .main-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
 .version-info { font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
 
-/* [Presence] 실시간 접속자 아바타 리스트 스타일 (V17.2) */
+/* [Presence] 실시간 접속자 아바타 리스트 (V18.0 구글 프로필 지원) */
 .presence-list {
     display: flex;
     align-items: center;
@@ -36,35 +36,44 @@ body {
     margin-top: 2px;
 }
 .user-avatar {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    border: 2px solid #f0f2f5;
+    border: 2px solid #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: white;
+    background: #cbd5e1; /* 이미지 로드 전 기본 배경 */
     cursor: pointer;
     position: relative;
     transition: transform 0.2s;
     margin-left: -6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    overflow: hidden; /* 영역 밖 이미지 자르기 */
 }
 .user-avatar:first-child { margin-left: 0; }
 .user-avatar:hover { transform: translateY(-3px); z-index: 10; }
+
+/* 프로필 이미지가 동그랗게 꽉 차도록 설정 */
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
 /* 아바타 이름 툴팁 */
 .user-avatar::after {
     content: attr(data-name);
     position: absolute;
-    bottom: -28px;
+    bottom: -30px;
     left: 50%;
     transform: translateX(-50%);
     background: #1e293b;
     color: white;
-    padding: 3px 10px;
+    padding: 4px 10px;
     border-radius: 4px;
     font-size: 0.7rem;
     white-space: nowrap;
@@ -72,6 +81,7 @@ body {
     pointer-events: none;
     transition: 0.2s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 20;
 }
 .user-avatar:hover::after { opacity: 1; }
 
@@ -88,7 +98,34 @@ body {
     border: 1px solid #d1d5db;
 }
 
-.top-bar-btns { display: flex; align-items: center; gap: 15px; }
+.top-bar-btns { display: flex; align-items: center; gap: 12px; }
+
+/* [V18.0] 구글 로그인 버튼 전용 스타일 */
+.auth-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+.auth-btn:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+.auth-btn.logged-in {
+    background: #ef4444; /* 로그아웃 상태일 때 빨간색으로 변경 */
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+.auth-btn.logged-in:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+}
 
 /* 모든 액션 버튼 원형 스타일 통일 */
 .setting-btn-float {
@@ -167,18 +204,14 @@ textarea { height: 70px; resize: vertical; }
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
 .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #334155; margin: 0; }
 
-/* [Device Pill UI Fix] 체크박스 본체 숨김 및 정렬 최적화 */
+/* 디바이스 알약 UI 최적화 */
 .device-split-container { display: flex; gap: 12px; width: 100%; }
 .device-col { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: none; }
 .device-col.active { display: block; }
 .device-col-header { font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 
 .pill-group { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
-
-/* 실제 체크박스 숨기기 */
 input[type="checkbox"].pill-cb { display: none !important; }
-
-/* 레이블을 알약 형태 버튼으로 디자인 */
 .pill-label { 
     display: inline-block; 
     padding: 6px 12px; 
@@ -193,8 +226,6 @@ input[type="checkbox"].pill-cb { display: none !important; }
     user-select: none;
 }
 .pill-label:hover { background-color: #f1f5f9; border-color: #94a3b8; }
-
-/* 체크 상태 스타일 */
 input[type="checkbox"].pill-cb:checked + .pill-label { 
     background-color: #10b981; 
     color: white; 
@@ -205,7 +236,7 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 
 .prefix-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
 
-/* [CASE Engine] 개별 필드 컨트롤러 스타일 */
+/* 개별 필드 CASE 컨트롤러 스타일 */
 .label-action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .label-action-row label { margin-bottom: 0; }
 .case-ctrl { display: flex; align-items: center; gap: 8px; }
@@ -275,24 +306,26 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 .btn-save { background: #10b981; margin-top: 15px; width: 100%; padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
 .btn-save:hover { background: #059669; }
 
-/* [Modal] */
+/* [Modal] 모달 윈도우 스타일 */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); 
 }
 .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: #1e293b; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+.modal-header h2 { margin: 0; border: none; padding: 0; }
 .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; }
 
 .setting-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
 
 .changelog-list { display: flex; flex-direction: column; gap: 20px; }
-.changelog-item { border-left: 3px solid #cbd5e1; padding-left: 15px; }
+.changelog-item { border-left: 3px solid #cbd5e1; padding-left: 15px; transition: 0.2s; }
+.changelog-item:hover { border-left-color: #3b82f6; }
 .version-badge { background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; display: inline-block; margin-bottom: 5px;}
 .changelog-date { font-size: 0.8rem; color: #64748b; margin-left: 10px; }
 .changelog-desc { font-size: 0.9rem; color: #334155; line-height: 1.6; margin: 8px 0 0 0; padding-left: 20px;}
 
-/* 스크롤바 최적화 */
+/* [Utility] 스크롤바 최적화 */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
