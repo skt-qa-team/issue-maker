@@ -272,7 +272,8 @@ function generateTemplate() {
 function openCompletionModal() {
     const config = loadConfig();
     const osType = document.getElementById('osType').value;
-    const currentChecked = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    const currentCheckedDevs = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    const currentCheckedSrvs = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     
     const andList = document.getElementById('comp_and_list');
     const iosList = document.getElementById('comp_ios_list');
@@ -281,27 +282,28 @@ function openCompletionModal() {
     document.getElementById('comp_and_section').style.display = osType.includes("Android") ? 'block' : 'none';
     document.getElementById('comp_ios_section').style.display = osType.includes("iOS") ? 'block' : 'none';
 
-    config.andDevices.forEach((dev, i) => {
-        const isChecked = currentChecked.includes(dev) ? 'checked' : '';
-        andList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
+    config.andDevices.forEach(dev => {
+        const isChecked = currentCheckedDevs.includes(dev) ? 'checked' : '';
+        andList.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
     });
-    config.iosDevices.forEach((dev, i) => {
-        const isChecked = currentChecked.includes(dev) ? 'checked' : '';
-        iosList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
+    config.iosDevices.forEach(dev => {
+        const isChecked = currentCheckedDevs.includes(dev) ? 'checked' : '';
+        iosList.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
     });
 
     const vList = document.getElementById('comp_version_list');
     vList.innerHTML = '';
     const versions = document.getElementById('appVersion').value.split(' / ');
-    versions.forEach((v, i) => {
-        vList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-ver-cb" value="${v}" checked onchange="updateCompletionPreview()"> ${v}</label>`;
+    versions.forEach(v => {
+        vList.innerHTML += `<label class="checkbox-label" style="display:flex; align-items:center; gap:8px;"><input type="checkbox" class="comp-ver-cb" value="${v}" checked onchange="updateCompletionPreview()"> ${v}</label>`;
     });
 
     const sList = document.getElementById('comp_server_list');
     sList.innerHTML = '';
-    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    servers.forEach((s, i) => {
-        sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${s}" checked onchange="updateCompletionPreview()"> ${s}</label>`;
+    ['STG', 'DEV', 'PRD'].forEach(s => {
+        const isChecked = currentCheckedSrvs.includes(s) ? 'checked' : '';
+        const labelName = s === 'PRD' ? 'PRD(상용)' : s;
+        sList.innerHTML += `<label class="checkbox-label" style="display:flex; align-items:center; gap:8px;"><input type="checkbox" class="comp-srv-cb" value="${labelName}" ${isChecked} onchange="updateCompletionPreview()"> ${labelName}</label>`;
     });
 
     document.getElementById('comp_check').value = '';
