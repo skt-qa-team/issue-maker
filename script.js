@@ -194,17 +194,25 @@ function syncEnvironmentByOS() {
     andCol.classList.remove('active'); iosCol.classList.remove('active');
     iosVerToggle.style.display = 'none';
 
-    if (osType.includes("Android")) {
+    if (osType === "[Android/iOS]") {
+        andCol.classList.add('active');
+        iosCol.classList.add('active');
+        iosVerToggle.style.display = 'flex';
+        config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
+        config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
+        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        const iosVer = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
+        document.getElementById('appVersion').value = `App Tester_${config.andAppTester} / ${iosTypeSelected}_${iosVer}`;
+    } else if (osType === "[Android]") {
         andCol.classList.add('active');
         config.andDevices.forEach((dev, i) => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="and_dev_${i}" class="pill-label">${dev}</label>`; });
         document.getElementById('appVersion').value = config.andAppTester || '';
-    }
-    if (osType.includes("iOS")) {
+    } else if (osType === "[iOS]") {
         iosCol.classList.add('active');
         iosVerToggle.style.display = 'flex';
         config.iosDevices.forEach((dev, i) => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${i}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="ios_dev_${i}" class="pill-label">${dev}</label>`; });
-        const selectedIosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        document.getElementById('appVersion').value = (selectedIosType === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
+        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        document.getElementById('appVersion').value = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
     }
     generateTemplate();
 }
@@ -228,14 +236,13 @@ function generateTemplate() {
     const osType = getValue('osType');
     const serversArr = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     const bodyServers = serversArr.join(' / '); 
-    const serverSuffix = serversArr.length > 0 ? `(${serversArr.join('/')})` : '';
 
     let formattedVer = getValue('appVersion');
-    if (osType.includes("Android")) {
-        formattedVer = `App Tester_${formattedVer}${serverSuffix}`;
-    } else if (osType.includes("iOS")) {
+    if (osType === "[Android]") {
+        formattedVer = `App Tester_${formattedVer}`;
+    } else if (osType === "[iOS]") {
         const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        formattedVer = `${iosType}_${formattedVer}${serverSuffix}`;
+        formattedVer = `${iosType}_${formattedVer}`;
     }
 
     const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
