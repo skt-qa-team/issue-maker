@@ -4,13 +4,6 @@
  */
 
 const changelogData = [
-    대장님, V18.7부터 최신 V19.7까지의 모든 진화 기록을 담은 changelog.js 전수 소스를 대령합니다.
-
-이번 버전에서는 지시하신 **'스마트 초기화'**와 '본문 최적화' 내용을 포함하여, 시스템이 QA 업무의 맥락을 어떻게 이해하고 발전해왔는지 논리적으로 구성했습니다. 주석이 제거된 순수 코드입니다.
-
-📜 1. changelog.js (V18.7 ~ V19.7 전수 소스)
-JavaScript
-const changelogData = [
     {
         version: "V19.7",
         date: "2026-03-31",
