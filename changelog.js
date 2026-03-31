@@ -5,6 +5,14 @@
 
 const changelogData = [
     {
+        version: "V18.5",
+        date: "2026-03-31",
+        changes: [
+            "<b>[버그 픽스]</b> 익명 -> 구글 계정 전환 시 이전 아바타가 지워지지 않고 남아있는 유령 세션(Ghost Session) 현상 해결",
+            "<b>[보안]</b> onAuthStateChanged 내부에 강제 삭제(Remove) 로직 탑재하여 안티 고스팅(Anti-Ghosting) 적용"
+        ]
+    },
+    {
         version: "V18.4",
         date: "2026-03-31",
         changes: [
