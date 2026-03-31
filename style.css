@@ -1,18 +1,14 @@
-/* =========================================
-   [V19.0 Theme Engine] CSS 변수 및 전역 설정
-   ========================================= */
 :root {
-    --bg-color: #f0f2f5;        /* 전체 배경 */
-    --panel-bg: #ffffff;        /* 좌/중앙 패널 배경 */
-    --text-main: #1e293b;       /* 타이틀 등 진한 텍스트 */
-    --text-sub: #475569;        /* 일반 텍스트 및 라벨 */
-    --border-color: #e2e8f0;    /* 기본 테두리 */
-    --accent-blue: #3b82f6;     /* 메인 포인트 블루 */
-    --accent-green: #10b981;    /* 성공/복사 포인트 그린 */
-    --accent-red: #ef4444;      /* 강조/삭제 포인트 레드 */
+    --bg-color: #f0f2f5;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sub: #475569;
+    --border-color: #e2e8f0;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
 }
 
-/* [Global] 초기화 및 레이아웃 뼈대 */
 body { 
     font-family: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
     background-color: var(--bg-color); 
@@ -28,18 +24,16 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* [Header] V19.0 3단 그리드 시스템 (좌-중-우 완벽 정렬) */
 .top-action-bar {
     max-width: 100%;
     width: 100%;
     margin: 0 0 15px 0;
     display: grid;
-    grid-template-columns: 1fr auto 1fr; /* 3분할 그리드 */
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     z-index: 100;
 }
 
-/* 1. 좌측 영역: 시계 및 접속자 정보 */
 .top-bar-left-group {
     display: flex;
     align-items: center;
@@ -47,13 +41,11 @@ body {
     justify-self: start;
 }
 
-/* 2. 중앙 영역: 시스템 제목 (가장 핵심) */
 .top-bar-center-group {
     justify-self: center;
     text-align: center;
 }
 
-/* 3. 우측 영역: 액션 버튼 그룹 */
 .top-bar-btns {
     display: flex;
     align-items: center;
@@ -61,7 +53,6 @@ body {
     justify-self: end;
 }
 
-/* 헤더 텍스트 디자인 */
 .main-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.8px; transition: 0.3s; }
 .version-info { font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
 
@@ -78,7 +69,6 @@ body {
     transition: 0.3s;
 }
 
-/* 실시간 접속자 아바타 UI */
 .presence-list { display: flex; align-items: center; gap: -8px; }
 .user-avatar {
     width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ffffff;
@@ -99,7 +89,6 @@ body {
 }
 .user-avatar:hover::after { opacity: 1; }
 
-/* [Buttons] 공통 버튼 디자인 */
 .auth-btn {
     background: var(--accent-blue); color: white; border: none; padding: 10px 20px;
     border-radius: 25px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
@@ -118,10 +107,9 @@ body {
 .setting-btn-float:hover { transform: translateY(-3px) scale(1.08); background: #475569; }
 .groupware-btn { background: var(--panel-bg); color: var(--text-main) !important; border-color: var(--border-color); text-decoration: none; }
 
-/* [Layout] 메인 콘텐츠 래퍼 */
 .wrapper { 
     display: grid; 
-    grid-template-columns: 350px 1fr 1fr; /* 가이드 350px 고정, 나머지 반반 */
+    grid-template-columns: 350px 1fr 1fr;
     gap: 20px; 
     flex: 1; 
     max-width: 100%; 
@@ -143,7 +131,6 @@ body {
 .guide-step h3 { font-size: 1rem; color: var(--accent-blue); margin: 0 0 10px 0; }
 .guide-step p { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin: 0; word-break: keep-all; }
 
-/* [Form] 입력 필드 공통 */
 .form-group { margin-bottom: 20px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.88rem; color: var(--text-sub); transition: 0.3s; }
@@ -156,7 +143,6 @@ input[type="text"], textarea, select {
 input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent-blue); outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
 textarea { height: 130px; resize: vertical; line-height: 1.5; }
 
-/* 체크박스 그룹 & 알약 UI */
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: var(--bg-color); }
 .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
 
@@ -177,7 +163,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 
 .prefix-panel { background: var(--bg-color); padding: 18px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 22px; }
 
-/* CASE 주입 컨트롤러 */
 .label-action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .case-ctrl { display: flex; align-items: center; gap: 8px; }
 .btn-case-toggle { background: #eff6ff; color: var(--accent-blue); border: 1.5px solid #bfdbfe; padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
@@ -186,7 +171,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 .case-selector span { font-size: 0.8rem; font-weight: 800; cursor: pointer; padding: 4px 8px; color: var(--text-sub); border-radius: 4px; transition: 0.2s; }
 .case-selector span:hover { background: var(--accent-blue); color: white; }
 
-/* [Output] 결과창 (Dark Mode 컨셉) */
 .result-panel { background: #0f172a !important; color: #f8fafc; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
 .result-panel h2 { color: #f8fafc; border-left: 5px solid var(--accent-green); padding-left: 12px; }
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 18px; }
@@ -204,7 +188,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 .output-field:focus { border-color: var(--accent-green) !important; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
 #outputTitle { font-weight: 800; color: #38bdf8 !important; border-color: #38bdf8 !important; }
 
-/* [Theme Presets] 프리셋 동그라미 */
 .preset-group { display: flex; justify-content: center; gap: 18px; padding: 15px 0; }
 .preset-circle { 
     width: 40px; height: 40px; border-radius: 50%; cursor: pointer; 
@@ -213,7 +196,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 }
 .preset-circle:hover { transform: scale(1.2) translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 
-/* [Modal] 모달 디자인 */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(6px); }
 .modal-content { background: var(--panel-bg); padding: 35px; border-radius: 16px; width: 92%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: var(--text-main); position: relative; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
@@ -223,7 +205,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 
 .setting-box { background: var(--bg-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border-color); }
 
-/* [Buttons] 복사 및 작성 버튼 */
 .btn-copy { padding: 16px; width: 100%; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; color: white; background: var(--accent-blue); font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .btn-copy:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); }
 .btn-copy-sm { background: #334155; color: #cbd5e1; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
@@ -233,7 +214,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 .btn-save { background: var(--accent-green); margin-top: 15px; width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: 0.2s; }
 .btn-save:hover { background: #059669; transform: translateY(-2px); }
 
-/* 패치노트 리스트 디자인 보완 */
 .changelog-list { display: flex; flex-direction: column; gap: 25px; }
 .changelog-item { border-left: 4px solid #cbd5e1; padding-left: 18px; transition: 0.2s; }
 .changelog-item:hover { border-left-color: var(--accent-blue); }
@@ -241,7 +221,6 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 .changelog-date { font-size: 0.85rem; color: #94a3b8; margin-left: 10px; font-weight: 500; }
 .changelog-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.7; margin: 10px 0 0 0; padding-left: 20px; }
 
-/* [Utility] 스크롤바 디자인 (크롬/엣지) */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
