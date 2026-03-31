@@ -1,5 +1,5 @@
 /**
- * [SKM] 이슈틀 생성기 - V18.0 Core Logic (Google Auth & Real-time Presence)
+ * [SKM] 이슈틀 생성기 - V18.1 Core Logic (UX Optimized)
  * Author: Gemini
  * Last Updated: 2026-03-31
  */
@@ -28,11 +28,12 @@ const STORAGE_KEY = 'qa_system_config_master';
 
 let currentUserId = null; // 현재 로그인한 사용자 ID
 
-// --- [Auth & Presence] 구글 로그인 및 실시간 접속자 시스템 (V18.0) ---
+// --- [Auth & Presence] 구글 로그인 및 실시간 접속자 시스템 (V18.1) ---
 
 function initPresenceSystem() {
     const list = document.getElementById('presence-list');
     const allUsersRef = database.ref('presence');
+    const authBtn = document.getElementById('auth-btn');
 
     // 1. 모든 접속자 상태를 실시간으로 그려주는 리스너 (로그인 안 해도 다른 사람 볼 수 있음)
     allUsersRef.on('value', (snapshot) => {
@@ -64,7 +65,8 @@ function initPresenceSystem() {
 
     // 2. 내 로그인 상태 감지 및 내 상태(Presence) DB에 쓰기
     auth.onAuthStateChanged((user) => {
-        const authBtn = document.getElementById('auth-btn');
+        // [UX 개선] 파이어베이스 인증 상태 확인이 끝나면 버튼 활성화 (깜빡임 방지)
+        authBtn.disabled = false;
         
         if (user) {
             // [로그인 성공 상태]
