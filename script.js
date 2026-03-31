@@ -14,7 +14,8 @@ const database = firebase.database();
 const auth = firebase.auth();
 
 const defaultConfig = { 
-    andDevices: [], iosDevices: [], 
+    andDevices: [], andSpecialDevices: [],
+    iosDevices: [], iosSpecialDevices: [],
     andAppTester: '', iosTestFlight: '', iosDistribution: '',
     adminUrl: '', pcUrl: '' 
 };
@@ -121,15 +122,16 @@ function initPresenceSystem() {
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
             if (user.isAnonymous) {
-                authBtn.innerText = 'G 로그인'; authBtn.classList.remove('logged-in');
+                authBtn.innerText = 'G 로그인';
+                authBtn.classList.remove('logged-in');
                 database.ref('.info/connected').on('value', (s) => { if (s.val() === true && currentUserId === user.uid) { myUserRef.set({ name: myAnonName, color: myAnonColor, photo: "", lastActive: firebase.database.ServerValue.TIMESTAMP }); myUserRef.onDisconnect().remove(); } });
             } else {
-                authBtn.innerText = 'G 로그아웃'; authBtn.classList.add('logged-in');
+                authBtn.innerText = 'G 로그아웃';
+                authBtn.classList.add('logged-in');
                 database.ref('.info/connected').on('value', (s) => { if (s.val() === true && currentUserId === user.uid) { myUserRef.set({ name: user.displayName || "이름 없음", photo: user.photoURL || "", color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP }); myUserRef.onDisconnect().remove(); } });
             }
         } else {
             if (currentUserId) { database.ref('presence/' + currentUserId).remove(); currentUserId = null; }
-            authBtn.innerText = '⏳ 연결 중...'; authBtn.disabled = true;
             auth.signInAnonymously().catch(e => console.error(e));
         }
     });
@@ -163,7 +165,7 @@ function applyIndividualPreset(targetFieldId, count) {
 }
 
 function loadConfig() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(localStorage.getItem('qa_config_v12')) || defaultConfig;
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultConfig;
 }
 
 function saveSettings() {
@@ -175,7 +177,9 @@ function saveSettings() {
         iosTestFlight: document.getElementById('set_ios_testflight').value,
         iosDistribution: document.getElementById('set_ios_distribution').value,
         andDevices: getDevices('set_and_devices'),
-        iosDevices: getDevices('set_ios_devices')
+        andSpecialDevices: getDevices('set_and_special'),
+        iosDevices: getDevices('set_ios_devices'),
+        iosSpecialDevices: getDevices('set_ios_special')
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     syncEnvironmentByOS(); handlePocChange(); closeModal();
@@ -186,41 +190,59 @@ function syncEnvironmentByOS() {
     const osType = document.getElementById('osType').value;
     const andCol = document.getElementById('andDeviceCol'); 
     const iosCol = document.getElementById('iosDeviceCol');
-    const andContainer = document.getElementById('andCheckboxes'); 
-    const iosContainer = document.getElementById('iosCheckboxes');
     const iosVerToggle = document.getElementById('ios-ver-toggle');
     
-    andContainer.innerHTML = ''; iosContainer.innerHTML = ''; 
-    andCol.classList.remove('active'); iosCol.classList.remove('active');
-    iosVerToggle.style.display = 'none';
+    const andNormal = document.getElementById('andNormalList');
+    const andSpecial = document.getElementById('andSpecialList');
+    const iosNormal = document.getElementById('iosNormalList');
+    const iosSpecial = document.getElementById('iosSpecialList');
 
+    andNormal.innerHTML = ''; andSpecial.innerHTML = ''; 
+    iosNormal.innerHTML = ''; iosSpecial.innerHTML = '';
+    
+    andCol.style.display = osType.includes("Android") ? 'block' : 'none';
+    iosCol.style.display = osType.includes("iOS") ? 'block' : 'none';
+    iosVerToggle.style.display = osType.includes("iOS") ? 'flex' : 'none';
+
+    const render = (container, list, idPrefix) => {
+        list.forEach(dev => {
+            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" onchange="generateTemplate()"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
+        });
+    };
+
+    render(andNormal, config.andDevices, 'and_n');
+    render(andSpecial, config.andSpecialDevices, 'and_s');
+    render(iosNormal, config.iosDevices, 'ios_n');
+    render(iosSpecial, config.iosSpecialDevices, 'ios_s');
+
+    let ver = "";
     if (osType === "[Android/iOS]") {
-        andCol.classList.add('active');
-        iosCol.classList.add('active');
-        iosVerToggle.style.display = 'flex';
-        config.andDevices.forEach(dev => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${dev}" class="pill-label">${dev}</label>`; });
-        config.iosDevices.forEach(dev => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${dev}" class="pill-label">${dev}</label>`; });
-        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        const iosVer = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
-        document.getElementById('appVersion').value = `App Tester_${config.andAppTester} / ${iosTypeSelected}_${iosVer}`;
+        const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        const iosVer = (iosType === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
+        ver = `App Tester_${config.andAppTester} / ${iosType}_${iosVer}`;
     } else if (osType === "[Android]") {
-        andCol.classList.add('active');
-        config.andDevices.forEach(dev => { andContainer.innerHTML += `<input type="checkbox" id="and_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="and" onchange="generateTemplate()"><label for="and_dev_${dev}" class="pill-label">${dev}</label>`; });
-        document.getElementById('appVersion').value = config.andAppTester || '';
+        ver = config.andAppTester;
     } else if (osType === "[iOS]") {
-        iosCol.classList.add('active');
-        iosVerToggle.style.display = 'flex';
-        config.iosDevices.forEach(dev => { iosContainer.innerHTML += `<input type="checkbox" id="ios_dev_${dev}" class="pill-cb issue-device-cb" value="${dev}" data-os="ios" onchange="generateTemplate()"><label for="ios_dev_${dev}" class="pill-label">${dev}</label>`; });
-        const iosTypeSelected = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        document.getElementById('appVersion').value = (iosTypeSelected === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
+        const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
+        ver = (iosType === 'TestFlight') ? config.iosTestFlight : config.iosDistribution;
     }
+    document.getElementById('appVersion').value = ver;
+
+    toggleDeviceMode();
+}
+
+function toggleDeviceMode() {
+    const mode = document.querySelector('input[name="dev_mode"]:checked').value;
+    document.getElementById('andNormalList').style.display = mode === 'normal' ? 'flex' : 'none';
+    document.getElementById('andSpecialList').style.display = mode === 'special' ? 'flex' : 'none';
+    document.getElementById('iosNormalList').style.display = mode === 'normal' ? 'flex' : 'none';
+    document.getElementById('iosSpecialList').style.display = mode === 'special' ? 'flex' : 'none';
     generateTemplate();
 }
 
 function handlePocChange() {
     const poc = document.getElementById('poc').value; 
     const isWeb = poc === 'Admin' || poc === 'PC Web';
-    document.getElementById('osGroup').style.display = isWeb ? 'none' : 'block'; 
     document.getElementById('deviceGroup').style.display = isWeb ? 'none' : 'block'; 
     document.getElementById('urlGroup').style.display = isWeb ? 'block' : 'none';
     if (isWeb) {
@@ -238,11 +260,12 @@ function generateTemplate() {
     const bodyServers = serversArr.join(' / '); 
 
     let formattedVer = getValue('appVersion');
-    if (osType === "[Android]") {
-        formattedVer = `App Tester_${formattedVer}`;
-    } else if (osType === "[iOS]") {
-        const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        formattedVer = `${iosType}_${formattedVer}`;
+    if (rawPoc === 'T 멤버십') {
+        if (osType === "[Android]") formattedVer = `App Tester_${formattedVer}`;
+        else if (osType === "[iOS]") {
+            const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
+            formattedVer = `${iosType}_${formattedVer}`;
+        }
     }
 
     const rawEnv = serversArr.join('/').replace('PRD', '상용'); 
@@ -253,6 +276,7 @@ function generateTemplate() {
     const devStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : ''; 
     const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : ''; 
     const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
+    
     const titleText = `${envStr}${osStr}${pocStr}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.trim();
     const checkedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     
@@ -286,19 +310,19 @@ function openCompletionModal() {
     document.getElementById('comp_and_section').style.display = osType.includes("Android") ? 'block' : 'none';
     document.getElementById('comp_ios_section').style.display = osType.includes("iOS") ? 'block' : 'none';
 
-    config.andDevices.forEach(dev => {
-        const isChecked = currentCheckedDevs.includes(dev) ? 'checked' : '';
-        andList.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
-    });
-    config.iosDevices.forEach(dev => {
-        const isChecked = currentCheckedDevs.includes(dev) ? 'checked' : '';
-        iosList.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
-    });
+    const renderComp = (container, list) => {
+        list.forEach(dev => {
+            const isChecked = currentCheckedDevs.includes(dev) ? 'checked' : '';
+            container.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" value="${dev}" ${isChecked} onchange="updateCompletionPreview()"> ${dev}</label>`;
+        });
+    };
+
+    renderComp(andList, [...config.andDevices, ...config.andSpecialDevices]);
+    renderComp(iosList, [...config.iosDevices, ...config.iosSpecialDevices]);
 
     const vList = document.getElementById('comp_version_list');
     vList.innerHTML = '';
-    const versions = document.getElementById('appVersion').value.split(' / ');
-    versions.forEach(v => {
+    document.getElementById('appVersion').value.split(' / ').forEach(v => {
         vList.innerHTML += `<label class="checkbox-label" style="display:flex; align-items:center; gap:8px;"><input type="checkbox" class="comp-ver-cb" value="${v}" checked onchange="updateCompletionPreview()"> ${v}</label>`;
     });
 
@@ -335,14 +359,26 @@ function copyCompletionReport() {
     closeCompletionModal();
 }
 
-document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
+function openModal() {
+    const cfg = loadConfig();
+    document.getElementById('settingModal').style.display = 'flex';
+    document.getElementById('set_admin_url').value = cfg.adminUrl || '';
+    document.getElementById('set_pc_url').value = cfg.pcUrl || '';
+    document.getElementById('set_and_apptester').value = cfg.andAppTester || '';
+    document.getElementById('set_ios_testflight').value = cfg.iosTestFlight || '';
+    document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
+    document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n');
+    document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
+    document.getElementById('set_ios_devices').value = (cfg.iosDevices || []).join('\n');
+    document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
+}
 
-function openModal() { document.getElementById('settingModal').style.display = 'flex'; }
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
-function copySpecific(id) { const el = document.getElementById(id); if (!el.value.trim()) return; el.select(); document.execCommand('copy'); alert('복사되었습니다.'); }
-function copyAll() { const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`; if (!combined.trim()) return; const t = document.createElement("textarea"); document.body.appendChild(t); t.value = combined; t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 내용이 복사되었습니다.'); }
+
+function copySpecific(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); alert('복사되었습니다.'); }
+function copyAll() { const t = document.createElement("textarea"); t.value = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t); alert('전체 내용이 복사되었습니다.'); }
 
 function clearForm() { 
     if(!confirm('내용을 초기화할까요? (에픽 링크/검증 참고사항 제외)')) return; 
@@ -351,10 +387,8 @@ function clearForm() {
     }); 
     document.getElementById('prefix_critical').value = ''; 
     document.querySelectorAll('.case-selector').forEach(el => el.style.display = 'none'); 
-    
     document.getElementById('osType').value = '[Android/iOS]';
     document.getElementById('poc').value = 'T 멤버십';
-    
     syncEnvironmentByOS();
     handlePocChange();
     generateTemplate(); 
@@ -365,15 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
     startClock();
     initPresenceSystem();
     renderChangelog();
-    const config = loadConfig();
-    if(config) {
-        document.getElementById('set_admin_url').value = config.adminUrl || '';
-        document.getElementById('set_pc_url').value = config.pcUrl || '';
-        document.getElementById('set_and_apptester').value = config.andAppTester || '';
-        document.getElementById('set_ios_testflight').value = config.iosTestFlight || '';
-        document.getElementById('set_ios_distribution').value = config.iosDistribution || '';
-        document.getElementById('set_and_devices').value = (config.andDevices || []).join('\n');
-        document.getElementById('set_ios_devices').value = (config.iosDevices || []).join('\n');
-    }
     syncEnvironmentByOS();
+    document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
 });
