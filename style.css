@@ -171,6 +171,16 @@ input[type="checkbox"].pill-cb:checked + .pill-label { background-color: var(--a
 .case-selector span { font-size: 0.8rem; font-weight: 800; cursor: pointer; padding: 4px 8px; color: var(--text-sub); border-radius: 4px; transition: 0.2s; }
 .case-selector span:hover { background: var(--accent-blue); color: white; }
 
+#ios-ver-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-color);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
 .result-panel { background: #0f172a !important; color: #f8fafc; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
 .result-panel h2 { color: #f8fafc; border-left: 5px solid var(--accent-green); padding-left: 12px; }
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 18px; }
