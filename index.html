@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.2</title>
+    <title>[SKM] 이슈틀 생성기 - V21.4</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- 상단 액션 바 -->
     <div class="top-action-bar">
         <div class="top-bar-left-group">
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
@@ -17,7 +18,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V21.2</span>
+                <span class="version-info">- V21.4</span>
             </div>
         </div>
 
@@ -49,17 +50,18 @@
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
+        <!-- 좌측 패널: 가이드 및 유지 필드 -->
         <div class="panel guide-panel">
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. 독립형 스위칭 (V21.2)</h3>
-                    <p>Android와 iOS 헤더 우측의 [검증/특수] 버튼으로 목록을 개별 제어하세요.</p>
+                    <h3>1. Prefix 고도화 (V21.4)</h3>
+                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
-                    <h3>2. 스마트 유지 보존</h3>
-                    <p>모드 전환 시에도 선택한 단말이 유지되며, 중복 선택 시 알럿이 발생합니다.</p>
+                    <h3>2. 특정 OS 필드 추가</h3>
+                    <p>OS 버전(예: iOS 16)에 따른 결함일 경우 해당 칸을 입력하세요.</p>
                 </div>
             </div>
 
@@ -75,6 +77,7 @@
             </div>
         </div>
 
+        <!-- 중앙 패널: 입력 영역 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -86,24 +89,60 @@
             <div class="prefix-panel">
                 <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
-                    <div><label style="font-size: 0.75rem;">Critical 구분</label><select id="prefix_critical" onchange="generateTemplate()"><option value="">해당 없음</option><option value="Block">Block</option><option value="Crash">Crash</option></select></div>
-                    <div><label style="font-size: 0.75rem;">특수 계정 결함</label><input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">특정 Device 결함</label><input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">이슈 발생 페이지</label><input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()"></div>
+                    <div>
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">해당 없음</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 OS 버전 (신규)</label>
+                        <input type="text" id="prefix_spec_os" placeholder="예: iOS 16" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+                    </div>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="form-group"><label>OS 구분</label><select id="osType" onchange="syncEnvironmentByOS()"><option value="[Android/iOS]">[Android/iOS]</option><option value="[Android]">[Android]</option><option value="[iOS]">[iOS]</option></select></div>
-                <div class="form-group"><label>POC</label><select id="poc" onchange="handlePocChange()"><option value="T 멤버십">T 멤버십</option><option value="PC Web">PC Web</option><option value="Admin">Admin</option></select></div>
+                <div class="form-group">
+                    <label>OS 구분</label>
+                    <select id="osType" onchange="syncEnvironmentByOS()">
+                        <option value="[Android/iOS]">[Android/iOS]</option>
+                        <option value="[Android]">[Android]</option>
+                        <option value="[iOS]">[iOS]</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>POC</label>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="에이닷">에이닷</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group">
                 <label>서버</label>
                 <div class="checkbox-group">
                     <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" checked onchange="generateTemplate()"> STG</label>
-                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="DEV" onchange="generateTemplate()"> DEV</label>
-                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> PRD(상용)</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="GRN" onchange="generateTemplate()"> GRN</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> 상용(PRD)</label>
                 </div>
             </div>
             
@@ -202,6 +241,7 @@
             </div>
         </div>
 
+        <!-- 우측 패널: 결과 리포트 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -228,8 +268,9 @@
         </div>
     </div>
 
+    <!-- 완료문 작성 모달 -->
     <div class="modal-overlay" id="completionModal">
-        <div class="modal-content" style="max-width: 1100px; width: 90%;">
+        <div class="modal-content" style="max-width: 1100px; width: 95%;">
             <button class="close-btn" onclick="closeCompletionModal()">×</button>
             <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
                 <h2 style="margin: 0;">✅ 완료문 작성</h2>
@@ -269,6 +310,7 @@
         </div>
     </div>
 
+    <!-- 테마 커스텀 모달 -->
     <div class="modal-overlay" id="themeModal">
         <div class="modal-content" style="max-width: 450px;">
             <button class="close-btn" onclick="closeThemeModal()">×</button>
@@ -293,8 +335,9 @@
         </div>
     </div>
 
+    <!-- 환경 설정 모달 -->
     <div class="modal-overlay" id="settingModal">
-        <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-content" style="max-width: 750px;">
             <button class="close-btn" onclick="closeModal()">×</button>
             <div class="modal-header"><h2>⚙️ 환경 설정</h2></div>
             <div class="setting-box">
@@ -326,6 +369,7 @@
         </div>
     </div>
 
+    <!-- 변경사항 모달 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeChangelogModal()">×</button>
@@ -334,6 +378,7 @@
         </div>
     </div>
 
+    <!-- Firebase 및 로컬 스크립트 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
