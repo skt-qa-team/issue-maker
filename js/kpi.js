@@ -1,177 +1,113 @@
-function openKpiModal() {
-    document.getElementById('kpiModal').style.display = 'flex';
-    loadKpiLocal();
+.kpi-tab-header {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
 }
 
-function closeKpiModal() {
-    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
-        firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
-    }
-    document.getElementById('kpiModal').style.display = 'none';
+.kpi-tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-function addTcRow(data = null) {
-    const container = document.getElementById('tc_container');
-    const row = document.createElement('div');
-    row.className = 'tc-row';
-    row.innerHTML = `
-        <select class="tc-poc" onchange="generateKPI()" style="padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-size: 0.95rem;">
-            <option value="T 멤버십">T 멤버십</option>
-            <option value="에이닷">에이닷</option>
-            <option value="PC Web">PC Web</option>
-            <option value="AI Layer">AI Layer</option>
-            <option value="Admin">Admin</option>
-        </select>
-        <input type="text" class="tc-name" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
-        <input type="text" class="tc-id" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
-        <input type="number" class="tc-count" placeholder="건수" min="0" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
-        <label class="checkbox-label" style="font-size: 0.95rem;"><input type="checkbox" class="tc-dual" onchange="generateKPI()"> 단말 2대</label>
-        <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();" style="padding: 10px 15px; font-size: 0.95rem;">삭제</button>
-    `;
-    container.appendChild(row);
-
-    if (data) {
-        row.querySelector('.tc-poc').value = data.poc || 'T 멤버십';
-        row.querySelector('.tc-name').value = data.name || '';
-        row.querySelector('.tc-id').value = data.id || '';
-        row.querySelector('.tc-count').value = data.count || '';
-        row.querySelector('.tc-dual').checked = data.dual || false;
-    }
-
-    generateKPI();
+.kpi-tab-btn:hover {
+    background: #f1f5f9;
+    color: var(--accent-blue);
 }
 
-function generateKPI() {
-    const v = (id) => parseInt(document.getElementById(id).value) || 0;
-    const rawV = (id) => document.getElementById(id).value;
-
-    const defects = [
-        { name: 'Blocker', count: v('def_blocker') },
-        { name: 'Critical', count: v('def_critical') },
-        { name: 'Major', count: v('def_major') },
-        { name: 'Minor', count: v('def_minor') },
-        { name: 'Trivial', count: v('def_trivial') }
-    ];
-
-    let totalDefects = 0;
-    let defectListText = "";
-    
-    defects.forEach(d => {
-        totalDefects += d.count;
-        if (d.count > 0) {
-            defectListText += ` - ${d.name} ${d.count}개\n`;
-        }
-    });
-
-    const prevAvg = v('prev_avg');
-    const diff = totalDefects - prevAvg;
-    let diffText = "동일";
-    if (diff > 0) diffText = `${diff}개 상승`;
-    else if (diff < 0) diffText = `${Math.abs(diff)}개 하락`;
-
-    let defectSection = `Defect 검출 갯수 : 총 ${totalDefects}개\n`;
-    defectSection += `* T 멤버십 : ${totalDefects}개\n`;
-    if (defectListText) defectSection += defectListText;
-    defectSection += `\n전월 팀 평균 Defect 검출 갯수 : ${prevAvg}개 (${diffText})\n`;
-
-    let totalTcCount = 0;
-    const pocGroups = {};
-    const tcArrayToSave = [];
-
-    const tcRows = document.querySelectorAll('.tc-row');
-    tcRows.forEach(row => {
-        const poc = row.querySelector('.tc-poc').value;
-        const name = row.querySelector('.tc-name').value.trim();
-        const id = row.querySelector('.tc-id').value.trim();
-        const countRaw = row.querySelector('.tc-count').value;
-        const count = parseInt(countRaw) || 0;
-        const isDual = row.querySelector('.tc-dual').checked;
-
-        tcArrayToSave.push({ poc: poc, name: name, id: id, count: countRaw, dual: isDual });
-
-        if (count > 0 || name || id) {
-            if (!pocGroups[poc]) pocGroups[poc] = { count: 0, items: [] };
-            
-            pocGroups[poc].count += count;
-            totalTcCount += count;
-
-            const idStr = id ? ` (${id})` : '';
-            const dualStr = isDual ? ' (단말 2대)' : '';
-            pocGroups[poc].items.push(` - ${name}${idStr} ${count}건${dualStr}`);
-        }
-    });
-
-    let tcSection = `TC 수행 업무\n* TC 수행 갯수: ${totalTcCount}개\n\n`;
-
-    for (const [poc, data] of Object.entries(pocGroups)) {
-        tcSection += `* ${poc} : ${data.count}개\n`;
-        tcSection += data.items.join('\n') + '\n\n';
-    }
-
-    const updateText = document.getElementById('tc_update_text').value;
-    let updateSection = `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
-    
-    if (updateText.trim()) {
-        const lines = updateText.split('\n');
-        lines.forEach(line => {
-            if(line.trim()) updateSection += ` - ${line.trim()}\n`;
-        });
-    } else {
-        updateSection += ` - 내용 없음\n`;
-    }
-
-    const finalReport = `${defectSection}\n${tcSection}${updateSection}`;
-    document.getElementById('output_kpi_result').value = finalReport.trim();
-
-    const kpiData = {
-        blocker: rawV('def_blocker'),
-        critical: rawV('def_critical'),
-        major: rawV('def_major'),
-        minor: rawV('def_minor'),
-        trivial: rawV('def_trivial'),
-        prevAvg: rawV('prev_avg'),
-        updateText: updateText,
-        tcs: tcArrayToSave
-    };
-    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+.kpi-tab-btn.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    background: #ffffff;
 }
 
-function loadKpiLocal() {
-    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    const container = document.getElementById('tc_container');
-    
-    if (saved) {
-        document.getElementById('def_blocker').value = saved.blocker || '';
-        document.getElementById('def_critical').value = saved.critical || '';
-        document.getElementById('def_major').value = saved.major || '';
-        document.getElementById('def_minor').value = saved.minor || '';
-        document.getElementById('def_trivial').value = saved.trivial || '';
-        document.getElementById('prev_avg').value = saved.prevAvg || '';
-        document.getElementById('tc_update_text').value = saved.updateText || '';
-
-        container.innerHTML = '';
-        if (saved.tcs && saved.tcs.length > 0) {
-            saved.tcs.forEach(tc => addTcRow(tc));
-        } else {
-            addTcRow();
-        }
-    } else {
-        if (document.querySelectorAll('.tc-row').length === 0) {
-            addTcRow();
-        }
-    }
-    generateKPI();
+.kpi-tab-content {
+    display: none;
 }
 
-function copyKpiReport() {
-    const el = document.getElementById('output_kpi_result');
-    el.select();
-    document.execCommand('copy');
-    alert('KPI 리포트가 복사되었습니다!');
-    
-    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
-        firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
-    }
+.kpi-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tc-row {
+    display: grid;
+    grid-template-columns: 1.5fr 3.5fr 2fr 1fr auto auto;
+    gap: 15px;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.tc-row > * {
+    min-width: 0;
+}
+
+.tc-row:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.tc-poc, .tc-name, .tc-id, .tc-count {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tc-poc {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    outline: none;
+    font-size: 0.95rem;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+}
+
+.btn-add {
+    background: #ffffff; 
+    color: var(--text-main); 
+    border: 1.5px solid #cbd5e1; 
+    padding: 8px 14px; 
+    border-radius: 6px; 
+    font-size: 0.85rem; 
+    font-weight: 800; 
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-add:hover {
+    background: #f8fafc;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.btn-remove {
+    background: #ef4444; 
+    color: white; 
+    border: none; 
+    padding: 10px 15px; 
+    border-radius: 6px; 
+    font-size: 0.9rem; 
+    font-weight: 800; 
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-remove:hover {
+    background: #dc2626;
 }
