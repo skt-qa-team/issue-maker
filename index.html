@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.13</title>
+    <title>[SKM] 이슈틀 생성기 - V21.11</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/completion.css">
@@ -20,7 +20,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V21.13</span>
+                <span class="version-info">- V21.11</span>
             </div>
         </div>
 
@@ -59,51 +59,193 @@
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
-        <div class="panel guide-panel" id="guide-area">
-            <h2>📘 사용 설명서</h2>
-            <div class="guide-step">
-                <h3>1. Prefix 고도화 (V21.13)</h3>
-                <p>정해진 순서에 맞춰 제목이 자동 생성됩니다.</p>
+        <div class="panel guide-panel">
+            <div style="flex: 1;">
+                <h2>📘 사용 설명서</h2>
+                <div class="guide-step">
+                    <h3>1. Prefix 고도화 (V21.11)</h3>
+                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
+                </div>
+                <div class="guide-divider"></div>
+                <div class="guide-step">
+                    <h3>2. 개인 KPI 관리 (탭 구조 최적화)</h3>
+                    <p>우측 상단 [KPI] 버튼을 통해 팝업을 열고, 상단 탭을 이동하며 모든 월간 실적을 쾌적하게 취합하세요.</p>
+                </div>
             </div>
-            <div class="guide-divider"></div>
-            <div class="guide-step">
-                <h3>2. 모듈화 아키텍처</h3>
-                <p>복잡한 구조를 분리하여 로딩 속도를 최적화했습니다.</p>
-            </div>
-            
-            <div class="extra-input-section" style="margin-top: auto;">
+
+            <div class="extra-input-section">
                 <div class="form-group">
-                    <label>🔗 Epic Link</label>
+                    <label>🔗 Epic Link (유지 필드)</label>
                     <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label>💡 검증 참고사항</label>
-                    <textarea id="extra_notes" style="height: 120px;" placeholder="참고 내용을 입력하세요"></textarea>
+                    <label>💡 이번 검증 참고사항 (유지 필드)</label>
+                    <textarea id="extra_notes" style="height: 160px; font-size: 0.85rem;" placeholder="검증 시 참고할 내용을 입력하세요"></textarea>
                 </div>
             </div>
         </div>
 
-        <div class="panel main-input-panel">
+        <div class="panel">
             <h2 style="margin-top: 0; margin-bottom: 20px;">📝 이슈 내용 입력</h2>
+            
             <div class="form-group">
-                <label style="color:#ef4444 !important;">📌 현상 요약</label>
-                <input type="text" id="title" placeholder="현상을 입력하세요" oninput="generateTemplate()">
+                <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
+                <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
             </div>
-            
-            <div id="prefix-container"></div>
-            
+
+            <div class="prefix-panel">
+                <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+                <div class="grid-2" style="gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">해당 없음</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 OS 버전 (신규)</label>
+                        <input type="text" id="prefix_spec_os" placeholder="예: iOS 16" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-2">
                 <div class="form-group">
                     <label>OS 구분</label>
-                    <select id="osType" onchange="syncEnvironmentByOS()"></select>
+                    <select id="osType" onchange="syncEnvironmentByOS()">
+                        <option value="[Android/iOS]">[Android/iOS]</option>
+                        <option value="[Android]">[Android]</option>
+                        <option value="[iOS]">[iOS]</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>POC</label>
-                    <select id="poc" onchange="handlePocChange()"></select>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="에이닷">에이닷</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>서버</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" checked onchange="generateTemplate()"> STG</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="GRN" onchange="generateTemplate()"> GRN</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> 상용(PRD)</label>
                 </div>
             </div>
             
-            <div id="dynamic-input-area"></div>
+            <div class="form-group" id="deviceGroup">
+                <label>디바이스 선택</label>
+                <div class="device-split-container">
+                    <div id="andDeviceCol" class="device-col">
+                        <div class="device-col-header">
+                            <span style="color: #10b981;">Android</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked onchange="toggleDeviceMode('and')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
+                            </div>
+                        </div>
+                        <div id="andNormalList" class="pill-group"></div>
+                        <div id="andSpecialList" class="pill-group" style="display:none;"></div>
+                    </div>
+                    <div id="iosDeviceCol" class="device-col">
+                        <div class="device-col-header">
+                            <span style="color: #64748b;">iOS</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
+                            </div>
+                        </div>
+                        <div id="iosNormalList" class="pill-group"></div>
+                        <div id="iosSpecialList" class="pill-group" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="appVersionGroup">
+                <div class="label-action-row">
+                    <label id="appVersionLabel">앱 버전</label>
+                    <div id="ios-ver-toggle" style="display: none; gap: 10px;">
+                        <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="TestFlight" checked onchange="syncEnvironmentByOS()"> TestFlight</label>
+                        <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="App Distribution" onchange="syncEnvironmentByOS()"> App Distribution</label>
+                    </div>
+                </div>
+                <input type="text" id="appVersion" oninput="generateTemplate()">
+            </div>
+
+            <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
+
+            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" oninput="generateTemplate()"></textarea></div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[재현스텝]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('steps', 2)">2</span>
+                            <span onclick="applyIndividualPreset('steps', 3)">3</span>
+                            <span onclick="applyIndividualPreset('steps', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="steps" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[실행결과-문제현상]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('actualResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="actualResult" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[기대결과]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="expectedResult" oninput="generateTemplate()"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>[참고사항]</label>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 참고 내용" oninput="generateTemplate()"></textarea>
+            </div>
         </div>
 
         <div class="panel result-panel">
@@ -111,18 +253,215 @@
                 <h2>📄 리포트 결과</h2>
                 <button class="btn-clear-top" onclick="clearForm()">🔄 새로 작성</button>
             </div>
-            <div id="output-container" style="flex: 1; display: flex; flex-direction: column;"></div>
+            
+            <div class="output-section">
+                <div class="output-label-group">
+                    <label>📌 제목 (Title)</label>
+                    <button class="btn-copy-mini" onclick="copySpecific('outputTitle')">제목만 복사</button>
+                </div>
+                <input type="text" id="outputTitle" class="output-field" readonly>
+            </div>
+
+            <div class="output-section" style="flex:1; display:flex; flex-direction:column; min-height: 200px;">
+                <div class="output-label-group">
+                    <label>📝 본문 (Description)</label>
+                    <button class="btn-copy-mini" onclick="copySpecific('outputBody')">본문만 복사</button>
+                </div>
+                <textarea id="outputBody" class="output-field" readonly style="flex: 1; resize: none;"></textarea>
+            </div>
+
+            <button class="btn-copy-all" onclick="copyAll()">📋 전체 복사 (제목 + 본문)</button>
         </div>
     </div>
 
-    <div id="modal-registry"></div>
+    <div class="modal-overlay" id="completionModal">
+        <div class="modal-content" style="max-width: 1100px; width: 95%;">
+            <button class="close-btn" onclick="closeCompletionModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <h2 style="margin: 0;">✅ 완료문 작성</h2>
+                <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+            </div>
+            <div class="completion-modal-body">
+                <div class="setting-box" style="margin-bottom:0;">
+                    <div class="form-group">
+                        <label>■ Device(OS Ver.)</label>
+                        <div id="comp_device_area" class="comp-device-scroll">
+                            <div id="comp_and_section">
+                                <div class="comp-os-label" style="color:#10b981;">Android</div>
+                                <div id="comp_and_list" class="pill-group"></div>
+                            </div>
+                            <div id="comp_ios_section">
+                                <div class="comp-os-label" style="color:#3b82f6;">iOS</div>
+                                <div id="comp_ios_list" class="pill-group"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>■ 버전</label><div id="comp_version_list" class="checkbox-group vertical"></div></div>
+                        <div class="form-group"><label>■ 서버</label><div id="comp_server_list" class="checkbox-group vertical"></div></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;"><label>■ 현상 check</label><textarea id="comp_check" style="height: 100px;" placeholder="확인 내용을 입력하세요"></textarea></div>
+                </div>
+                <div class="completion-preview-side">
+                    <div class="setting-box preview-box">
+                        <label>📊 미리보기</label>
+                        <textarea id="comp_preview" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" onclick="copyCompletionReport()">📋 완료문 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="kpiModal">
+        <div class="modal-content" style="max-width: 1500px; width: 96vw; height: 90vh; display: flex; flex-direction: column;">
+            <button class="close-btn" onclick="closeKpiModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px; padding-bottom: 10px;">
+                <h2 style="margin: 0;">📊 개인 KPI 목표 수행 현황</h2>
+            </div>
+            <div class="completion-modal-body" style="flex: 1; overflow: hidden; gap: 20px;">
+                
+                <div class="setting-box" style="margin-bottom:0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border-color);">
+                    <div class="kpi-tab-header">
+                        <button class="kpi-tab-btn active" id="btn-tab-perf" onclick="switchKpiTab('perf')">1. 업무 성과</button>
+                        <button class="kpi-tab-btn" id="btn-tab-contrib" onclick="switchKpiTab('contrib')">2. 팀 기여도</button>
+                        <button class="kpi-tab-btn" id="btn-tab-capa" onclick="switchKpiTab('capa')">3. 개인 역량</button>
+                    </div>
+                    
+                    <div class="kpi-tab-body" style="overflow-y: auto; padding: 25px; flex: 1;">
+                        
+                        <div id="tab-perf" class="kpi-tab-content active">
+                            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('perf')">🗑️ 현재 탭 초기화</button>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 15px;">1. Defect 검출 갯수</label>
+                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background: var(--bg-color); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Blocker</label><input type="number" id="def_blocker" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Critical</label><input type="number" id="def_critical" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Major</label><input type="number" id="def_major" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Minor</label><input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Trivial</label><input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">전월 팀 평균</label><input type="number" id="prev_avg" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <label style="color:var(--accent-blue); font-size: 1.1rem; margin: 0;">2. TC 수행 업무 (PoC별 취합)</label>
+                                    <button class="btn-clear-top" style="background: var(--text-main);" onclick="addTcRow()">➕ TC 추가</button>
+                                </div>
+                                <div id="tc_container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 25px; margin-bottom: 0;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
+                                <textarea id="tc_update_text" style="height: 120px;" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
+                            </div>
+                        </div>
+
+                        <div id="tab-contrib" class="kpi-tab-content" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">팀 기여도 및 업무태도</label>
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                            </div>
+                            <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="업무 집중 시간 준수, 팀장님 지시사항 수행, 야근/특근 내역, 단말 관리 등 기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        </div>
+
+                        <div id="tab-capa" class="kpi-tab-content" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">역량강화 (개인 역량)</label>
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
+                            </div>
+                            <textarea id="kpi_capa_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="자격증 취득/응시, 사내(외부) 교육 참여 등 개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="completion-preview-side" style="margin: 0;">
+                    <div class="setting-box preview-box" style="height: calc(100% - 70px); margin-bottom: 15px;">
+                        <label>📊 KPI 리포트 미리보기</label>
+                        <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 10px rgba(126, 34, 206, 0.3);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="close-btn" onclick="closeThemeModal()">×</button>
+            <div class="modal-header"><h2>🎨 테마 커스텀</h2></div>
+            <div class="setting-box">
+                <label>🌟 프리셋</label>
+                <div class="preset-group">
+                    <div class="preset-circle" style="background: #f0f2f5;" onclick="applyPreset('#f0f2f5','#ffffff','#475569')"></div>
+                    <div class="preset-circle" style="background: #0f172a;" onclick="applyPreset('#0f172a','#1e293b','#cbd5e1')"></div>
+                    <div class="preset-circle" style="background: #fbf0e6;" onclick="applyPreset('#fbf0e6','#fff9f2','#5c4b37')"></div>
+                </div>
+            </div>
+            <div class="setting-box color-picker-group">
+                <div class="color-row"><label>배경</label><input type="color" id="picker_bg" oninput="previewTheme()"></div>
+                <div class="color-row"><label>패널</label><input type="color" id="picker_panel" oninput="previewTheme()"></div>
+                <div class="color-row"><label>글자</label><input type="color" id="picker_text" oninput="previewTheme()"></div>
+            </div>
+            <div class="grid-2">
+                <button class="btn-clear-sm" onclick="resetTheme()">초기화</button>
+                <button class="btn-save" onclick="saveTheme()">✅ 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingModal">
+        <div class="modal-content" style="max-width: 750px;">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div class="modal-header"><h2>⚙️ 환경 설정</h2></div>
+            <div class="setting-box">
+                <div class="grid-2">
+                    <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
+                    <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#10b981; font-weight:bold;">🟢 Android</label>
+                <div class="form-group"><label style="font-size:0.75rem;">버전</label><input type="text" id="set_and_apptester"></div>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_and_devices" style="height:100px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_and_special" style="height:100px;"></textarea></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#3b82f6; font-weight:bold;">🔵 iOS</label>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size:0.75rem;">TF 버전</label><input type="text" id="set_ios_testflight"></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">AD 버전</label><input type="text" id="set_ios_distribution"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_ios_devices" style="height:100px;"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_ios_special" style="height:100px;"></textarea></div>
+                </div>
+            </div>
+            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="changelogModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeChangelogModal()">×</button>
+            <div class="modal-header"><h2>📜 업데이트 내역</h2></div>
+            <div id="changelog-container" class="changelog-list"></div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script src="changelog.js"></script>
-    <script src="js/render.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/completion.js"></script>
     <script src="js/main.js"></script>
