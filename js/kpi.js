@@ -1,3 +1,5 @@
+let currentKpiTab = 'perf';
+
 function openKpiModal() {
     document.getElementById('kpiModal').style.display = 'flex';
     loadKpiLocal();
@@ -13,10 +15,21 @@ function closeKpiModal() {
 }
 
 function switchKpiTab(tabId) {
+    currentKpiTab = tabId;
     document.querySelectorAll('.kpi-tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.kpi-tab-content').forEach(content => content.classList.remove('active'));
+    
     document.getElementById('btn-tab-' + tabId).classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
+
+    const labelMap = {
+        'perf': '📊 [업무 성과] 리포트 미리보기',
+        'contrib': '📊 [팀 기여도] 리포트 미리보기',
+        'capa': '📊 [개인 역량] 리포트 미리보기'
+    };
+    document.getElementById('kpi_preview_label').innerText = labelMap[tabId];
+    
+    generateKPI();
 }
 
 function clearKpiTab(tabId) {
@@ -41,16 +54,16 @@ function addTcRow(data = null) {
     const row = document.createElement('div');
     row.className = 'tc-row';
     row.innerHTML = `
-        <select class="tc-poc" onchange="generateKPI()">
+        <select class="tc-poc kpi-input" onchange="generateKPI()">
             <option value="T 멤버십">T 멤버십</option>
             <option value="에이닷">에이닷</option>
             <option value="PC Web">PC Web</option>
             <option value="AI Layer">AI Layer</option>
             <option value="Admin">Admin</option>
         </select>
-        <input type="text" class="tc-name" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()">
-        <input type="text" class="tc-id" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()">
-        <input type="number" class="tc-count" placeholder="건수" min="0" oninput="generateKPI()">
+        <input type="text" class="tc-name kpi-input" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()">
+        <input type="text" class="tc-id kpi-input" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()">
+        <input type="number" class="tc-count kpi-input" placeholder="건수" min="0" oninput="generateKPI()">
         <label class="checkbox-label"><input type="checkbox" class="tc-dual" onchange="generateKPI()"> 단말 2대</label>
         <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();">삭제</button>
     `;
@@ -128,7 +141,6 @@ function generateKPI() {
     });
 
     let tcSection = `TC 수행 업무\n* TC 수행 갯수: ${totalTcCount}개\n\n`;
-
     for (const [poc, data] of Object.entries(pocGroups)) {
         tcSection += `* ${poc} : ${data.count}개\n`;
         tcSection += data.items.join('\n') + '\n\n';
@@ -136,7 +148,6 @@ function generateKPI() {
 
     const updateText = rawV('tc_update_text');
     let updateSection = `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
-    
     if (updateText.trim()) {
         const lines = updateText.split('\n');
         lines.forEach(line => {
@@ -146,19 +157,18 @@ function generateKPI() {
         updateSection += ` - 내용 없음\n`;
     }
     
-    let finalReport = `${defectSection}\n${tcSection}${updateSection}`;
+    const perfReport = `${defectSection}\n${tcSection}${updateSection}`.trim();
+    const contribReport = rawV('kpi_contrib_text').trim() || "입력된 팀 기여도 내역이 없습니다.";
+    const capaReport = rawV('kpi_capa_text').trim() || "입력된 개인 역량 강화 내역이 없습니다.";
 
-    const contribText = rawV('kpi_contrib_text').trim();
-    if (contribText) {
-        finalReport += `\n\n[팀 기여도 및 업무태도]\n${contribText}`;
+    const previewArea = document.getElementById('output_kpi_result');
+    if (currentKpiTab === 'perf') {
+        previewArea.value = perfReport;
+    } else if (currentKpiTab === 'contrib') {
+        previewArea.value = contribReport;
+    } else if (currentKpiTab === 'capa') {
+        previewArea.value = capaReport;
     }
-
-    const capaText = rawV('kpi_capa_text').trim();
-    if (capaText) {
-        finalReport += `\n\n[역량강화 (개인 역량)]\n${capaText}`;
-    }
-
-    document.getElementById('output_kpi_result').value = finalReport.trim();
 
     const kpiData = {
         blocker: rawV('def_blocker'),
@@ -205,12 +215,66 @@ function loadKpiLocal() {
 }
 
 function copyKpiReport() {
-    const el = document.getElementById('output_kpi_result');
-    el.select();
-    document.execCommand('copy');
-    alert('KPI 리포트가 복사되었습니다!');
-    
+    generateKPI();
     const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
+    
+    const v = (val) => parseInt(val) || 0;
+    let totalDefects = v(saved.blocker) + v(saved.critical) + v(saved.major) + v(saved.minor) + v(saved.trivial);
+    let diff = totalDefects - v(saved.prevAvg);
+    let diffText = "동일";
+    if (diff > 0) diffText = `${diff}개 상승`; else if (diff < 0) diffText = `${Math.abs(diff)}개 하락`;
+
+    let defectSection = `Defect 검출 갯수 : 총 ${totalDefects}개\n* T 멤버십 : ${totalDefects}개\n`;
+    if (v(saved.blocker)>0) defectSection += ` - Blocker ${saved.blocker}개\n`;
+    if (v(saved.critical)>0) defectSection += ` - Critical ${saved.critical}개\n`;
+    if (v(saved.major)>0) defectSection += ` - Major ${saved.major}개\n`;
+    if (v(saved.minor)>0) defectSection += ` - Minor ${saved.minor}개\n`;
+    if (v(saved.trivial)>0) defectSection += ` - Trivial ${saved.trivial}개\n`;
+    defectSection += `\n전월 팀 평균 Defect 검출 갯수 : ${saved.prevAvg || 0}개 (${diffText})\n`;
+
+    let totalTcCount = 0;
+    const pocGroups = {};
+    if (saved.tcs) {
+        saved.tcs.forEach(tc => {
+            const count = v(tc.count);
+            if (count > 0 || tc.name || tc.id) {
+                if (!pocGroups[tc.poc]) pocGroups[tc.poc] = { count: 0, items: [] };
+                pocGroups[tc.poc].count += count;
+                totalTcCount += count;
+                const idStr = tc.id ? ` (${tc.id})` : '';
+                const dualStr = tc.dual ? ' (단말 2대)' : '';
+                pocGroups[tc.poc].items.push(` - ${tc.name}${idStr} ${count}건${dualStr}`);
+            }
+        });
+    }
+    let tcSection = `TC 수행 업무\n* TC 수행 갯수: ${totalTcCount}개\n\n`;
+    for (const [poc, data] of Object.entries(pocGroups)) {
+        tcSection += `* ${poc} : ${data.count}개\n`;
+        tcSection += data.items.join('\n') + '\n\n';
+    }
+
+    let updateSection = `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
+    if (saved.updateText && saved.updateText.trim()) {
+        saved.updateText.split('\n').forEach(line => {
+            if(line.trim()) updateSection += ` - ${line.trim()}\n`;
+        });
+    } else {
+        updateSection += ` - 내용 없음\n`;
+    }
+
+    let fullReport = `${defectSection}\n${tcSection}${updateSection}`.trim();
+
+    if (saved.contribText && saved.contribText.trim()) fullReport += `\n\n[팀 기여도 및 업무태도]\n${saved.contribText.trim()}`;
+    if (saved.capaText && saved.capaText.trim()) fullReport += `\n\n[역량강화 (개인 역량)]\n${saved.capaText.trim()}`;
+
+    const t = document.createElement("textarea");
+    document.body.appendChild(t);
+    t.value = fullReport;
+    t.select();
+    document.execCommand("copy");
+    document.body.removeChild(t);
+    alert('전체 KPI 리포트가 복사되었습니다!');
+    
     if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
         firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
     }
