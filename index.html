@@ -58,8 +58,13 @@
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
-                    <h3>2. 스마트 초기화</h3>
-                    <p>'새로 작성' 시에도 에픽 링크와 검증 참고사항은 유지됩니다.</p>
+                    <h3>2. 스마트 유지 보존</h3>
+                    <p>모드 전환 시에도 선택한 단말이 유지되며, 중복 선택 시 알럿이 발생합니다.</p>
+                </div>
+                <div class="guide-divider"></div>
+                <div class="guide-step">
+                    <h3>3. 리포트 필터링</h3>
+                    <p>'이번 검증 참고사항'은 완료문에만 포함되며 리포트 본문에서는 제외됩니다.</p>
                 </div>
             </div>
 
@@ -77,6 +82,7 @@
 
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
+            
             <div class="form-group">
                 <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
                 <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
@@ -85,16 +91,46 @@
             <div class="prefix-panel">
                 <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
                 <div class="grid-2" style="gap: 12px;">
-                    <div><label style="font-size: 0.75rem;">Critical 구분</label><select id="prefix_critical" onchange="generateTemplate()"><option value="">해당 없음</option><option value="Block">Block</option><option value="Crash">Crash</option></select></div>
-                    <div><label style="font-size: 0.75rem;">특수 계정 결함</label><input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">특정 Device 결함</label><input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()"></div>
-                    <div><label style="font-size: 0.75rem;">이슈 발생 페이지</label><input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()"></div>
+                    <div>
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">해당 없음</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+                    </div>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="form-group"><label>OS 구분</label><select id="osType" onchange="syncEnvironmentByOS()"><option value="[Android/iOS]">[Android/iOS]</option><option value="[Android]">[Android]</option><option value="[iOS]">[iOS]</option></select></div>
-                <div class="form-group"><label>POC</label><select id="poc" onchange="handlePocChange()"><option value="T 멤버십">T 멤버십</option><option value="PC Web">PC Web</option><option value="Admin">Admin</option></select></div>
+                <div class="form-group">
+                    <label>OS 구분</label>
+                    <select id="osType" onchange="syncEnvironmentByOS()">
+                        <option value="[Android/iOS]">[Android/iOS]</option>
+                        <option value="[Android]">[Android]</option>
+                        <option value="[iOS]">[iOS]</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>POC</label>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group">
@@ -145,9 +181,15 @@
                 <input type="text" id="appVersion" oninput="generateTemplate()">
             </div>
 
-            <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
+            <div class="form-group" id="urlGroup" style="display: none;">
+                <label id="urlLabel">URL</label>
+                <input type="text" id="targetUrl" oninput="generateTemplate()">
+            </div>
 
-            <div class="form-group"><label>[Pre-Condition]</label><textarea id="preCondition" oninput="generateTemplate()"></textarea></div>
+            <div class="form-group">
+                <label>[Pre-Condition]</label>
+                <textarea id="preCondition" oninput="generateTemplate()"></textarea>
+            </div>
 
             <div class="form-group">
                 <div class="label-action-row">
@@ -227,11 +269,110 @@
         </div>
     </div>
 
-    <!-- 모달 생략(V20.1과 동일) -->
-    <div class="modal-overlay" id="completionModal">...</div>
-    <div class="modal-overlay" id="themeModal">...</div>
-    <div class="modal-overlay" id="settingModal">...</div>
-    <div class="modal-overlay" id="changelogModal">...</div>
+    <div class="modal-overlay" id="completionModal">
+        <div class="modal-content" style="max-width: 1100px; width: 90%;">
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <h2 style="margin: 0;">✅ 완료문 작성</h2>
+                    <button class="close-btn" onclick="closeCompletionModal()">×</button>
+                </div>
+                <div class="fix-owner-alert">
+                    🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u>
+                </div>
+            </div>
+            <div class="completion-modal-body">
+                <div class="setting-box" style="margin-bottom:0;">
+                    <div class="form-group">
+                        <label>■ Device(OS Ver.)</label>
+                        <div id="comp_device_area" class="comp-device-scroll">
+                            <div id="comp_and_section">
+                                <div class="comp-os-label" style="color:#10b981;">Android</div>
+                                <div id="comp_and_list" class="pill-group"></div>
+                            </div>
+                            <div id="comp_ios_section">
+                                <div class="comp-os-label" style="color:#3b82f6;">iOS</div>
+                                <div id="comp_ios_list" class="pill-group"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>■ 버전</label><div id="comp_version_list" class="checkbox-group vertical"></div></div>
+                        <div class="form-group"><label>■ 서버</label><div id="comp_server_list" class="checkbox-group vertical"></div></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;"><label>■ 현상 check</label><textarea id="comp_check" style="height: 80px;" placeholder="확인 내용을 입력하세요"></textarea></div>
+                </div>
+                <div class="completion-preview-side">
+                    <div class="setting-box preview-box">
+                        <label>📊 미리보기</label>
+                        <textarea id="comp_preview" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" onclick="copyCompletionReport()" style="height:50px;">📋 완료문 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header"><h2>🎨 테마 커스텀</h2><button class="close-btn" onclick="closeThemeModal()">×</button></div>
+            <div class="setting-box">
+                <label>🌟 프리셋</label>
+                <div class="preset-group">
+                    <div class="preset-circle" style="background: #f0f2f5;" onclick="applyPreset('#f0f2f5','#ffffff','#475569')"></div>
+                    <div class="preset-circle" style="background: #0f172a;" onclick="applyPreset('#0f172a','#1e293b','#cbd5e1')"></div>
+                    <div class="preset-circle" style="background: #fbf0e6;" onclick="applyPreset('#fbf0e6','#fff9f2','#5c4b37')"></div>
+                </div>
+            </div>
+            <div class="setting-box color-picker-group">
+                <div class="color-row"><label>배경</label><input type="color" id="picker_bg" oninput="previewTheme()"></div>
+                <div class="color-row"><label>패널</label><input type="color" id="picker_panel" oninput="previewTheme()"></div>
+                <div class="color-row"><label>글자</label><input type="color" id="picker_text" oninput="previewTheme()"></div>
+            </div>
+            <div class="grid-2">
+                <button class="btn-clear-sm" onclick="resetTheme()">초기화</button>
+                <button class="btn-save" onclick="saveTheme()">✅ 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header"><h2>⚙️ 환경 설정</h2><button class="close-btn" onclick="closeModal()">×</button></div>
+            <div class="setting-box">
+                <div class="grid-2">
+                    <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
+                    <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#10b981;">🟢 Android</label>
+                <div class="form-group"><label>버전</label><input type="text" id="set_and_apptester"></div>
+                <div class="grid-2">
+                    <div class="form-group"><label>검증단말</label><textarea id="set_and_devices" class="setting-textarea"></textarea></div>
+                    <div class="form-group"><label>특수단말</label><textarea id="set_and_special" class="setting-textarea"></textarea></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#3b82f6;">🔵 iOS</label>
+                <div class="grid-2">
+                    <div class="form-group"><label>TF 버전</label><input type="text" id="set_ios_testflight"></div>
+                    <div class="form-group"><label>AD 버전</label><input type="text" id="set_ios_distribution"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>검증단말</label><textarea id="set_ios_devices" class="setting-textarea"></textarea></div>
+                    <div class="form-group"><label>특수단말</label><textarea id="set_ios_special" class="setting-textarea"></textarea></div>
+                </div>
+            </div>
+            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="changelogModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>📜 업데이트 내역</h2><button class="close-btn" onclick="closeChangelogModal()">×</button></div>
+            <div id="changelog-container" class="changelog-list"></div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
