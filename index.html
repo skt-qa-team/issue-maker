@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.5 (Modular)</title>
+    <title>[SKM] 이슈틀 생성기 - V21.6 (Modular + KPI)</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/completion.css">
+    <link rel="stylesheet" href="css/kpi.css">
 </head>
 <body>
 
@@ -19,7 +20,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V21.5</span>
+                <span class="version-info">- V21.6</span>
             </div>
         </div>
 
@@ -55,13 +56,13 @@
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. Prefix 고도화 (V21.5)</h3>
-                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다. (T 멤버십 앱 PoC는 표기 생략)</p>
+                    <h3>1. Prefix 고도화 (V21.6)</h3>
+                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
-                    <h3>2. 특정 OS 필드 추가</h3>
-                    <p>OS 버전(예: iOS 16)에 따른 결함일 경우 해당 칸을 입력하세요.</p>
+                    <h3>2. 개인 KPI 관리 팝업 탑재</h3>
+                    <p>이슈 입력창 우측 상단의 [KPI 작성] 버튼을 통해 월간 실적을 손쉽게 취합하세요.</p>
                 </div>
             </div>
 
@@ -78,7 +79,10 @@
         </div>
 
         <div class="panel">
-            <h2>📝 이슈 내용 입력</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📝 이슈 내용 입력</h2>
+                <button class="btn-clear-top" style="background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 10px rgba(126, 34, 206, 0.3);" onclick="openKpiModal()">📊 개인 KPI 작성</button>
+            </div>
             
             <div class="form-group">
                 <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
@@ -305,6 +309,48 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="kpiModal">
+        <div class="modal-content" style="max-width: 1100px; width: 95%;">
+            <button class="close-btn" onclick="closeKpiModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <h2 style="margin: 0;">📊 개인 KPI 목표 수행 현황</h2>
+            </div>
+            <div class="completion-modal-body">
+                <div class="setting-box" style="margin-bottom:0; overflow-y: auto; max-height: 60vh; padding-right: 15px;">
+                    <div class="form-group">
+                        <label style="color:var(--accent-blue); font-size: 1rem; margin-bottom: 15px;">1. Defect 검출 갯수</label>
+                        <div class="grid-2" style="margin-bottom: 15px; background: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div class="form-group"><label>Blocker</label><input type="number" id="def_blocker" min="0" value="0" oninput="generateKPI()"></div>
+                            <div class="form-group"><label>Critical</label><input type="number" id="def_critical" min="0" value="0" oninput="generateKPI()"></div>
+                            <div class="form-group"><label>Major</label><input type="number" id="def_major" min="0" value="0" oninput="generateKPI()"></div>
+                            <div class="form-group"><label>Minor</label><input type="number" id="def_minor" min="0" value="0" oninput="generateKPI()"></div>
+                            <div class="form-group"><label>Trivial</label><input type="number" id="def_trivial" min="0" value="0" oninput="generateKPI()"></div>
+                            <div class="form-group"><label>전월 팀 평균</label><input type="number" id="prev_avg" min="0" value="0" oninput="generateKPI()"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label style="color:var(--accent-blue); font-size: 1rem; margin: 0;">2. TC 수행 업무</label>
+                            <button class="btn-clear-top" style="background: var(--text-main);" onclick="addTcRow()">➕ TC 추가</button>
+                        </div>
+                        <div id="tc_container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+                    <div class="form-group" style="margin-top: 25px; margin-bottom: 0;">
+                        <label style="color:var(--accent-blue); font-size: 1rem; margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
+                        <textarea id="tc_update_text" style="height: 100px;" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
+                    </div>
+                </div>
+                <div class="completion-preview-side">
+                    <div class="setting-box preview-box">
+                        <label>📊 KPI 리포트 미리보기</label>
+                        <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 10px rgba(126, 34, 206, 0.3);" onclick="copyKpiReport()">📋 KPI 리포트 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="themeModal">
         <div class="modal-content" style="max-width: 450px;">
             <button class="close-btn" onclick="closeThemeModal()">×</button>
@@ -378,5 +424,6 @@
     <script src="js/settings.js"></script>
     <script src="js/completion.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/kpi.js"></script>
 </body>
 </html>
