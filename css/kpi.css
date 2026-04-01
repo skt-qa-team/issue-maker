@@ -1,6 +1,6 @@
 .tc-row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1fr auto auto;
+    grid-template-columns: 1fr 2fr 1.5fr 1fr auto auto;
     gap: 10px;
     align-items: center;
     background: #ffffff;
@@ -13,6 +13,16 @@
 .tc-row:hover {
     border-color: var(--accent-blue);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.tc-poc {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    outline: none;
+    font-size: 0.85rem;
+    background-color: var(--bg-color);
+    color: var(--text-main);
 }
 
 .btn-add {
