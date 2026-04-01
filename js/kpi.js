@@ -16,18 +16,18 @@ function addTcRow() {
     const row = document.createElement('div');
     row.className = 'tc-row';
     row.innerHTML = `
-        <select class="tc-poc" onchange="generateKPI()" style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-size: 0.85rem;">
+        <select class="tc-poc" onchange="generateKPI()" style="padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-size: 0.95rem;">
             <option value="T 멤버십">T 멤버십</option>
             <option value="에이닷">에이닷</option>
             <option value="PC Web">PC Web</option>
             <option value="AI Layer">AI Layer</option>
             <option value="Admin">Admin</option>
         </select>
-        <input type="text" class="tc-name" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()">
-        <input type="text" class="tc-id" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()">
-        <input type="number" class="tc-count" placeholder="수행건수" min="0" value="0" oninput="generateKPI()">
-        <label class="checkbox-label"><input type="checkbox" class="tc-dual" onchange="generateKPI()"> 단말 2대</label>
-        <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();">삭제</button>
+        <input type="text" class="tc-name" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
+        <input type="text" class="tc-id" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
+        <input type="number" class="tc-count" placeholder="건수" min="0" oninput="generateKPI()" style="padding: 10px; font-size: 0.95rem;">
+        <label class="checkbox-label" style="font-size: 0.95rem;"><input type="checkbox" class="tc-dual" onchange="generateKPI()"> 단말 2대</label>
+        <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();" style="padding: 10px 15px; font-size: 0.95rem;">삭제</button>
     `;
     container.appendChild(row);
     generateKPI();
