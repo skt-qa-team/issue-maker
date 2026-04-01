@@ -275,14 +275,14 @@ const UIRenderer = {
                                         <label class="kpi-section-title" style="margin: 0;">팀 기여도 및 업무태도</label>
                                         <button class="btn-remove kpi-clear-btn" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
                                     </div>
-                                    <textarea id="kpi_contrib_text" class="kpi-textarea-full kpi-input" placeholder="업무 집중 시간 준수, 팀장님 지시사항 수행, 야근/특근 내역, 단말 관리 등 기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                                    <textarea id="kpi_contrib_text" class="kpi-textarea-full kpi-input" placeholder="업무 집중 시간 준수 내역 등을 작성하세요." oninput="generateKPI()"></textarea>
                                 </div>
                                 <div id="tab-capa" class="kpi-tab-content" style="flex-direction: column; flex: 1;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                         <label class="kpi-section-title" style="margin: 0;">역량강화 (개인 역량)</label>
                                         <button class="btn-remove kpi-clear-btn" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
                                     </div>
-                                    <textarea id="kpi_capa_text" class="kpi-textarea-full kpi-input" placeholder="자격증 취득/응시, 사내(외부) 교육 참여 등 개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                                    <textarea id="kpi_capa_text" class="kpi-textarea-full kpi-input" placeholder="자격증 취득 내역 등을 작성하세요." oninput="generateKPI()"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -291,7 +291,7 @@ const UIRenderer = {
                                 <label id="kpi_preview_label" style="font-weight: 800; color: #10b981;">📊 [업무 성과] 리포트 미리보기</label>
                                 <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
                             </div>
-                            <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 10px rgba(126, 34, 206, 0.3);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                            <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
                         </div>
                     </div>
                 </div>
