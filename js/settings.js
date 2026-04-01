@@ -83,7 +83,13 @@ function saveSettings() {
         iosDevices: split('set_ios_devices'),
         iosSpecialDevices: split('set_ios_special')
     };
+    
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    
+    if (typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
+        firebase.database().ref('users/' + currentUserId + '/settings').set(data);
+    }
+
     syncEnvironmentByOS();
     closeModal();
 }
