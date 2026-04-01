@@ -1,17 +1,13 @@
 function openKpiModal() {
     document.getElementById('kpiModal').style.display = 'flex';
-    if (document.querySelectorAll('.tc-row').length === 0) {
-        addTcRow();
-    } else {
-        generateKPI();
-    }
+    loadKpiLocal();
 }
 
 function closeKpiModal() {
     document.getElementById('kpiModal').style.display = 'none';
 }
 
-function addTcRow() {
+function addTcRow(data = null) {
     const container = document.getElementById('tc_container');
     const row = document.createElement('div');
     row.className = 'tc-row';
@@ -30,11 +26,21 @@ function addTcRow() {
         <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();" style="padding: 10px 15px; font-size: 0.95rem;">삭제</button>
     `;
     container.appendChild(row);
+
+    if (data) {
+        row.querySelector('.tc-poc').value = data.poc || 'T 멤버십';
+        row.querySelector('.tc-name').value = data.name || '';
+        row.querySelector('.tc-id').value = data.id || '';
+        row.querySelector('.tc-count').value = data.count || '';
+        row.querySelector('.tc-dual').checked = data.dual || false;
+    }
+
     generateKPI();
 }
 
 function generateKPI() {
     const v = (id) => parseInt(document.getElementById(id).value) || 0;
+    const rawV = (id) => document.getElementById(id).value;
 
     const defects = [
         { name: 'Blocker', count: v('def_blocker') },
@@ -67,14 +73,18 @@ function generateKPI() {
 
     let totalTcCount = 0;
     const pocGroups = {};
+    const tcArrayToSave = [];
 
     const tcRows = document.querySelectorAll('.tc-row');
     tcRows.forEach(row => {
         const poc = row.querySelector('.tc-poc').value;
         const name = row.querySelector('.tc-name').value.trim();
         const id = row.querySelector('.tc-id').value.trim();
-        const count = parseInt(row.querySelector('.tc-count').value) || 0;
+        const countRaw = row.querySelector('.tc-count').value;
+        const count = parseInt(countRaw) || 0;
         const isDual = row.querySelector('.tc-dual').checked;
+
+        tcArrayToSave.push({ poc: poc, name: name, id: id, count: countRaw, dual: isDual });
 
         if (count > 0 || name || id) {
             if (!pocGroups[poc]) pocGroups[poc] = { count: 0, items: [] };
@@ -95,10 +105,10 @@ function generateKPI() {
         tcSection += data.items.join('\n') + '\n\n';
     }
 
-    const updateText = document.getElementById('tc_update_text').value.trim();
+    const updateText = document.getElementById('tc_update_text').value;
     let updateSection = `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
     
-    if (updateText) {
+    if (updateText.trim()) {
         const lines = updateText.split('\n');
         lines.forEach(line => {
             if(line.trim()) updateSection += ` - ${line.trim()}\n`;
@@ -109,6 +119,45 @@ function generateKPI() {
 
     const finalReport = `${defectSection}\n${tcSection}${updateSection}`;
     document.getElementById('output_kpi_result').value = finalReport.trim();
+
+    const kpiData = {
+        blocker: rawV('def_blocker'),
+        critical: rawV('def_critical'),
+        major: rawV('def_major'),
+        minor: rawV('def_minor'),
+        trivial: rawV('def_trivial'),
+        prevAvg: rawV('prev_avg'),
+        updateText: updateText,
+        tcs: tcArrayToSave
+    };
+    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+}
+
+function loadKpiLocal() {
+    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
+    const container = document.getElementById('tc_container');
+    
+    if (saved) {
+        document.getElementById('def_blocker').value = saved.blocker || '';
+        document.getElementById('def_critical').value = saved.critical || '';
+        document.getElementById('def_major').value = saved.major || '';
+        document.getElementById('def_minor').value = saved.minor || '';
+        document.getElementById('def_trivial').value = saved.trivial || '';
+        document.getElementById('prev_avg').value = saved.prevAvg || '';
+        document.getElementById('tc_update_text').value = saved.updateText || '';
+
+        container.innerHTML = '';
+        if (saved.tcs && saved.tcs.length > 0) {
+            saved.tcs.forEach(tc => addTcRow(tc));
+        } else {
+            addTcRow();
+        }
+    } else {
+        if (document.querySelectorAll('.tc-row').length === 0) {
+            addTcRow();
+        }
+    }
+    generateKPI();
 }
 
 function copyKpiReport() {
