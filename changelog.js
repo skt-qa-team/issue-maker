@@ -1,8 +1,3 @@
-/**
- * [SKM] 이슈틀 생성기 - Patch Notes Data
- * 새로운 업데이트 발생 시 이 배열의 맨 위에 객체를 추가하면 자동으로 렌더링됩니다.
- */
-
 const changelogData = [
     {
         version: "V21.13",
@@ -100,7 +95,7 @@ const changelogData = [
             "이슈 리포트 본문 템플릿 가독성 개선",
             "클립보드 복사 성공 알림(Alert) UI 최적화"
         ]
-    }
+    },
     {
         version: "V19.7",
         date: "2026-03-31",
