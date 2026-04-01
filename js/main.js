@@ -52,7 +52,6 @@ function initPresenceSystem() {
                 label.innerText = '로그아웃';
                 icon.style.background = '#3b82f6';
                 myUserRef.set({ name: user.displayName, photo: user.photoURL, color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP });
-                
                 syncFromCloud(currentUserId);
             }
             myUserRef.onDisconnect().remove();
@@ -67,7 +66,6 @@ function syncFromCloud(uid) {
             syncEnvironmentByOS();
         }
     });
-    
     database.ref('users/' + uid + '/kpi').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('skm_kpi_data', JSON.stringify(snapshot.val()));
@@ -84,7 +82,10 @@ function toggleAuth() {
 function startClock() {
     setInterval(() => {
         const now = new Date();
-        document.getElementById('currentTime').innerText = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+        const clockEl = document.getElementById('currentTime');
+        if (clockEl) {
+            clockEl.innerText = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+        }
     }, 1000);
 }
 
@@ -98,7 +99,9 @@ function applyIndividualPreset(id, n) {
 
 function syncEnvironmentByOS() {
     const config = loadConfig();
-    const osType = document.getElementById('osType').value;
+    const osEl = document.getElementById('osType');
+    if (!osEl) return;
+    const osType = osEl.value;
     const currentSelected = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
 
     document.getElementById('andDeviceCol').style.display = osType.includes("Android") ? 'block' : 'none';
@@ -106,6 +109,7 @@ function syncEnvironmentByOS() {
     document.getElementById('ios-ver-toggle').style.display = osType.includes("iOS") ? 'flex' : 'none';
 
     const render = (container, list, idPrefix) => {
+        if (!container) return;
         container.innerHTML = '';
         list.forEach(dev => {
             const isChecked = currentSelected.includes(dev) ? 'checked' : '';
@@ -167,7 +171,10 @@ function handlePocChange() {
 }
 
 function generateTemplate() {
-    const getValue = (id) => document.getElementById(id).value;
+    const getValue = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+    };
     const poc = getValue('poc');
     const os = getValue('osType');
     const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
@@ -175,8 +182,9 @@ function generateTemplate() {
     
     let ver = getValue('appVersion');
     if (poc === 'T 멤버십') {
+        const iosTypeEl = document.querySelector('input[name="ios_ver_type"]:checked');
         if (os === "[Android]") ver = `App Tester_${ver}`;
-        else if (os === "[iOS]") ver = `${document.querySelector('input[name="ios_ver_type"]:checked').value}_${ver}`;
+        else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
     }
 
     const rawEnv = servers.join('/').replace('PRD', '상용');
@@ -204,19 +212,24 @@ function generateTemplate() {
 
     const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
     
-    document.getElementById('outputTitle').value = titleText;
-    document.getElementById('outputBody').value = body.trim();
+    const outTitle = document.getElementById('outputTitle');
+    const outBody = document.getElementById('outputBody');
+    if (outTitle) outTitle.value = titleText;
+    if (outBody) outBody.value = body.trim();
 }
 
 function copySpecific(id) {
     const el = document.getElementById(id);
+    if (!el) return;
     el.select();
     document.execCommand('copy');
     alert('복사되었습니다.');
 }
 
 function copyAll() {
-    const combined = `${document.getElementById('outputTitle').value}\n${document.getElementById('outputBody').value}`;
+    const tVal = document.getElementById('outputTitle')?.value || '';
+    const bVal = document.getElementById('outputBody')?.value || '';
+    const combined = `${tVal}\n${bVal}`;
     const t = document.createElement("textarea");
     document.body.appendChild(t);
     t.value = combined;
@@ -228,11 +241,17 @@ function copyAll() {
 
 function clearForm() {
     if(!confirm('초기화하시겠습니까? (에픽/참고사항 제외)')) return;
-    ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => document.getElementById(id).value = '');
+    ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
     syncEnvironmentByOS();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof UIRenderer !== 'undefined') {
+        UIRenderer.init();
+    }
     if (typeof initCustomTheme === 'function') initCustomTheme();
     startClock();
     initPresenceSystem();
