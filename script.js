@@ -243,7 +243,7 @@ function generateTemplate() {
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
     const specOsPrefix = getValue('prefix_spec_os').trim() ? `[${getValue('prefix_spec_os').trim()}]` : '';
-    const pocPrefix = poc ? `[${poc}]` : '';
+    const pocPrefix = (poc && poc !== 'T 멤버십') ? `[${poc}]` : '';
     const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
     const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
     const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
