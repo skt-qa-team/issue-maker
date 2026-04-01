@@ -36,16 +36,18 @@ function initPresenceSystem() {
         }
     });
     auth.onAuthStateChanged((user) => {
-        document.getElementById('auth-btn').disabled = false;
+        const icon = document.getElementById('auth-btn-icon');
+        const label = document.getElementById('auth-btn-label');
         if (user) {
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
             if (user.isAnonymous) {
-                document.getElementById('auth-btn').innerText = 'G 로그인';
+                label.innerText = '로그인';
+                icon.style.background = '#ef4444';
                 myUserRef.set({ name: myAnonName, color: myAnonColor, photo: "", lastActive: firebase.database.ServerValue.TIMESTAMP });
             } else {
-                document.getElementById('auth-btn').innerText = 'G 로그아웃';
-                document.getElementById('auth-btn').classList.add('logged-in');
+                label.innerText = '로그아웃';
+                icon.style.background = '#3b82f6';
                 myUserRef.set({ name: user.displayName, photo: user.photoURL, color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP });
             }
             myUserRef.onDisconnect().remove();
@@ -215,14 +217,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initPresenceSystem();
     if (typeof renderChangelog === 'function') renderChangelog();
     syncEnvironmentByOS();
-    
-    const compCheck = document.getElementById('comp_check');
-    const extraNotes = document.getElementById('extra_notes');
-    
-    if (compCheck && typeof updateCompletionPreview === 'function') {
-        compCheck.addEventListener('input', updateCompletionPreview);
-    }
-    if (extraNotes && typeof updateCompletionPreview === 'function') {
-        extraNotes.addEventListener('input', updateCompletionPreview);
-    }
 });
