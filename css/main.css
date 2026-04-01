@@ -6,6 +6,7 @@
     --accent-blue: #3b82f6;
     --accent-red: #ef4444;
     --border-color: #e2e8f0;
+    --accent-green: #10b981;
 }
 
 body {
@@ -17,9 +18,10 @@ body {
     overflow-x: hidden;
 }
 
+/* 상단 액션 바 레이아웃 복구 */
 .top-action-bar {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 10px 25px;
     background: var(--panel-bg);
@@ -27,13 +29,57 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    height: 70px;
+    box-sizing: border-box;
 }
 
+.top-bar-left-group, .top-bar-btns {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.top-bar-center-group {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.menu-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    min-width: 60px;
+}
+
+.setting-btn-float {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    font-size: 1.2rem;
+    transition: 0.2s;
+}
+
+.menu-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-sub);
+}
+
+/* 메인 레이아웃 가로 배치 */
 .wrapper {
     display: flex;
     gap: 20px;
     padding: 20px;
-    align-items: stretch;
+    align-items: flex-start; /* 높이 불균형 방지 */
 }
 
 .panel {
@@ -42,147 +88,109 @@ body {
     padding: 25px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     flex: 1;
+    min-width: 0; /* 내부 요소 넘침 방지 */
 }
 
 .guide-panel {
-    max-width: 380px;
+    flex: 0 0 350px;
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 90px;
 }
 
-/* 리포트 결과창 확장 섹션 */
+/* 이슈 내용 입력 섹션 */
+.prefix-panel {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+/* 리포트 결과창 (Dark Theme & Wide) */
 .result-panel {
+    flex: 1.2;
     display: flex;
     flex-direction: column;
-    min-height: 900px; /* 기본 노출 높이 대폭 확장 */
-    background: #0f172a; /* Professional Dark Theme */
+    min-height: 850px;
+    background: #0f172a;
     color: #f1f5f9;
 }
 
-.result-panel h2 {
-    color: #f1f5f9;
-}
+.result-panel h2 { color: #f1f5f9; margin-top: 0; }
 
 .output-section {
     display: flex;
     flex-direction: column;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
-.output-section:nth-child(2) {
-    flex: 1; /* 본문 영역이 남은 공간을 모두 차지하도록 확장 */
-}
-
-.output-label-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.output-label-group label {
-    font-weight: 800;
-    font-size: 0.95rem;
-    color: #94a3b8;
-}
+.output-section:nth-child(3) { flex: 1; } /* 본문 영역 확장 */
 
 .output-field {
     width: 100%;
     background: #1e293b;
     border: 1px solid #334155;
     border-radius: 8px;
-    padding: 18px;
+    padding: 15px;
     color: #f1f5f9;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 1rem;
-    line-height: 1.7;
+    font-family: 'Consolas', monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
     box-sizing: border-box;
     outline: none;
 }
 
-.output-field:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-#outputTitle {
-    height: 55px;
-    font-weight: 700;
-    color: var(--accent-blue);
-}
-
-#outputBody {
-    flex: 1;
-    min-height: 600px; /* 본문 리포트를 기본적으로 넓고 길게 노출 */
-    resize: vertical;
-}
+#outputTitle { height: 50px; color: var(--accent-blue); font-weight: 700; }
+#outputBody { flex: 1; min-height: 500px; resize: none; }
 
 .btn-copy-all {
     width: 100%;
-    height: 65px;
+    padding: 18px;
     background: var(--accent-blue);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: 800;
     cursor: pointer;
-    transition: 0.2s;
-    margin-top: auto;
+    margin-top: 10px;
 }
 
-.btn-copy-all:hover {
-    background: #2563eb;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+/* Pill UI (단말기 선택) */
+.pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.btn-copy-mini {
-    background: #334155;
-    color: #cbd5e1;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.75rem;
+.pill-cb { display: none; }
+
+.pill-label {
+    padding: 6px 14px;
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.85rem;
     cursor: pointer;
-}
-
-.btn-copy-mini:hover {
-    background: #475569;
-    color: white;
-}
-
-/* 폼 공통 스타일 */
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-
-input[type="text"], 
-input[type="number"], 
-select, 
-textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1.5px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 0.95rem;
-    box-sizing: border-box;
     transition: 0.2s;
 }
 
-textarea {
-    height: 100px;
-    resize: vertical;
+.pill-cb:checked + .pill-label {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
 }
 
-input:focus, select:focus, textarea:focus {
-    border-color: var(--accent-blue);
-    outline: none;
-}
+/* 공통 폼 스타일 */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.85rem; }
+
+textarea { height: 100px; resize: vertical; }
+
+.device-split-container { display: flex; gap: 15px; }
+.device-col { flex: 1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+.device-col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; font-size: 0.85rem; }
