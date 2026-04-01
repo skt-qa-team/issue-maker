@@ -24,9 +24,7 @@ sessionStorage.setItem('anonColor', myAnonColor);
 function initPresenceSystem() {
     const list = document.getElementById('presence-list');
     if (!list) return;
-
     const allUsersRef = database.ref('presence');
-    
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
@@ -39,15 +37,12 @@ function initPresenceSystem() {
             });
         }
     });
-
     auth.onAuthStateChanged((user) => {
         const icon = document.getElementById('auth-btn-icon');
         const label = document.getElementById('auth-btn-label');
-        
         if (user) {
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
-            
             if (user.isAnonymous) {
                 isAnonymousUser = true;
                 if(label) label.innerText = '로그인';
@@ -61,9 +56,7 @@ function initPresenceSystem() {
                 syncFromCloud(currentUserId);
             }
             myUserRef.onDisconnect().remove();
-        } else {
-            auth.signInAnonymously();
-        }
+        } else auth.signInAnonymously();
     });
 }
 
@@ -74,23 +67,17 @@ function syncFromCloud(uid) {
             syncEnvironmentByOS();
         }
     });
-    
     database.ref('users/' + uid + '/kpi').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('skm_kpi_data', JSON.stringify(snapshot.val()));
-            if (typeof loadKpiLocal === 'function') {
-                loadKpiLocal();
-            }
+            if (typeof loadKpiLocal === 'function') loadKpiLocal();
         }
     });
 }
 
 function toggleAuth() { 
-    if (auth.currentUser && !auth.currentUser.isAnonymous) {
-        auth.signOut(); 
-    } else {
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
-    }
+    if (auth.currentUser && !auth.currentUser.isAnonymous) auth.signOut(); 
+    else auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
 }
 
 function startClock() {
@@ -101,6 +88,48 @@ function startClock() {
             clockEl.innerText = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
         }
     }, 1000);
+}
+
+function openCompletionModal() {
+    document.getElementById('completionModal').style.display = 'flex';
+    if (typeof loadCompletionLocal === 'function') loadCompletionLocal();
+}
+
+function closeCompletionModal() {
+    document.getElementById('completionModal').style.display = 'none';
+}
+
+function openKpiModal() {
+    if (typeof openKpiModalAction === 'function') openKpiModalAction();
+    else document.getElementById('kpiModal').style.display = 'flex';
+}
+
+function closeKpiModal() {
+    document.getElementById('kpiModal').style.display = 'none';
+}
+
+function openModal() {
+    document.getElementById('settingModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('settingModal').style.display = 'none';
+}
+
+function openThemeModal() {
+    document.getElementById('themeModal').style.display = 'flex';
+}
+
+function closeThemeModal() {
+    document.getElementById('themeModal').style.display = 'none';
+}
+
+function openChangelogModal() {
+    document.getElementById('changelogModal').style.display = 'flex';
+}
+
+function closeChangelogModal() {
+    document.getElementById('changelogModal').style.display = 'none';
 }
 
 function applyIndividualPreset(id, n) {
@@ -116,7 +145,6 @@ function syncEnvironmentByOS() {
     const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
     if (!osEl) return;
-
     const osType = osEl.value;
     const currentSelected = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
 
@@ -134,10 +162,7 @@ function syncEnvironmentByOS() {
         container.innerHTML = '';
         list.forEach(dev => {
             const isChecked = currentSelected.includes(dev) ? 'checked' : '';
-            container.innerHTML += `
-                <input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isChecked} onchange="handleDeviceClick(this)">
-                <label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>
-            `;
+            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isChecked} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
         });
     };
 
@@ -154,13 +179,11 @@ function syncEnvironmentByOS() {
         ver = `App Tester_${config.andAppTester || ''} / ${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`;
     } else if (osType === "[Android]") {
         ver = config.andAppTester || '';
-    } else if (osType === "[iOS]") {
+    } else {
         ver = (iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''));
     }
-    
     const verInput = document.getElementById('appVersion');
     if(verInput) verInput.value = ver;
-
     generateTemplate();
 }
 
@@ -195,10 +218,8 @@ function handlePocChange() {
     const isWeb = poc === 'Admin' || poc === 'PC Web';
     const devGroup = document.getElementById('deviceGroup');
     const urlGroup = document.getElementById('urlGroup');
-    
     if(devGroup) devGroup.style.display = isWeb ? 'none' : 'block';
     if(urlGroup) urlGroup.style.display = isWeb ? 'block' : 'none';
-    
     if (isWeb) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const targetUrl = document.getElementById('targetUrl');
@@ -214,19 +235,16 @@ function generateTemplate() {
         const el = document.getElementById(id);
         return el ? el.value : '';
     };
-
     const poc = getValue('poc');
     const os = getValue('osType');
     const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
-    
     let ver = getValue('appVersion');
     if (poc === 'T 멤버십') {
         const iosTypeEl = document.querySelector('input[name="ios_ver_type"]:checked');
         if (os === "[Android]") ver = `App Tester_${ver}`;
         else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
     }
-
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
@@ -236,23 +254,17 @@ function generateTemplate() {
     const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
     const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
-
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
-    
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
     if (poc === 'Admin' || poc === 'PC Web') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
     }
-    
     const prdRef = getValue('ref_prd').trim();
     const notes = getValue('ref_notes').trim();
-
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
-
     const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
-    
     const outTitle = document.getElementById('outputTitle');
     const outBody = document.getElementById('outputBody');
     if (outTitle) outTitle.value = titleText;
