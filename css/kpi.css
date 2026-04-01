@@ -1,41 +1,109 @@
+/* [SKM] 개인 KPI 모듈 - UI/UX 최적화 스타일 시트 */
 
+:root {
+    --accent-blue: #3b82f6;
+    --accent-purple: #a062f2;
+    --bg-color: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-light: #e2e8f0;
+    --white: #ffffff;
+}
+
+/* 1. KPI 탭 버튼 (업무성과, 팀기여도, 개인역량) */
+.kpi-tabs {
+    display: flex;
+    gap: 2px;
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.tab-link {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 5px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 활성화 상태: 물리적인 버튼이 눌린듯한 효과와 가독성 확보 */
+.tab-link.active {
+    background: var(--white);
+    color: var(--accent-blue);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.tab-link:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-main);
+}
+
+/* 2. 섹션 타이틀 및 레이아웃 */
+.kpi-section-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--accent-blue);
+    margin: 30px 0 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 3. TC 수행 업무 행 (사용자 제공 코드 최적화) */
 .tc-row {
     display: grid;
     grid-template-columns: 1.2fr 3fr 1.5fr 1fr auto auto;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
-    background: #ffffff;
-    padding: 12px;
-    border: 1px dashed #cbd5e1;
-    border-radius: 8px;
-    transition: 0.2s;
+    background: var(--white);
+    padding: 12px 15px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: 0.2s ease-in-out;
 }
 
 .tc-row:hover {
     border-color: var(--accent-blue);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-.tc-poc {
+/* 입력 필드 공통 스타일 */
+.kpi-input, .tc-poc {
     padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-light);
     outline: none;
-    font-size: 0.95rem;
-    background-color: var(--bg-color);
+    font-size: 0.9rem;
     color: var(--text-main);
+    transition: border-color 0.2s;
 }
 
+.kpi-input:focus, .tc-poc:focus {
+    border-color: var(--accent-blue);
+}
+
+/* 4. 버튼 컴포넌트 */
 .btn-add {
-    background: #ffffff; 
-    color: var(--text-main); 
-    border: 1.5px solid #cbd5e1; 
-    padding: 8px 14px; 
-    border-radius: 6px; 
-    font-size: 0.85rem; 
-    font-weight: 800; 
+    background: var(--white);
+    color: var(--text-main);
+    border: 1.5px solid var(--border-light);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .btn-add:hover {
@@ -45,17 +113,54 @@
 }
 
 .btn-remove {
-    background: #ef4444; 
-    color: white; 
-    border: none; 
-    padding: 10px 15px; 
-    border-radius: 6px; 
-    font-size: 0.9rem; 
-    font-weight: 800; 
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 .btn-remove:hover {
-    background: #dc2626;
+    background: #ef4444;
+    color: var(--white);
+}
+
+/* 현재 팀 초기화 버튼 (우측 상단 위치 고정) */
+.btn-reset-team {
+    background: #475569;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* 5. 우측 미리보기 및 전체 복사 버튼 */
+.kpi-footer {
+    padding: 20px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+}
+
+.btn-copy-all {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px 0 rgba(126, 34, 206, 0.39);
+}
+
+.btn-copy-all:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(126, 34, 206, 0.45);
 }
