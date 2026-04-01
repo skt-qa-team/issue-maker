@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/completion.css">
     <link rel="stylesheet" href="css/kpi.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
 
@@ -59,6 +60,7 @@
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
+        
         <div class="panel guide-panel">
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
@@ -70,6 +72,15 @@
                 <div class="guide-step">
                     <h3>2. 개인 KPI 관리 (탭 구조 최적화)</h3>
                     <p>우측 상단 [KPI] 버튼을 통해 팝업을 열고, 상단 탭을 이동하며 모든 월간 실적을 쾌적하게 취합하세요.</p>
+                </div>
+                <div class="guide-divider"></div>
+                <div class="guide-step">
+                    <h3>3. 작성 팁</h3>
+                    <ul>
+                        <li>OS 구분 선택 시 Prefix 즉시 반영</li>
+                        <li>재현 스텝은 핵심 동작 위주로 기술</li>
+                        <li>기대 결과는 수정 방향성 명시</li>
+                    </ul>
                 </div>
             </div>
 
@@ -164,12 +175,13 @@
                                 <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
                             </div>
                         </div>
-                        <div id="andNormalList" class="pill-group"></div>
+                        <div id="andNormalList" class="pill-group">
+                            </div>
                         <div id="andSpecialList" class="pill-group" style="display:none;"></div>
                     </div>
                     <div id="iosDeviceCol" class="device-col">
                         <div class="device-col-header">
-                            <span style="color: #64748b;">iOS</span>
+                            <span style="color: #3b82f6;">iOS</span>
                             <div class="radio-tab-group small">
                                 <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
                                 <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
@@ -200,7 +212,7 @@
                 <div class="label-action-row">
                     <label>[재현스텝]</label>
                     <div class="case-ctrl-row">
-                        <button class="btn-case-main">CASE +</button>
+                        <button class="btn-case-main" onclick="addCase('steps')">CASE +</button>
                         <div class="case-num-group">
                             <span onclick="applyIndividualPreset('steps', 2)">2</span>
                             <span onclick="applyIndividualPreset('steps', 3)">3</span>
@@ -215,7 +227,7 @@
                 <div class="label-action-row">
                     <label>[실행결과-문제현상]</label>
                     <div class="case-ctrl-row">
-                        <button class="btn-case-main">CASE +</button>
+                        <button class="btn-case-main" onclick="addCase('actualResult')">CASE +</button>
                         <div class="case-num-group">
                             <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
                             <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
@@ -230,7 +242,7 @@
                 <div class="label-action-row">
                     <label>[기대결과]</label>
                     <div class="case-ctrl-row">
-                        <button class="btn-case-main">CASE +</button>
+                        <button class="btn-case-main" onclick="addCase('expectedResult')">CASE +</button>
                         <div class="case-num-group">
                             <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
                             <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
@@ -344,7 +356,13 @@
                                     <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Minor</label><input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
                                     <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Trivial</label><input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
                                     <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">전월 팀 평균</label><input type="number" id="prev_avg" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                        <label style="font-size: 1rem;">전월 팀 평균</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <input type="number" id="prev_avg" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                            <button class="btn-remove" style="background: #ef4444; color: white; padding: 5px 10px; font-size: 0.75rem;" onclick="resetTeamAverage()">초기화</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -367,7 +385,7 @@
                                 <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">팀 기여도 및 업무태도</label>
                                 <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
                             </div>
-                            <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="업무 집중 시간 준수, 팀장님 지시사항 수행, 야근/특근 내역, 단말 관리 등 기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                            <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
                         </div>
 
                         <div id="tab-capa" class="kpi-tab-content" style="display: none;">
@@ -375,18 +393,17 @@
                                 <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">역량강화 (개인 역량)</label>
                                 <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
                             </div>
-                            <textarea id="kpi_capa_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="자격증 취득/응시, 사내(외부) 교육 참여 등 개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                            <textarea id="kpi_capa_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
                         </div>
-
                     </div>
                 </div>
 
                 <div class="completion-preview-side" style="margin: 0;">
                     <div class="setting-box preview-box" style="height: calc(100% - 70px); margin-bottom: 15px;">
-                        <label>📊 KPI 리포트 미리보기</label>
+                        <label id="kpi_preview_label">📊 [업무 성과] 리포트 미리보기</label>
                         <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
                     </div>
-                    <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 10px rgba(126, 34, 206, 0.3);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                    <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
                 </div>
             </div>
         </div>
@@ -401,7 +418,6 @@
                 <div class="preset-group">
                     <div class="preset-circle" style="background: #f0f2f5;" onclick="applyPreset('#f0f2f5','#ffffff','#475569')"></div>
                     <div class="preset-circle" style="background: #0f172a;" onclick="applyPreset('#0f172a','#1e293b','#cbd5e1')"></div>
-                    <div class="preset-circle" style="background: #fbf0e6;" onclick="applyPreset('#fbf0e6','#fff9f2','#5c4b37')"></div>
                 </div>
             </div>
             <div class="setting-box color-picker-group">
@@ -424,25 +440,6 @@
                 <div class="grid-2">
                     <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
                     <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
-                </div>
-            </div>
-            <div class="setting-box">
-                <label style="color:#10b981; font-weight:bold;">🟢 Android</label>
-                <div class="form-group"><label style="font-size:0.75rem;">버전</label><input type="text" id="set_and_apptester"></div>
-                <div class="grid-2">
-                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_and_devices" style="height:100px;"></textarea></div>
-                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_and_special" style="height:100px;"></textarea></div>
-                </div>
-            </div>
-            <div class="setting-box">
-                <label style="color:#3b82f6; font-weight:bold;">🔵 iOS</label>
-                <div class="grid-2">
-                    <div class="form-group"><label style="font-size:0.75rem;">TF 버전</label><input type="text" id="set_ios_testflight"></div>
-                    <div class="form-group"><label style="font-size:0.75rem;">AD 버전</label><input type="text" id="set_ios_distribution"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="form-group"><label style="font-size:0.75rem;">검증단말</label><textarea id="set_ios_devices" style="height:100px;"></textarea></div>
-                    <div class="form-group"><label style="font-size:0.75rem;">특수단말</label><textarea id="set_ios_special" style="height:100px;"></textarea></div>
                 </div>
             </div>
             <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
