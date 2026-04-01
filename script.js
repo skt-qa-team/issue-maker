@@ -287,19 +287,26 @@ function openCompletionModal() {
     const currentCheckedSrvs = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     ['STG', 'DEV', 'PRD'].forEach(s => {
         const chk = currentCheckedSrvs.includes(s) ? 'checked' : '';
-        sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${s==='PRD'?'PRD(상용)':s}" ${chk} onchange="updateCompletionPreview()"> ${s==='PRD'?'PRD(상용)':s}</label>`;
+        const label = s==='PRD'?'PRD(상용)':s;
+        sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${label}" ${chk} onchange="updateCompletionPreview()"> ${label}</label>`;
     });
 
+    document.getElementById('comp_check').value = '';
     document.getElementById('completionModal').style.display = 'flex';
     updateCompletionPreview();
 }
+
+function closeCompletionModal() { document.getElementById('completionModal').style.display = 'none'; }
+function closeThemeModal() { document.getElementById('themeModal').style.display = 'none'; initCustomTheme(); }
+function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
+function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 
 function updateCompletionPreview() {
     const devs = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
     const vers = Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value).join(' / ') || '-';
     const srvs = Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value).join(' / ') || '-';
     const extra = document.getElementById('extra_notes').value.trim();
-    document.getElementById('comp_preview').value = `■ Device(OS Ver.) : ${devs}\n■ 버젼 : ${vers}\n■ 서버 : ${srvs}\n■ 현상 check : ${document.getElementById('comp_check').value}\n\n[검증 참고사항]\n${extra}`;
+    document.getElementById('comp_preview').value = `■ Device(OS Ver.) : ${devs}\n■ 버젼 : ${vers}\n■ 서버 : ${srvs}\n■ 현상 check : ${document.getElementById('comp_check').value}${extra ? '\n\n[검증 참고사항]\n' + extra : ''}`;
 }
 
 function copyCompletionReport() {
@@ -307,7 +314,7 @@ function copyCompletionReport() {
     el.select();
     document.execCommand('copy');
     alert('완료문 복사 완료!');
-    document.getElementById('completionModal').style.display = 'none';
+    closeCompletionModal();
 }
 
 function openModal() {
@@ -324,9 +331,7 @@ function openModal() {
     document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
 }
 
-function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
-function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
 
 function copySpecific(id) {
     const el = document.getElementById(id);
@@ -359,5 +364,4 @@ document.addEventListener('DOMContentLoaded', () => {
     renderChangelog();
     syncEnvironmentByOS();
     document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
-    document.getElementById('extra_notes').addEventListener('input', updateCompletionPreview);
 });
