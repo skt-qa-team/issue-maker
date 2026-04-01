@@ -14,6 +14,7 @@ const database = firebase.database();
 const auth = firebase.auth();
 
 let currentUserId = null;
+let isAnonymousUser = true;
 const anonColors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
 let myAnonName = sessionStorage.getItem('anonName') || ("동료_" + Math.random().toString(36).substring(7, 10).toUpperCase());
 let myAnonColor = sessionStorage.getItem('anonColor') || anonColors[Math.floor(Math.random() * anonColors.length)];
@@ -42,16 +43,36 @@ function initPresenceSystem() {
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
             if (user.isAnonymous) {
+                isAnonymousUser = true;
                 label.innerText = '로그인';
                 icon.style.background = '#ef4444';
                 myUserRef.set({ name: myAnonName, color: myAnonColor, photo: "", lastActive: firebase.database.ServerValue.TIMESTAMP });
             } else {
+                isAnonymousUser = false;
                 label.innerText = '로그아웃';
                 icon.style.background = '#3b82f6';
                 myUserRef.set({ name: user.displayName, photo: user.photoURL, color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP });
+                
+                syncFromCloud(currentUserId);
             }
             myUserRef.onDisconnect().remove();
         } else auth.signInAnonymously();
+    });
+}
+
+function syncFromCloud(uid) {
+    database.ref('users/' + uid + '/settings').once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            localStorage.setItem('qa_system_config_master', JSON.stringify(snapshot.val()));
+            syncEnvironmentByOS();
+        }
+    });
+    
+    database.ref('users/' + uid + '/kpi').once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            localStorage.setItem('skm_kpi_data', JSON.stringify(snapshot.val()));
+            if (typeof loadKpiLocal === 'function') loadKpiLocal();
+        }
     });
 }
 
@@ -92,20 +113,20 @@ function syncEnvironmentByOS() {
         });
     };
 
-    render(document.getElementById('andNormalList'), config.andDevices, 'and_n');
-    render(document.getElementById('andSpecialList'), config.andSpecialDevices, 'and_s');
-    render(document.getElementById('iosNormalList'), config.iosDevices, 'ios_n');
-    render(document.getElementById('iosSpecialList'), config.iosSpecialDevices, 'ios_s');
+    render(document.getElementById('andNormalList'), config.andDevices || [], 'and_n');
+    render(document.getElementById('andSpecialList'), config.andSpecialDevices || [], 'and_s');
+    render(document.getElementById('iosNormalList'), config.iosDevices || [], 'ios_n');
+    render(document.getElementById('iosSpecialList'), config.iosSpecialDevices || [], 'ios_s');
 
     let ver = "";
     if (osType === "[Android/iOS]") {
         const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        ver = `App Tester_${config.andAppTester} / ${iosType}_${(iosType==='TestFlight'?config.iosTestFlight:config.iosDistribution)}`;
+        ver = `App Tester_${config.andAppTester || ''} / ${iosType}_${(iosType==='TestFlight'? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`;
     } else if (osType === "[Android]") {
-        ver = config.andAppTester;
+        ver = config.andAppTester || '';
     } else {
         const iosType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        ver = (iosType==='TestFlight'?config.iosTestFlight:config.iosDistribution);
+        ver = (iosType==='TestFlight'? (config.iosTestFlight || '') : (config.iosDistribution || ''));
     }
     document.getElementById('appVersion').value = ver;
     generateTemplate();
@@ -138,7 +159,7 @@ function handlePocChange() {
     document.getElementById('urlGroup').style.display = isWeb ? 'block' : 'none';
     if (isWeb) {
         const cfg = loadConfig();
-        document.getElementById('targetUrl').value = poc === 'Admin' ? cfg.adminUrl : cfg.pcUrl;
+        document.getElementById('targetUrl').value = poc === 'Admin' ? (cfg.adminUrl || '') : (cfg.pcUrl || '');
     } else {
         syncEnvironmentByOS();
     }
