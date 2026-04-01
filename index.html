@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.4</title>
-    <link rel="stylesheet" href="style.css">
+    <title>[SKM] 이슈틀 생성기 - V21.5 (Modular)</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/completion.css">
 </head>
 <body>
 
-    <!-- 상단 액션 바 -->
     <div class="top-action-bar">
         <div class="top-bar-left-group">
             <div id="currentTime" class="current-time">일시 로딩 중...</div>
@@ -18,7 +19,7 @@
         <div class="top-bar-center-group">
             <div class="top-bar-title">
                 <span class="main-title">[SKM] 이슈틀 생성기</span>
-                <span class="version-info">- V21.4</span>
+                <span class="version-info">- V21.5</span>
             </div>
         </div>
 
@@ -50,13 +51,12 @@
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
-        <!-- 좌측 패널: 가이드 및 유지 필드 -->
         <div class="panel guide-panel">
             <div style="flex: 1;">
                 <h2>📘 사용 설명서</h2>
                 <div class="guide-step">
-                    <h3>1. Prefix 고도화 (V21.4)</h3>
-                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
+                    <h3>1. Prefix 고도화 (V21.5)</h3>
+                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다. (T 멤버십 앱 PoC는 표기 생략)</p>
                 </div>
                 <div class="guide-divider"></div>
                 <div class="guide-step">
@@ -77,7 +77,6 @@
             </div>
         </div>
 
-        <!-- 중앙 패널: 입력 영역 -->
         <div class="panel">
             <h2>📝 이슈 내용 입력</h2>
             
@@ -241,7 +240,6 @@
             </div>
         </div>
 
-        <!-- 우측 패널: 결과 리포트 -->
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
@@ -268,15 +266,12 @@
         </div>
     </div>
 
-    <!-- 완료문 작성 모달 -->
     <div class="modal-overlay" id="completionModal">
         <div class="modal-content" style="max-width: 1100px; width: 95%;">
             <button class="close-btn" onclick="closeCompletionModal()">×</button>
             <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
                 <h2 style="margin: 0;">✅ 완료문 작성</h2>
-                <div class="fix-owner-alert">
-                    🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u>
-                </div>
+                <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
             </div>
             <div class="completion-modal-body">
                 <div class="setting-box" style="margin-bottom:0;">
@@ -310,7 +305,6 @@
         </div>
     </div>
 
-    <!-- 테마 커스텀 모달 -->
     <div class="modal-overlay" id="themeModal">
         <div class="modal-content" style="max-width: 450px;">
             <button class="close-btn" onclick="closeThemeModal()">×</button>
@@ -335,7 +329,6 @@
         </div>
     </div>
 
-    <!-- 환경 설정 모달 -->
     <div class="modal-overlay" id="settingModal">
         <div class="modal-content" style="max-width: 750px;">
             <button class="close-btn" onclick="closeModal()">×</button>
@@ -369,7 +362,6 @@
         </div>
     </div>
 
-    <!-- 변경사항 모달 -->
     <div class="modal-overlay" id="changelogModal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeChangelogModal()">×</button>
@@ -378,11 +370,13 @@
         </div>
     </div>
 
-    <!-- Firebase 및 로컬 스크립트 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <script src="changelog.js"></script>
-    <script src="script.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/completion.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
