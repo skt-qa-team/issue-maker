@@ -1,9 +1,3 @@
-/**
- * [SKM] 이슈틀 생성기 - 메인 로직 스크립트 (V21.11)
- * 모든 UI 상호작용 및 Firebase 데이터 동기화 통합 버전
- */
-
-// 1. Firebase 및 전역 설정
 const firebaseConfig = {
     apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
     authDomain: "skm-issue-helper.firebaseapp.com",
@@ -15,31 +9,24 @@ const firebaseConfig = {
     measurementId: "G-98H9S1FQB0"
 };
 
-// Firebase 초기화
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
 
 let currentUserId = null;
 let isAnonymousUser = true;
-
-// 익명 사용자 프로필 설정
 const anonColors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
 let myAnonName = sessionStorage.getItem('anonName') || ("동료_" + Math.random().toString(36).substring(7, 10).toUpperCase());
 let myAnonColor = sessionStorage.getItem('anonColor') || anonColors[Math.floor(Math.random() * anonColors.length)];
 sessionStorage.setItem('anonName', myAnonName);
 sessionStorage.setItem('anonColor', myAnonColor);
 
-/**
- * 접속자 표시 시스템 및 인증 상태 감시 (KPI 동기화 포함)
- */
 function initPresenceSystem() {
     const list = document.getElementById('presence-list');
     if (!list) return;
 
     const allUsersRef = database.ref('presence');
     
-    // 실시간 접속자 목록 업데이트
     allUsersRef.on('value', (snapshot) => {
         list.innerHTML = '';
         const users = snapshot.val();
@@ -53,7 +40,6 @@ function initPresenceSystem() {
         }
     });
 
-    // 인증 상태 변경 감지
     auth.onAuthStateChanged((user) => {
         const icon = document.getElementById('auth-btn-icon');
         const label = document.getElementById('auth-btn-label');
@@ -72,8 +58,6 @@ function initPresenceSystem() {
                 if(label) label.innerText = '로그아웃';
                 if(icon) icon.style.background = '#3b82f6';
                 myUserRef.set({ name: user.displayName, photo: user.photoURL, color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP });
-                
-                // [KPI 핵심] 로그인 시 클라우드에서 KPI 데이터 가져오기
                 syncFromCloud(currentUserId);
             }
             myUserRef.onDisconnect().remove();
@@ -83,11 +67,7 @@ function initPresenceSystem() {
     });
 }
 
-/**
- * [KPI 핵심] 클라우드 데이터 동기화 (설정 및 KPI 실적)
- */
 function syncFromCloud(uid) {
-    // 1. 환경 설정 동기화
     database.ref('users/' + uid + '/settings').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('qa_system_config_master', JSON.stringify(snapshot.val()));
@@ -95,11 +75,9 @@ function syncFromCloud(uid) {
         }
     });
     
-    // 2. KPI 실적 동기화: 로컬 스토리지 갱신 후 kpi.js의 로드 함수 호출
     database.ref('users/' + uid + '/kpi').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('skm_kpi_data', JSON.stringify(snapshot.val()));
-            // kpi.js에 정의된 loadKpiLocal 함수가 있으면 실행하여 UI 갱신
             if (typeof loadKpiLocal === 'function') {
                 loadKpiLocal();
             }
@@ -107,9 +85,6 @@ function syncFromCloud(uid) {
     });
 }
 
-/**
- * 구글 로그인/로그아웃 토글
- */
 function toggleAuth() { 
     if (auth.currentUser && !auth.currentUser.isAnonymous) {
         auth.signOut(); 
@@ -118,9 +93,6 @@ function toggleAuth() {
     }
 }
 
-/**
- * 상단 바 실시간 시계
- */
 function startClock() {
     setInterval(() => {
         const now = new Date();
@@ -131,9 +103,6 @@ function startClock() {
     }, 1000);
 }
 
-/**
- * 재현스텝/결과 CASE 프리셋 적용
- */
 function applyIndividualPreset(id, n) {
     const target = document.getElementById(id);
     if (!target) return;
@@ -143,11 +112,7 @@ function applyIndividualPreset(id, n) {
     generateTemplate();
 }
 
-/**
- * OS 선택에 따른 단말기 리스트 렌더링 및 버전 동기화
- */
 function syncEnvironmentByOS() {
-    // 설정 데이터 로드 (settings.js 연동)
     const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
     if (!osEl) return;
@@ -159,12 +124,10 @@ function syncEnvironmentByOS() {
     const iosCol = document.getElementById('iosDeviceCol');
     const iosVerToggle = document.getElementById('ios-ver-toggle');
 
-    // 패널 가시성 제어
     if(andCol) andCol.style.display = osType.includes("Android") ? 'block' : 'none';
     if(iosCol) iosCol.style.display = osType.includes("iOS") ? 'block' : 'none';
     if(iosVerToggle) iosVerToggle.style.display = osType.includes("iOS") ? 'flex' : 'none';
 
-    // 단말기 칩(Pill) 렌더링 함수
     const render = (containerId, list, idPrefix) => {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -183,7 +146,6 @@ function syncEnvironmentByOS() {
     render('iosNormalList', config.iosDevices || [], 'ios_n');
     render('iosSpecialList', config.iosSpecialDevices || [], 'ios_s');
 
-    // 앱 버전 자동 조합
     let ver = "";
     const iosTypeChecked = document.querySelector('input[name="ios_ver_type"]:checked');
     const iosMode = iosTypeChecked ? iosTypeChecked.value : 'TestFlight';
@@ -202,9 +164,6 @@ function syncEnvironmentByOS() {
     generateTemplate();
 }
 
-/**
- * 단말기 중복 선택 방지
- */
 function handleDeviceClick(element) {
     if (element.checked) {
         const allChecked = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
@@ -218,9 +177,6 @@ function handleDeviceClick(element) {
     generateTemplate();
 }
 
-/**
- * 단말기 리스트 모드 전환 (검증/특수)
- */
 function toggleDeviceMode(platform) {
     const modeEl = document.querySelector(`input[name="${platform}_dev_mode"]:checked`);
     if(!modeEl) return;
@@ -232,9 +188,6 @@ function toggleDeviceMode(platform) {
     generateTemplate();
 }
 
-/**
- * PoC 변경 시 UI 전환 (Web/App 분기)
- */
 function handlePocChange() {
     const pocEl = document.getElementById('poc');
     if(!pocEl) return;
@@ -256,9 +209,6 @@ function handlePocChange() {
     generateTemplate();
 }
 
-/**
- * 리포트 템플릿 생성 (제목 및 본문 조합)
- */
 function generateTemplate() {
     const getValue = (id) => {
         const el = document.getElementById(id);
@@ -277,7 +227,6 @@ function generateTemplate() {
         else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
     }
 
-    // Prefix 조합
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
@@ -290,7 +239,6 @@ function generateTemplate() {
 
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
-    // 본문 조합
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
     if (poc === 'Admin' || poc === 'PC Web') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
@@ -300,13 +248,10 @@ function generateTemplate() {
     
     const prdRef = getValue('ref_prd').trim();
     const notes = getValue('ref_notes').trim();
-    const epic = getValue('epic_link').trim();
-    const extra = document.getElementById('extra_notes') ? document.getElementById('extra_notes').value.trim() : '';
 
-    const refSection = (prdRef || notes || extra) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}${extra ? '\n' + extra : ''}` : '';
-    const epicSection = epic ? `\n\n[Epic Link]\n${epic}` : '';
+    const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
 
-    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}${epicSection}`;
+    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
     
     const outTitle = document.getElementById('outputTitle');
     const outBody = document.getElementById('outputBody');
@@ -314,9 +259,6 @@ function generateTemplate() {
     if (outBody) outBody.value = body.trim();
 }
 
-/**
- * 특정 필드 복사
- */
 function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -325,13 +267,10 @@ function copySpecific(id) {
     alert('복사되었습니다.');
 }
 
-/**
- * 전체 복사 (제목 + 본문)
- */
 function copyAll() {
     const tVal = document.getElementById('outputTitle')?.value || '';
     const bVal = document.getElementById('outputBody')?.value || '';
-    const combined = `${tVal}\n${bVal}`;
+    const combined = `${tVal}\n\n${bVal}`;
     const t = document.createElement("textarea");
     document.body.appendChild(t);
     t.value = combined;
@@ -341,9 +280,6 @@ function copyAll() {
     alert('전체 복사 완료!');
 }
 
-/**
- * 입력 폼 초기화 (에픽/참고사항 등 유지 필드 제외)
- */
 function clearForm() {
     if(!confirm('초기화하시겠습니까? (에픽/참고사항 제외)')) return;
     ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
@@ -353,17 +289,10 @@ function clearForm() {
     syncEnvironmentByOS();
 }
 
-/**
- * 페이지 초기화
- */
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
     initPresenceSystem();
-    
-    // 변경사항 렌더링 호출 (changelog.js 연동)
     if (typeof renderChangelog === 'function') renderChangelog();
-    
-    // UI가 렌더링될 때까지 잠시 대기 후 초기화 (동적 인젝션 대응)
     setTimeout(() => {
         syncEnvironmentByOS();
         if (typeof initCustomTheme === 'function') initCustomTheme();
