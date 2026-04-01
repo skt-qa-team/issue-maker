@@ -59,39 +59,40 @@
     <div class="header-horizontal-divider"></div>
 
     <div class="wrapper">
-        <div class="panel guide-panel">
-            <div style="flex: 1;">
-                <h2>📘 사용 설명서</h2>
-                <div class="guide-step">
-                    <h3>1. Prefix 고도화 (V21.13)</h3>
-                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
-                </div>
-                <div class="guide-divider"></div>
-                <div class="guide-step">
-                    <h3>2. 모듈화 아키텍처 도입</h3>
-                    <p>비대해진 모달 구조를 <code>js/render.js</code>로 완전히 분리하여 로딩 속도와 관리 효율을 극대화했습니다.</p>
-                </div>
+        <div class="panel guide-panel" id="guide-area">
+            <h2>📘 사용 설명서</h2>
+            <div class="guide-step">
+                <h3>1. Prefix 고도화 (V21.13)</h3>
+                <p>정해진 순서에 맞춰 제목이 자동 생성됩니다.</p>
             </div>
-
-            <div class="extra-input-section">
+            <div class="guide-divider"></div>
+            <div class="guide-step">
+                <h3>2. 모듈화 아키텍처</h3>
+                <p>복잡한 구조를 분리하여 로딩 속도를 최적화했습니다.</p>
+            </div>
+            
+            <div class="extra-input-section" style="margin-top: auto;">
                 <div class="form-group">
-                    <label>🔗 Epic Link (유지 필드)</label>
+                    <label>🔗 Epic Link</label>
                     <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label>💡 이번 검증 참고사항 (유지 필드)</label>
-                    <textarea id="extra_notes" style="height: 160px; font-size: 0.85rem;" placeholder="검증 시 참고할 내용을 입력하세요"></textarea>
+                    <label>💡 검증 참고사항</label>
+                    <textarea id="extra_notes" style="height: 120px;" placeholder="참고 내용을 입력하세요"></textarea>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
+        <div class="panel main-input-panel">
             <h2 style="margin-top: 0; margin-bottom: 20px;">📝 이슈 내용 입력</h2>
             <div class="form-group">
-                <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
-                <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
+                <label style="color:#ef4444 !important;">📌 현상 요약</label>
+                <input type="text" id="title" placeholder="현상을 입력하세요" oninput="generateTemplate()">
             </div>
-            <div id="prefix-container"></div> <div class="grid-2">
+            
+            <div id="prefix-container"></div>
+            
+            <div class="grid-2">
                 <div class="form-group">
                     <label>OS 구분</label>
                     <select id="osType" onchange="syncEnvironmentByOS()"></select>
@@ -101,14 +102,16 @@
                     <select id="poc" onchange="handlePocChange()"></select>
                 </div>
             </div>
-            <div id="dynamic-input-area"></div> </div>
+            
+            <div id="dynamic-input-area"></div>
+        </div>
 
         <div class="panel result-panel">
             <div class="result-header">
                 <h2>📄 리포트 결과</h2>
                 <button class="btn-clear-top" onclick="clearForm()">🔄 새로 작성</button>
             </div>
-            <div id="output-container"></div>
+            <div id="output-container" style="flex: 1; display: flex; flex-direction: column;"></div>
         </div>
     </div>
 
@@ -119,7 +122,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script src="changelog.js"></script>
-    <script src="js/render.js"></script> <script src="js/settings.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/completion.js"></script>
     <script src="js/main.js"></script>
     <script src="js/kpi.js"></script>
