@@ -4,6 +4,10 @@ function openKpiModal() {
 }
 
 function closeKpiModal() {
+    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
+    if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
+        firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
+    }
     document.getElementById('kpiModal').style.display = 'none';
 }
 
@@ -165,4 +169,9 @@ function copyKpiReport() {
     el.select();
     document.execCommand('copy');
     alert('KPI 리포트가 복사되었습니다!');
+    
+    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
+    if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
+        firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
+    }
 }
