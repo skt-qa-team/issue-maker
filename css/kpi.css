@@ -1,10 +1,10 @@
 .tc-row {
     display: grid;
-    grid-template-columns: 1fr 2fr 1.5fr 1fr auto auto;
-    gap: 10px;
+    grid-template-columns: 1.2fr 3fr 1.5fr 1fr auto auto;
+    gap: 15px;
     align-items: center;
     background: #ffffff;
-    padding: 10px;
+    padding: 12px;
     border: 1px dashed #cbd5e1;
     border-radius: 8px;
     transition: 0.2s;
@@ -16,11 +16,11 @@
 }
 
 .tc-poc {
-    padding: 8px;
+    padding: 10px;
     border-radius: 6px;
     border: 1px solid #cbd5e1;
     outline: none;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     background-color: var(--bg-color);
     color: var(--text-main);
 }
@@ -29,9 +29,9 @@
     background: #ffffff; 
     color: var(--text-main); 
     border: 1.5px solid #cbd5e1; 
-    padding: 6px 12px; 
+    padding: 8px 14px; 
     border-radius: 6px; 
-    font-size: 0.8rem; 
+    font-size: 0.85rem; 
     font-weight: 800; 
     cursor: pointer;
     transition: 0.2s;
@@ -47,9 +47,9 @@
     background: #ef4444; 
     color: white; 
     border: none; 
-    padding: 8px 12px; 
+    padding: 10px 15px; 
     border-radius: 6px; 
-    font-size: 0.8rem; 
+    font-size: 0.9rem; 
     font-weight: 800; 
     cursor: pointer;
     transition: 0.2s;
