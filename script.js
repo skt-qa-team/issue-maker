@@ -241,15 +241,15 @@ function generateTemplate() {
 
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
-    const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os; 
-    const pocPrefix = (poc === 'T 멤버십' || !poc) ? '' : (poc === 'PC Web' ? '[PC]' : `[${poc}]`);
-    
-    const critStr = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : ''; 
-    const devStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : ''; 
-    const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : ''; 
-    const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
-    
-    const titleText = `${envPrefix}${osPrefix}${pocPrefix}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
+    const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
+    const specOsPrefix = getValue('prefix_spec_os').trim() ? `[${getValue('prefix_spec_os').trim()}]` : '';
+    const pocPrefix = poc ? `[${poc}]` : '';
+    const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
+    const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
+    const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
+    const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
+
+    const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
     if (poc === 'Admin' || poc === 'PC Web') envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
@@ -293,9 +293,9 @@ function openCompletionModal() {
 
     const sList = document.getElementById('comp_server_list'); sList.innerHTML = '';
     const currentCheckedSrvs = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    ['STG', 'DEV', 'PRD'].forEach(s => {
+    ['STG', 'GRN', 'PRD'].forEach(s => {
         const chk = currentCheckedSrvs.includes(s) ? 'checked' : '';
-        const label = s==='PRD'?'PRD(상용)':s;
+        const label = s==='PRD'?'상용(PRD)':s;
         sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${label}" ${chk} onchange="updateCompletionPreview()"> ${label}</label>`;
     });
 
@@ -361,7 +361,7 @@ function copyAll() {
 
 function clearForm() {
     if(!confirm('초기화하시겠습니까? (에픽/참고사항 제외)')) return;
-    ['title', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => document.getElementById(id).value = '');
+    ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => document.getElementById(id).value = '');
     syncEnvironmentByOS();
 }
 
@@ -369,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initCustomTheme();
     startClock();
     initPresenceSystem();
-    renderChangelog();
     syncEnvironmentByOS();
     document.getElementById('comp_check').addEventListener('input', updateCompletionPreview);
 });
