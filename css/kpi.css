@@ -1,0 +1,50 @@
+.tc-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    background: #ffffff;
+    padding: 10px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.tc-row:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.btn-add {
+    background: #ffffff; 
+    color: var(--text-main); 
+    border: 1.5px solid #cbd5e1; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-add:hover {
+    background: #f8fafc;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.btn-remove {
+    background: #ef4444; 
+    color: white; 
+    border: none; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-remove:hover {
+    background: #dc2626;
+}
