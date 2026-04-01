@@ -241,7 +241,15 @@ function generateTemplate() {
 
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
-    const title = `${envPrefix}${poc.includes('Web')?'':os}${poc==='T 멤버십'?'':(poc==='PC Web'?'[PC]':`[${poc}]`)} ${getValue('title').trim()}`;
+    const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os; 
+    const pocPrefix = (poc === 'T 멤버십' || !poc) ? '' : (poc === 'PC Web' ? '[PC]' : `[${poc}]`);
+    
+    const critStr = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : ''; 
+    const devStr = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : ''; 
+    const accStr = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : ''; 
+    const pageStr = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
+    
+    const titleText = `${envPrefix}${osPrefix}${pocPrefix}${critStr}${devStr}${accStr}${pageStr} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
     if (poc === 'Admin' || poc === 'PC Web') envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
@@ -253,7 +261,7 @@ function generateTemplate() {
 
     const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
     
-    document.getElementById('outputTitle').value = title;
+    document.getElementById('outputTitle').value = titleText;
     document.getElementById('outputBody').value = body.trim();
 }
 
