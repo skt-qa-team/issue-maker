@@ -1,6 +1,6 @@
 const defaultConfig = {
-    andDevices: [], andSpecialDevices: [],
-    iosDevices: [], iosSpecialDevices: [],
+    andDevices: [], andSpecialDevices: [], andDefaultDevices: [],
+    iosDevices: [], iosSpecialDevices: [], iosDefaultDevices: [],
     andAppTester: '', iosTestFlight: '', iosDistribution: '',
     adminUrl: '', pcUrl: ''
 };
@@ -124,8 +124,10 @@ function saveSettings() {
         iosDistribution: document.getElementById('set_ios_distribution').value,
         andDevices: split('set_and_devices'),
         andSpecialDevices: split('set_and_special'),
+        andDefaultDevices: split('set_and_default'),
         iosDevices: split('set_ios_devices'),
-        iosSpecialDevices: split('set_ios_special')
+        iosSpecialDevices: split('set_ios_special'),
+        iosDefaultDevices: split('set_ios_default')
     };
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -153,8 +155,10 @@ function openModal() {
     document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
     document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n');
     document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
+    document.getElementById('set_and_default').value = (cfg.andDefaultDevices || []).join('\n');
     document.getElementById('set_ios_devices').value = (cfg.iosDevices || []).join('\n');
     document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
+    document.getElementById('set_ios_default').value = (cfg.iosDefaultDevices || []).join('\n');
 }
 
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
