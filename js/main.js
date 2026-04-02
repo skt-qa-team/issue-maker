@@ -90,6 +90,23 @@ function startClock() {
     }, 1000);
 }
 
+function addCase(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    const match = el.value.match(/CASE (\d+)/g);
+    let nextNum = 1;
+    if (match) {
+        const lastCase = match[match.length - 1];
+        nextNum = parseInt(lastCase.replace('CASE ', '')) + 1;
+    }
+    
+    const prefix = el.value.trim() === '' ? '' : '\n\n';
+    el.value += `${prefix}CASE ${nextNum}.\n`;
+    generateTemplate();
+    el.focus();
+}
+
 function applyIndividualPreset(id, n) {
     const target = document.getElementById(id);
     if (!target) return;
@@ -164,8 +181,20 @@ function toggleDeviceMode(platform) {
     const mode = modeEl.value;
     const normalList = document.getElementById(`${platform}NormalList`);
     const specialList = document.getElementById(`${platform}SpecialList`);
-    if(normalList) normalList.style.display = mode === 'normal' ? 'flex' : 'none';
-    if(specialList) specialList.style.display = mode === 'special' ? 'flex' : 'none';
+    
+    if(mode === 'normal') {
+        if(normalList) normalList.style.display = 'flex';
+        if(specialList) {
+            specialList.style.display = 'none';
+            specialList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+    } else {
+        if(specialList) specialList.style.display = 'flex';
+        if(normalList) {
+            normalList.style.display = 'none';
+            normalList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+    }
     generateTemplate();
 }
 
@@ -193,16 +222,19 @@ function generateTemplate() {
         const el = document.getElementById(id);
         return el ? el.value : '';
     };
+    
     const poc = getValue('poc');
     const os = getValue('osType');
     const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
     let ver = getValue('appVersion');
+    
     if (poc === 'T 멤버십') {
         const iosTypeEl = document.querySelector('input[name="ios_ver_type"]:checked');
         if (os === "[Android]") ver = `App Tester_${ver}`;
         else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
     }
+    
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
@@ -212,17 +244,22 @@ function generateTemplate() {
     const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
     const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
+    
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
+    
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
     if (poc === 'Admin' || poc === 'PC Web') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
     }
+    
     const prdRef = getValue('ref_prd').trim();
     const notes = getValue('ref_notes').trim();
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
+    
     const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
+    
     const outTitle = document.getElementById('outputTitle');
     const outBody = document.getElementById('outputBody');
     if (outTitle) outTitle.value = titleText;
