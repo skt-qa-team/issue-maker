@@ -17,7 +17,7 @@ function switchKpiTab(tabId) {
     const targetTab = document.getElementById(`tab-${tabId}`);
     if (targetTab) {
         targetTab.style.display = 'block';
-        targetTab.classList.add('active'); // 애니메이션을 위한 클래스 유지
+        targetTab.classList.add('active'); 
     }
 }
 
@@ -55,6 +55,11 @@ function addTcRow(data = {}) {
 
     const row = document.createElement('div');
     row.className = 'tc-row';
+    // CSS 파일 수정 전이라도 레이아웃이 깨지지 않도록 인라인 스타일 적용
+    row.style.display = 'flex';
+    row.style.gap = '8px';
+    row.style.alignItems = 'center';
+    row.style.marginBottom = '8px';
     
     const pocList = ['T 멤버십', '에이닷', 'PC Web', 'AI Layer', 'Admin', '기타'];
     let pocOptions = '';
@@ -63,15 +68,19 @@ function addTcRow(data = {}) {
         pocOptions += `<option value="${p}" ${selected}>${p}</option>`;
     });
 
+    const isChecked = data.isTwoDev ? 'checked' : '';
+
     row.innerHTML = `
-        <select class="tc-poc kpi-input" onchange="generateKPI()">
+        <select class="tc-poc kpi-input" style="width: 100px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);" onchange="generateKPI()">
             ${pocOptions}
         </select>
-        <input type="text" class="tc-name kpi-input" placeholder="TC 항목명" value="${data.name || ''}" oninput="generateKPI()">
-        <input type="number" class="tc-total kpi-input" placeholder="Total" value="${data.total || ''}" min="0" oninput="generateKPI()">
-        <input type="number" class="tc-pass kpi-input" placeholder="Pass" value="${data.pass || ''}" min="0" oninput="generateKPI()">
-        <input type="number" class="tc-fail kpi-input" placeholder="Fail" value="${data.fail || ''}" min="0" oninput="generateKPI()">
-        <button class="btn-remove" onclick="removeTcRow(this)">삭제</button>
+        <input type="text" class="tc-name kpi-input" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);" placeholder="티켓 이름 (예: 무비 쿠폰)" value="${data.name || ''}" oninput="generateKPI()">
+        <input type="text" class="tc-ticket kpi-input" style="width: 130px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);" placeholder="티켓 번호" value="${data.ticket || ''}" oninput="generateKPI()">
+        <input type="number" class="tc-total kpi-input" style="width: 70px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);" placeholder="건수" value="${data.total || ''}" min="0" oninput="generateKPI()">
+        <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer;">
+            <input type="checkbox" class="tc-devices" onchange="generateKPI()" ${isChecked}> 단말 2대
+        </label>
+        <button class="btn-remove" style="padding: 8px 12px; font-size: 0.85rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;" onclick="removeTcRow(this)">삭제</button>
     `;
     container.appendChild(row);
     generateKPI();
@@ -87,46 +96,92 @@ function removeTcRow(btn) {
 function generateKPI() {
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
     
-    const blocker = getVal('def_blocker') || 0;
-    const critical = getVal('def_critical') || 0;
-    const major = getVal('def_major') || 0;
-    const minor = getVal('def_minor') || 0;
-    const trivial = getVal('def_trivial') || 0;
-    const totalDefect = parseInt(blocker) + parseInt(critical) + parseInt(major) + parseInt(minor) + parseInt(trivial);
-    const prevAvg = getVal('prev_avg');
+    // 1. Defect 통계 산출
+    const blocker = parseInt(getVal('def_blocker')) || 0;
+    const critical = parseInt(getVal('def_critical')) || 0;
+    const major = parseInt(getVal('def_major')) || 0;
+    const minor = parseInt(getVal('def_minor')) || 0;
+    const trivial = parseInt(getVal('def_trivial')) || 0;
+    const totalDefect = blocker + critical + major + minor + trivial;
+    const prevAvgStr = getVal('prev_avg');
 
-    let report = `[1. 업무 성과]\n\n■ 1. Defect 검출 현황 (총 ${totalDefect}건)\n`;
-    report += `- Blocker: ${blocker}건\n- Critical: ${critical}건\n- Major: ${major}건\n- Minor: ${minor}건\n- Trivial: ${trivial}건\n`;
-    if (prevAvg) report += `* 전월 팀 평균(${prevAvg}건) 대비 검출량 비교 참고\n`;
+    let report = `Defect 검출 갯수 : 총 ${totalDefect}개\n`;
+    
+    if (totalDefect > 0) {
+        if (blocker > 0) report += ` - Blocker ${blocker}개\n`;
+        if (critical > 0) report += ` - Critical ${critical}개\n`;
+        if (major > 0) report += ` - Major ${major}개\n`;
+        if (minor > 0) report += ` - Minor ${minor}개\n`;
+        if (trivial > 0) report += ` - Trivial ${trivial}개\n`;
+    }
+    report += '\n';
 
-    report += `\n■ 2. TC 수행 업무\n`;
-    const rows = document.querySelectorAll('.tc-row');
-    if (rows.length === 0) {
-        report += `- 수행 내역 없음\n`;
+    // 전월 대비 팀 평균 계산
+    if (prevAvgStr !== '') {
+        const prevAvg = parseInt(prevAvgStr) || 0;
+        const diff = totalDefect - prevAvg;
+        let diffText = diff > 0 ? `${diff}개 상승` : (diff < 0 ? `${Math.abs(diff)}개 하락` : '동일');
+        report += `전월 팀 평균 Defect 검출 갯수 : ${prevAvg}개 (${diffText})\n\n`;
     } else {
-        rows.forEach(row => {
-            const poc = row.querySelector('.tc-poc').value;
-            const name = row.querySelector('.tc-name').value || '미지정 항목';
-            const total = row.querySelector('.tc-total').value || 0;
-            const pass = row.querySelector('.tc-pass').value || 0;
-            const fail = row.querySelector('.tc-fail').value || 0;
-            report += `- [${poc}] ${name} : Total ${total} (Pass ${pass} / Fail ${fail})\n`;
-        });
+        report += `\n`;
     }
 
+    // 2. TC 수행 업무 (PoC별 취합)
+    report += `TC 수행 업무\n`;
+    const rows = document.querySelectorAll('.tc-row');
+    let totalTc = 0;
+    let pocGroups = {};
+
+    rows.forEach(row => {
+        const poc = row.querySelector('.tc-poc').value;
+        const name = row.querySelector('.tc-name').value || '미지정 항목';
+        const ticket = row.querySelector('.tc-ticket').value;
+        const total = parseInt(row.querySelector('.tc-total').value) || 0;
+        const isTwoDev = row.querySelector('.tc-devices').checked;
+
+        totalTc += total;
+
+        if (!pocGroups[poc]) pocGroups[poc] = { total: 0, items: [] };
+        pocGroups[poc].total += total;
+
+        let itemText = ` - ${name}`;
+        if (ticket) itemText += ` (${ticket})`;
+        itemText += `  ${total}건`;
+        if (isTwoDev) itemText += ` (단말 2대)`;
+
+        pocGroups[poc].items.push(itemText);
+    });
+
+    report += `* TC 수행 갯수: ${totalTc}개\n\n`;
+
+    if (Object.keys(pocGroups).length > 0) {
+        for (const [poc, data] of Object.entries(pocGroups)) {
+            report += `* ${poc} : ${data.total}개\n`;
+            report += data.items.join('\n') + '\n\n';
+        }
+    } else {
+        report += `- 수행 내역 없음\n\n`;
+    }
+
+    // 3. TC 작성 및 수정 업무
     const tcUpdate = getVal('tc_update_text');
+    report += `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
     if (tcUpdate) {
-        report += `\n■ 3. TC 작성 및 수정\n${tcUpdate}\n`;
+        report += `${tcUpdate}\n`;
+    } else {
+        report += ` - 내용 없음\n`;
     }
 
+    // 4. 팀 기여도 & 개인 역량 (작성된 경우에만 노출)
     const contrib = getVal('kpi_contrib_text');
     const capa = getVal('kpi_capa_text');
 
-    if (contrib) report += `\n\n[2. 팀 기여도]\n${contrib}\n`;
-    if (capa) report += `\n\n[3. 개인 역량]\n${capa}\n`;
+    if (contrib) report += `\n\n[팀 기여도]\n${contrib}\n`;
+    if (capa) report += `\n\n[개인 역량]\n${capa}\n`;
 
+    // 미리보기 반영
     const outEl = document.getElementById('output_kpi_result');
-    if (outEl) outEl.value = report;
+    if (outEl) outEl.value = report.trim();
 
     saveKpiData();
 }
@@ -139,9 +194,9 @@ function saveKpiData() {
         tcData.push({
             poc: row.querySelector('.tc-poc').value,
             name: row.querySelector('.tc-name').value,
+            ticket: row.querySelector('.tc-ticket').value,
             total: row.querySelector('.tc-total').value,
-            pass: row.querySelector('.tc-pass').value,
-            fail: row.querySelector('.tc-fail').value
+            isTwoDev: row.querySelector('.tc-devices').checked
         });
     });
 
