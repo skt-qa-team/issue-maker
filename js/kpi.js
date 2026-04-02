@@ -1,258 +1,212 @@
-let currentKpiTab = 'perf';
-
 function openKpiModal() {
-    const modal = document.getElementById('kpiModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        loadKpiLocal();
-        switchKpiTab('perf');
-    }
+    document.getElementById('kpiModal').style.display = 'flex';
+    loadKpiLocal();
 }
 
 function closeKpiModal() {
-    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    if (saved && typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
-        firebase.database().ref('users/' + currentUserId + '/kpi').set(saved);
-    }
     document.getElementById('kpiModal').style.display = 'none';
 }
 
 function switchKpiTab(tabId) {
-    currentKpiTab = tabId;
-
     document.querySelectorAll('.kpi-tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.kpi-tab-content').forEach(content => {
-        content.classList.remove('active');
-        content.style.display = 'none';
-    });
+    document.querySelectorAll('.kpi-tab-content').forEach(content => content.style.display = 'none');
     
-    const targetBtn = document.getElementById('btn-tab-' + tabId);
-    const targetContent = document.getElementById('tab-' + tabId);
+    const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+    if (activeBtn) activeBtn.classList.add('active');
     
-    if (targetBtn) targetBtn.classList.add('active');
-    if (targetContent) {
-        targetContent.classList.add('active');
-        targetContent.style.display = 'block';
+    const targetTab = document.getElementById(`tab-${tabId}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active'); // 애니메이션을 위한 클래스 유지
     }
-
-    const labelMap = {
-        'perf': '📊 [업무 성과] 리포트 미리보기',
-        'contrib': '📊 [팀 기여도] 리포트 미리보기',
-        'capa': '📊 [개인 역량] 리포트 미리보기'
-    };
-    const labelElem = document.getElementById('kpi_preview_label');
-    if (labelElem) labelElem.innerText = labelMap[tabId];
-    
-    generateKPI();
 }
 
 function clearKpiTab(tabId) {
-    if (!confirm('현재 탭의 작성 내용을 모두 초기화하시겠습니까?')) return;
+    if (!confirm('현재 탭의 내용을 초기화하시겠습니까?')) return;
     
     if (tabId === 'perf') {
-        const fields = ['def_blocker', 'def_critical', 'def_major', 'def_minor', 'def_trivial', 'prev_avg', 'tc_update_text'];
-        fields.forEach(id => {
-            const elem = document.getElementById(id);
-            if (elem) elem.value = '';
+        ['def_blocker', 'def_critical', 'def_major', 'def_minor', 'def_trivial', 'prev_avg', 'tc_update_text'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.value = '';
         });
-        document.getElementById('tc_container').innerHTML = '';
-        addTcRow();
+        const tcContainer = document.getElementById('tc_container');
+        if (tcContainer) tcContainer.innerHTML = '';
     } else if (tabId === 'contrib') {
-        document.getElementById('kpi_contrib_text').value = '';
+        const el = document.getElementById('kpi_contrib_text');
+        if(el) el.value = '';
     } else if (tabId === 'capa') {
-        document.getElementById('kpi_capa_text').value = '';
+        const el = document.getElementById('kpi_capa_text');
+        if(el) el.value = '';
     }
-    
     generateKPI();
 }
 
 function resetTeamAverage() {
-    if (!confirm('전월 팀 평균 데이터를 초기화하시겠습니까?')) return;
-    const avgInput = document.getElementById('prev_avg');
-    if (avgInput) {
-        avgInput.value = '';
+    const el = document.getElementById('prev_avg');
+    if(el) {
+        el.value = '';
         generateKPI();
     }
 }
 
-function addTcRow(data = null) {
+function addTcRow(data = {}) {
     const container = document.getElementById('tc_container');
     if (!container) return;
 
     const row = document.createElement('div');
     row.className = 'tc-row';
+    
+    const pocList = ['T 멤버십', '에이닷', 'PC Web', 'AI Layer', 'Admin', '기타'];
+    let pocOptions = '';
+    pocList.forEach(p => {
+        const selected = (data.poc === p) ? 'selected' : '';
+        pocOptions += `<option value="${p}" ${selected}>${p}</option>`;
+    });
+
     row.innerHTML = `
         <select class="tc-poc kpi-input" onchange="generateKPI()">
-            <option value="T 멤버십">T 멤버십</option>
-            <option value="에이닷">에이닷</option>
-            <option value="PC Web">PC Web</option>
-            <option value="AI Layer">AI Layer</option>
-            <option value="Admin">Admin</option>
+            ${pocOptions}
         </select>
-        <input type="text" class="tc-name kpi-input" placeholder="티켓 이름 (예: 무비 쿠폰 2차)" oninput="generateKPI()">
-        <input type="text" class="tc-id kpi-input" placeholder="티켓 번호 (예: MKG-119)" oninput="generateKPI()">
-        <input type="number" class="tc-count kpi-input" placeholder="건수" min="0" oninput="generateKPI()">
-        <label class="checkbox-label"><input type="checkbox" class="tc-dual" onchange="generateKPI()"> 단말 2대</label>
-        <button class="btn-remove" onclick="this.parentElement.remove(); generateKPI();">삭제</button>
+        <input type="text" class="tc-name kpi-input" placeholder="TC 항목명" value="${data.name || ''}" oninput="generateKPI()">
+        <input type="number" class="tc-total kpi-input" placeholder="Total" value="${data.total || ''}" min="0" oninput="generateKPI()">
+        <input type="number" class="tc-pass kpi-input" placeholder="Pass" value="${data.pass || ''}" min="0" oninput="generateKPI()">
+        <input type="number" class="tc-fail kpi-input" placeholder="Fail" value="${data.fail || ''}" min="0" oninput="generateKPI()">
+        <button class="btn-remove" onclick="removeTcRow(this)">삭제</button>
     `;
-    
     container.appendChild(row);
-
-    if (data) {
-        row.querySelector('.tc-poc').value = data.poc || 'T 멤버십';
-        row.querySelector('.tc-name').value = data.name || '';
-        row.querySelector('.tc-id').value = data.id || '';
-        row.querySelector('.tc-count').value = data.count || '';
-        row.querySelector('.tc-dual').checked = data.dual || false;
-    }
-
     generateKPI();
 }
 
+function removeTcRow(btn) {
+    if (btn && btn.closest('.tc-row')) {
+        btn.closest('.tc-row').remove();
+        generateKPI();
+    }
+}
+
 function generateKPI() {
-    const v = (id) => parseInt(document.getElementById(id)?.value) || 0;
-    const rawV = (id) => document.getElementById(id)?.value || '';
-
-    const defects = [
-        { name: 'Blocker', count: v('def_blocker') },
-        { name: 'Critical', count: v('def_critical') },
-        { name: 'Major', count: v('def_major') },
-        { name: 'Minor', count: v('def_minor') },
-        { name: 'Trivial', count: v('def_trivial') }
-    ];
-
-    let totalDefects = 0;
-    let defectListText = "";
-    defects.forEach(d => {
-        totalDefects += d.count;
-        if (d.count > 0) defectListText += ` - ${d.name} ${d.count}개\n`;
-    });
-
-    const prevAvg = v('prev_avg');
-    const diff = totalDefects - prevAvg;
-    let diffText = (diff > 0) ? `${diff}개 상승` : (diff < 0) ? `${Math.abs(diff)}개 하락` : "동일";
-
-    let defectSection = `Defect 검출 갯수 : 총 ${totalDefects}개\n* T 멤버십 : ${totalDefects}개\n${defectListText}\n전월 팀 평균 Defect 검출 갯수 : ${prevAvg}개 (${diffText})\n`;
-
-    let totalTcCount = 0;
-    const pocGroups = {};
-    const tcArrayToSave = [];
-
-    document.querySelectorAll('.tc-row').forEach(row => {
-        const poc = row.querySelector('.tc-poc').value;
-        const name = row.querySelector('.tc-name').value.trim();
-        const id = row.querySelector('.tc-id').value.trim();
-        const countRaw = row.querySelector('.tc-count').value;
-        const count = parseInt(countRaw) || 0;
-        const isDual = row.querySelector('.tc-dual').checked;
-
-        tcArrayToSave.push({ poc: poc, name: name, id: id, count: countRaw, dual: isDual });
-
-        if (count > 0 || name || id) {
-            if (!pocGroups[poc]) pocGroups[poc] = { count: 0, items: [] };
-            pocGroups[poc].count += count;
-            totalTcCount += count;
-            const idStr = id ? ` (${id})` : '';
-            const dualStr = isDual ? ' (단말 2대)' : '';
-            pocGroups[poc].items.push(` - ${name}${idStr} ${count}건${dualStr}`);
-        }
-    });
-
-    let tcSection = `TC 수행 업무\n* TC 수행 갯수: ${totalTcCount}개\n\n`;
-    for (const [poc, data] of Object.entries(pocGroups)) {
-        tcSection += `* ${poc} : ${data.count}개\n${data.items.join('\n')}\n\n`;
-    }
-
-    const updateText = rawV('tc_update_text');
-    let updateSection = `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
-    if (updateText.trim()) {
-        updateText.split('\n').forEach(line => {
-            if(line.trim()) updateSection += ` - ${line.trim()}\n`;
-        });
-    } else {
-        updateSection += ` - 내용 없음\n`;
-    }
+    const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
     
-    const perfReport = `${defectSection}\n${tcSection}${updateSection}`.trim();
-    const contribReport = rawV('kpi_contrib_text').trim() || "입력된 팀 기여도 내역이 없습니다.";
-    const capaReport = rawV('kpi_capa_text').trim() || "입력된 개인 역량 강화 내역이 없습니다.";
+    const blocker = getVal('def_blocker') || 0;
+    const critical = getVal('def_critical') || 0;
+    const major = getVal('def_major') || 0;
+    const minor = getVal('def_minor') || 0;
+    const trivial = getVal('def_trivial') || 0;
+    const totalDefect = parseInt(blocker) + parseInt(critical) + parseInt(major) + parseInt(minor) + parseInt(trivial);
+    const prevAvg = getVal('prev_avg');
 
-    const previewArea = document.getElementById('output_kpi_result');
-    if (previewArea) {
-        if (currentKpiTab === 'perf') previewArea.value = perfReport;
-        else if (currentKpiTab === 'contrib') previewArea.value = contribReport;
-        else if (currentKpiTab === 'capa') previewArea.value = capaReport;
+    let report = `[1. 업무 성과]\n\n■ 1. Defect 검출 현황 (총 ${totalDefect}건)\n`;
+    report += `- Blocker: ${blocker}건\n- Critical: ${critical}건\n- Major: ${major}건\n- Minor: ${minor}건\n- Trivial: ${trivial}건\n`;
+    if (prevAvg) report += `* 전월 팀 평균(${prevAvg}건) 대비 검출량 비교 참고\n`;
+
+    report += `\n■ 2. TC 수행 업무\n`;
+    const rows = document.querySelectorAll('.tc-row');
+    if (rows.length === 0) {
+        report += `- 수행 내역 없음\n`;
+    } else {
+        rows.forEach(row => {
+            const poc = row.querySelector('.tc-poc').value;
+            const name = row.querySelector('.tc-name').value || '미지정 항목';
+            const total = row.querySelector('.tc-total').value || 0;
+            const pass = row.querySelector('.tc-pass').value || 0;
+            const fail = row.querySelector('.tc-fail').value || 0;
+            report += `- [${poc}] ${name} : Total ${total} (Pass ${pass} / Fail ${fail})\n`;
+        });
     }
 
-    const kpiData = {
-        blocker: rawV('def_blocker'),
-        critical: rawV('def_critical'),
-        major: rawV('def_major'),
-        minor: rawV('def_minor'),
-        trivial: rawV('def_trivial'),
-        prevAvg: rawV('prev_avg'),
-        updateText: updateText,
-        tcs: tcArrayToSave,
-        contribText: rawV('kpi_contrib_text'),
-        capaText: rawV('kpi_capa_text')
+    const tcUpdate = getVal('tc_update_text');
+    if (tcUpdate) {
+        report += `\n■ 3. TC 작성 및 수정\n${tcUpdate}\n`;
+    }
+
+    const contrib = getVal('kpi_contrib_text');
+    const capa = getVal('kpi_capa_text');
+
+    if (contrib) report += `\n\n[2. 팀 기여도]\n${contrib}\n`;
+    if (capa) report += `\n\n[3. 개인 역량]\n${capa}\n`;
+
+    const outEl = document.getElementById('output_kpi_result');
+    if (outEl) outEl.value = report;
+
+    saveKpiData();
+}
+
+function saveKpiData() {
+    const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+    
+    const tcData = [];
+    document.querySelectorAll('.tc-row').forEach(row => {
+        tcData.push({
+            poc: row.querySelector('.tc-poc').value,
+            name: row.querySelector('.tc-name').value,
+            total: row.querySelector('.tc-total').value,
+            pass: row.querySelector('.tc-pass').value,
+            fail: row.querySelector('.tc-fail').value
+        });
+    });
+
+    const data = {
+        blocker: getVal('def_blocker'),
+        critical: getVal('def_critical'),
+        major: getVal('def_major'),
+        minor: getVal('def_minor'),
+        trivial: getVal('def_trivial'),
+        prevAvg: getVal('prev_avg'),
+        tcRows: tcData,
+        tcUpdate: getVal('tc_update_text'),
+        contrib: getVal('kpi_contrib_text'),
+        capa: getVal('kpi_capa_text')
     };
-    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+
+    localStorage.setItem('skm_kpi_data', JSON.stringify(data));
+
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref('users/' + user.uid + '/kpi').set(data);
+        }
+    }
 }
 
 function loadKpiLocal() {
     const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    const container = document.getElementById('tc_container');
-    if (!container) return;
-    
-    if (saved) {
-        document.getElementById('def_blocker').value = saved.blocker || '';
-        document.getElementById('def_critical').value = saved.critical || '';
-        document.getElementById('def_major').value = saved.major || '';
-        document.getElementById('def_minor').value = saved.minor || '';
-        document.getElementById('def_trivial').value = saved.trivial || '';
-        document.getElementById('prev_avg').value = saved.prevAvg || '';
-        document.getElementById('tc_update_text').value = saved.updateText || '';
-        document.getElementById('kpi_contrib_text').value = saved.contribText || '';
-        document.getElementById('kpi_capa_text').value = saved.capaText || '';
+    if (!saved) return;
 
-        container.innerHTML = '';
-        if (saved.tcs && saved.tcs.length > 0) {
-            saved.tcs.forEach(tc => addTcRow(tc));
-        } else {
-            addTcRow();
+    const setVal = (id, val) => { 
+        const el = document.getElementById(id);
+        if(el) el.value = val || ''; 
+    };
+    
+    setVal('def_blocker', saved.blocker);
+    setVal('def_critical', saved.critical);
+    setVal('def_major', saved.major);
+    setVal('def_minor', saved.minor);
+    setVal('def_trivial', saved.trivial);
+    setVal('prev_avg', saved.prevAvg);
+    setVal('tc_update_text', saved.tcUpdate);
+    setVal('kpi_contrib_text', saved.contrib);
+    setVal('kpi_capa_text', saved.capa);
+
+    const container = document.getElementById('tc_container');
+    if (container) {
+        container.innerHTML = ''; 
+        if (saved.tcRows && saved.tcRows.length > 0) {
+            saved.tcRows.forEach(row => addTcRow(row));
         }
-    } else {
-        if (container.children.length === 0) addTcRow();
     }
+    
+    // UI 로드 후 미리보기 결과 업데이트
     generateKPI();
 }
 
-async function copyKpiReport() {
-    generateKPI();
-    const saved = JSON.parse(localStorage.getItem('skm_kpi_data'));
-    if (!saved) return;
-    
-    const v = (val) => parseInt(val) || 0;
-    let totalDefects = v(saved.blocker) + v(saved.critical) + v(saved.major) + v(saved.minor) + v(saved.trivial);
-    let diff = totalDefects - v(saved.prevAvg);
-    let diffText = (diff > 0) ? `${diff}개 상승` : (diff < 0) ? `${Math.abs(diff)}개 하락` : "동일";
-
-    let report = `[업무 성과]\nDefect 검출 : 총 ${totalDefects}개 (전월대비 ${diffText})\n`;
-    if (saved.updateText) report += `TC 업데이트 : ${saved.updateText.split('\n').length}건\n`;
-    
-    if (saved.contribText) report += `\n[팀 기여도]\n${saved.contribText}\n`;
-    if (saved.capaText) report += `\n[역량 강화]\n${saved.capaText}`;
-
+function copyKpiReport() {
+    const el = document.getElementById('output_kpi_result');
+    if (!el) return;
     try {
-        await navigator.clipboard.writeText(report);
-        alert('전체 KPI 리포트가 복사되었습니다!');
+        el.select();
+        document.execCommand('copy');
+        alert('KPI 리포트가 클립보드에 복사되었습니다!');
     } catch (err) {
-        const t = document.createElement("textarea");
-        t.value = report;
-        document.body.appendChild(t);
-        t.select();
-        document.execCommand("copy");
-        document.body.removeChild(t);
-        alert('리포트가 복사되었습니다.');
+        alert('복사에 실패했습니다.');
     }
 }
