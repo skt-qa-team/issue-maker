@@ -61,37 +61,15 @@
 
     <div class="wrapper">
         
-        <div class="panel guide-panel">
-            <div style="flex: 1;">
-                <h2>📘 사용 설명서</h2>
-                <div class="guide-step">
-                    <h3>1. Prefix 고도화 (V21.11)</h3>
-                    <p>정해진 순서 [환경][OS][특정OS][PoC][Critical][기기][계정][페이지]에 맞춰 제목이 자동 생성됩니다.</p>
-                </div>
-                <div class="guide-divider"></div>
-                <div class="guide-step">
-                    <h3>2. 개인 KPI 관리 (탭 구조 최적화)</h3>
-                    <p>우측 상단 [KPI] 버튼을 통해 팝업을 열고, 상단 탭을 이동하며 모든 월간 실적을 쾌적하게 취합하세요.</p>
-                </div>
-                <div class="guide-divider"></div>
-                <div class="guide-step">
-                    <h3>3. 작성 팁</h3>
-                    <ul>
-                        <li>OS 구분 선택 시 Prefix 즉시 반영</li>
-                        <li>재현 스텝은 핵심 동작 위주로 기술</li>
-                        <li>기대 결과는 수정 방향성 명시</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="extra-input-section">
-                <div class="form-group">
-                    <label>🔗 Epic Link (유지 필드)</label>
+        <div class="panel guide-panel" style="display: flex; flex-direction: column;">
+            <div class="extra-input-section" style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; color: #3b82f6; font-size: 0.95rem;">🔗 Epic Link (유지 필드)</label>
                     <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>💡 이번 검증 참고사항 (유지 필드)</label>
-                    <textarea id="extra_notes" style="height: 160px; font-size: 0.85rem;" placeholder="검증 시 참고할 내용을 입력하세요"></textarea>
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                    <label style="font-weight: 700; color: #3b82f6; font-size: 0.95rem;">💡 이번 검증 참고사항 (유지 필드)</label>
+                    <textarea id="extra_notes" style="flex: 1; width: 100%; font-size: 0.9rem; padding: 15px; resize: none; box-sizing: border-box; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none;" placeholder="검증 시 참고할 내용을 입력하세요" oninput="generateTemplate()"></textarea>
                 </div>
             </div>
         </div>
@@ -481,5 +459,15 @@
     <script src="js/completion.js"></script>
     <script src="js/main.js"></script>
     <script src="js/kpi.js"></script>
+
+    <script>
+        window.openCompletionModal = window.openCompletionModal || function() {
+            document.getElementById('completionModal').style.display = 'flex';
+            if (typeof loadCompletionLocal === 'function') loadCompletionLocal();
+        };
+        window.closeCompletionModal = window.closeCompletionModal || function() {
+            document.getElementById('completionModal').style.display = 'none';
+        };
+    </script>
 </body>
 </html>
