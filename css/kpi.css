@@ -53,8 +53,8 @@
 }
 
 .tc-row {
-    display: grid;
-    grid-template-columns: 1.2fr 3fr 1.5fr 1fr auto auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     align-items: center;
     background: var(--white);
@@ -80,6 +80,39 @@
     color: var(--text-main);
     transition: all 0.2s;
     background-color: var(--white);
+}
+
+.tc-poc {
+    width: 130px;
+}
+
+.tc-name {
+    flex: 1;
+    min-width: 150px;
+}
+
+.tc-ticket {
+    width: 150px;
+}
+
+.tc-total {
+    width: 80px;
+}
+
+.tc-devices-label {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-main);
+}
+
+.tc-devices-label input[type="checkbox"] {
+    accent-color: var(--accent-blue);
+    cursor: pointer;
 }
 
 .kpi-input:focus, .tc-poc:focus {
