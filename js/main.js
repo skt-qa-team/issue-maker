@@ -138,13 +138,19 @@ function syncEnvironmentByOS() {
     if(iosCol) iosCol.style.display = osType.includes("iOS") ? 'block' : 'none';
     if(iosVerToggle) iosVerToggle.style.display = osType.includes("iOS") ? 'flex' : 'none';
 
+    let claimedDevices = new Set();
+
     const render = (containerId, list, idPrefix) => {
         const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = '';
         list.forEach(dev => {
-            const isChecked = currentSelected.includes(dev) ? 'checked' : '';
-            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isChecked} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
+            let isCheckedStr = '';
+            if (currentSelected.includes(dev) && !claimedDevices.has(dev)) {
+                isCheckedStr = 'checked';
+                claimedDevices.add(dev);
+            }
+            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
         });
     };
 
