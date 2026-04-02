@@ -86,11 +86,16 @@ function saveSettings() {
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     
-    if (typeof currentUserId !== 'undefined' && currentUserId && typeof isAnonymousUser !== 'undefined' && !isAnonymousUser) {
-        firebase.database().ref('users/' + currentUserId + '/settings').set(data);
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref('users/' + user.uid + '/settings').set(data);
+        }
     }
 
-    syncEnvironmentByOS();
+    if (typeof syncEnvironmentByOS === 'function') {
+        syncEnvironmentByOS();
+    }
     closeModal();
 }
 
