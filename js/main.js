@@ -90,48 +90,6 @@ function startClock() {
     }, 1000);
 }
 
-function openCompletionModal() {
-    document.getElementById('completionModal').style.display = 'flex';
-    if (typeof loadCompletionLocal === 'function') loadCompletionLocal();
-}
-
-function closeCompletionModal() {
-    document.getElementById('completionModal').style.display = 'none';
-}
-
-function openKpiModal() {
-    if (typeof openKpiModalAction === 'function') openKpiModalAction();
-    else document.getElementById('kpiModal').style.display = 'flex';
-}
-
-function closeKpiModal() {
-    document.getElementById('kpiModal').style.display = 'none';
-}
-
-function openModal() {
-    document.getElementById('settingModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('settingModal').style.display = 'none';
-}
-
-function openThemeModal() {
-    document.getElementById('themeModal').style.display = 'flex';
-}
-
-function closeThemeModal() {
-    document.getElementById('themeModal').style.display = 'none';
-}
-
-function openChangelogModal() {
-    document.getElementById('changelogModal').style.display = 'flex';
-}
-
-function closeChangelogModal() {
-    document.getElementById('changelogModal').style.display = 'none';
-}
-
 function applyIndividualPreset(id, n) {
     const target = document.getElementById(id);
     if (!target) return;
