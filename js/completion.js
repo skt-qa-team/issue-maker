@@ -7,6 +7,7 @@ function openCompletionModal() {
     const osType = osTypeEl ? osTypeEl.value : '';
     currentMainSelectedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
 
+    // 1. 단말기 영역 동적 생성 (검증/특수 라디오 버튼 포함)
     const deviceArea = document.getElementById('comp_device_area');
     if (deviceArea) {
         deviceArea.innerHTML = `
@@ -33,13 +34,35 @@ function openCompletionModal() {
         `;
     }
 
+    // 2. 버전 및 서버 레이아웃 가로 배치 및 Textbox 변환
     const versionContainer = document.getElementById('comp_version_list')?.parentElement;
-    if (versionContainer) {
-        versionContainer.innerHTML = `<label>■ 버전</label><input type="text" id="comp_version_input" class="kpi-input" style="width:100%; box-sizing:border-box;" readonly>`;
+    const serverContainer = document.getElementById('comp_server_list')?.parentElement;
+    
+    if (versionContainer && serverContainer) {
+        const parentGrid = versionContainer.parentElement;
+        if(parentGrid && parentGrid.classList.contains('grid-2')) {
+            parentGrid.style.display = 'flex';
+            parentGrid.style.flexDirection = 'column';
+            parentGrid.style.gap = '15px';
+        }
+        
+        // 버전 입력란을 Textbox로 교체 (직접 수정 가능하도록 oninput 연결)
+        versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ 버젼</label><input type="text" id="comp_version_input" class="kpi-input" style="width:100%; box-sizing:border-box;" oninput="updateCompletionPreview()">`;
+        
+        // 서버 목록을 가로형(Flex)으로 변경
+        const sList = document.getElementById('comp_server_list');
+        if (sList) {
+            sList.className = 'checkbox-group';
+            sList.style.display = 'flex';
+            sList.style.flexDirection = 'row';
+            sList.style.flexWrap = 'wrap';
+            sList.style.gap = '15px';
+        }
     }
 
     renderCompDevices();
 
+    // 서버 체크박스 렌더링
     const sList = document.getElementById('comp_server_list');
     if (sList) {
         sList.innerHTML = '';
@@ -57,8 +80,17 @@ function openCompletionModal() {
         compCheck.oninput = updateCompletionPreview;
     }
 
+    // 3. 버튼 텍스트 수정 (KPI 코드 중복 방지)
+    const copyBtn = document.querySelector('#completionModal .btn-save') || document.querySelector('#completionModal button[onclick="copyCompletionReport()"]');
+    if (copyBtn) {
+        copyBtn.innerHTML = '📋 완료문 복사하기';
+    }
+
     const modal = document.getElementById('completionModal');
     if (modal) modal.style.display = 'flex';
+    
+    updateVersionTextbox();
+    updateCompletionPreview();
 }
 
 function renderCompDevices() {
@@ -76,25 +108,27 @@ function renderCompDevices() {
         container.innerHTML = '';
         list.forEach(dev => {
             const chk = currentMainSelectedDevices.includes(dev) ? 'checked' : '';
-            container.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" data-platform="${platform}" value="${dev}" ${chk} onchange="updateCompletionPreview()"> ${dev}</label>`;
+            // 단말 선택 시 버전을 다시 계산하도록 handleCompDeviceChange 연결
+            container.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" data-platform="${platform}" value="${dev}" ${chk} onchange="handleCompDeviceChange()"> ${dev}</label>`;
         });
     };
 
     renderItems(andList, andDevices, 'android');
     renderItems(iosList, iosDevices, 'ios');
 
+    updateVersionTextbox();
     updateCompletionPreview();
 }
 
-function closeCompletionModal() {
-    const modal = document.getElementById('completionModal');
-    if (modal) modal.style.display = 'none';
+// 기기 변경 시 버전 텍스트박스 자동 업데이트
+function handleCompDeviceChange() {
+    updateVersionTextbox();
+    updateCompletionPreview();
 }
 
-function updateCompletionPreview() {
+// 선택된 기기의 OS에 맞춰 환경설정 버전 값 불러오기
+function updateVersionTextbox() {
     const checkedDevs = Array.from(document.querySelectorAll('.comp-dev-cb:checked'));
-    const devs = checkedDevs.map(cb => cb.value).join(' / ') || '-';
-
     const hasAndroid = checkedDevs.some(cb => cb.dataset.platform === 'android');
     const hasIos = checkedDevs.some(cb => cb.dataset.platform === 'ios');
 
@@ -115,6 +149,19 @@ function updateCompletionPreview() {
     if (verInput) {
         verInput.value = verString;
     }
+}
+
+function closeCompletionModal() {
+    const modal = document.getElementById('completionModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function updateCompletionPreview() {
+    const devs = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
+    
+    // Textbox의 값을 우선적으로 불러옴 (사용자 임의 수정 지원)
+    const verInput = document.getElementById('comp_version_input');
+    const verString = verInput ? verInput.value : '-';
 
     const srvs = Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value).join(' / ') || '-';
 
