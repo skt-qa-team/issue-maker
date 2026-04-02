@@ -15,6 +15,7 @@ const auth = firebase.auth();
 
 let currentUserId = null;
 let isAnonymousUser = true;
+let isInitialRender = true;
 const anonColors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
 let myAnonName = sessionStorage.getItem('anonName') || ("동료_" + Math.random().toString(36).substring(7, 10).toUpperCase());
 let myAnonColor = sessionStorage.getItem('anonColor') || anonColors[Math.floor(Math.random() * anonColors.length)];
@@ -121,7 +122,13 @@ function syncEnvironmentByOS() {
     const osEl = document.getElementById('osType');
     if (!osEl) return;
     const osType = osEl.value;
-    const currentSelected = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    
+    let currentSelected = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+
+    if (isInitialRender) {
+        currentSelected = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
+        isInitialRender = false;
+    }
 
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
@@ -293,6 +300,8 @@ function clearForm() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
+    
+    isInitialRender = true;
     syncEnvironmentByOS();
 }
 
