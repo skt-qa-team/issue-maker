@@ -169,12 +169,24 @@ function syncEnvironmentByOS() {
     generateTemplate();
 }
 
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.innerText = message;
+    toast.style.cssText = "position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:rgba(15,23,42,0.9); color:#f8fafc; padding:12px 24px; border-radius:30px; z-index:9999; font-size:0.95rem; font-weight:700; box-shadow:0 10px 25px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s ease; pointer-events:none;";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.style.opacity = '1', 10);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+    }, 2500);
+}
+
 function handleDeviceClick(element) {
     if (element.checked) {
         const allChecked = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
         const sameValueCount = allChecked.filter(cb => cb.value === element.value).length;
         if (sameValueCount > 1) {
-            alert('이미 선택된 단말입니다.');
+            showToast('이미 선택된 단말입니다.');
             element.checked = false;
             return;
         }
@@ -191,16 +203,10 @@ function toggleDeviceMode(platform) {
     
     if(mode === 'normal') {
         if(normalList) normalList.style.display = 'flex';
-        if(specialList) {
-            specialList.style.display = 'none';
-            specialList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        }
+        if(specialList) specialList.style.display = 'none';
     } else {
         if(specialList) specialList.style.display = 'flex';
-        if(normalList) {
-            normalList.style.display = 'none';
-            normalList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        }
+        if(normalList) normalList.style.display = 'none';
     }
     generateTemplate();
 }
@@ -278,7 +284,7 @@ function copySpecific(id) {
     if (!el) return;
     el.select();
     document.execCommand('copy');
-    alert('복사되었습니다.');
+    showToast('복사되었습니다.');
 }
 
 function copyAll() {
@@ -291,7 +297,7 @@ function copyAll() {
     t.select();
     document.execCommand("copy");
     document.body.removeChild(t);
-    alert('전체 복사 완료!');
+    showToast('전체 복사 완료!');
 }
 
 function clearForm() {
