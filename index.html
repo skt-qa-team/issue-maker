@@ -26,6 +26,10 @@
         </div>
 
         <div class="top-bar-btns">
+            <div class="menu-item-wrapper" onclick="openHistoryModal()">
+                <div class="setting-btn-float" style="background: #f59e0b; border-color: #d97706;">🕒</div>
+                <span class="menu-label">히스토리</span>
+            </div>
             <div class="menu-item-wrapper" onclick="openKpiModal()">
                 <div class="setting-btn-float" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border-color: #9333ea;">📊</div>
                 <span class="menu-label">KPI</span>
@@ -260,6 +264,14 @@
             </div>
 
             <button class="btn-copy-all" onclick="copyAll()">📋 전체 복사 (제목 + 본문)</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <button class="close-btn" onclick="closeHistoryModal()">×</button>
+            <div class="modal-header"><h2>🕒 최근 작성 히스토리</h2></div>
+            <div id="history-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 5px;"></div>
         </div>
     </div>
 
