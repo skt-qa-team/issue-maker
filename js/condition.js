@@ -10,14 +10,25 @@ function closeConditionModal() {
 }
 
 function updateConditionPreview() {
-    const checkboxes = document.querySelectorAll('.cond-cb:checked');
     const previewEl = document.getElementById('cond_preview');
     if (!previewEl) return;
 
     let resultText = "";
     let index = 1;
+    
+    const checkboxes = document.querySelectorAll('.cond-cb:checked');
     checkboxes.forEach(cb => {
-        resultText += `${index}. ${cb.value}\n`;
+        if (cb.classList.contains('cond-other-cb')) {
+            const wrapper = cb.closest('.checkbox-group');
+            const input = wrapper.querySelector('.cond-other-input');
+            if (input && input.value.trim() !== "") {
+                resultText += `${index}. ${input.value.trim()}\n`;
+            } else {
+                resultText += `${index}. 기타\n`;
+            }
+        } else {
+            resultText += `${index}. ${cb.value}\n`;
+        }
         index++;
     });
 
@@ -27,6 +38,13 @@ function updateConditionPreview() {
 function clearConditionChecks() {
     const checkboxes = document.querySelectorAll('.cond-cb');
     checkboxes.forEach(cb => cb.checked = false);
+    
+    const otherInputs = document.querySelectorAll('.cond-other-input');
+    otherInputs.forEach(input => {
+        input.style.display = 'none';
+        input.value = '';
+    });
+
     updateConditionPreview();
 }
 
@@ -68,6 +86,21 @@ function applyConditionToForm() {
 document.addEventListener('DOMContentLoaded', () => {
     const checkboxes = document.querySelectorAll('.cond-cb');
     checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateConditionPreview);
+        cb.addEventListener('change', (e) => {
+            if (e.target.classList.contains('cond-other-cb')) {
+                const wrapper = e.target.closest('.checkbox-group');
+                const input = wrapper.querySelector('.cond-other-input');
+                if (input) {
+                    input.style.display = e.target.checked ? 'block' : 'none';
+                    if(e.target.checked) input.focus();
+                }
+            }
+            updateConditionPreview();
+        });
+    });
+
+    const otherInputs = document.querySelectorAll('.cond-other-input');
+    otherInputs.forEach(input => {
+        input.addEventListener('input', updateConditionPreview);
     });
 });
