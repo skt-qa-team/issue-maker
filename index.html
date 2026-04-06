@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/completion.css">
     <link rel="stylesheet" href="css/kpi.css">
+    <link rel="stylesheet" href="css/condition.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
@@ -279,8 +280,8 @@
                 <span style="font-size: 0.85rem; color: var(--text-sub);">원하는 조건을 체크하면 자동으로 넘버링되어 텍스트가 완성됩니다.</span>
             </div>
             
-            <div class="grid-2" style="gap: 20px;">
-                <div class="setting-box" style="margin: 0; max-height: 50vh; overflow-y: auto;">
+            <div class="condition-modal-body">
+                <div class="setting-box condition-scroll-area">
                     
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="color: var(--accent-blue);">1. 계정 상태</label>
@@ -350,20 +351,19 @@
 
                 </div>
 
-                <div class="setting-box preview-box" style="margin: 0; display: flex; flex-direction: column;">
+                <div class="setting-box preview-box condition-preview-area">
                     <label>📝 조합 결과</label>
-                    <textarea id="cond_preview" class="output-field preview-area" readonly style="flex: 1; resize: none; min-height: 200px; margin-bottom: 15px;"></textarea>
+                    <textarea id="cond_preview" class="output-field preview-area condition-preview-textarea" readonly></textarea>
                     
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-clear-top" style="flex: 1; justify-content: center; padding: 12px; font-size: 0.95rem; background: var(--text-sub);" onclick="clearConditionChecks()">초기화</button>
-                        <button class="btn-save" style="flex: 2; padding: 12px; font-size: 0.95rem;" onclick="copyConditionText()">📋 텍스트 복사</button>
-                        <button class="btn-save" style="flex: 2; padding: 12px; font-size: 0.95rem; background: var(--accent-blue);" onclick="applyConditionToForm()">✅ 본문에 덮어쓰기</button>
+                    <div class="condition-btn-group">
+                        <button class="cond-btn-clear" onclick="clearConditionChecks()">초기화</button>
+                        <button class="cond-btn-copy" onclick="copyConditionText()">📋 텍스트 복사</button>
+                        <button class="cond-btn-apply" onclick="applyConditionToForm()">✅ 본문에 덮어쓰기</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="historyModal">
         <div class="modal-content" style="max-width: 700px;">
             <button class="close-btn" onclick="closeHistoryModal()">×</button>
