@@ -1,0 +1,22 @@
+<div class="modal-overlay" id="themeModal">
+    <div class="modal-content" style="max-width: 550px;">
+        <button class="close-btn" onclick="closeThemeModal()">×</button>
+        <div class="modal-header"><h2>🎨 테마 커스텀</h2></div>
+        <div class="setting-box">
+            <label>🌟 프리셋</label>
+            <div id="preset_buttons_container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;"></div>
+        </div>
+        <div class="setting-box color-picker-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">배경 (Background)</label><input type="color" id="picker_bg" oninput="previewTheme()"></div>
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">패널 (Panel)</label><input type="color" id="picker_panel" oninput="previewTheme()"></div>
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">메인 글자 (Main Text)</label><input type="color" id="picker_text_main" oninput="previewTheme()"></div>
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">서브 글자 (Sub Text)</label><input type="color" id="picker_text_sub" oninput="previewTheme()"></div>
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">테두리 (Border)</label><input type="color" id="picker_border" oninput="previewTheme()"></div>
+            <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">강조 (Accent)</label><input type="color" id="picker_accent" oninput="previewTheme()"></div>
+        </div>
+        <div class="grid-2" style="margin-top: 25px; gap: 15px;">
+            <button class="btn-clear-top" onclick="resetTheme()" style="width: 100%; justify-content: center; padding: 14px; background: #64748b; font-size: 1rem;">초기화</button>
+            <button class="btn-save" onclick="saveTheme()" style="padding: 14px;">✅ 저장</button>
+        </div>
+    </div>
+</div>
