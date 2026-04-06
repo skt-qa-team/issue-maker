@@ -284,31 +284,37 @@
                 <div class="setting-box condition-scroll-area">
                     
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label style="color: var(--accent-blue);">1. 계정 상태</label>
+                        <label style="color: var(--accent-blue);">1. 로그인 상태</label>
                         <div class="checkbox-group vertical" style="padding: 8px;">
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="비 로그인 상태"> 비 로그인 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="로그인 상태"> 로그인 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="LITE 등급 계정 로그인 상태"> LITE 등급 계정 로그인 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="13~34세 계정 로그인 상태"> 13~34세 계정 로그인 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="멤버십 카드 정상 계정 로그인 상태"> 멤버십 카드 정상 계정 로그인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="color: var(--accent-blue);">2. 멤버십 카드 상태</label>
                         <div class="checkbox-group vertical" style="padding: 8px;">
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="카드 정상인 상태"> 카드 정상인 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="멤버십 카드 미보유 상태"> 멤버십 카드 미보유 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="멤버십 카드 일시정지 상태"> 멤버십 카드 일시정지 상태</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="멤버십 카드 해지 신청 30일 이내인 상태"> 멤버십 카드 해지 신청 30일 이내인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="카드 정상 상태"> 카드 정상 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="카드 해지 신청 상태"> 카드 해지 신청 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="카드 미보유 상태"> 카드 미보유 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="일시 정지 상태"> 일시 정지 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label style="color: var(--accent-blue);">3. 타겟 조건</label>
+                        <label style="color: var(--accent-blue);">3. 등급 상태</label>
                         <div class="checkbox-group vertical" style="padding: 8px;">
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="13 ~ 34 세, VIP / GOLD / SILVER 등급인 상태"> 13~34세, VIP/GOLD/SILVER 등급</label>
-                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="참여 불가능 연령인 경우 (만 12세 이하/만 35세 이상)"> 참여 불가능 연령 (12세 이하/35세 이상)</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="LITE 등급인 상태"> LITE 등급인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="SILVER 등급인 상태"> SILVER 등급인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="GOLD 등급인 상태"> GOLD 등급인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="VIP 등급인 상태"> VIP 등급인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="VIP / GOLD / SILVER 등급인 상태"> VIP / GOLD / SILVER 등급인 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
@@ -319,6 +325,8 @@
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="혜택 시작 당일, 시작 시간 전인 상태"> 혜택 시작 당일, 시작 시간 전인 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="혜택 시작 당일, 진행 중인 상태"> 혜택 시작 당일, 진행 중인 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="혜택 종료된 상태"> 혜택 종료된 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
@@ -331,6 +339,8 @@
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="연결된 쿠폰 2개인 상태"> 연결된 쿠폰 2개인 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="그룹 쿠폰 설정된 상태"> 그룹 쿠폰 설정된 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="쿠폰 소진된 상태"> 쿠폰 소진된 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
@@ -346,6 +356,8 @@
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="Admin에서 꽝 쿠폰 등록된 상태"> Admin에서 꽝 쿠폰 등록된 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="Admin에서 유효기간 미설정한 상태"> Admin에서 유효기간 미설정한 상태</label>
                             <label class="checkbox-label"><input type="checkbox" class="cond-cb" value="Admin에서 외부링크 설정한 상태"> Admin에서 외부링크 설정한 상태</label>
+                            <label class="checkbox-label"><input type="checkbox" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
                         </div>
                     </div>
 
