@@ -175,7 +175,6 @@ function generateTemplate() {
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof startClock === 'function') startClock();
     if (typeof initPresenceSystem === 'function') initPresenceSystem();
-    if (typeof renderChangelog === 'function') renderChangelog();
     
     setTimeout(() => {
         const draftExists = localStorage.getItem('skm_draft');
