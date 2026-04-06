@@ -134,9 +134,9 @@ function syncEnvironmentByOS() {
     const iosCol = document.getElementById('iosDeviceCol');
     const iosVerToggle = document.getElementById('ios-ver-toggle');
 
-    if(andCol) andCol.style.display = osType.includes("Android") ? 'block' : 'none';
-    if(iosCol) iosCol.style.display = osType.includes("iOS") ? 'block' : 'none';
-    if(iosVerToggle) iosVerToggle.style.display = osType.includes("iOS") ? 'flex' : 'none';
+    if(andCol) andCol.style.display = (osType === "[Android/iOS]" || osType === "[Android]") ? 'block' : 'none';
+    if(iosCol) iosCol.style.display = (osType === "[Android/iOS]" || osType === "[iOS]") ? 'block' : 'none';
+    if(iosVerToggle) iosVerToggle.style.display = (osType === "[Android/iOS]" || osType === "[iOS]") ? 'flex' : 'none';
 
     let claimedDevices = new Set();
 
@@ -244,8 +244,24 @@ function generateTemplate() {
     
     const poc = getValue('poc');
     const os = getValue('osType');
-    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value).join(' / ');
+    
+    const isWeb = poc === 'Admin' || poc === 'PC Web';
+    let servers = [];
+    let devices = "";
+    
+    if (isWeb) {
+        servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    } else {
+        servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+        let checkedDeviceCbs = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
+        if (os === "[Android]") {
+            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('and_'));
+        } else if (os === "[iOS]") {
+            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('ios_'));
+        }
+        devices = checkedDeviceCbs.map(cb => cb.value).join(' / ');
+    }
+
     let ver = getValue('appVersion');
     
     if (poc === 'T 멤버십') {
@@ -364,12 +380,17 @@ function copyAll() {
     document.execCommand("copy");
     document.body.removeChild(t);
     showToast('전체 복사 완료!');
-
+    
     saveToHistory(tVal, bVal);
 }
 
 function clearForm() {
-    if(!confirm('초기화하시겠습니까? (에픽/참고사항 제외)')) return;
+    if(!confirm('초기화하시겠습니까? (현재 작성된 내용은 히스토리에 자동 저장됩니다)')) return;
+    
+    const tVal = document.getElementById('outputTitle')?.value || '';
+    const bVal = document.getElementById('outputBody')?.value || '';
+    saveToHistory(tVal, bVal);
+
     ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -378,6 +399,7 @@ function clearForm() {
     isInitialRender = true;
     syncEnvironmentByOS();
     saveDraft();
+    showToast('내용이 초기화되었습니다.');
 }
 
 function saveToHistory(title, body) {
@@ -391,7 +413,9 @@ function saveToHistory(title, body) {
     if (history.length > 10) history = history.slice(0, 10);
     
     localStorage.setItem('skm_history', JSON.stringify(history));
-    renderHistory();
+    if (document.getElementById('historyModal')?.style.display === 'flex') {
+        renderHistory();
+    }
 }
 
 function openHistoryModal() {
