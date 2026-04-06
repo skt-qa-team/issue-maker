@@ -63,3 +63,19 @@
     border: none;
     cursor: pointer;
 }
+
+.cond-other-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.cond-other-input:focus {
+    border-color: var(--accent-blue);
+}
