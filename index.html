@@ -188,10 +188,7 @@
             <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
 
             <div class="form-group">
-                <div class="label-action-row">
-                    <label>[Pre-Condition]</label>
-                    <button class="btn-copy-mini" style="background:#10b981; border-color:#059669; color:white;" onclick="openConditionModal()">🛠️ 조건 조합기</button>
-                </div>
+                <label>[Pre-Condition]</label>
                 <textarea id="preCondition" oninput="generateTemplate()"></textarea>
             </div>
 
@@ -271,83 +268,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="conditionModal">
-        <div class="modal-content" style="max-width: 800px;">
-            <button class="close-btn" onclick="closeConditionModal()">×</button>
-            <div class="modal-header" style="margin-bottom: 15px;">
-                <h2 style="margin: 0; color: var(--accent-green);">🛠️ Pre-Condition 모듈 조합기</h2>
-            </div>
-            <div class="setting-box">
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>1. 계정 및 로그인 상태</label>
-                        <select id="cond_login">
-                            <option value="">선택 안함</option>
-                            <option value="비 로그인 상태">비 로그인 상태</option>
-                            <option value="로그인 상태">로그인 상태</option>
-                            <option value="LITE 등급 계정 로그인 상태">LITE 등급 계정 로그인 상태</option>
-                            <option value="13~34세 계정 로그인 상태">13~34세 계정 로그인 상태</option>
-                            <option value="멤버십 카드 정상 계정 로그인 상태">멤버십 카드 정상 계정 로그인 상태</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>2. 멤버십 카드 상태</label>
-                        <select id="cond_card">
-                            <option value="">선택 안함</option>
-                            <option value="카드 정상인 상태">카드 정상인 상태</option>
-                            <option value="멤버십 카드 미보유 상태">멤버십 카드 미보유 상태</option>
-                            <option value="멤버십 카드 일시정지 상태">멤버십 카드 일시정지 상태</option>
-                            <option value="멤버십 카드 해지 신청 30일 이내인 상태">멤버십 카드 해지 신청 30일 이내인 상태</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>3. 타겟 연령/등급 설정</label>
-                        <select id="cond_target">
-                            <option value="">선택 안함</option>
-                            <option value="13 ~ 34 세, VIP / GOLD / SILVER 등급인 상태">13~34세, VIP/GOLD/SILVER 등급</option>
-                            <option value="참여 불가능 연령인 경우 (만 12세 이하/만 35세 이상)">참여 불가 연령 (12세 이하/35세 이상)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>4. 이벤트 및 혜택 기간</label>
-                        <select id="cond_period">
-                            <option value="">선택 안함</option>
-                            <option value="혜택 시작 일 D-N 이상인 상태">시작 일 D-N 이상</option>
-                            <option value="혜택 시작 당일, 시작 시간 전인 상태">시작 당일, 시작 시간 전</option>
-                            <option value="혜택 시작 당일, 진행 중인 상태">시작 당일, 진행 중</option>
-                            <option value="혜택 종료된 상태">혜택 종료됨</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>5. 혜택 참여 상태</label>
-                        <select id="cond_usage">
-                            <option value="">선택 안함</option>
-                            <option value="해당 0 week 혜택 사용하지 않은 상태">해당 0 week 혜택 사용 전</option>
-                            <option value="해당 혜택 사용한 상태">해당 혜택 사용 완료</option>
-                            <option value="쿠폰 소진된 상태">쿠폰 소진됨 (재고 없음)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                    <label>6. Admin 설정 속성 (다중 선택)</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 안내 영역 내용 등록된 상태"> 안내 영역 등록</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 0 WEEK 혜택 카드 설정한 상태"> 0 WEEK 카드 설정</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 배너 설정된 상태"> 배너 설정됨</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 버튼명 설정한 상태"> 버튼명 설정</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 할인쿠폰 등록된 상태"> 할인형 쿠폰</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 자동 적립형 쿠폰 설정된 상태"> 적립형 쿠폰</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 꽝 쿠폰 등록된 상태"> 꽝 쿠폰 등록</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 유효기간 미설정한 상태"> 유효기간 미설정</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 외부링크 설정한 상태"> 외부링크 설정</label>
-                        <label class="checkbox-label"><input type="checkbox" class="cond-admin-cb" value="Admin에서 메인 쿠폰 미설정 상태"> 메인 쿠폰 미설정</label>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-save" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="applyConditionPreset()">✨ 조건 자동 생성 및 본문 적용</button>
-        </div>
-    </div>
     <div class="modal-overlay" id="historyModal">
         <div class="modal-content" style="max-width: 700px;">
             <button class="close-btn" onclick="closeHistoryModal()">×</button>
