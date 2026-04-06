@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const placeholder = document.getElementById(comp.id);
                 if (placeholder) {
                     placeholder.innerHTML = html;
+                    
+                    if (comp.id === 'modal-placeholder-changelog' && typeof renderChangelog === 'function') {
+                        renderChangelog();
+                    }
                 }
             })
             .catch(err => console.error('Component load failed:', err))
