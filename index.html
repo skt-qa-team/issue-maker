@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[SKM] 이슈틀 생성기 - V21.11</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/completion.css">
+    <link rel="stylesheet" href="css/kpi.css">
+    <link rel="stylesheet" href="css/condition.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+</head>
+<body>
+
+    <div class="top-action-bar">
+        <div class="top-bar-left-group">
+            <div id="currentTime" class="current-time"></div>
+            <div id="presence-list" class="presence-list"></div>
+        </div>
+        
+        <div class="top-bar-center-group">
+            <div class="top-bar-title">
+                <span class="main-title">[SKM] 이슈틀 생성기</span>
+                <span class="version-info">- V21.11</span>
+            </div>
+        </div>
+
+        <div class="top-bar-btns">
+            <div class="menu-item-wrapper" onclick="openHistoryModal()">
+                <div class="setting-btn-float" style="background: #f59e0b; border-color: #d97706;">🕒</div>
+                <span class="menu-label">히스토리</span>
+            </div>
+            <div class="menu-item-wrapper" onclick="openKpiModal()">
+                <div class="setting-btn-float" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border-color: #9333ea;">📊</div>
+                <span class="menu-label">KPI</span>
+            </div>
+            <div class="menu-item-wrapper" onclick="openCompletionModal()">
+                <div class="setting-btn-float" style="background: #10b981; border-color: #059669;">✅</div>
+                <span class="menu-label">완료문</span>
+            </div>
+            <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="menu-item-wrapper" style="text-decoration: none;">
+                <div class="setting-btn-float groupware-btn">🏢</div>
+                <span class="menu-label">그룹웨어</span>
+            </a>
+            <div class="menu-item-wrapper" onclick="openThemeModal()">
+                <div class="setting-btn-float">🎨</div>
+                <span class="menu-label">테마</span>
+            </div>
+            <div class="menu-item-wrapper" onclick="openChangelogModal()">
+                <div class="setting-btn-float">📜</div>
+                <span class="menu-label">변경사항</span>
+            </div>
+            <div class="menu-item-wrapper" onclick="openModal()">
+                <div class="setting-btn-float">⚙️</div>
+                <span class="menu-label">설정</span>
+            </div>
+            <div class="menu-item-wrapper" onclick="toggleAuth()">
+                <div class="setting-btn-float" id="auth-btn-icon" style="background: var(--accent-red);">G</div>
+                <span class="menu-label" id="auth-btn-label">⏳ 대기중</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-horizontal-divider"></div>
+
+    <div class="wrapper">
+        
+        <div class="panel guide-panel" style="display: flex; flex-direction: column;">
+            <div class="extra-input-section" style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; color: #3b82f6; font-size: 0.95rem;">🔗 Epic Link (유지 필드)</label>
+                    <input type="text" id="epic_link" placeholder="에픽 링크를 입력하세요" oninput="generateTemplate()">
+                </div>
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                    <label style="font-weight: 700; color: #3b82f6; font-size: 0.95rem;">💡 이번 검증 참고사항 (유지 필드)</label>
+                    <textarea id="extra_notes" style="flex: 1; width: 100%; font-size: 0.9rem; padding: 15px; resize: none; box-sizing: border-box; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none;" placeholder="검증 시 참고할 내용을 입력하세요" oninput="generateTemplate()"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 style="margin-top: 0; margin-bottom: 20px;">📝 이슈 내용 입력</h2>
+            
+            <div class="form-group">
+                <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
+                <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
+            </div>
+
+            <div class="prefix-panel">
+                <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+                <div class="grid-2" style="gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.75rem;">Critical 구분</label>
+                        <select id="prefix_critical" onchange="generateTemplate()">
+                            <option value="">해당 없음</option>
+                            <option value="Block">Block</option>
+                            <option value="Crash">Crash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 OS 버전 (신규)</label>
+                        <input type="text" id="prefix_spec_os" placeholder="예: iOS 16" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                        <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                        <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                        <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>OS 구분</label>
+                    <select id="osType" onchange="syncEnvironmentByOS()">
+                        <option value="[Android/iOS]">[Android/iOS]</option>
+                        <option value="[Android]">[Android]</option>
+                        <option value="[iOS]">[iOS]</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>POC</label>
+                    <select id="poc" onchange="handlePocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="에이닷">에이닷</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>서버</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" checked onchange="generateTemplate()"> STG</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="GRN" onchange="generateTemplate()"> GRN</label>
+                    <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> 상용(PRD)</label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="deviceGroup">
+                <label>디바이스 선택</label>
+                <div class="device-split-container">
+                    <div id="andDeviceCol" class="device-col">
+                        <div class="device-col-header">
+                            <span style="color: #10b981;">Android</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked onchange="toggleDeviceMode('and')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
+                            </div>
+                        </div>
+                        <div id="andNormalList" class="pill-group"></div>
+                        <div id="andSpecialList" class="pill-group" style="display:none;"></div>
+                    </div>
+                    <div id="iosDeviceCol" class="device-col">
+                        <div class="device-col-header">
+                            <span style="color: #3b82f6;">iOS</span>
+                            <div class="radio-tab-group small">
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
+                                <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
+                            </div>
+                        </div>
+                        <div id="iosNormalList" class="pill-group"></div>
+                        <div id="iosSpecialList" class="pill-group" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="appVersionGroup">
+                <div class="label-action-row">
+                    <label id="appVersionLabel">앱 버전</label>
+                    <div id="ios-ver-toggle" style="display: none; gap: 10px;">
+                        <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="TestFlight" checked onchange="syncEnvironmentByOS()"> TestFlight</label>
+                        <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="App Distribution" onchange="syncEnvironmentByOS()"> App Distribution</label>
+                    </div>
+                </div>
+                <input type="text" id="appVersion" oninput="generateTemplate()">
+            </div>
+
+            <div class="form-group" id="urlGroup" style="display: none;"><label id="urlLabel">URL</label><input type="text" id="targetUrl" oninput="generateTemplate()"></div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[Pre-Condition]</label>
+                    <button class="btn-copy-mini" style="background:#10b981; border-color:#059669; color:white; padding: 6px 12px; border-radius: 6px;" onclick="openConditionModal()">🛠️ 조건 조합기</button>
+                </div>
+                <textarea id="preCondition" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[재현스텝]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main" onclick="addCase('steps')">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('steps', 2)">2</span>
+                            <span onclick="applyIndividualPreset('steps', 3)">3</span>
+                            <span onclick="applyIndividualPreset('steps', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="steps" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[실행결과-문제현상]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main" onclick="addCase('actualResult')">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('actualResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="actualResult" oninput="generateTemplate()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-action-row">
+                    <label>[기대결과]</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main" onclick="addCase('expectedResult')">CASE +</button>
+                        <div class="case-num-group">
+                            <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
+                            <span onclick="applyIndividualPreset('expectedResult', 4)">4</span>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="expectedResult" oninput="generateTemplate()"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>[참고사항]</label>
+                <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" oninput="generateTemplate()" style="margin-bottom: 8px;">
+                <textarea id="ref_notes" placeholder="기타 참고 내용" oninput="generateTemplate()"></textarea>
+            </div>
+        </div>
+
+        <div class="panel result-panel">
+            <div class="result-header">
+                <h2>📄 리포트 결과</h2>
+                <button class="btn-clear-top" onclick="clearForm()">🔄 새로 작성</button>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-label-group">
+                    <label>📌 제목 (Title)</label>
+                    <button class="btn-copy-mini" onclick="copySpecific('outputTitle')">제목만 복사</button>
+                </div>
+                <input type="text" id="outputTitle" class="output-field" readonly>
+            </div>
+
+            <div class="output-section" style="flex:1; display:flex; flex-direction:column; min-height: 200px;">
+                <div class="output-label-group">
+                    <label>📝 본문 (Description)</label>
+                    <button class="btn-copy-mini" onclick="copySpecific('outputBody')">본문만 복사</button>
+                </div>
+                <textarea id="outputBody" class="output-field" readonly style="flex: 1; resize: none;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="conditionModal">
+        <div class="modal-content" style="max-width: 900px; width: 95%;">
+            <button class="close-btn" onclick="closeConditionModal()">×</button>
+            <div class="modal-header" style="margin-bottom: 15px;">
+                <h2 style="margin: 0; color: var(--accent-green);">🛠️ Pre-Condition 체크 조합기</h2>
+                <span style="font-size: 0.85rem; color: var(--text-sub);">원하는 조건을 체크하면 자동으로 넘버링되어 텍스트가 완성됩니다.</span>
+            </div>
+            
+            <div class="condition-modal-body">
+                <div class="setting-box condition-scroll-area" style="display: flex; flex-direction: column;">
+                    
+                    <div id="cond-step-1" class="form-group" style="margin-bottom: 15px;">
+                        <label style="color: var(--accent-blue);">Step 1. 로그인 상태</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb" value="비 로그인 상태"> 비 로그인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb" value="로그인 상태"> 로그인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div id="cond-step-2" class="form-group" style="margin-bottom: 15px; display: none;">
+                        <label style="color: var(--accent-blue);">Step 2. 멤버십 카드 상태</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 정상 상태"> 카드 정상 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 해지 신청 상태"> 카드 해지 신청 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 미보유 상태"> 카드 미보유 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="일시 정지 상태"> 일시 정지 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div id="cond-step-3" class="form-group" style="margin-bottom: 15px; display: none;">
+                        <label style="color: var(--accent-blue);">Step 3. 등급 상태</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="LITE 등급인 상태"> LITE 등급인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="SILVER 등급인 상태"> SILVER 등급인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="GOLD 등급인 상태"> GOLD 등급인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="VIP 등급인 상태"> VIP 등급인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="VIP / GOLD / SILVER 등급인 상태"> VIP / GOLD / SILVER 등급인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div id="cond-step-4" class="form-group" style="margin-bottom: 15px; display: none;">
+                        <label style="color: var(--accent-blue);">Step 4. 기간 조건</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 일 D-N 이상인 상태"> 혜택 시작 일 D-N 이상인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 당일, 시작 시간 전인 상태"> 혜택 시작 당일, 시작 시간 전인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 당일, 진행 중인 상태"> 혜택 시작 당일, 진행 중인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 종료된 상태"> 혜택 종료된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div id="cond-step-5" class="form-group" style="margin-bottom: 15px; display: none;">
+                        <label style="color: var(--accent-blue);">Step 5. 혜택/쿠폰 사용 여부</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="해당 0 week 혜택 사용하지 않은 상태"> 해당 0 week 혜택 사용하지 않은 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="해당 혜택 사용한 상태"> 해당 혜택 사용한 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="연결된 쿠폰 1개인 상태"> 연결된 쿠폰 1개인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="연결된 쿠폰 2개인 상태"> 연결된 쿠폰 2개인 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="그룹 쿠폰 설정된 상태"> 그룹 쿠폰 설정된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="쿠폰 소진된 상태"> 쿠폰 소진된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div id="cond-step-6" class="form-group" style="margin-bottom: 0; display: none;">
+                        <label style="color: var(--accent-blue);">Step 6. Admin 설정</label>
+                        <div class="checkbox-group vertical" style="padding: 8px;">
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 안내 영역 내용 등록된 상태"> Admin에서 안내 영역 내용 등록된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 0 WEEK 혜택 카드 설정한 상태"> Admin에서 0 WEEK 혜택 카드 설정한 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 배너 설정된 상태"> Admin에서 배너 설정된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 버튼명 설정한 상태"> Admin에서 버튼명 설정한 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 할인쿠폰 등록된 상태"> Admin에서 할인쿠폰 등록된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 자동 적립형 쿠폰 설정된 상태"> Admin에서 자동 적립형 쿠폰 설정된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 꽝 쿠폰 등록된 상태"> Admin에서 꽝 쿠폰 등록된 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 유효기간 미설정한 상태"> Admin에서 유효기간 미설정한 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 외부링크 설정한 상태"> Admin에서 외부링크 설정한 상태</label>
+                            <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb cond-other-cb" value="기타"> 기타</label>
+                            <input type="text" class="cond-other-input" placeholder="직접 입력하세요" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 15px;">
+                        <button id="cond-prev-btn" class="btn-clear-top" style="flex: 1; padding: 12px; font-size: 0.95rem; justify-content: center; display: none;" onclick="prevCondStep()">◀ 이전</button>
+                        <button id="cond-next-btn" class="btn-save" style="flex: 1; padding: 12px; font-size: 0.95rem;" onclick="nextCondStep()">다음 ▶</button>
+                    </div>
+
+                </div>
+
+                <div class="setting-box preview-box condition-preview-area">
+                    <label>📝 조합 결과</label>
+                    <textarea id="cond_preview" class="output-field preview-area condition-preview-textarea" readonly></textarea>
+                    
+                    <div class="condition-btn-group">
+                        <button class="cond-btn-clear" onclick="clearConditionChecks()">초기화</button>
+                        <button class="cond-btn-copy" onclick="copyConditionText()">📋 텍스트 복사</button>
+                        <button class="cond-btn-apply" onclick="applyConditionToForm()">✅ 본문에 덮어쓰기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <button class="close-btn" onclick="closeHistoryModal()">×</button>
+            <div class="modal-header"><h2>🕒 최근 작성 히스토리</h2></div>
+            <div id="history-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 5px;"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="completionModal">
+        <div class="modal-content" style="max-width: 1100px; width: 95%;">
+            <button class="close-btn" onclick="closeCompletionModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <h2 style="margin: 0;">✅ 완료문 작성</h2>
+                <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+            </div>
+            <div class="completion-modal-body">
+                <div class="setting-box" style="margin-bottom:0;">
+                    <div class="form-group">
+                        <label>■ Device(OS Ver.)</label>
+                        <div id="comp_device_area" class="comp-device-scroll">
+                            <div id="comp_and_section">
+                                <div class="comp-os-label" style="color:#10b981;">Android</div>
+                                <div id="comp_and_list" class="pill-group"></div>
+                            </div>
+                            <div id="comp_ios_section">
+                                <div class="comp-os-label" style="color:#3b82f6;">iOS</div>
+                                <div id="comp_ios_list" class="pill-group"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>■ 버전</label><div id="comp_version_list" class="checkbox-group vertical"></div></div>
+                        <div class="form-group"><label>■ 서버</label><div id="comp_server_list" class="checkbox-group vertical"></div></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;"><label>■ 현상 check</label><textarea id="comp_check" style="height: 100px;" placeholder="확인 내용을 입력하세요"></textarea></div>
+                </div>
+                <div class="completion-preview-side">
+                    <div class="setting-box preview-box">
+                        <label>📊 미리보기</label>
+                        <textarea id="comp_preview" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" onclick="copyCompletionReport()">📋 완료문 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="kpiModal">
+        <div class="modal-content" style="max-width: 1500px; width: 96vw; height: 90vh; display: flex; flex-direction: column;">
+            <button class="close-btn" onclick="closeKpiModal()">×</button>
+            <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px; padding-bottom: 10px;">
+                <h2 style="margin: 0;">📊 개인 KPI 목표 수행 현황</h2>
+            </div>
+            <div class="completion-modal-body" style="flex: 1; overflow: hidden; gap: 20px;">
+                
+                <div class="setting-box" style="margin-bottom:0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border-color);">
+                    <div class="kpi-tab-header">
+                        <button class="kpi-tab-btn active" id="btn-tab-perf" onclick="switchKpiTab('perf')">1. 업무 성과</button>
+                        <button class="kpi-tab-btn" id="btn-tab-contrib" onclick="switchKpiTab('contrib')">2. 팀 기여도</button>
+                        <button class="kpi-tab-btn" id="btn-tab-capa" onclick="switchKpiTab('capa')">3. 개인 역량</button>
+                    </div>
+                    
+                    <div class="kpi-tab-body" style="overflow-y: auto; padding: 25px; flex: 1;">
+                        
+                        <div id="tab-perf" class="kpi-tab-content active">
+                            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('perf')">🗑️ 현재 탭 초기화</button>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 15px;">1. Defect 검출 갯수</label>
+                                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background: var(--bg-color); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Blocker</label><input type="number" id="def_blocker" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Critical</label><input type="number" id="def_critical" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Major</label><input type="number" id="def_major" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Minor</label><input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Trivial</label><input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                    <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                        <label style="font-size: 1rem;">전월 팀 평균</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <input type="number" id="prev_avg" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                            <button class="btn-remove" style="background: #ef4444; color: white; padding: 5px 10px; font-size: 0.75rem;" onclick="resetTeamAverage()">초기화</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <label style="color:var(--accent-blue); font-size: 1.1rem; margin: 0;">2. TC 수행 업무 (PoC별 취합)</label>
+                                    <button class="btn-clear-top" style="background: var(--text-main);" onclick="addTcRow()">➕ TC 추가</button>
+                                </div>
+                                <div id="tc_container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 25px; margin-bottom: 0;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
+                                <textarea id="tc_update_text" style="height: 120px;" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
+                            </div>
+                        </div>
+
+                        <div id="tab-contrib" class="kpi-tab-content" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">팀 기여도 및 업무태도</label>
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                            </div>
+                            <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        </div>
+
+                        <div id="tab-capa" class="kpi-tab-content" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">역량강화 (개인 역량)</label>
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
+                            </div>
+                            <textarea id="kpi_capa_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="completion-preview-side" style="margin: 0;">
+                    <div class="setting-box preview-box" style="height: calc(100% - 70px); margin-bottom: 15px;">
+                        <label id="kpi_preview_label">📊 [업무 성과] 리포트 미리보기</label>
+                        <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
+                    </div>
+                    <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-content" style="max-width: 550px;">
+            <button class="close-btn" onclick="closeThemeModal()">×</button>
+            <div class="modal-header"><h2>🎨 테마 커스텀</h2></div>
+            <div class="setting-box">
+                <label>🌟 프리셋</label>
+                <div id="preset_buttons_container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;"></div>
+            </div>
+            <div class="setting-box color-picker-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">배경 (Background)</label><input type="color" id="picker_bg" oninput="previewTheme()"></div>
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">패널 (Panel)</label><input type="color" id="picker_panel" oninput="previewTheme()"></div>
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">메인 글자 (Main Text)</label><input type="color" id="picker_text_main" oninput="previewTheme()"></div>
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">서브 글자 (Sub Text)</label><input type="color" id="picker_text_sub" oninput="previewTheme()"></div>
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">테두리 (Border)</label><input type="color" id="picker_border" oninput="previewTheme()"></div>
+                <div class="color-row" style="display: flex; justify-content: space-between; align-items: center;"><label style="font-weight: 700; color: var(--text-sub);">강조 (Accent)</label><input type="color" id="picker_accent" oninput="previewTheme()"></div>
+            </div>
+            <div class="grid-2" style="margin-top: 25px; gap: 15px;">
+                <button class="btn-clear-top" onclick="resetTheme()" style="width: 100%; justify-content: center; padding: 14px; background: #64748b; font-size: 1rem;">초기화</button>
+                <button class="btn-save" onclick="saveTheme()" style="padding: 14px;">✅ 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingModal">
+        <div class="modal-content" style="max-width: 850px;">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div class="modal-header"><h2>⚙️ 환경 설정</h2></div>
+            <div class="setting-box">
+                <div class="grid-2">
+                    <div class="form-group"><label>Admin URL</label><input type="text" id="set_admin_url"></div>
+                    <div class="form-group"><label>PC URL</label><input type="text" id="set_pc_url"></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#10b981; font-weight:bold;">🟢 Android</label>
+                <div class="form-group"><label style="font-size:0.75rem;">버전</label><input type="text" id="set_and_apptester"></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말 풀</label><textarea id="set_and_devices" style="height:100px;" placeholder="줄바꿈으로 구분"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말 풀</label><textarea id="set_and_special" style="height:100px;" placeholder="줄바꿈으로 구분"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">기본 선택 단말</label><textarea id="set_and_default" style="height:100px;" placeholder="자동 체크될 단말 (줄바꿈 구분)"></textarea></div>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label style="color:#3b82f6; font-weight:bold;">🔵 iOS</label>
+                <div class="grid-2">
+                    <div class="form-group"><label style="font-size:0.75rem;">TF 버전</label><input type="text" id="set_ios_testflight"></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">AD 버전</label><input type="text" id="set_ios_distribution"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group"><label style="font-size:0.75rem;">검증단말 풀</label><textarea id="set_ios_devices" style="height:100px;" placeholder="줄바꿈으로 구분"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">특수단말 풀</label><textarea id="set_ios_special" style="height:100px;" placeholder="줄바꿈으로 구분"></textarea></div>
+                    <div class="form-group"><label style="font-size:0.75rem;">기본 선택 단말</label><textarea id="set_ios_default" style="height:100px;" placeholder="자동 체크될 단말 (줄바꿈 구분)"></textarea></div>
+                </div>
+            </div>
+            <button class="btn-save" onclick="saveSettings()">✅ 설정 저장</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="changelogModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeChangelogModal()">×</button>
+            <div class="modal-header"><h2>📜 업데이트 내역</h2></div>
+            <div id="changelog-container" class="changelog-list"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="changelog.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/completion.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/kpi.js"></script>
+    <script src="js/condition.js"></script>
+
+    <script>
+        window.openCompletionModal = window.openCompletionModal || function() {
+            document.getElementById('completionModal').style.display = 'flex';
+            if (typeof loadCompletionLocal === 'function') loadCompletionLocal();
+        };
+        window.closeCompletionModal = window.closeCompletionModal || function() {
+            document.getElementById('completionModal').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
