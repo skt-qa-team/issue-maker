@@ -1,0 +1,32 @@
+name: STG and PRD Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - stg
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Deploy Path
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/stg" ]; then
+            echo "DEPLOY_DIR=stg" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_DIR=." >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          destination_dir: ${{ env.DEPLOY_DIR }}
+          keep_files: true
