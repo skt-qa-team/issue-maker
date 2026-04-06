@@ -380,8 +380,6 @@ function copyAll() {
     document.execCommand("copy");
     document.body.removeChild(t);
     showToast('전체 복사 완료!');
-    
-    saveToHistory(tVal, bVal);
 }
 
 function clearForm() {
