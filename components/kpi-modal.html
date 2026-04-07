@@ -56,7 +56,10 @@
                     <div id="tab-contrib" class="kpi-tab-content" style="display: none;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">팀 기여도 및 업무태도</label>
-                            <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-save" style="padding: 8px 12px; font-size: 0.9rem; background: linear-gradient(135deg, #3b82f6, #2563eb);" onclick="generateNarrativeReport()">✨ 성과 요약 자동 작성</button>
+                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                            </div>
                         </div>
                         <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
                     </div>
