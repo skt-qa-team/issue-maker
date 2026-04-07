@@ -32,7 +32,7 @@
                                 <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
                                     <label style="font-size: 1rem;">전월 팀 평균</label>
                                     <div style="display: flex; gap: 8px;">
-                                        <input type="number" id="prev_avg" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                        <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
                                         <button class="btn-remove" style="background: #ef4444; color: white; padding: 5px 10px; font-size: 0.75rem;" onclick="resetTeamAverage()">초기화</button>
                                     </div>
                                 </div>
