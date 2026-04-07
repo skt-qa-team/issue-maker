@@ -127,12 +127,21 @@ function generateKPI() {
             if (trivial > 0) report += ` - Trivial ${trivial}개\n`;
         }
 
-        // 전월 대비 팀 평균 계산
+        // 전월 대비 팀 평균 계산 (소수점 지원 로직으로 수정됨)
         if (prevAvgStr !== '') {
-            const prevAvg = parseInt(prevAvgStr) || 0;
+            const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
-            let diffText = diff > 0 ? `${diff}개 상승` : (diff < 0 ? `${Math.abs(diff)}개 하락` : '동일');
-            report += `\n전월 팀 평균 Defect 검출 갯수 : ${prevAvg}개 (${diffText})\n`;
+            
+            // 소수점 첫째 자리까지만 표시 및 자바스크립트 부동소수점 오류(.00000001 등) 방지
+            const absDiff = parseFloat(Math.abs(diff).toFixed(1));
+            const displayPrevAvg = parseFloat(prevAvg.toFixed(1));
+
+            let diffText = '';
+            if (diff > 0) diffText = `${absDiff}개 상승`;
+            else if (diff < 0) diffText = `${absDiff}개 하락`;
+            else diffText = '동일';
+
+            report += `\n전월 팀 평균 Defect 검출 갯수 : ${displayPrevAvg}개 (${diffText})\n`;
         }
 
         // 2. TC 수행 업무 (PoC별 취합)
