@@ -14,22 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     Promise.all(components.map(comp => 
-        fetch(comp.url)
+        // 1. 브라우저 캐시 방지 (항상 최신 HTML 로드)
+        fetch(comp.url + '?v=' + new Date().getTime()) 
             .then(response => {
-                if (!response.ok) throw new Error(`Failed to load ${comp.url}`);
+                if (!response.ok) throw new Error(`[404] ${comp.url} 파일을 찾을 수 없습니다.`);
                 return response.text();
             })
             .then(html => {
                 const placeholder = document.getElementById(comp.id);
                 if (placeholder) {
-                    // 핵심 수정 포인트: innerHTML 대신 outerHTML을 사용하여 
-                    // 임시 껍데기 div를 완전히 제거하고 원본 UI 구조를 복구합니다.
-                    placeholder.outerHTML = html;
+                    // 2. 내부 삽입 후 껍데기 투명화 (UI 깨짐 완벽 방지)
+                    placeholder.innerHTML = html;
+                    placeholder.style.display = 'contents'; 
                 }
             })
-            .catch(err => console.error(err))
+            .catch(err => {
+                console.error("Loader Error:", err);
+                // 3. 파일 누락 시 즉각 알림
+                alert(`🔥 앗! 파일 로드 실패:\n${err.message}\ncomponents 폴더 안에 파일명 오타가 없는지 확인해 주세요!`);
+            })
     )).then(() => {
-        // 모든 HTML 조각이 브라우저에 완벽하게 결합될 때까지 아주 짧은 시간 대기 (안정성 확보)
+        // 4. 모든 HTML이 화면에 완벽히 그려지도록 0.3초(300ms) 대기 후 폼 세팅
         setTimeout(() => {
             try { if (typeof startClock === 'function') startClock(); } catch(e) { console.warn(e); }
             try { if (typeof initPresenceSystem === 'function') initPresenceSystem(); } catch(e) { console.warn(e); }
@@ -41,11 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (draftExists && typeof loadDraft === 'function') {
                     loadDraft();
                 } else if (typeof syncEnvironmentByOS === 'function') {
-                    syncEnvironmentByOS(); // 폼 세팅 및 환경설정 값 로드
+                    syncEnvironmentByOS(); 
                 }
             } catch(e) { 
                 console.error("Init Error:", e); 
             }
-        }, 100);
+        }, 300); 
     });
 });
