@@ -1,0 +1,81 @@
+.condition-modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.condition-scroll-area {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.condition-preview-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.condition-preview-textarea {
+    flex: 1;
+    resize: none;
+    min-height: 200px;
+    margin-bottom: 15px;
+}
+
+.condition-btn-group {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.condition-btn-group button {
+    flex: 1;
+    padding: 12px 5px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.cond-btn-clear {
+    background: var(--text-sub);
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.cond-btn-copy {
+    background: #10b981;
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.cond-btn-apply {
+    background: var(--accent-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.cond-other-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.cond-other-input:focus {
+    border-color: var(--accent-blue);
+}
