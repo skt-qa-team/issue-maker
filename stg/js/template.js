@@ -171,18 +171,3 @@ function generateTemplate() {
 
     if (typeof saveDraft === 'function') saveDraft();
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof startClock === 'function') startClock();
-    if (typeof initPresenceSystem === 'function') initPresenceSystem();
-    
-    setTimeout(() => {
-        const draftExists = localStorage.getItem('skm_draft');
-        if (draftExists && typeof loadDraft === 'function') {
-            loadDraft();
-        } else {
-            syncEnvironmentByOS();
-        }
-        if (typeof initCustomTheme === 'function') initCustomTheme();
-    }, 50);
-});
