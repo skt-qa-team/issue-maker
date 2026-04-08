@@ -4,10 +4,11 @@ let currentMainSelectedDevices = [];
 function openCompletionModal() {
     currentCompConfig = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
     
-    // 현재 선택된 POC 확인 (모바일 vs 웹 분기 처리)
-    const pocEl = document.getElementById('poc');
-    const poc = pocEl ? pocEl.value : '';
-    const isWeb = (poc === 'Admin' || poc === 'PC Web');
+    // 1. 메인 폼의 POC 값을 모달 POC에 자동 세팅 (편의성)
+    const mainPocEl = document.getElementById('poc');
+    const mainPoc = mainPocEl ? mainPocEl.value : 'T 멤버십';
+    const compPocEl = document.getElementById('comp_poc');
+    if (compPocEl) compPocEl.value = mainPoc;
 
     const osTypeEl = document.getElementById('osType');
     const osType = osTypeEl ? osTypeEl.value : '';
@@ -15,10 +16,6 @@ function openCompletionModal() {
 
     const deviceArea = document.getElementById('comp_device_area');
     if (deviceArea) {
-        // 웹(Admin/PC)일 경우 Device 영역 전체 숨김
-        const deviceGroup = deviceArea.closest('.form-group');
-        if (deviceGroup) deviceGroup.style.display = isWeb ? 'none' : 'block';
-
         deviceArea.innerHTML = `
             <div id="comp_and_section" style="display: ${osType.includes("Android") ? 'block' : 'none'}; margin-bottom: 15px;">
                 <div class="device-col-header" style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
@@ -43,39 +40,7 @@ function openCompletionModal() {
         `;
     }
 
-    // 버전(또는 URL) 영역 처리
-    let versionContainer = document.getElementById('comp_version_list')?.parentElement;
-    if (!versionContainer) versionContainer = document.getElementById('comp_version_input')?.parentElement;
-    if (!versionContainer) versionContainer = document.getElementById('comp_url_input')?.parentElement;
-    
-    if (versionContainer) {
-        const parentGrid = versionContainer.parentElement;
-        if(parentGrid && parentGrid.classList.contains('grid-2')) {
-            parentGrid.style.display = 'flex';
-            parentGrid.style.flexDirection = 'column';
-            parentGrid.style.gap = '15px';
-        }
-        
-        // POC에 따라 버전을 보여줄지 URL을 보여줄지 결정
-        if (isWeb) {
-            const targetUrl = document.getElementById('targetUrl') ? document.getElementById('targetUrl').value : '';
-            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ URL</label><input type="text" id="comp_url_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" value="${targetUrl}" oninput="updateCompletionPreview()">`;
-        } else {
-            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ 버젼</label><input type="text" id="comp_version_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" oninput="updateCompletionPreview()">`;
-        }
-    }
-
-    renderCompDevices();
-
-    // 서버 영역 처리
     const sList = document.getElementById('comp_server_list');
-    const sListParent = sList?.parentElement;
-    
-    if (sListParent) {
-        // Admin/PC Web일 때는 서버 영역을 첫 번째로 올리기 위해 순서 조정
-        sListParent.style.order = isWeb ? "-1" : "0"; 
-    }
-
     if (sList) {
         sList.className = 'checkbox-group';
         sList.style.display = 'flex';
@@ -106,14 +71,70 @@ function openCompletionModal() {
     const modal = document.getElementById('completionModal');
     if (modal) modal.style.display = 'flex';
     
-    updateVersionTextbox();
-    updateCompletionPreview();
+    // 2. 모달이 열림과 동시에 POC에 맞춰 화면 UI 세팅
+    handleCompPocChange();
+}
+
+// ✨ 핵심 로직: 완료문 모달 내부에서 POC를 변경할 때 동작하는 함수
+function handleCompPocChange() {
+    const compPocEl = document.getElementById('comp_poc');
+    const poc = compPocEl ? compPocEl.value : '';
+    const isWeb = (poc === 'Admin' || poc === 'PC Web');
+
+    // 1) 단말기 그룹 숨기기/보이기
+    const deviceArea = document.getElementById('comp_device_area');
+    if (deviceArea) {
+        const deviceGroup = deviceArea.closest('.form-group');
+        if (deviceGroup) deviceGroup.style.display = isWeb ? 'none' : 'block';
+    }
+
+    // 2) 앱 버전 폼을 URL 폼으로 스위칭
+    let versionContainer = document.getElementById('comp_version_list')?.parentElement;
+    if (!versionContainer) versionContainer = document.getElementById('comp_version_input')?.parentElement;
+    if (!versionContainer) versionContainer = document.getElementById('comp_url_input')?.parentElement;
+    
+    if (versionContainer) {
+        const parentGrid = versionContainer.parentElement;
+        if(parentGrid && parentGrid.classList.contains('grid-2')) {
+            parentGrid.style.display = 'flex';
+            parentGrid.style.flexDirection = 'column';
+            parentGrid.style.gap = '15px';
+        }
+        
+        if (isWeb) {
+            let defaultUrl = '';
+            const targetUrlEl = document.getElementById('targetUrl');
+            if (targetUrlEl && targetUrlEl.value) {
+                defaultUrl = targetUrlEl.value;
+            } else {
+                defaultUrl = poc === 'Admin' ? (currentCompConfig.adminUrl || '') : (currentCompConfig.pcUrl || '');
+            }
+
+            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ URL</label><input type="text" id="comp_url_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" value="${defaultUrl}" oninput="updateCompletionPreview()">`;
+        } else {
+            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ 버젼</label><input type="text" id="comp_version_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" oninput="updateCompletionPreview()">`;
+        }
+    }
+
+    // 3) 서버 순서 조정 (웹일 때는 위로 올림)
+    const sList = document.getElementById('comp_server_list');
+    const sListParent = sList?.parentElement;
+    if (sListParent) {
+        sListParent.style.order = isWeb ? "-1" : "0"; 
+    }
+
+    // 변경사항 최종 렌더링
+    if (!isWeb) {
+        renderCompDevices();
+    } else {
+        updateCompletionPreview();
+    }
 }
 
 function renderCompDevices() {
-    const pocEl = document.getElementById('poc');
-    const isWeb = (pocEl && (pocEl.value === 'Admin' || pocEl.value === 'PC Web'));
-    if (isWeb) return; // 웹이면 렌더링 중지
+    const compPocEl = document.getElementById('comp_poc');
+    const isWeb = compPocEl && (compPocEl.value === 'Admin' || compPocEl.value === 'PC Web');
+    if (isWeb) return; 
 
     const andMode = document.querySelector('input[name="comp_and_mode"]:checked')?.value || 'normal';
     const iosMode = document.querySelector('input[name="comp_ios_mode"]:checked')?.value || 'normal';
@@ -147,7 +168,7 @@ function handleCompDeviceChange() {
 
 function updateVersionTextbox() {
     const verInput = document.getElementById('comp_version_input');
-    if (!verInput) return; // 웹 버전이라서 URL 입력창이 있으면 중지
+    if (!verInput) return; 
 
     const checkedDevs = Array.from(document.querySelectorAll('.comp-dev-cb:checked'));
     const hasAndroid = checkedDevs.some(cb => cb.dataset.platform === 'android');
@@ -174,8 +195,9 @@ function closeCompletionModal() {
 }
 
 function updateCompletionPreview() {
-    const pocEl = document.getElementById('poc');
-    const poc = pocEl ? pocEl.value : '';
+    // 미리보기는 완료문 모달 자체의 POC 값을 기준으로 텍스트를 생성합니다.
+    const compPocEl = document.getElementById('comp_poc');
+    const poc = compPocEl ? compPocEl.value : '';
     const isWeb = (poc === 'Admin' || poc === 'PC Web');
 
     const srvs = Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value).join(' / ') || '-';
@@ -186,13 +208,11 @@ function updateCompletionPreview() {
     if (!previewNode) return;
 
     if (isWeb) {
-        // Admin / PC Web 완료문 폼
         const urlInput = document.getElementById('comp_url_input');
         const urlString = urlInput ? urlInput.value : '-';
         
         previewNode.value = `■ 서버 : ${srvs}\n■ URL : ${urlString}\n■ 현상 check : ${compCheckVal}`;
     } else {
-        // 모바일(T 멤버십 등) 완료문 폼
         const devs = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
         const verInput = document.getElementById('comp_version_input');
         const verString = verInput ? verInput.value : '-';
