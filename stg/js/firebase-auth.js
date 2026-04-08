@@ -22,10 +22,13 @@ sessionStorage.setItem('anonName', myAnonName);
 sessionStorage.setItem('anonColor', myAnonColor);
 
 function initPresenceSystem() {
-    const list = document.getElementById('presence-list');
-    if (!list) return;
     const allUsersRef = database.ref('presence');
+    
+    // UI 업데이트 로직 (화면 조각이 늦게 오더라도 에러가 나지 않도록 내부에서 예외 처리)
     allUsersRef.on('value', (snapshot) => {
+        const list = document.getElementById('presence-list');
+        if (!list) return; 
+        
         list.innerHTML = '';
         const users = snapshot.val();
         if (users) {
@@ -37,12 +40,17 @@ function initPresenceSystem() {
             });
         }
     });
+
+    // 로그인 상태 감지 (UI와 무관하게 항상 실행되어야 함)
     auth.onAuthStateChanged((user) => {
+        // UI 버튼 변경은 화면에 버튼이 있을 때만 시도
         const icon = document.getElementById('auth-btn-icon');
         const label = document.getElementById('auth-btn-label');
+        
         if (user) {
             currentUserId = user.uid;
             const myUserRef = database.ref('presence/' + currentUserId);
+            
             if (user.isAnonymous) {
                 isAnonymousUser = true;
                 if(label) label.innerText = '로그인';
@@ -53,24 +61,48 @@ function initPresenceSystem() {
                 if(label) label.innerText = '로그아웃';
                 if(icon) icon.style.background = '#3b82f6';
                 myUserRef.set({ name: user.displayName, photo: user.photoURL, color: "#3b82f6", lastActive: firebase.database.ServerValue.TIMESTAMP });
+                
+                // 로그인 확인 시 클라우드 데이터 동기화
                 syncFromCloud(currentUserId);
             }
             myUserRef.onDisconnect().remove();
-        } else auth.signInAnonymously();
+        } else {
+            auth.signInAnonymously();
+        }
     });
 }
 
 function syncFromCloud(uid) {
+    // 1. 설정값 동기화
     database.ref('users/' + uid + '/settings').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('qa_system_config_master', JSON.stringify(snapshot.val()));
-            if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+            
+            // 안전장치: 화면 조각(DOM)이 완전히 로드될 때까지 기다렸다가 단말기 렌더링
+            const checkDom = setInterval(() => {
+                if (document.getElementById('osType')) {
+                    clearInterval(checkDom);
+                    // 클라우드 데이터를 가져왔으므로 초기 렌더링 상태로 깃발 초기화 (기본 단말기 자동 체크를 위함)
+                    if (typeof isInitialRender !== 'undefined') {
+                        isInitialRender = true; 
+                    }
+                    if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+                }
+            }, 50);
         }
     });
+
+    // 2. KPI 데이터 동기화
     database.ref('users/' + uid + '/kpi').once('value').then((snapshot) => {
         if (snapshot.exists()) {
             localStorage.setItem('skm_kpi_data', JSON.stringify(snapshot.val()));
-            if (typeof loadKpiLocal === 'function') loadKpiLocal();
+            // 모달 조각이 로드된 후에 KPI 데이터 삽입
+            const checkKpi = setInterval(() => {
+                if (document.getElementById('def_blocker')) {
+                    clearInterval(checkKpi);
+                    if (typeof loadKpiLocal === 'function') loadKpiLocal();
+                }
+            }, 50);
         }
     });
 }
