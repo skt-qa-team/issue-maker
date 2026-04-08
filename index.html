@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.11-stg</title>
-    
+    <title>[SKM] 이슈틀 생성기 - V21.18</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-
     <div id="comp-header"></div>
     <div class="header-horizontal-divider"></div>
-
     <div class="wrapper">
         <div id="comp-guide"></div>
         <div id="comp-input"></div>
         <div id="comp-result"></div>
     </div>
-
     <div id="modal-placeholder-condition"></div>
     <div id="modal-placeholder-history"></div>
     <div id="modal-placeholder-completion"></div>
@@ -27,11 +22,24 @@
     <div id="modal-placeholder-theme"></div>
     <div id="modal-placeholder-setting"></div>
     <div id="modal-placeholder-changelog"></div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
+            authDomain: "skm-issue-helper.firebaseapp.com",
+            databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "skm-issue-helper",
+            storageBucket: "skm-issue-helper.firebasestorage.app",
+            messagingSenderId: "315338055920",
+            appId: "1:315338055920:web:bd1129cc9afb1569aba235",
+            measurementId: "G-98H9S1FQB0"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
     <script src="js/changelog.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/firebase-auth.js"></script>
@@ -44,7 +52,6 @@
     <script src="js/loader.js"></script>
     <script src="js/ux.js"></script>
     <script src="js/bookmark.js"></script>
-
     <script>
         window.openCompletionModal = window.openCompletionModal || function() {
             document.getElementById('completionModal').style.display = 'flex';
