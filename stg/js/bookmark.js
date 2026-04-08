@@ -34,7 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="modal-overlay" id="bookmarkModal" style="display:none; z-index: 6000;">
         <div class="modal-content">
             <div class="bm-header">
-                <h2 style="margin:0; font-size:1.4rem;">🔖 북마크 매니저</h2>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <h2 style="margin:0; font-size:1.4rem;">🔖 공용 북마크 센터</h2>
+                    <span style="background:#10b981; color:white; font-size:0.65rem; padding:2px 6px; border-radius:4px;">LIVE</span>
+                </div>
                 <button class="close-btn" style="position:static;" onclick="closeBookmarkModal()">×</button>
             </div>
             <div class="bm-body">
@@ -72,28 +75,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 100);
 
-    initBookmarks();
+    initSharedBookmarks();
 });
 
 let bookmarks = [];
 let currentFolderId = null;
 
-function initBookmarks() {
-    const saved = localStorage.getItem('skm_bookmarks');
-    if (saved) {
-        bookmarks = JSON.parse(saved);
-    } else {
-        bookmarks = [
-            { id: 'f_' + Date.now(), name: '📌 기본 북마크', links: [] }
-        ];
-        saveBookmarks();
-    }
-    if (bookmarks.length > 0) currentFolderId = bookmarks[0].id;
+function initSharedBookmarks() {
+    const bmRef = firebase.database().ref('shared_bookmarks');
+    bmRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            bookmarks = data;
+            if (!currentFolderId && bookmarks.length > 0) {
+                currentFolderId = bookmarks[0].id;
+            }
+            renderBookmarks();
+        } else {
+            bookmarks = [{ id: 'f_default', name: '📌 공통 필수 링크', links: [] }];
+            saveBookmarksToFirebase();
+        }
+    });
 }
 
-function saveBookmarks() {
-    localStorage.setItem('skm_bookmarks', JSON.stringify(bookmarks));
-    renderBookmarks();
+function saveBookmarksToFirebase() {
+    firebase.database().ref('shared_bookmarks').set(bookmarks);
 }
 
 window.openBookmarkModal = function() {
@@ -110,6 +116,8 @@ function renderBookmarks() {
     const folderList = document.getElementById('bm_folder_list');
     const linkList = document.getElementById('bm_link_list');
     const title = document.getElementById('bm_current_folder_title');
+
+    if (!folderList || !linkList) return;
 
     folderList.innerHTML = '';
     linkList.innerHTML = '';
@@ -141,8 +149,8 @@ function renderBookmarks() {
     const currentFolder = bookmarks.find(f => f.id === currentFolderId);
     if (currentFolder) {
         title.textContent = currentFolder.name;
-        if (currentFolder.links.length === 0) {
-            linkList.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; font-weight:700;">저장된 링크가 없습니다. 우측 상단 버튼을 눌러 추가하세요.</div>';
+        if (!currentFolder.links || currentFolder.links.length === 0) {
+            linkList.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; font-weight:700;">저장된 링크가 없습니다.</div>';
         } else {
             currentFolder.links.forEach(link => {
                 const card = document.createElement('div');
@@ -169,7 +177,7 @@ window.addNewFolder = function() {
         const newId = 'f_' + Date.now();
         bookmarks.push({ id: newId, name: name.trim(), links: [] });
         currentFolderId = newId;
-        saveBookmarks();
+        saveBookmarksToFirebase();
     }
 };
 
@@ -178,42 +186,32 @@ window.deleteFolder = function(id) {
         alert('최소 1개의 폴더는 유지해야 합니다.');
         return;
     }
-    if (confirm('이 폴더와 안의 모든 링크를 삭제하시겠습니까?')) {
+    if (confirm('이 폴더를 삭제하면 모든 팀원의 화면에서도 사라집니다. 진행하시겠습니까?')) {
         bookmarks = bookmarks.filter(f => f.id !== id);
         if (currentFolderId === id) currentFolderId = bookmarks[0].id;
-        saveBookmarks();
+        saveBookmarksToFirebase();
     }
 };
 
 window.toggleAddForm = function(show) {
     const form = document.getElementById('bm_add_form');
-    form.style.display = show ? 'flex' : 'none';
-    if (show) {
-        document.getElementById('bm_input_name').value = '';
-        document.getElementById('bm_input_url').value = '';
-        document.getElementById('bm_input_name').focus();
-    }
+    if (form) form.style.display = show ? 'flex' : 'none';
 };
 
 window.saveNewLink = function() {
     const name = document.getElementById('bm_input_name').value.trim();
     let url = document.getElementById('bm_input_url').value.trim();
     
-    if (!name || !url) {
-        alert('닉네임과 URL을 모두 입력해주세요.');
-        return;
-    }
-    
-    if (!/^https?:\/\//i.test(url)) {
-        url = 'https://' + url;
-    }
+    if (!name || !url) return alert('모두 입력해주세요.');
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
     const folder = bookmarks.find(f => f.id === currentFolderId);
     if (folder) {
+        if (!folder.links) folder.links = [];
         folder.links.push({ id: 'l_' + Date.now(), name, url });
-        saveBookmarks();
+        saveBookmarksToFirebase();
         toggleAddForm(false);
-        if(typeof window.showToast === 'function') window.showToast('🔖 북마크가 저장되었습니다.');
+        if(typeof window.showToast === 'function') window.showToast('🚀 모든 팀원에게 북마크가 공유되었습니다.');
     }
 };
 
@@ -222,7 +220,7 @@ window.deleteLink = function(folderId, linkId) {
         const folder = bookmarks.find(f => f.id === folderId);
         if (folder) {
             folder.links = folder.links.filter(l => l.id !== linkId);
-            saveBookmarks();
+            saveBookmarksToFirebase();
         }
     }
 };
