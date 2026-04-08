@@ -33,7 +33,7 @@ function addCase(id) {
     
     const prefix = el.value.trim() === '' ? '' : '\n\n';
     el.value += `${prefix}CASE ${nextNum}.\n`;
-    generateTemplate();
+    if (typeof generateTemplate === 'function') generateTemplate();
     el.focus();
 }
 
@@ -43,7 +43,7 @@ function applyIndividualPreset(id, n) {
     let text = ""; 
     for (let i = 1; i <= n; i++) text += `CASE ${i}. \n\n`;
     target.value = text.trim();
-    generateTemplate();
+    if (typeof generateTemplate === 'function') generateTemplate();
 }
 
 function copySpecific(id) {
@@ -66,3 +66,37 @@ function copyAll() {
     document.body.removeChild(t);
     showToast('전체 복사 완료!');
 }
+
+function renderPresence() {
+    const presenceList = document.getElementById('presence-list');
+    if (!presenceList) return;
+
+    firebase.database().ref('presence').on('value', (snapshot) => {
+        presenceList.innerHTML = '';
+        const users = snapshot.val();
+        
+        if (users) {
+            Object.values(users).forEach(u => {
+                const pill = document.createElement('div');
+                pill.className = 'user-pill';
+                pill.style.cssText = "display:flex; align-items:center; gap:8px; background:var(--panel-bg); border:1px solid var(--border-color); padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:5px;";
+                
+                const img = document.createElement('img');
+                img.src = u.photo || '';
+                img.style.cssText = "width:20px; height:20px; border-radius:50%; object-fit:cover;";
+                
+                const name = document.createElement('span');
+                name.innerText = u.name || 'Unknown';
+                
+                pill.appendChild(img);
+                pill.appendChild(name);
+                presenceList.appendChild(pill);
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startClock();
+    renderPresence();
+});
