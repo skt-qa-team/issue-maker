@@ -11,12 +11,32 @@ const THEME_PRESETS = {
     defaultDark: { name: '기본 다크', bg: '#0f172a', panel: '#1e293b', textMain: '#f8fafc', textSub: '#94a3b8', border: '#334155', accent: '#38bdf8' },
     githubLight: { name: '깃허브 라이트', bg: '#f6f8fa', panel: '#ffffff', textMain: '#24292f', textSub: '#57606a', border: '#d0d7de', accent: '#0969da' },
     githubDark: { name: '깃허브 다크', bg: '#0d1117', panel: '#161b22', textMain: '#c9d1d9', textSub: '#8b949e', border: '#30363d', accent: '#58a6ff' },
-    dracula: { name: '드라큘라', bg: '#282a36', panel: '#44475a', textMain: '#f8f8f2', textSub: '#6272a4', border: '#6272a4', accent: '#bd93f9' },
+    dracula: { name: '드라큘라', bg: '#282a36', panel: '#44475a', textMain: '#f8f8f2', textSub: '#8be9fd', border: '#6272a4', accent: '#bd93f9' },
     nord: { name: '노드 쿨', bg: '#2e3440', panel: '#3b4252', textMain: '#eceff4', textSub: '#d8dee9', border: '#4c566a', accent: '#88c0d0' },
-    solarLight: { name: '솔라 라이트', bg: '#fdf6e3', panel: '#eee8d5', textMain: '#657b83', textSub: '#839496', border: '#ccc2a3', accent: '#2aa198' },
-    solarDark: { name: '솔라 다크', bg: '#002b36', panel: '#073642', textMain: '#839496', textSub: '#586e75', border: '#104b5a', accent: '#b58900' },
+    solarLight: { name: '솔라 라이트', bg: '#fdf6e3', panel: '#eee8d5', textMain: '#073642', textSub: '#586e75', border: '#ccc2a3', accent: '#2aa198' },
+    solarDark: { name: '솔라 다크', bg: '#002b36', panel: '#073642', textMain: '#839496', textSub: '#93a1a1', border: '#104b5a', accent: '#b58900' },
     mint: { name: '민트 프레쉬', bg: '#f0fdf4', panel: '#ffffff', textMain: '#14532d', textSub: '#166534', border: '#bbf7d0', accent: '#10b981' },
-    sepia: { name: '세피아 웜', bg: '#f4ecd8', panel: '#fffbf0', textMain: '#433422', textSub: '#705a3e', border: '#dfd3b6', accent: '#d97706' }
+    sepia: { name: '세피아 웜', bg: '#f4ecd8', panel: '#fffbf0', textMain: '#433422', textSub: '#705a3e', border: '#dfd3b6', accent: '#d97706' },
+    monokai: { name: '모노카이', bg: '#272822', panel: '#3e3d32', textMain: '#f8f8f2', textSub: '#a6e22e', border: '#75715e', accent: '#fd971f' },
+    oneDark: { name: '원 다크', bg: '#282c34', panel: '#21252b', textMain: '#abb2bf', textSub: '#5c6370', border: '#3e4451', accent: '#61afef' },
+    tokyoNight: { name: '도쿄 나이트', bg: '#1a1b26', panel: '#24283b', textMain: '#c0caf5', textSub: '#a9b1d6', border: '#414868', accent: '#7aa2f7' },
+    gruvbox: { name: '그루브박스', bg: '#282828', panel: '#3c3836', textMain: '#ebdbb2', textSub: '#a89984', border: '#504945', accent: '#fe8019' },
+    oledBlack: { name: '올레드 블랙', bg: '#000000', panel: '#111111', textMain: '#ffffff', textSub: '#aaaaaa', border: '#333333', accent: '#ff3366' },
+    cleanWhite: { name: '퓨어 화이트', bg: '#fbfbfe', panel: '#ffffff', textMain: '#000000', textSub: '#555555', border: '#eeeeee', accent: '#000000' },
+    oceanic: { name: '오셔닉 블루', bg: '#1b2b34', panel: '#343d46', textMain: '#d8dee9', textSub: '#a6accd', border: '#4f5b66', accent: '#6699cc' },
+    lavender: { name: '라벤더 블룸', bg: '#f3f0ff', panel: '#ffffff', textMain: '#3b2164', textSub: '#5a3b8c', border: '#e5d5ff', accent: '#8b5cf6' },
+    roseWater: { name: '로즈 워터', bg: '#fff0f5', panel: '#ffffff', textMain: '#5c1a3b', textSub: '#8a2b58', border: '#ffd1e3', accent: '#e11d48' },
+    latte: { name: '카페 라떼', bg: '#fdf8f5', panel: '#ffffff', textMain: '#4a3b32', textSub: '#705c4f', border: '#ebd8cc', accent: '#c28e6a' },
+    hacker: { name: '해커 터미널', bg: '#0d1117', panel: '#000000', textMain: '#00ff00', textSub: '#00cc00', border: '#004400', accent: '#00ff00' },
+    sunset: { name: '선셋 다크', bg: '#2a1b18', panel: '#3a2622', textMain: '#fde0d9', textSub: '#d4a398', border: '#5c3a33', accent: '#ff7b54' },
+    navy: { name: '딥 네이비', bg: '#0a192f', panel: '#112240', textMain: '#ccd6f6', textSub: '#8892b0', border: '#233554', accent: '#64ffda' },
+    forest: { name: '딥 포레스트', bg: '#1c2e26', panel: '#263b32', textMain: '#d1e8df', textSub: '#9ebcae', border: '#3b5448', accent: '#4ade80' },
+    discord: { name: '디스코드 다크', bg: '#313338', panel: '#2b2d31', textMain: '#dbdee1', textSub: '#949ba4', border: '#1e1f22', accent: '#5865f2' },
+    notion: { name: '노션 캔버스', bg: '#ffffff', panel: '#f7f7f5', textMain: '#37352f', textSub: '#787774', border: '#e9e9e7', accent: '#2383e2' },
+    hcLight: { name: '고대비 라이트', bg: '#ffffff', panel: '#ffffff', textMain: '#000000', textSub: '#000000', border: '#000000', accent: '#0000ff' },
+    hcDark: { name: '고대비 다크', bg: '#000000', panel: '#000000', textMain: '#ffffff', textSub: '#ffffff', border: '#ffffff', accent: '#ffff00' },
+    blueberry: { name: '블루베리', bg: '#e0e7ff', panel: '#ffffff', textMain: '#1e1b4b', textSub: '#3730a3', border: '#c7d2fe', accent: '#4f46e5' },
+    peach: { name: '피치 블라썸', bg: '#fff7ed', panel: '#ffffff', textMain: '#431407', textSub: '#7c2d12', border: '#ffedd5', accent: '#ea580c' }
 };
 
 function initCustomTheme() {
@@ -88,9 +108,16 @@ function openThemeModal() {
     const container = document.getElementById('preset_buttons_container');
     if (container && container.innerHTML.trim() === '') {
         container.innerHTML = '';
+        container.style.display = 'grid';
+        container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
+        container.style.gap = '10px';
+        container.style.maxHeight = '250px';
+        container.style.overflowY = 'auto';
+        container.style.paddingRight = '5px';
+        
         Object.keys(THEME_PRESETS).forEach(key => {
             const p = THEME_PRESETS[key];
-            container.innerHTML += `<button type="button" class="preset-btn" style="background:${p.panel}; border: 1.5px solid ${p.border}; color:${p.textMain}; padding:10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem; display:flex; align-items:center; gap:8px; transition:0.2s;" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:${p.accent};"></span>${p.name}</button>`;
+            container.innerHTML += `<button type="button" class="preset-btn" style="background:${p.panel}; border: 1.5px solid ${p.border}; color:${p.textMain}; padding:10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem; display:flex; align-items:center; gap:8px; transition:0.2s;" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span style="display:inline-block; min-width:14px; height:14px; border-radius:50%; background:${p.accent};"></span>${p.name}</button>`;
         });
     }
     document.getElementById('themeModal').style.display = 'flex';
