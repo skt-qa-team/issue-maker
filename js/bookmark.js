@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .bm-btn-primary { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; }
         .bm-btn-cancel { background: #f1f5f9; color: #64748b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; }
         
-        /* 실시간 동기화 인디케이터 */
         .sync-badge { background:#10b981; color:white; font-size:0.65rem; padding:2px 6px; border-radius:4px; letter-spacing:1px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     `;
@@ -93,34 +92,44 @@ let bookmarks = [];
 let currentFolderId = null;
 let editingLinkId = null;
 
-// ✨ 실시간 데이터 리스너 강화
+// ✨ 실시간 데이터 동기화 로직 강화
 function initSharedBookmarks() {
     const bmRef = firebase.database().ref('shared_bookmarks');
-    // 실시간 감시 시작
+    
+    // 이전 리스너 제거 후 새로 연결 (중복 방지)
+    bmRef.off('value');
     bmRef.on('value', (snapshot) => {
         const data = snapshot.val();
+        
         if (data) {
-            bookmarks = data;
-            // 만약 현재 선택된 폴더가 없거나 삭제되었다면 첫 번째 폴더로 자동 이동
+            // Firebase는 인덱스가 빠지면 객체로 변환하므로 항상 배열로 강제 변환
+            bookmarks = Array.isArray(data) ? data : Object.values(data);
+            
+            // 데이터 수신 후 유효성 검사 (폴더 내 링크 배열 보장)
+            bookmarks = bookmarks.map(f => ({ ...f, links: f.links ? (Array.isArray(f.links) ? f.links : Object.values(f.links)) : [] }));
+
             if (!currentFolderId || !bookmarks.find(f => f.id === currentFolderId)) {
                 currentFolderId = bookmarks[0]?.id || null;
             }
+            
+            // 데이터가 성공적으로 로드된 후 즉시 화면 갱신
+            renderBookmarks();
         } else {
-            bookmarks = [{ id: 'f_default', name: '📌 공통 필수 링크', links: [] }];
-            saveBookmarksToFirebase();
+            // ⚠️ 주의: 데이터가 '진짜로' 없을 때만 초기화 (새로고침 시 덮어쓰기 방지)
+            console.log("No shared bookmarks found. Ready for first entry.");
+            bookmarks = [];
         }
-        // 데이터가 변할 때마다 무조건 렌더링 함수 실행 (핵심!)
-        renderBookmarks();
     });
 }
 
 function saveBookmarksToFirebase() {
+    if (bookmarks.length === 0) return; // 빈 데이터 실수 저장 방지
     firebase.database().ref('shared_bookmarks').set(bookmarks);
 }
 
 window.openBookmarkModal = function() {
     document.getElementById('bookmarkModal').style.display = 'flex';
-    renderBookmarks(); // 모달 열 때 한 번 더 확실하게 렌더링
+    renderBookmarks();
 };
 
 window.closeBookmarkModal = function() {
@@ -128,24 +137,20 @@ window.closeBookmarkModal = function() {
     toggleAddForm(false);
 };
 
-// ✨ 렌더링 로직 통합 및 최적화
 function renderBookmarks() {
     const folderList = document.getElementById('bm_folder_list');
     const linkList = document.getElementById('bm_link_list');
     const titleText = document.getElementById('bm_current_folder_title');
 
-    // 모달이 생성 전이거나 요소를 찾을 수 없으면 중단
     if (!folderList || !linkList) return;
 
     folderList.innerHTML = '';
     linkList.innerHTML = '';
 
-    // 1. 폴더 사이드바 렌더링
     bookmarks.forEach((folder, index) => {
         const fDiv = document.createElement('div');
         fDiv.className = `bm-folder ${folder.id === currentFolderId ? 'active' : ''}`;
         fDiv.draggable = true;
-        
         fDiv.innerHTML = `
             <span class="bm-drag-handle">⋮⋮</span>
             <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</span>
@@ -154,10 +159,8 @@ function renderBookmarks() {
                 <button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${folder.id}')">🗑️</button>
             </div>
         `;
-
         fDiv.onclick = () => { currentFolderId = folder.id; renderBookmarks(); };
         
-        // 폴더 드래그 이벤트
         fDiv.ondragstart = (e) => { e.dataTransfer.setData('fIdx', index); fDiv.classList.add('dragging'); };
         fDiv.ondragend = () => fDiv.classList.remove('dragging');
         fDiv.ondragover = (e) => { e.preventDefault(); fDiv.classList.add('drag-over'); };
@@ -172,7 +175,6 @@ function renderBookmarks() {
                 saveBookmarksToFirebase();
             }
         };
-
         folderList.appendChild(fDiv);
     });
 
@@ -182,12 +184,10 @@ function renderBookmarks() {
     addFolderBtn.onclick = addNewFolder;
     folderList.appendChild(addFolderBtn);
 
-    // 2. 메인 링크 영역 렌더링
     const activeFolder = bookmarks.find(f => f.id === currentFolderId);
     if (activeFolder) {
         titleText.innerHTML = `📂 ${activeFolder.name}`;
         const links = activeFolder.links || [];
-        
         if (links.length === 0) {
             linkList.innerHTML = '<div style="text-align:center; padding:60px; color:#94a3b8; font-weight:700;">이 폴더에 저장된 링크가 없습니다.</div>';
         } else {
@@ -195,7 +195,6 @@ function renderBookmarks() {
                 const card = document.createElement('div');
                 card.className = 'bm-link-card';
                 card.draggable = true;
-                
                 card.innerHTML = `
                     <span class="bm-drag-handle">⋮⋮</span>
                     <div class="bm-link-info">
@@ -208,8 +207,6 @@ function renderBookmarks() {
                         <button class="bm-btn-icon del" title="삭제" onclick="deleteLink('${activeFolder.id}', '${link.id}')">🗑️</button>
                     </div>
                 `;
-
-                // 링크 드래그 이벤트
                 card.ondragstart = (e) => { e.dataTransfer.setData('lIdx', lIdx); card.classList.add('dragging'); };
                 card.ondragend = () => card.classList.remove('dragging');
                 card.ondragover = (e) => { e.preventDefault(); card.classList.add('drag-over'); };
@@ -224,14 +221,13 @@ function renderBookmarks() {
                         saveBookmarksToFirebase();
                     }
                 };
-
                 linkList.appendChild(card);
             });
         }
     }
 }
 
-// --- 보조 함수들 (수정 없음) ---
+// --- 핵심 로직: 빈 폴더 대응 및 수정 ---
 window.addNewFolder = function() {
     const name = prompt('새 폴더 이름을 입력하세요:');
     if (name && name.trim()) {
@@ -254,7 +250,7 @@ window.editFolder = function(id) {
 
 window.deleteFolder = function(id) {
     if (bookmarks.length <= 1) return alert('최소 1개의 폴더는 유지해야 합니다.');
-    if (confirm('폴더를 삭제하면 내부 링크가 모두 사라집니다. 진행하시겠습니까?')) {
+    if (confirm('폴더를 삭제하시겠습니까?')) {
         bookmarks = bookmarks.filter(f => f.id !== id);
         saveBookmarksToFirebase();
     }
@@ -294,7 +290,7 @@ window.saveNewLink = function() {
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
     const folder = bookmarks.find(f => f.id === currentFolderId);
-    if (!folder) return;
+    if (!folder) return alert('폴더를 먼저 선택하세요.');
 
     if (editingLinkId) {
         const link = folder.links.find(l => l.id === editingLinkId);
