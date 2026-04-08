@@ -1,0 +1,15 @@
+body { 
+    font-family: 'Pretendard', 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main);
+    margin: 0; 
+    padding: 20px; 
+    box-sizing: border-box; 
+    height: 100vh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
