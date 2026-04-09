@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="bm-add-link-form" id="bm_add_form">
                         <h4 id="bm_form_title" style="margin:0;">🔗 링크 추가</h4>
                         <input type="text" id="bm_input_name" class="bm-input" placeholder="사이트 닉네임">
-                        <input type="text" id="bm_input_url" class="bm-input" placeholder="URL (https://...)">
+                        <input type="text" id="bm_input_url" class="bm-input" placeholder="URL (예: https://...)">
                         <div style="display:flex; justify-content:flex-end; gap:8px;">
                             <button class="bm-btn-icon" onclick="toggleAddForm(false)">취소</button>
                             <button class="bm-btn-primary" id="bm_save_btn" onclick="saveNewLink()">저장하기</button>
@@ -35,16 +35,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const injectButton = setInterval(() => {
         const topBarBtns = document.querySelector('.top-bar-btns');
-        if (topBarBtns) {
+        if (topBarBtns && !document.querySelector('.bm-btn-wrapper')) {
             clearInterval(injectButton);
-            const bmBtn = document.createElement('button');
-            bmBtn.className = 'btn-bookmark';
-            bmBtn.innerHTML = '🔖';
-            bmBtn.title = '북마크 센터';
-            bmBtn.onclick = openBookmarkModal;
-            topBarBtns.prepend(bmBtn);
+            
+            const wrapper = document.createElement('button');
+            wrapper.className = 'bm-btn-wrapper';
+            wrapper.style.cssText = "display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; margin-right:12px; transition:0.2s;";
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.style.cssText = "width:38px; height:38px; border-radius:50%; background:#3b82f6; color:white; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:4px; transition:transform 0.2s;";
+            iconDiv.innerHTML = '🔖';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.style.cssText = "font-size:0.7rem; color:#64748b; font-weight:700; white-space:nowrap; transition:color 0.2s;";
+            labelSpan.innerText = "북마크";
+
+            wrapper.appendChild(iconDiv);
+            wrapper.appendChild(labelSpan);
+
+            wrapper.onmouseenter = () => { 
+                iconDiv.style.transform = 'translateY(-3px)'; 
+                labelSpan.style.color = '#3b82f6'; 
+            };
+            wrapper.onmouseleave = () => { 
+                iconDiv.style.transform = 'translateY(0)'; 
+                labelSpan.style.color = '#64748b'; 
+            };
+            wrapper.onclick = openBookmarkModal;
+            
+            topBarBtns.prepend(wrapper);
         }
     }, 100);
+
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') saveNewLink();
+    };
+    document.getElementById('bm_input_name').addEventListener('keyup', handleEnter);
+    document.getElementById('bm_input_url').addEventListener('keyup', handleEnter);
 
     initSharedBookmarks();
 });
@@ -202,6 +229,7 @@ window.openAddForm = () => {
     document.getElementById('bm_input_name').value = '';
     document.getElementById('bm_input_url').value = '';
     toggleAddForm(true); 
+    setTimeout(() => document.getElementById('bm_input_name').focus(), 50);
 };
 
 window.openEditForm = (id) => {
@@ -212,12 +240,15 @@ window.openEditForm = (id) => {
     document.getElementById('bm_input_name').value = l.name;
     document.getElementById('bm_input_url').value = l.url;
     toggleAddForm(true);
+    setTimeout(() => document.getElementById('bm_input_name').focus(), 50);
 };
 
 window.saveNewLink = () => {
     const n = document.getElementById('bm_input_name').value.trim();
-    const u = document.getElementById('bm_input_url').value.trim();
+    let u = document.getElementById('bm_input_url').value.trim();
     if (!n || !u) return;
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    
     const f = bookmarks.find(x => x.id === currentFolderId);
     if (!f) return;
     if (editingLinkId) {
