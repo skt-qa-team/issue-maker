@@ -1,47 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .btn-bookmark { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .btn-bookmark:hover { background: #2563eb; transform: translateY(-2px); }
-        
-        /* ⚡ 성능 최적화: 블러(Blur) 제거 및 가벼운 배경 처리 */
-        #bookmarkModal.modal-overlay { 
-            background: rgba(0, 0, 0, 0.6); 
-            backdrop-filter: none !important; 
-        }
-
-        #bookmarkModal .modal-content { 
-            max-width: 950px; width: 95%; display: flex; flex-direction: column; height: 85vh; 
-            background: var(--bg-color); border-radius: 16px; overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .bm-header { padding: 15px 25px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .bm-body { display: grid; grid-template-columns: 280px 1fr; flex: 1; overflow: hidden; }
-        .bm-sidebar { background: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; padding: 10px; gap: 6px; }
-        .bm-main { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.02); }
-        
-        /* 드래그 앤 드롭 시각 효과 최적화 */
-        .dragging { opacity: 0.4; border: 1px dashed #3b82f6 !important; background: #eff6ff !important; }
-        .drag-over { border-top: 3px solid #3b82f6 !important; }
-
-        .bm-folder { padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 10px; transition: 0.1s; }
-        .bm-folder:hover { background: #f1f5f9; }
-        .bm-folder.active { background: #eff6ff; color: #2563eb; border-left: 4px solid #3b82f6; }
-        
-        .bm-link-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 15px; }
-        .bm-drag-handle { cursor: grab; color: #cbd5e1; font-size: 1.1rem; }
-
-        .bm-btn-icon { background: transparent; border: none; cursor: pointer; color: #94a3b8; padding: 5px; border-radius: 4px; transition: 0.2s; }
-        .bm-btn-icon:hover { background: #f1f5f9; color: #3b82f6; }
-        .bm-btn-icon.del:hover { color: #ef4444; background: #fee2e2; }
-
-        .bm-add-link-form { background: white; padding: 15px; border-radius: 12px; border: 2px solid #3b82f6; display: none; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-        .bm-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
-        .bm-btn-primary { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; }
-    `;
-    document.head.appendChild(style);
-
     const modalHtml = `
     <div class="modal-overlay" id="bookmarkModal" style="display:none; z-index: 6000;">
         <div class="modal-content">
@@ -98,10 +55,9 @@ let editingLinkId = null;
 function initSharedBookmarks() {
     const bmRef = firebase.database().ref('shared_bookmarks');
     bmRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        
-        // ⚡ 최적화: 데이터 변화가 있을 때만 처리
+        let data = snapshot.val();
+        if (!data) data = [];
+
         const newDataStr = JSON.stringify(data);
         if (window._prevBmStr === newDataStr) return;
         window._prevBmStr = newDataStr;
@@ -112,7 +68,12 @@ function initSharedBookmarks() {
             links: f.links ? (Array.isArray(f.links) ? f.links : Object.values(f.links)) : []
         }));
 
-        if (!currentFolderId && bookmarks.length > 0) currentFolderId = bookmarks[0].id;
+        if (!currentFolderId && bookmarks.length > 0) {
+            currentFolderId = bookmarks[0].id;
+        } else if (bookmarks.length === 0) {
+            currentFolderId = null;
+        }
+        
         renderBookmarks();
     });
 }
@@ -125,7 +86,10 @@ window.openBookmarkModal = () => {
     document.getElementById('bookmarkModal').style.display = 'flex';
     renderBookmarks();
 };
-window.closeBookmarkModal = () => document.getElementById('bookmarkModal').style.display = 'none';
+
+window.closeBookmarkModal = () => {
+    document.getElementById('bookmarkModal').style.display = 'none';
+};
 
 function renderBookmarks() {
     const fList = document.getElementById('bm_folder_list');
@@ -135,6 +99,8 @@ function renderBookmarks() {
 
     fList.innerHTML = '';
     lList.innerHTML = '';
+
+    const folderFragment = document.createDocumentFragment();
 
     bookmarks.forEach((f, idx) => {
         const div = document.createElement('div');
@@ -147,7 +113,6 @@ function renderBookmarks() {
                         </div>`;
         div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
         
-        // 폴더 드래그
         div.ondragstart = (e) => { e.dataTransfer.setData('fIdx', idx); div.classList.add('dragging'); };
         div.ondragend = () => div.classList.remove('dragging');
         div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
@@ -161,18 +126,22 @@ function renderBookmarks() {
                 saveBookmarksToFirebase();
             }
         };
-        fList.appendChild(div);
+        folderFragment.appendChild(div);
     });
 
     const addFolderBtn = document.createElement('button');
     addFolderBtn.style.cssText = "width:100%; padding:10px; border:1px dashed #cbd5e1; background:white; cursor:pointer; font-weight:700; margin-top:10px;";
     addFolderBtn.innerHTML = "+ 새 폴더 추가";
     addFolderBtn.onclick = addNewFolder;
-    fList.appendChild(addFolderBtn);
+    folderFragment.appendChild(addFolderBtn);
+
+    fList.appendChild(folderFragment);
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
     if (activeF) {
         titleText.innerHTML = `📂 ${activeF.name}`;
+        const linkFragment = document.createDocumentFragment();
+        
         activeF.links.forEach((l, lIdx) => {
             const card = document.createElement('div');
             card.className = 'bm-link-card';
@@ -197,51 +166,73 @@ function renderBookmarks() {
                     saveBookmarksToFirebase();
                 }
             };
-            lList.appendChild(card);
+            linkFragment.appendChild(card);
         });
+        lList.appendChild(linkFragment);
+    } else {
+        titleText.innerHTML = `📂 폴더를 선택하세요`;
     }
 }
 
-// --- 복구된 핵심 기능 함수들 ---
 window.addNewFolder = () => {
     const name = prompt('새 폴더 이름:');
     if (name) { bookmarks.push({ id: 'f_'+Date.now(), name, links: [] }); saveBookmarksToFirebase(); }
 };
+
 window.editFolder = (id) => {
     const f = bookmarks.find(x => x.id === id);
+    if (!f) return;
     const n = prompt('폴더 이름 수정:', f.name);
     if (n) { f.name = n; saveBookmarksToFirebase(); }
 };
+
 window.deleteFolder = (id) => {
     if (confirm('삭제하시겠습니까?')) { bookmarks = bookmarks.filter(x => x.id !== id); saveBookmarksToFirebase(); }
 };
+
 window.toggleAddForm = (s) => { 
     document.getElementById('bm_add_form').style.display = s ? 'flex' : 'none';
     if (!s) editingLinkId = null;
 };
-window.openAddForm = () => { editingLinkId = null; document.getElementById('bm_form_title').innerText = "🔗 링크 추가"; toggleAddForm(true); };
+
+window.openAddForm = () => { 
+    editingLinkId = null; 
+    document.getElementById('bm_form_title').innerText = "🔗 링크 추가"; 
+    document.getElementById('bm_input_name').value = '';
+    document.getElementById('bm_input_url').value = '';
+    toggleAddForm(true); 
+};
+
 window.openEditForm = (id) => {
     const l = bookmarks.find(f => f.id === currentFolderId).links.find(x => x.id === id);
+    if (!l) return;
     editingLinkId = id;
     document.getElementById('bm_form_title').innerText = "✏️ 링크 수정";
     document.getElementById('bm_input_name').value = l.name;
     document.getElementById('bm_input_url').value = l.url;
     toggleAddForm(true);
 };
+
 window.saveNewLink = () => {
-    const n = document.getElementById('bm_input_name').value;
-    const u = document.getElementById('bm_input_url').value;
+    const n = document.getElementById('bm_input_name').value.trim();
+    const u = document.getElementById('bm_input_url').value.trim();
+    if (!n || !u) return;
     const f = bookmarks.find(x => x.id === currentFolderId);
+    if (!f) return;
     if (editingLinkId) {
         const l = f.links.find(x => x.id === editingLinkId);
-        l.name = n; l.url = u;
+        if (l) { l.name = n; l.url = u; }
     } else {
         f.links.push({ id: 'l_'+Date.now(), name: n, url: u });
     }
-    saveBookmarksToFirebase(); toggleAddForm(false);
+    saveBookmarksToFirebase(); 
+    toggleAddForm(false);
 };
+
 window.deleteLink = (fid, lid) => {
     const f = bookmarks.find(x => x.id === fid);
-    f.links = f.links.filter(x => x.id !== lid);
-    saveBookmarksToFirebase();
+    if (f) {
+        f.links = f.links.filter(x => x.id !== lid);
+        saveBookmarksToFirebase();
+    }
 };
