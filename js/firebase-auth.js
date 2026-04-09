@@ -27,9 +27,9 @@ function handleUserStatus(user) {
         if (!userData) {
             const newUser = {
                 uid: user.uid,
-                email: user.email,
-                displayName: user.displayName,
-                photoURL: user.photoURL,
+                email: user.email || '이메일 없음',
+                displayName: user.displayName || user.email.split('@')[0] || '이름 없음',
+                photoURL: user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
                 status: "pending",
                 requestedAt: firebase.database.ServerValue.TIMESTAMP
             };
@@ -38,7 +38,6 @@ function handleUserStatus(user) {
             hideAuthOverlay();
             updateUserPresence(user);
             fixLegacyUI(); 
-            // ✨ 추가: 승인 완료 시 접속자 명단 강제 갱신 트리거
             if (typeof renderPresence === 'function') {
                 setTimeout(renderPresence, 1000); 
             }
@@ -121,14 +120,13 @@ function hideAuthOverlay() {
 function updateUserPresence(user) {
     const presenceRef = firebase.database().ref('presence/' + user.uid);
     presenceRef.set({
-        name: user.displayName,
-        photo: user.photoURL,
+        name: user.displayName || user.email.split('@')[0] || '이름 없음',
+        photo: user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
         lastActive: firebase.database.ServerValue.TIMESTAMP
     });
     presenceRef.onDisconnect().remove();
     
-    // ✨ 추가: 내 정보가 등록된 직후 전체 명단을 한 번 더 불러오도록 강제 실행
-    firebase.database().ref('presence').off('value'); // 중복 리스너 방지
+    firebase.database().ref('presence').off('value'); 
     firebase.database().ref('presence').on('value', (snapshot) => {
         if (typeof renderPresence === 'function') {
             renderPresence();
