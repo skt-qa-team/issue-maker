@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(injectButton);
             const bmBtn = document.createElement('button');
             bmBtn.className = 'btn-bookmark';
-            bmBtn.innerHTML = '🔖 북마크';
+            bmBtn.innerHTML = '🔖';
+            bmBtn.title = '북마크 센터';
             bmBtn.onclick = openBookmarkModal;
             topBarBtns.prepend(bmBtn);
         }
