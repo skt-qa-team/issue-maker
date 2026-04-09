@@ -1,4 +1,12 @@
+const ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
+let currentUserUid = null;
+
 document.addEventListener('DOMContentLoaded', () => {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) currentUserUid = user.uid;
+        else currentUserUid = null;
+    });
+
     const modalHtml = `
     <div class="modal-overlay" id="bookmarkModal" style="display:none; z-index: 6000;">
         <div class="modal-content">
@@ -134,10 +142,13 @@ function renderBookmarks() {
         const div = document.createElement('div');
         div.className = `bm-folder ${f.id === currentFolderId ? 'active' : ''}`;
         div.draggable = true;
+        
+        const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>` : '';
+        
         div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span style="flex:1">${f.name}</span>
                         <div class="bm-actions">
                             <button class="bm-btn-icon" onclick="event.stopPropagation(); editFolder('${f.id}')">✏️</button>
-                            <button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>
+                            ${deleteFolderBtn}
                         </div>`;
         div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
         
@@ -175,11 +186,14 @@ function renderBookmarks() {
             card.className = 'bm-link-card';
             card.draggable = true;
             card.onclick = () => window.open(l.url, '_blank');
+            
+            const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
+
             card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                              <div class="bm-link-info"><b>${l.name}</b><small>${l.url}</small></div>
                              <div class="bm-actions" onclick="event.stopPropagation()">
                                 <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
-                                <button class="bm-btn-icon del" onclick="deleteLink('${activeF.id}', '${l.id}')">🗑️</button>
+                                ${deleteLinkBtn}
                              </div>`;
             card.ondragstart = (e) => { e.dataTransfer.setData('lIdx', lIdx); card.classList.add('dragging'); };
             card.ondragend = () => card.classList.remove('dragging');
@@ -215,7 +229,14 @@ window.editFolder = (id) => {
 };
 
 window.deleteFolder = (id) => {
-    if (confirm('삭제하시겠습니까?')) { bookmarks = bookmarks.filter(x => x.id !== id); saveBookmarksToFirebase(); }
+    if (currentUserUid !== ADMIN_UID) {
+        alert("삭제 권한이 없습니다.");
+        return;
+    }
+    if (confirm('폴더를 삭제하시겠습니까?')) { 
+        bookmarks = bookmarks.filter(x => x.id !== id); 
+        saveBookmarksToFirebase(); 
+    }
 };
 
 window.toggleAddForm = (s) => { 
@@ -262,9 +283,15 @@ window.saveNewLink = () => {
 };
 
 window.deleteLink = (fid, lid) => {
-    const f = bookmarks.find(x => x.id === fid);
-    if (f) {
-        f.links = f.links.filter(x => x.id !== lid);
-        saveBookmarksToFirebase();
+    if (currentUserUid !== ADMIN_UID) {
+        alert("삭제 권한이 없습니다.");
+        return;
+    }
+    if (confirm('이 링크를 삭제하시겠습니까?')) {
+        const f = bookmarks.find(x => x.id === fid);
+        if (f) {
+            f.links = f.links.filter(x => x.id !== lid);
+            saveBookmarksToFirebase();
+        }
     }
 };
