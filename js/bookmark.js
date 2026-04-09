@@ -146,10 +146,10 @@ function renderBookmarks() {
             const card = document.createElement('div');
             card.className = 'bm-link-card';
             card.draggable = true;
-            card.innerHTML = `<span class="bm-drag-handle">⋮⋮</span>
-                             <div style="flex:1"><b>${l.name}</b><br><small style="color:#64748b">${l.url}</small></div>
-                             <div class="bm-actions">
-                                <button class="bm-btn-icon" onclick="window.open('${l.url}', '_blank')">🚀</button>
+            card.onclick = () => window.open(l.url, '_blank');
+            card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
+                             <div class="bm-link-info"><b>${l.name}</b><small>${l.url}</small></div>
+                             <div class="bm-actions" onclick="event.stopPropagation()">
                                 <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
                                 <button class="bm-btn-icon del" onclick="deleteLink('${activeF.id}', '${l.id}')">🗑️</button>
                              </div>`;
