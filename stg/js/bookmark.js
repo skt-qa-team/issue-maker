@@ -46,30 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (topBarBtns && !document.querySelector('.bm-btn-wrapper')) {
             clearInterval(injectButton);
             
-            const wrapper = document.createElement('button');
-            wrapper.className = 'bm-btn-wrapper';
-            wrapper.style.cssText = "display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; margin-right:12px; transition:0.2s;";
+            const wrapper = document.createElement('div');
+            wrapper.className = 'menu-item-wrapper bm-btn-wrapper';
+            wrapper.onclick = openBookmarkModal;
             
             const iconDiv = document.createElement('div');
-            iconDiv.style.cssText = "width:38px; height:38px; border-radius:50%; background:#3b82f6; color:white; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:4px; transition:transform 0.2s;";
+            iconDiv.className = 'setting-btn-float';
+            iconDiv.style.cssText = "background: #3b82f6; border-color: #2563eb;";
             iconDiv.innerHTML = '🔖';
             
             const labelSpan = document.createElement('span');
-            labelSpan.style.cssText = "font-size:0.7rem; color:#64748b; font-weight:700; white-space:nowrap; transition:color 0.2s;";
+            labelSpan.className = 'menu-label';
             labelSpan.innerText = "북마크";
 
             wrapper.appendChild(iconDiv);
             wrapper.appendChild(labelSpan);
-
-            wrapper.onmouseenter = () => { 
-                iconDiv.style.transform = 'translateY(-3px)'; 
-                labelSpan.style.color = '#3b82f6'; 
-            };
-            wrapper.onmouseleave = () => { 
-                iconDiv.style.transform = 'translateY(0)'; 
-                labelSpan.style.color = '#64748b'; 
-            };
-            wrapper.onclick = openBookmarkModal;
             
             topBarBtns.prepend(wrapper);
         }
