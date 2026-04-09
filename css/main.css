@@ -1,21 +1,14 @@
-/* 1. Base */
 @import url('base/variables.css');
 @import url('base/reset.css');
-
-/* 2. Layout */
 @import url('layout/layout.css');
 @import url('layout/header.css');
-
-/* 3. Components */
 @import url('components/buttons.css');
 @import url('components/inputs.css');
 @import url('components/forms.css');
-
-/* 4. Modals (모달 팝업) */
 @import url('modals/modal-base.css');
-/* 아래는 modals 폴더로 이동한 기존 css 파일들 */
 @import url('modals/settings.css');
 @import url('modals/completion.css');
 @import url('modals/kpi.css');
 @import url('modals/condition.css');
+@import url('modals/bookmark.css');
 @import url('auth.css');
