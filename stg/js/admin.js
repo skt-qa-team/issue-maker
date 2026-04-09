@@ -3,9 +3,16 @@ const ADMIN_UID = "4LLzBg1Y9zOhcXAGHJK8OLYoUCQ2";
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
-        // 접속자가 대장님일 경우에만 관리자 패널 로드
-        if (user && user.uid === ADMIN_UID) {
-            initAdminPanel();
+        if (user) {
+            // ⚡ 디버깅용: 접속 시 화면에 내 UID를 무조건 띄워봄
+            console.log("현재 접속한 UID:", user.uid);
+            console.log("코드에 적힌 UID:", ADMIN_UID);
+            
+            if (user.uid === ADMIN_UID) {
+                initAdminPanel();
+            } else {
+                console.error("❌ 대장님 UID와 일치하지 않아 관리자 버튼을 숨깁니다.");
+            }
         }
     });
 });
