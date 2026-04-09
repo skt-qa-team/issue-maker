@@ -13,6 +13,17 @@ function logout() {
     });
 }
 
+function toggleAuth() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+        if (confirm("로그아웃 하시겠습니까?")) {
+            logout();
+        }
+    } else {
+        login();
+    }
+}
+
 function handleUserStatus(user) {
     if (!user) {
         showAuthOverlay("login");
