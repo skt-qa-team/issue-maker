@@ -1,5 +1,5 @@
-.btn-bookmark { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-.btn-bookmark:hover { background: #2563eb; transform: translateY(-2px); }
+.btn-bookmark { width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; color: white; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; padding: 0; }
+.btn-bookmark:hover { transform: translateY(-3px); }
 #bookmarkModal.modal-overlay { background: rgba(0, 0, 0, 0.6); backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 #bookmarkModal .modal-content { max-width: 950px; width: 95%; display: flex; flex-direction: column; height: 85vh; background: var(--bg-color); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
 .bm-header { padding: 15px 25px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
@@ -11,15 +11,11 @@
 .bm-folder { padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 10px; transition: 0.1s; }
 .bm-folder:hover { background: #f1f5f9; }
 .bm-folder.active { background: #eff6ff; color: #2563eb; border-left: 4px solid #3b82f6; }
-
-/* ⚡ 핵심 수정: 링크 카드 전체 클릭 UI 및 글자 깨짐(Overflow) 방지 */
 .bm-link-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
 .bm-link-card:hover { border-color: #3b82f6; background: #f8fafc; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.05); }
-
 .bm-link-info { flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .bm-link-info b { font-size: 0.95rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bm-link-info small { color: #64748b; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-
 .bm-drag-handle { cursor: grab; color: #cbd5e1; font-size: 1.1rem; }
 .bm-btn-icon { background: transparent; border: none; cursor: pointer; color: #94a3b8; padding: 5px; border-radius: 4px; transition: 0.2s; }
 .bm-btn-icon:hover { background: #e2e8f0; color: #3b82f6; }
