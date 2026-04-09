@@ -18,17 +18,38 @@ document.addEventListener('DOMContentLoaded', () => {
 function initAdminPanel() {
     const injectInterval = setInterval(() => {
         const topBarBtns = document.querySelector('.top-bar-btns');
-        if (topBarBtns && !document.querySelector('.btn-admin')) {
+        if (topBarBtns && !document.querySelector('.admin-btn-wrapper')) {
             clearInterval(injectInterval);
-            const btn = document.createElement('button');
-            btn.className = 'btn-admin';
-            btn.innerHTML = '👑';
-            btn.title = '멤버 관리';
-            btn.style.cssText = "width:36px; height:36px; border-radius:50%; background:#ef4444; color:white; border:none; display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; margin-right:10px; box-shadow:0 2px 4px rgba(0,0,0,0.1); transition:transform 0.2s;";
-            btn.onmouseenter = () => btn.style.transform = 'translateY(-3px)';
-            btn.onmouseleave = () => btn.style.transform = 'translateY(0)';
-            btn.onclick = openAdminModal;
-            topBarBtns.prepend(btn);
+            
+            // 버튼 전체 래퍼 (아이콘 + 하단 텍스트 구조)
+            const wrapper = document.createElement('button');
+            wrapper.className = 'admin-btn-wrapper';
+            wrapper.style.cssText = "display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; margin-right:12px; transition:0.2s;";
+            
+            // 둥근 원형 아이콘
+            const iconDiv = document.createElement('div');
+            iconDiv.style.cssText = "width:38px; height:38px; border-radius:50%; background:#ef4444; color:white; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:4px; transition:transform 0.2s;";
+            iconDiv.innerHTML = '👑';
+            
+            // 하단 텍스트 라벨
+            const labelSpan = document.createElement('span');
+            labelSpan.style.cssText = "font-size:0.7rem; color:#64748b; font-weight:700; white-space:nowrap; transition:color 0.2s;";
+            labelSpan.innerText = "멤버관리";
+
+            wrapper.appendChild(iconDiv);
+            wrapper.appendChild(labelSpan);
+
+            wrapper.onmouseenter = () => { 
+                iconDiv.style.transform = 'translateY(-3px)'; 
+                labelSpan.style.color = '#ef4444'; 
+            };
+            wrapper.onmouseleave = () => { 
+                iconDiv.style.transform = 'translateY(0)'; 
+                labelSpan.style.color = '#64748b'; 
+            };
+            wrapper.onclick = openAdminModal;
+            
+            topBarBtns.prepend(wrapper);
         }
     }, 100);
 
