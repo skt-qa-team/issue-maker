@@ -23,14 +23,12 @@ function showToast(message) {
 function addCase(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    
     const match = el.value.match(/CASE (\d+)/g);
     let nextNum = 1;
     if (match) {
         const lastCase = match[match.length - 1];
         nextNum = parseInt(lastCase.replace('CASE ', '')) + 1;
     }
-    
     const prefix = el.value.trim() === '' ? '' : '\n\n';
     el.value += `${prefix}CASE ${nextNum}.\n`;
     if (typeof generateTemplate === 'function') generateTemplate();
@@ -40,7 +38,7 @@ function addCase(id) {
 function applyIndividualPreset(id, n) {
     const target = document.getElementById(id);
     if (!target) return;
-    let text = ""; 
+    let text = "";
     for (let i = 1; i <= n; i++) text += `CASE ${i}. \n\n`;
     target.value = text.trim();
     if (typeof generateTemplate === 'function') generateTemplate();
@@ -74,23 +72,22 @@ function renderPresence() {
     firebase.database().ref('presence').on('value', (snapshot) => {
         presenceList.innerHTML = '';
         const users = snapshot.val();
-        
+
         if (users) {
-            Object.values(users).forEach(u => {
-                const pill = document.createElement('div');
-                pill.className = 'user-pill';
-                pill.style.cssText = "display:flex; align-items:center; gap:8px; background:var(--panel-bg); border:1px solid var(--border-color); padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:5px;";
-                
+            presenceList.style.display = 'flex';
+            presenceList.style.flexDirection = 'row';
+            presenceList.style.alignItems = 'center';
+
+            Object.values(users).forEach((u, idx) => {
                 const img = document.createElement('img');
-                img.src = u.photo || '';
-                img.style.cssText = "width:20px; height:20px; border-radius:50%; object-fit:cover;";
+                img.src = u.photo && u.photo !== 'undefined' ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                img.title = u.name || '알 수 없음';
+                img.style.cssText = `width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #f8fafc; box-shadow:0 2px 4px rgba(0,0,0,0.05); margin-left:${idx === 0 ? '0' : '-12px'}; z-index:${100 - idx}; transition:transform 0.2s; cursor:pointer;`;
                 
-                const name = document.createElement('span');
-                name.innerText = u.name || 'Unknown';
+                img.onmouseenter = () => img.style.transform = 'translateY(-3px)';
+                img.onmouseleave = () => img.style.transform = 'translateY(0)';
                 
-                pill.appendChild(img);
-                pill.appendChild(name);
-                presenceList.appendChild(pill);
+                presenceList.appendChild(img);
             });
         }
     });
