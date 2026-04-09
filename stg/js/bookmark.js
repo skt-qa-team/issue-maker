@@ -1,4 +1,4 @@
-const ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
+var ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
 let currentUserUid = null;
 
 document.addEventListener('DOMContentLoaded', () => {
