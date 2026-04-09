@@ -1,5 +1,5 @@
 // 스크린샷에서 확인된 대장님의 고유 Firebase UID
-const ADMIN_UID = "4LLzBg1Y9zOhcXAGHJK8OLYoUCQ2"; 
+const ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2"; 
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
