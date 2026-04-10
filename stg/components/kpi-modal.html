@@ -23,11 +23,26 @@
                         <div class="form-group">
                             <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 15px;">1. Defect 검출 갯수</label>
                             <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background: var(--bg-color); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Blocker</label><input type="number" id="def_blocker" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Critical</label><input type="number" id="def_critical" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Major</label><input type="number" id="def_major" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Minor</label><input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;"><label style="font-size: 1rem;">Trivial</label><input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;"></div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                    <label style="font-size: 1rem;">Blocker</label>
+                                    <input type="number" id="def_blocker" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                    <label style="font-size: 1rem;">Critical</label>
+                                    <input type="number" id="def_critical" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                    <label style="font-size: 1rem;">Major</label>
+                                    <input type="number" id="def_major" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                    <label style="font-size: 1rem;">Minor</label>
+                                    <input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
+                                    <label style="font-size: 1rem;">Trivial</label>
+                                    <input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                </div>
                                 <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
                                     <label style="font-size: 1rem;">전월 팀 평균</label>
