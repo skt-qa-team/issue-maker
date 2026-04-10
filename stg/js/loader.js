@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     Promise.all(components.map(comp => 
-        // 1. 브라우저 캐시 방지 (항상 최신 HTML 로드)
         fetch(comp.url + '?v=' + new Date().getTime()) 
             .then(response => {
                 if (!response.ok) throw new Error(`[404] ${comp.url} 파일을 찾을 수 없습니다.`);
@@ -23,18 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(html => {
                 const placeholder = document.getElementById(comp.id);
                 if (placeholder) {
-                    // 2. 내부 삽입 후 껍데기 투명화 (UI 깨짐 완벽 방지)
                     placeholder.innerHTML = html;
-                    placeholder.style.display = 'contents'; 
+                    placeholder.classList.add('component-loaded'); 
                 }
             })
             .catch(err => {
                 console.error("Loader Error:", err);
-                // 3. 파일 누락 시 즉각 알림
                 alert(`🔥 앗! 파일 로드 실패:\n${err.message}\ncomponents 폴더 안에 파일명 오타가 없는지 확인해 주세요!`);
             })
     )).then(() => {
-        // 4. 모든 HTML이 화면에 완벽히 그려지도록 0.3초(300ms) 대기 후 폼 세팅
         setTimeout(() => {
             try { if (typeof startClock === 'function') startClock(); } catch(e) { console.warn(e); }
             try { if (typeof initPresenceSystem === 'function') initPresenceSystem(); } catch(e) { console.warn(e); }
