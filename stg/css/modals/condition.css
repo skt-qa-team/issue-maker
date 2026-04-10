@@ -79,3 +79,57 @@
 .cond-other-input:focus {
     border-color: var(--accent-blue);
 }
+
+.modal-cond {
+    max-width: 900px;
+    width: 95%;
+}
+
+.cond-header {
+    margin-bottom: 15px;
+}
+
+.cond-title {
+    margin: 0;
+    color: var(--accent-green);
+}
+
+.cond-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+}
+
+.cond-flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.cond-step-group {
+    margin-bottom: 15px;
+}
+
+.cond-step-last {
+    margin-bottom: 0;
+}
+
+.cond-step-label {
+    color: var(--accent-blue);
+}
+
+.cond-cb-group {
+    padding: 8px;
+}
+
+.cond-nav-row {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+}
+
+.cond-nav-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 0.95rem;
+    justify-content: center;
+}
