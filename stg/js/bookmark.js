@@ -8,32 +8,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const modalHtml = `
-    <div class="modal-overlay" id="bookmarkModal" style="display:none; z-index: 6000;">
-        <div class="modal-content">
+    <div class="modal-overlay" id="bookmarkModal" style="display:none;">
+        <div class="modal-content modal-bm">
             <div class="bm-header">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <h2 style="margin:0; font-size:1.2rem;">🔖 공용 북마크 센터</h2>
-                    <span style="background:#10b981; color:white; font-size:0.6rem; padding:2px 6px; border-radius:30px; animation: pulse 2s infinite;">SYNC LIVE</span>
+                <div class="bm-header-title-group">
+                    <h2 class="bm-title">🔖 공용 북마크 센터</h2>
+                    <span class="bm-badge">SYNC LIVE</span>
                 </div>
-                <button class="close-btn" style="position:static;" onclick="closeBookmarkModal()">×</button>
+                <button class="close-btn bm-close-btn" onclick="closeBookmarkModal()">×</button>
             </div>
             <div class="bm-body">
                 <div class="bm-sidebar" id="bm_folder_list"></div>
                 <div class="bm-main">
                     <div class="bm-add-link-form" id="bm_add_form">
-                        <h4 id="bm_form_title" style="margin:0;">🔗 링크 추가</h4>
+                        <h4 id="bm_form_title" class="bm-form-title">🔗 링크 추가</h4>
                         <input type="text" id="bm_input_name" class="bm-input" placeholder="사이트 닉네임">
                         <input type="text" id="bm_input_url" class="bm-input" placeholder="URL (예: https://...)">
-                        <div style="display:flex; justify-content:flex-end; gap:8px;">
-                            <button class="bm-btn-icon" onclick="toggleAddForm(false)">취소</button>
+                        <div class="bm-form-actions">
+                            <button class="bm-btn-icon-text" onclick="toggleAddForm(false)">취소</button>
                             <button class="bm-btn-primary" id="bm_save_btn" onclick="saveNewLink()">저장하기</button>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h3 id="bm_current_folder_title" style="margin:0; font-size:1rem;">📂 폴더를 선택하세요</h3>
-                        <button class="bm-btn-primary" style="font-size:0.8rem;" onclick="openAddForm()">+ 링크 추가</button>
+                    <div class="bm-folder-header">
+                        <h3 id="bm_current_folder_title" class="bm-current-folder-title">📂 폴더를 선택하세요</h3>
+                        <button class="bm-btn-primary bm-btn-sm" onclick="openAddForm()">+ 링크 추가</button>
                     </div>
-                    <div id="bm_link_list" style="display:flex; flex-direction:column; gap:10px;"></div>
+                    <div id="bm_link_list" class="bm-link-list"></div>
                 </div>
             </div>
         </div>
@@ -51,8 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.onclick = openBookmarkModal;
             
             const iconDiv = document.createElement('div');
-            iconDiv.className = 'setting-btn-float';
-            iconDiv.style.cssText = "background: #3b82f6; border-color: #2563eb;";
+            iconDiv.className = 'setting-btn-float bm-icon';
             iconDiv.innerHTML = '🔖';
             
             const labelSpan = document.createElement('span');
@@ -136,7 +135,7 @@ function renderBookmarks() {
         
         const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>` : '';
         
-        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span style="flex:1">${f.name}</span>
+        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${f.name}</span>
                         <div class="bm-actions">
                             <button class="bm-btn-icon" onclick="event.stopPropagation(); editFolder('${f.id}')">✏️</button>
                             ${deleteFolderBtn}
@@ -160,7 +159,7 @@ function renderBookmarks() {
     });
 
     const addFolderBtn = document.createElement('button');
-    addFolderBtn.style.cssText = "width:100%; padding:10px; border:1px dashed #cbd5e1; background:white; cursor:pointer; font-weight:700; margin-top:10px;";
+    addFolderBtn.className = 'bm-btn-add-folder';
     addFolderBtn.innerHTML = "+ 새 폴더 추가";
     addFolderBtn.onclick = addNewFolder;
     folderFragment.appendChild(addFolderBtn);
@@ -178,7 +177,7 @@ function renderBookmarks() {
             card.draggable = true;
             card.onclick = () => window.open(l.url, '_blank');
             
-            const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
+            const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
 
             card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                              <div class="bm-link-info"><b>${l.name}</b><small>${l.url}</small></div>
