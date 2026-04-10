@@ -17,9 +17,12 @@ function syncEnvironmentByOS() {
     const iosCol = document.getElementById('iosDeviceCol');
     const iosVerToggle = document.getElementById('ios-ver-toggle');
 
-    if(andCol) andCol.style.display = (osType === "[Android/iOS]" || osType === "[Android]") ? 'block' : 'none';
-    if(iosCol) iosCol.style.display = (osType === "[Android/iOS]" || osType === "[iOS]") ? 'block' : 'none';
-    if(iosVerToggle) iosVerToggle.style.display = (osType === "[Android/iOS]" || osType === "[iOS]") ? 'flex' : 'none';
+    const showAnd = (osType === "[Android/iOS]" || osType === "[Android]");
+    const showIos = (osType === "[Android/iOS]" || osType === "[iOS]");
+
+    if(andCol) showAnd ? andCol.classList.remove('d-none') : andCol.classList.add('d-none');
+    if(iosCol) showIos ? iosCol.classList.remove('d-none') : iosCol.classList.add('d-none');
+    if(iosVerToggle) showIos ? iosVerToggle.classList.remove('d-none') : iosVerToggle.classList.add('d-none');
 
     let claimedDevices = new Set();
 
@@ -79,11 +82,11 @@ function toggleDeviceMode(platform) {
     const specialList = document.getElementById(`${platform}SpecialList`);
     
     if(mode === 'normal') {
-        if(normalList) normalList.style.display = 'flex';
-        if(specialList) specialList.style.display = 'none';
+        if(normalList) normalList.classList.remove('d-none');
+        if(specialList) specialList.classList.add('d-none');
     } else {
-        if(specialList) specialList.style.display = 'flex';
-        if(normalList) normalList.style.display = 'none';
+        if(specialList) specialList.classList.remove('d-none');
+        if(normalList) normalList.classList.add('d-none');
     }
     generateTemplate();
 }
@@ -95,8 +98,10 @@ function handlePocChange() {
     const isWeb = poc === 'Admin' || poc === 'PC Web';
     const devGroup = document.getElementById('deviceGroup');
     const urlGroup = document.getElementById('urlGroup');
-    if(devGroup) devGroup.style.display = isWeb ? 'none' : 'block';
-    if(urlGroup) urlGroup.style.display = isWeb ? 'block' : 'none';
+    
+    if(devGroup) isWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
+    if(urlGroup) isWeb ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    
     if (isWeb) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const targetUrl = document.getElementById('targetUrl');
