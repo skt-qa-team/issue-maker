@@ -107,19 +107,19 @@ function renderHistory() {
     
     let history = JSON.parse(localStorage.getItem('skm_history')) || [];
     if (history.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-sub);">최근 작성 내역이 없습니다.</div>';
+        container.innerHTML = '<div class="history-empty">최근 작성 내역이 없습니다.</div>';
         return;
     }
     
     container.innerHTML = '';
     history.forEach((item, index) => {
         container.innerHTML += `
-            <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; padding:15px; position:relative;">
-                <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:5px;">${item.time}</div>
-                <div style="font-weight:700; color:var(--text-main); font-size:0.95rem; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:60px;">${item.title || '(제목 없음)'}</div>
-                <div style="display:flex; gap:8px;">
-                    <button style="flex:1; padding:8px; background:var(--accent-blue); color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;" onclick="loadHistoryItem(${index})">불러오기</button>
-                    <button style="padding:8px 12px; background:#ef4444; color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;" onclick="deleteHistoryItem(${index})">삭제</button>
+            <div class="history-item-card">
+                <div class="history-time">${item.time}</div>
+                <div class="history-title">${item.title || '(제목 없음)'}</div>
+                <div class="history-action-group">
+                    <button class="btn-history-load" onclick="loadHistoryItem(${index})">불러오기</button>
+                    <button class="btn-history-del" onclick="deleteHistoryItem(${index})">삭제</button>
                 </div>
             </div>
         `;
