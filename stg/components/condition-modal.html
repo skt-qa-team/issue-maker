@@ -1,17 +1,17 @@
 <div class="modal-overlay" id="conditionModal">
-    <div class="modal-content" style="max-width: 900px; width: 95%;">
+    <div class="modal-content modal-cond">
         <button class="close-btn" onclick="closeConditionModal()">×</button>
-        <div class="modal-header" style="margin-bottom: 15px;">
-            <h2 style="margin: 0; color: var(--accent-green);">🛠️ Pre-Condition 체크 조합기</h2>
-            <span style="font-size: 0.85rem; color: var(--text-sub);">원하는 조건을 체크하면 자동으로 넘버링되어 텍스트가 완성됩니다.</span>
+        <div class="modal-header cond-header">
+            <h2 class="cond-title">🛠️ Pre-Condition 체크 조합기</h2>
+            <span class="cond-subtitle">원하는 조건을 체크하면 자동으로 넘버링되어 텍스트가 완성됩니다.</span>
         </div>
         
         <div class="condition-modal-body">
-            <div class="setting-box condition-scroll-area" style="display: flex; flex-direction: column;">
+            <div class="setting-box condition-scroll-area cond-flex-col">
                 
-                <div id="cond-step-1" class="form-group" style="margin-bottom: 15px;">
-                    <label style="color: var(--accent-blue);">Step 1. 로그인 상태</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-1" class="form-group cond-step-group">
+                    <label class="cond-step-label">Step 1. 로그인 상태</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb" value="비 로그인 상태"> 비 로그인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb" value="로그인 상태"> 로그인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g1" class="cond-cb cond-other-cb" value="기타"> 기타</label>
@@ -19,9 +19,9 @@
                     </div>
                 </div>
 
-                <div id="cond-step-2" class="form-group" style="margin-bottom: 15px; display: none;">
-                    <label style="color: var(--accent-blue);">Step 2. 멤버십 카드 상태</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-2" class="form-group cond-step-group" style="display: none;">
+                    <label class="cond-step-label">Step 2. 멤버십 카드 상태</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 정상 상태"> 카드 정상 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 해지 신청 상태"> 카드 해지 신청 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g2" class="cond-cb" value="카드 미보유 상태"> 카드 미보유 상태</label>
@@ -31,9 +31,9 @@
                     </div>
                 </div>
 
-                <div id="cond-step-3" class="form-group" style="margin-bottom: 15px; display: none;">
-                    <label style="color: var(--accent-blue);">Step 3. 등급 상태</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-3" class="form-group cond-step-group" style="display: none;">
+                    <label class="cond-step-label">Step 3. 등급 상태</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="LITE 등급인 상태"> LITE 등급인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="SILVER 등급인 상태"> SILVER 등급인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g3" class="cond-cb" value="GOLD 등급인 상태"> GOLD 등급인 상태</label>
@@ -44,9 +44,9 @@
                     </div>
                 </div>
 
-                <div id="cond-step-4" class="form-group" style="margin-bottom: 15px; display: none;">
-                    <label style="color: var(--accent-blue);">Step 4. 기간 조건</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-4" class="form-group cond-step-group" style="display: none;">
+                    <label class="cond-step-label">Step 4. 기간 조건</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 일 D-N 이상인 상태"> 혜택 시작 일 D-N 이상인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 당일, 시작 시간 전인 상태"> 혜택 시작 당일, 시작 시간 전인 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g4" class="cond-cb" value="혜택 시작 당일, 진행 중인 상태"> 혜택 시작 당일, 진행 중인 상태</label>
@@ -56,9 +56,9 @@
                     </div>
                 </div>
 
-                <div id="cond-step-5" class="form-group" style="margin-bottom: 15px; display: none;">
-                    <label style="color: var(--accent-blue);">Step 5. 혜택/쿠폰 사용 여부</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-5" class="form-group cond-step-group" style="display: none;">
+                    <label class="cond-step-label">Step 5. 혜택/쿠폰 사용 여부</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="해당 0 week 혜택 사용하지 않은 상태"> 해당 0 week 혜택 사용하지 않은 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="해당 혜택 사용한 상태"> 해당 혜택 사용한 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g5" class="cond-cb" value="연결된 쿠폰 1개인 상태"> 연결된 쿠폰 1개인 상태</label>
@@ -70,9 +70,9 @@
                     </div>
                 </div>
 
-                <div id="cond-step-6" class="form-group" style="margin-bottom: 0; display: none;">
-                    <label style="color: var(--accent-blue);">Step 6. Admin 설정</label>
-                    <div class="checkbox-group vertical" style="padding: 8px;">
+                <div id="cond-step-6" class="form-group cond-step-last" style="display: none;">
+                    <label class="cond-step-label">Step 6. Admin 설정</label>
+                    <div class="checkbox-group vertical cond-cb-group">
                         <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 안내 영역 내용 등록된 상태"> Admin에서 안내 영역 내용 등록된 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 0 WEEK 혜택 카드 설정한 상태"> Admin에서 0 WEEK 혜택 카드 설정한 상태</label>
                         <label class="checkbox-label"><input type="radio" name="cond_g6" class="cond-cb" value="Admin에서 배너 설정된 상태"> Admin에서 배너 설정된 상태</label>
@@ -87,9 +87,9 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 15px;">
-                    <button id="cond-prev-btn" class="btn-clear-top" style="flex: 1; padding: 12px; font-size: 0.95rem; justify-content: center; display: none;" onclick="prevCondStep()">◀ 이전</button>
-                    <button id="cond-next-btn" class="btn-save" style="flex: 1; padding: 12px; font-size: 0.95rem;" onclick="nextCondStep()">다음 ▶</button>
+                <div class="cond-nav-row">
+                    <button id="cond-prev-btn" class="btn-clear-top cond-nav-btn" style="display: none;" onclick="prevCondStep()">◀ 이전</button>
+                    <button id="cond-next-btn" class="btn-save cond-nav-btn" onclick="nextCondStep()">다음 ▶</button>
                 </div>
 
             </div>
