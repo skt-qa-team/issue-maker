@@ -23,8 +23,7 @@ function initAdminPanel() {
             wrapper.className = 'menu-item-wrapper admin-btn-wrapper';
             wrapper.onclick = openAdminModal;
             const iconDiv = document.createElement('div');
-            iconDiv.className = 'setting-btn-float';
-            iconDiv.style.cssText = "background: #ef4444; border-color: #b91c1c;";
+            iconDiv.className = 'setting-btn-float admin-icon';
             iconDiv.innerHTML = '👑';
             const labelSpan = document.createElement('span');
             labelSpan.className = 'menu-label';
@@ -36,14 +35,13 @@ function initAdminPanel() {
     }, 100);
 
     const modalHtml = `
-    <div class="modal-overlay" id="adminModal" style="display:none; z-index: 7000; background: rgba(0,0,0,0.7);">
-        <div class="modal-content" style="max-width: 600px; width: 90%; background: #fff; border-radius: 12px; padding: 25px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
-                <h2 style="margin:0; color:#1e293b; font-size:1.3rem;">👑 멤버 승인 센터</h2>
-                <button onclick="document.getElementById('adminModal').style.display='none'" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">×</button>
+    <div class="modal-overlay" id="adminModal" style="display:none;">
+        <div class="modal-content modal-admin">
+            <div class="modal-header admin-header">
+                <h2 class="admin-title">👑 멤버 승인 센터</h2>
+                <button onclick="document.getElementById('adminModal').style.display='none'" class="close-btn admin-close-btn">×</button>
             </div>
-            <div id="admin_user_list" style="max-height: 50vh; overflow-y: auto; display:flex; flex-direction:column; gap:12px;">
-                </div>
+            <div id="admin_user_list" class="admin-user-list"></div>
         </div>
     </div>
     `;
@@ -57,35 +55,38 @@ function openAdminModal() {
 
 function loadUsers() {
     const list = document.getElementById('admin_user_list');
-    list.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">유저 데이터를 불러오는 중...</p>';
+    list.innerHTML = '<p class="admin-loading-text">유저 데이터를 불러오는 중...</p>';
     firebase.database().ref('users').once('value').then(snapshot => {
         list.innerHTML = '';
         const users = snapshot.val();
         if (!users) {
-            list.innerHTML = '<p style="text-align:center;">가입한 멤버가 없습니다.</p>';
+            list.innerHTML = '<p class="admin-empty-text">가입한 멤버가 없습니다.</p>';
             return;
         }
         Object.keys(users).forEach(uid => {
             const u = users[uid];
             const div = document.createElement('div');
-            div.style.cssText = "display:flex; align-items:center; justify-content:space-between; padding:15px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; gap:10px;";
-            let statusColor = u.status === 'approved' ? '#10b981' : (u.status === 'pending' ? '#f59e0b' : '#ef4444');
+            div.className = 'admin-user-card';
+            
+            let statusClass = u.status === 'approved' ? 'status-approved' : (u.status === 'pending' ? 'status-pending' : 'status-rejected');
             let statusText = u.status === 'approved' ? '승인됨' : (u.status === 'pending' ? '대기중' : '거부됨');
+            
             const photoUrl = (u.photoURL && u.photoURL !== 'undefined') ? u.photoURL : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             const displayName = (u.displayName && u.displayName !== 'undefined') ? u.displayName : (u.email ? u.email.split('@')[0] : '알 수 없음');
             const emailStr = (u.email && u.email !== 'undefined') ? u.email : '이메일 없음';
-            const meBadge = uid === ADMIN_UID ? '<span style="font-size:0.7rem; color:#ef4444; border:1px solid #ef4444; padding:1px 4px; border-radius:4px; margin-left:4px;">나</span>' : '';
+            const meBadge = uid === ADMIN_UID ? '<span class="admin-badge-me">나</span>' : '';
+            
             div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
-                    <img src="${photoUrl}" style="width:40px; height:40px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); flex-shrink:0;">
-                    <div style="min-width:0; overflow:hidden;">
-                        <div style="font-weight:800; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayName} ${meBadge}</div>
-                        <div style="font-size:0.8rem; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${emailStr}</div>
+                <div class="admin-user-info">
+                    <img src="${photoUrl}" class="admin-user-avatar">
+                    <div class="admin-user-details">
+                        <div class="admin-user-name">${displayName} ${meBadge}</div>
+                        <div class="admin-user-email">${emailStr}</div>
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-                    <span style="font-size:0.75rem; font-weight:700; color:white; background:${statusColor}; padding:4px 8px; border-radius:6px; white-space:nowrap;">${statusText}</span>
-                    <select onchange="changeUserStatus('${uid}', this.value)" style="padding:6px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem; cursor:pointer; font-weight:700; color:#334155; background:white; white-space:nowrap;">
+                <div class="admin-action-group">
+                    <span class="admin-status-badge ${statusClass}">${statusText}</span>
+                    <select onchange="changeUserStatus('${uid}', this.value)" class="admin-status-select">
                         <option value="" disabled selected>상태 변경</option>
                         <option value="approved">✅ 승인 (Approve)</option>
                         <option value="pending">⏳ 대기 (Pending)</option>
