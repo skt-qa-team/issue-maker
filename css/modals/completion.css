@@ -60,6 +60,9 @@
     margin-bottom: 18px;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 10px;
+    margin: 0; 
+    border: none; 
+    padding: 0; 
 }
 
 .completion-preview-side {
@@ -110,4 +113,60 @@
 .preview-area:focus {
     border-color: #38bdf8;
     box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+}
+
+/* --- [신규 추가] JS에서 걷어낸 완료문 모달 인라인 스타일들 --- */
+.comp-os-section { display: block; margin-bottom: 15px; }
+
+.comp-device-header {
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 10px; 
+    border-bottom: 2px solid var(--border-color); 
+    padding-bottom: 8px;
+}
+
+.comp-and-color { color: #10b981; }
+.comp-ios-color { color: #3b82f6; }
+
+.comp-server-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.comp-version-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comp-input-label {
+    font-weight: 700; 
+    font-size: 0.88rem; 
+    color: var(--text-sub); 
+    margin-bottom: 8px; 
+    display: block;
+}
+
+.comp-input-field {
+    width: 100%; 
+    box-sizing: border-box; 
+    padding: 12px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 8px; 
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.comp-input-field:focus {
+    border-color: var(--accent-blue);
+}
+
+.comp-pill-label {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
 }
