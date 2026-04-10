@@ -155,4 +155,55 @@
 
 .btn-remove:hover {
     background: #ef4444;
-    color
+    color: white;
+}
+
+/* --- [신규 추가] KPI 모달 전용 레이아웃 --- */
+.modal-kpi { max-width: 1500px; width: 96vw; height: 90vh; display: flex; flex-direction: column; }
+.kpi-header { flex-direction: column; align-items: flex-start; gap: 15px; padding-bottom: 10px; }
+.kpi-title { margin: 0; }
+.kpi-body-layout { flex: 1; overflow: hidden; gap: 20px; }
+.kpi-main-box { margin-bottom: 0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border-color); }
+.kpi-tab-container { overflow-y: auto; padding: 25px; flex: 1; }
+.kpi-action-right { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+
+/* 텍스트 & 헤딩 */
+.kpi-section-heading { color: var(--accent-blue); font-size: 1.1rem; margin-bottom: 15px; display: block; }
+.kpi-section-heading-inline { color: var(--accent-blue); font-size: 1.1rem; margin: 0; }
+.kpi-section-heading-bold { color: var(--accent-blue); font-size: 1.1rem; font-weight: bold; }
+
+/* 결함 박스 */
+.kpi-defect-box { display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background: var(--bg-color); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); }
+.kpi-defect-row { display: flex; justify-content: space-between; align-items: center; max-width: 450px; }
+.kpi-defect-label { font-size: 1rem; }
+.kpi-defect-input { width: 150px; padding: 12px; font-size: 1.05rem; border: 1px solid var(--border-color); border-radius: 8px; outline: none; transition: border-color 0.2s; }
+.kpi-defect-input:focus { border-color: var(--accent-blue); }
+.kpi-divider { border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px; width: 100%; }
+
+/* 버튼 류 */
+.btn-kpi-clear { background: var(--text-sub); color: white; }
+.btn-kpi-clear:hover { background: #475569; }
+.kpi-avg-group { display: flex; gap: 8px; }
+.btn-avg-reset { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.75rem; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+.btn-avg-reset:hover { background: #dc2626; }
+.kpi-contrib-actions { display: flex; gap: 10px; }
+.btn-kpi-auto { padding: 8px 12px; font-size: 0.9rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s; }
+.btn-kpi-auto:hover { opacity: 0.9; }
+
+/* TC 그룹 */
+.kpi-tc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.btn-tc-add { background: var(--text-main); color: white; border-color: var(--text-main); }
+.btn-tc-add:hover { background: #0f172a; color: white; }
+.kpi-tc-list { display: flex; flex-direction: column; gap: 10px; }
+.kpi-update-group { margin-top: 25px; margin-bottom: 0; }
+
+/* 텍스트 에어리어 */
+.kpi-textarea-md { height: 120px; width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; resize: vertical; outline: none; font-family: inherit; }
+.kpi-textarea-lg { width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box; outline: none; font-family: inherit; }
+.kpi-textarea-md:focus, .kpi-textarea-lg:focus { border-color: var(--accent-blue); }
+
+/* 사이드 프리뷰 */
+.kpi-preview-side { margin: 0; }
+.kpi-preview-box { height: calc(100% - 70px); margin-bottom: 15px; }
+.btn-kpi-copy { background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border: none; }
+.btn-kpi-copy:hover { opacity: 0.9; }
