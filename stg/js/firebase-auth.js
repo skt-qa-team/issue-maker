@@ -68,8 +68,7 @@ function fixLegacyUI() {
             if (node.nodeValue.includes('대기중')) {
                 node.nodeValue = node.nodeValue.replace('대기중', '온라인');
                 if (node.parentElement) {
-                    node.parentElement.style.color = '#10b981';
-                    node.parentElement.style.fontWeight = '800';
+                    node.parentElement.classList.add('legacy-status-online');
                 }
             }
         }
@@ -89,11 +88,12 @@ function showAuthOverlay(mode) {
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'auth-overlay';
+        overlay.className = 'auth-overlay-container';
         document.body.appendChild(overlay);
     }
 
     document.body.classList.add('auth-locked');
-    overlay.style.display = 'flex';
+    overlay.classList.add('auth-active');
 
     if (mode === "login") {
         overlay.innerHTML = `
@@ -124,7 +124,7 @@ function showAuthOverlay(mode) {
 
 function hideAuthOverlay() {
     const overlay = document.getElementById('auth-overlay');
-    if (overlay) overlay.style.display = 'none';
+    if (overlay) overlay.classList.remove('auth-active');
     document.body.classList.remove('auth-locked');
 }
 
