@@ -6,9 +6,9 @@ function openCompletionModal() {
     const deviceArea = document.getElementById('comp_device_area');
     if (deviceArea) {
         deviceArea.innerHTML = `
-            <div id="comp_and_section" style="display: block; margin-bottom: 15px;">
-                <div class="device-col-header" style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
-                    <span class="comp-os-label" style="color:#10b981; margin:0; border:none; padding:0; font-size:0.95rem;">Android</span>
+            <div id="comp_and_section" class="comp-os-section">
+                <div class="comp-device-header">
+                    <span class="comp-os-label comp-and-color">Android</span>
                     <div class="radio-tab-group small">
                         <label class="radio-tab"><input type="radio" name="comp_and_mode" value="normal" checked onchange="renderCompDevices()"> <span>검증</span></label>
                         <label class="radio-tab"><input type="radio" name="comp_and_mode" value="special" onchange="renderCompDevices()"> <span>특수</span></label>
@@ -16,9 +16,9 @@ function openCompletionModal() {
                 </div>
                 <div id="comp_and_list" class="pill-group"></div>
             </div>
-            <div id="comp_ios_section" style="display: block;">
-                <div class="device-col-header" style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
-                    <span class="comp-os-label" style="color:#3b82f6; margin:0; border:none; padding:0; font-size:0.95rem;">iOS</span>
+            <div id="comp_ios_section">
+                <div class="comp-device-header">
+                    <span class="comp-os-label comp-ios-color">iOS</span>
                     <div class="radio-tab-group small">
                         <label class="radio-tab"><input type="radio" name="comp_ios_mode" value="normal" checked onchange="renderCompDevices()"> <span>검증</span></label>
                         <label class="radio-tab"><input type="radio" name="comp_ios_mode" value="special" onchange="renderCompDevices()"> <span>특수</span></label>
@@ -31,11 +31,8 @@ function openCompletionModal() {
 
     const sList = document.getElementById('comp_server_list');
     if (sList) {
-        sList.className = 'checkbox-group';
-        sList.style.display = 'flex';
-        sList.style.flexDirection = 'row';
-        sList.style.flexWrap = 'wrap';
-        sList.style.gap = '15px';
+        sList.className = 'checkbox-group comp-server-group';
+        sList.style = '';
         sList.innerHTML = '';
         
         ['STG', 'GRN', 'PRD'].forEach(s => {
@@ -80,16 +77,15 @@ function handleCompPocChange() {
     if (versionContainer) {
         const parentGrid = versionContainer.parentElement;
         if(parentGrid && parentGrid.classList.contains('grid-2')) {
-            parentGrid.style.display = 'flex';
-            parentGrid.style.flexDirection = 'column';
-            parentGrid.style.gap = '15px';
+            parentGrid.classList.add('comp-version-layout');
+            parentGrid.style = '';
         }
         
         if (isWeb) {
             const defaultUrl = poc === 'Admin' ? (currentCompConfig.adminUrl || '') : (currentCompConfig.pcUrl || '');
-            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ URL</label><input type="text" id="comp_url_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" value="${defaultUrl}" oninput="updateCompletionPreview()">`;
+            versionContainer.innerHTML = `<label class="comp-input-label">■ URL</label><input type="text" id="comp_url_input" class="comp-input-field" value="${defaultUrl}" oninput="updateCompletionPreview()">`;
         } else {
-            versionContainer.innerHTML = `<label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ 버젼</label><input type="text" id="comp_version_input" style="width:100%; box-sizing:border-box; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem;" oninput="updateCompletionPreview()">`;
+            versionContainer.innerHTML = `<label class="comp-input-label">■ 버젼</label><input type="text" id="comp_version_input" class="comp-input-field" oninput="updateCompletionPreview()">`;
         }
     }
 
@@ -127,7 +123,7 @@ function renderCompDevices() {
         container.innerHTML = '';
         list.forEach(dev => {
             const chk = defaultSelected.includes(dev) ? 'checked' : '';
-            container.innerHTML += `<label class="pill-label" style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="comp-dev-cb" data-platform="${platform}" value="${dev}" ${chk} onchange="handleCompDeviceChange()"> ${dev}</label>`;
+            container.innerHTML += `<label class="pill-label comp-pill-label"><input type="checkbox" class="comp-dev-cb" data-platform="${platform}" value="${dev}" ${chk} onchange="handleCompDeviceChange()"> ${dev}</label>`;
         });
     };
 
