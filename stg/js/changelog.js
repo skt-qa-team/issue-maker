@@ -51,7 +51,7 @@ const changelogData = [
         changes: [
             "[UI/UX] KPI 디자인 시스템 통일 (kpi-input, kpi-check 공통 클래스 적용)",
             "[기능 개선] 탭 전환 시 우측 미리보기 라벨 및 내용 실시간 동기화 렌더링",
-            "[UI 최적화] TC 입력칸 및 검출 갯수 컴포넌트 디자인 톤앤매너 일치",
+            "[UI 최적화] TC 입력칸 및 검출 갯 정렬 디자인 톤앤매너 일치",
             "[로직 고도화] 전체 KPI 리포트 병합 복사(Aggregate Copy) 로직 고도화"
         ]
     },
@@ -137,7 +137,6 @@ const changelogData = [
     },
     {
         version: "V19.7",
-        date: "2026-03-31",
         changes: [
             "[로직 최적화] 리포트 본문 내 Epic Link 중복 노출 제거 및 가독성 개선",
             "[스마트 초기화] '새로 작성' 시 Epic Link 및 검증 참고사항 데이터 보존 로직 구현",
@@ -146,7 +145,6 @@ const changelogData = [
     },
     {
         version: "V19.6",
-        date: "2026-03-31",
         changes: [
             "[컨텍스트 확장] 좌측 하단 Epic Link 입력 필드 및 검증 참고사항(Textarea) 신설",
             "[UX 가이드] 완료문 모달 상단 'Fix Owner 설정' 리마인드 경고 배너 삽입",
@@ -155,7 +153,6 @@ const changelogData = [
     },
     {
         version: "V19.5",
-        date: "2026-03-31",
         changes: [
             "[와이드 UI] 완료문 모달 폭 확장 및 좌측(입력)/우측(미리보기) 2단 배치 적용",
             "[시각화 고도화] 완료문 내 단말기 리스트 수직 나열 방식으로 변경하여 가시성 확보",
@@ -164,7 +161,6 @@ const changelogData = [
     },
     {
         version: "V19.4",
-        date: "2026-03-31",
         changes: [
             "[구조 정교화] 완료문 모달 내 Android와 iOS 단말기 노출 영역 논리적 분리",
             "[선택 시스템] 버전 및 서버 선택 방식을 다중 체크박스 시스템으로 전면 교체",
@@ -173,7 +169,6 @@ const changelogData = [
     },
     {
         version: "V19.3",
-        date: "2026-03-31",
         changes: [
             "[프로세스 통합] 수정 확인 리포트 생성을 위한 '완료문 작성 모달' 최초 탑재",
             "[워크플로우] 이슈 리포트 데이터(버전, 서버)의 완료문 모달 자동 맵핑 로직 구현"
@@ -181,7 +176,6 @@ const changelogData = [
     },
     {
         version: "V19.2",
-        date: "2026-03-31",
         changes: [
             "[데이터 무결성] 단일 OS 선택 시 해당 플랫폼 정보만 추출하도록 버전 로드 로직 정교화",
             "[UI 최적화] iOS 버전 구분자(TestFlight / App Distribution) 풀네임 버튼 반영"
@@ -189,7 +183,6 @@ const changelogData = [
     },
     {
         version: "V19.1",
-        date: "2026-03-31",
         changes: [
             "[데이터 관리] 환경 설정 내 플랫폼별 상세 앱 버전(App Tester, TestFlight, App Distribution) 필드 신설",
             "[템플릿 로직] 이슈 리포트 내 버전 표기 양식 고도화 (예: TestFlight_20.6.0(STG))",
@@ -198,7 +191,6 @@ const changelogData = [
     },
     {
         version: "V19.0",
-        date: "2026-03-31",
         changes: [
             "[UI/UX] 상단 헤더 레이아웃 전면 재구조화 (좌: 시계/접속자, 중: 제목/버전, 우: 액션버튼)",
             "[레이아웃] 그리드(Grid) 시스템 도입을 통한 완벽한 중앙 정렬 및 시각적 균형 최적화"
@@ -206,7 +198,6 @@ const changelogData = [
     },
     {
         version: "V18.9",
-        date: "2026-03-31",
         changes: [
             "[데이터 무결성] 환경 설정 모달 내 '기본 앱 버전(Android/iOS)' 저장 필드 신설 및 연동",
             "[엔진 고도화] 테마 프리셋 선택 시 컬러 피커 실시간 동기화 로직 및 예외 처리 강화"
@@ -214,7 +205,6 @@ const changelogData = [
     },
     {
         version: "V18.8",
-        date: "2026-03-31",
         changes: [
             "[UI/UX] 눈이 편안하고 가독성이 뛰어난 테마 프리셋(Preset) 5종 탑재 (다크, 세피아, 네이비 등)",
             "[기능 추가] 원클릭 프리셋 적용 및 커스텀 컬러 피커(Color Picker) 값 자동 동기화 로직 구현"
@@ -222,7 +212,6 @@ const changelogData = [
     },
     {
         version: "V18.7",
-        date: "2026-03-31",
         changes: [
             "[UI/UX] CSS 변수(Variables) 아키텍처 도입 및 무한 색상 커스텀 팔레트(Color Picker) 기능 탑재",
             "[개인화] 배경, 패널, 텍스트 색상을 자유롭게 선택하고 실시간 프리뷰 및 개별 로컬 저장하는 테마 엔진 구축"
@@ -230,7 +219,6 @@ const changelogData = [
     },
     {
         version: "V18.5",
-        date: "2026-03-31",
         changes: [
             "[버그 픽스] 익명 -> 구글 계정 전환 시 이전 아바타가 지워지지 않고 남아있는 유령 세션(Ghost Session) 현상 해결",
             "[보안] onAuthStateChanged 내부에 강제 삭제(Remove) 로직 탑재하여 안티 고스팅(Anti-Ghosting) 적용"
@@ -238,7 +226,6 @@ const changelogData = [
     },
     {
         version: "V18.4",
-        date: "2026-03-31",
         changes: [
             "[아키텍처] 익명 게스트 + 구글 인증 사용자 하이브리드(Hybrid) 접속 시스템 구축",
             "[세션 관리] 백그라운드 익명 자동 로그인 및 무중단 세션 전환(업그레이드/다운그레이드) 로직 적용"
@@ -246,7 +233,6 @@ const changelogData = [
     },
     {
         version: "V18.3",
-        date: "2026-03-31",
         changes: [
             "[아키텍처] 패치 노트 시스템 모듈화 (changelog.js 분리)",
             "[최적화] index.html 코드 경량화 및 동적 렌더링 엔진 탑재"
@@ -254,7 +240,6 @@ const changelogData = [
     },
     {
         version: "V18.2",
-        date: "2026-03-31",
         changes: [
             "[UI/UX] 화면 100% 풀스크린 와이드 레이아웃(Full-bleed) 적용",
             "[레이아웃] 좌측 가이드 350px 고정, 중앙 및 우측 패널 1:1 유동적 공간 분배"
@@ -262,7 +247,6 @@ const changelogData = [
     },
     {
         version: "V18.1",
-        date: "2026-03-31",
         changes: [
             "[UX 최적화] 디바이스 선택창 세로 1열 고정 정렬 적용",
             "[UX 최적화] 텍스트 입력칸 기본 높이 120px 확장 및 로그인 딜레이 깜빡임(Flickering) 방지"
@@ -270,7 +254,6 @@ const changelogData = [
     },
     {
         version: "V18.0",
-        date: "2026-03-31",
         changes: [
             "[계정 연동] 구글 로그인(Google Auth) 연동 시스템 구축",
             "[실시간] 익명의 동물 대신 실제 구글 프로필 사진 및 실명 연동"
@@ -278,7 +261,6 @@ const changelogData = [
     },
     {
         version: "V17.4",
-        date: "2026-03-31",
         changes: [
             "[실시간 서버] Firebase Realtime Database (싱가포르 리전) 연동 완료",
             "[보안] 익명 인증(Anonymous Auth) 및 onDisconnect를 통한 실시간 접속자 세션 관리 로직 구축"
@@ -286,14 +268,12 @@ const changelogData = [
     },
     {
         version: "V17.2",
-        date: "2026-03-31",
         changes: [
             "[UI/UX] 구글 스프레드시트 스타일의 '실시간 접속자(Presence)' UI 헤더 탑재"
         ]
     },
     {
         version: "V17.0",
-        date: "2026-03-31",
         changes: [
             "[기능 추가] 개별 필드 CASE 주입 컨트롤러 탑재 (CASE 1~4 자동 생성)",
             "[버그 픽스] 디바이스 선택 필드 내 체크박스 중복 노출 결함 해결 (Pill UI 최적화)"
@@ -301,14 +281,12 @@ const changelogData = [
     },
     {
         version: "V16.4",
-        date: "2026-03-30",
         changes: [
             "[로직 개선] 서버 배열 처리 시 슬래시(/) 공백 분리 로직 적용 (제목: 공백X / 본문: 공백O)"
         ]
     },
     {
         version: "V16.0",
-        date: "2026-03-24",
         changes: [
             "[템플릿 엔진] 리포트 자동 생성 로직(Template Engine) 전면 리팩토링 및 텍스트 조합 성능 최적화",
             "[버그 픽스] 특정 조건에서 Prefix가 중복 출력되던 현상 수정"
@@ -316,7 +294,6 @@ const changelogData = [
     },
     {
         version: "V15.0",
-        date: "2026-03-22",
         changes: [
             "[UI/UX] 우측 결과 출력 패널(Result Panel) 다크 테마(Dark Theme) 전면 적용 및 코드 가독성 향상",
             "[기능 추가] '제목만 복사', '본문만 복사' 개별 클립보드 복사 버튼 추가"
@@ -324,7 +301,6 @@ const changelogData = [
     },
     {
         version: "V14.0",
-        date: "2026-03-20",
         changes: [
             "[로직 개선] POC(Admin, PC Web) 전환 시 불필요한 OS 및 단말기 선택 영역 자동 숨김/표시 처리 로직 고도화",
             "[시스템] 환경 설정 및 패치 노트 모달(Modal) 창 UI 디자인 개선"
@@ -332,7 +308,6 @@ const changelogData = [
     },
     {
         version: "V13.0",
-        date: "2026-03-18",
         changes: [
             "[기능 추가] 제목 Prefix 상세 조건(Critical, 특수 계정, 특정 Device, 이슈 페이지) 세분화 및 개별 입력 폼 신설",
             "[UI/UX] 폼 요소 간격(Margin/Padding) 미세 조정 및 전체 레이아웃 안정성 강화"
@@ -340,7 +315,6 @@ const changelogData = [
     },
     {
         version: "V12.0",
-        date: "2026-03-15",
         changes: [
             "[아키텍처] 구버전(V12) 호환성 체크 후 데이터 마이그레이션 로직 추가",
             "[로직 개선] 로컬 스토리지 마스터 키(STORAGE_KEY) 체계 통합"
@@ -348,7 +322,6 @@ const changelogData = [
     },
     {
         version: "V11.0",
-        date: "2026-03-12",
         changes: [
             "[기능 추가] 원클릭 클립보드 복사(전체/제목/본문) 모듈 탑재",
             "[UI/UX] 하단 고정형 결과 패널 및 복사 버튼 시각화 디자인 적용"
@@ -356,7 +329,6 @@ const changelogData = [
     },
     {
         version: "V10.0",
-        date: "2026-03-10",
         changes: [
             "[시스템] 환경 설정(Admin URL, PC URL, 기기 목록) 로컬 스토리지(Local Storage) 저장 로직 구현",
             "[UI/UX] 톱니바퀴(⚙️) 아이콘 및 환경 설정 모달(Modal) 창 신규 개발"
@@ -364,7 +336,6 @@ const changelogData = [
     },
     {
         version: "V9.0",
-        date: "2026-03-08",
         changes: [
             "[아키텍처] 업무 효율 극대화를 위한 화면 3단 분할 그리드(Grid) 레이아웃 적용",
             "[기능 추가] 상단 헤더 바(Header) 및 실시간 시스템 시계(Clock) 렌더링 도입"
@@ -372,7 +343,6 @@ const changelogData = [
     },
     {
         version: "V8.0",
-        date: "2026-03-06",
         changes: [
             "[로직 개선] OS(Android/iOS) 선택에 따른 테스트 디바이스 체크박스 동적 분리 렌더링",
             "[UI/UX] 알약(Pill) 형태의 체크박스 UI 디자인 최초 도입"
@@ -380,7 +350,6 @@ const changelogData = [
     },
     {
         version: "V7.0",
-        date: "2026-03-05",
         changes: [
             "[기능 추가] 테스트 환경(STG, DEV, PRD) 다중 선택 및 자동 변환(PRD -> 상용) 로직 적용",
             "[기능 추가] 앱 버전 입력 필드 추가 및 OS 선택 기반 자동 매핑 기능 구현"
@@ -388,7 +357,6 @@ const changelogData = [
     },
     {
         version: "V6.0",
-        date: "2026-03-04",
         changes: [
             "[로직 개선] POC(T 멤버십, PC Web, Admin) 선택에 따른 동적 UI 변경(URL 필드 토글) 로직 개발",
             "[템플릿] POC 유형에 따라 리포트의 [Environment] 양식이 자동으로 변경되도록 엔진 고도화"
@@ -396,7 +364,6 @@ const changelogData = [
     },
     {
         version: "V5.0",
-        date: "2026-03-03",
         changes: [
             "[코어 엔진] 스마트 Prefix 조립 로직(Critical, 계정, 단말, 페이지) 최초 탑재",
             "[기능 추가] 현상 요약 필드와 Prefix를 결합하여 최종 Title을 실시간으로 조립하는 엔진 구현"
@@ -404,7 +371,6 @@ const changelogData = [
     },
     {
         version: "V4.0",
-        date: "2026-02-28",
         changes: [
             "[기능 추가] 입력 즉시 결과가 만들어지는 실시간 프리뷰(Real-time Preview) 템플릿 엔진 적용 (oninput 이벤트)",
             "[기능 추가] 참고사항(상용 재현 여부, 기타 내용) 입력 필드 추가"
@@ -412,7 +378,6 @@ const changelogData = [
     },
     {
         version: "V3.0",
-        date: "2026-02-26",
         changes: [
             "[기능 추가] 결함 리포트 필수 4대 요소(Pre-Condition, 재현스텝, 문제현상, 기대결과) 텍스트 에어리어 구축",
             "[UI/UX] 폼(Form) 요소의 레이블 및 입력 영역 디자인 개선 (가독성 향상)"
@@ -420,7 +385,6 @@ const changelogData = [
     },
     {
         version: "V2.0",
-        date: "2026-02-25",
         changes: [
             "[설계] 외부 CSS 파일(style.css) 분리 및 글로벌 기본 타이포그래피/색상 테마 적용",
             "[기능 추가] 초기화(새로 작성) 버튼 로직 추가"
@@ -428,7 +392,6 @@ const changelogData = [
     },
     {
         version: "V1.0",
-        date: "2026-02-24",
         changes: [
             "[프로토타입] 이슈틀 생성기 최초 HTML 뼈대 구축",
             "[설계] 자바스크립트 기반의 원시적인 문자열 합치기(String Concatenation) 로직 테스트"
