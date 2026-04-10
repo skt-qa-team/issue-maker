@@ -2,14 +2,14 @@ body.auth-locked {
     overflow: hidden;
 }
 
-/* JS에서 동적으로 제어하도록 ID 대신 Class로 변경 및 display: none 기본화 */
 .auth-overlay-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
     z-index: 99999;
     display: none; 
     justify-content: center;
@@ -22,11 +22,11 @@ body.auth-locked {
 }
 
 .auth-box {
-    background: var(--panel-bg, #1e293b);
-    border: 1px solid var(--border-color, #334155);
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
     padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     text-align: center;
     max-width: 400px;
     width: 90%;
@@ -36,33 +36,34 @@ body.auth-locked {
 
 .auth-box h2 {
     margin: 0 0 15px 0;
-    color: var(--text-main, #f8fafc);
+    color: var(--text-main);
     font-size: 1.5rem;
+    font-weight: 800;
 }
 
 .auth-box p {
-    color: var(--text-sub, #94a3b8);
+    color: var(--text-sub);
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 25px;
 }
 
 .btn-login-google {
     background: #ffffff;
-    color: #333333;
+    color: #1e293b;
     border: 1px solid #e2e8f0;
-    padding: 12px 24px;
-    border-radius: 8px;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
     font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-login-google::before {
@@ -77,31 +78,31 @@ body.auth-locked {
 .btn-login-google:hover {
     background: #f8fafc;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-blue);
 }
 
 .btn-logout-sub {
     background: transparent;
-    color: var(--text-sub, #94a3b8);
-    border: 1px solid var(--border-color, #334155);
+    color: var(--text-sub);
+    border: 1px solid var(--border-color);
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
     width: 100%;
-    transition: all 0.2s;
+    transition: var(--transition-fast);
 }
 
 .btn-logout-sub:hover {
     background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main, #ffffff);
-    border-color: var(--text-sub, #94a3b8);
+    color: var(--text-main);
+    border-color: var(--text-sub);
 }
 
-/* JS에서 걷어낸 레거시 상태 온라인 UI 디자인 추가 */
 .legacy-status-online {
-    color: #10b981 !important;
+    color: var(--accent-green) !important;
     font-weight: 800 !important;
 }
 
