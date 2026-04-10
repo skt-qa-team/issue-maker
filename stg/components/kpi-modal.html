@@ -1,100 +1,100 @@
 <div class="modal-overlay" id="kpiModal">
-    <div class="modal-content" style="max-width: 1500px; width: 96vw; height: 90vh; display: flex; flex-direction: column;">
+    <div class="modal-content modal-kpi">
         <button class="close-btn" onclick="closeKpiModal()">×</button>
-        <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px; padding-bottom: 10px;">
-            <h2 style="margin: 0;">📊 개인 KPI 목표 수행 현황</h2>
+        <div class="modal-header kpi-header">
+            <h2 class="kpi-title">📊 개인 KPI 목표 수행 현황</h2>
         </div>
-        <div class="completion-modal-body" style="flex: 1; overflow: hidden; gap: 20px;">
+        <div class="completion-modal-body kpi-body-layout">
             
-            <div class="setting-box" style="margin-bottom:0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border-color);">
+            <div class="setting-box kpi-main-box">
                 <div class="kpi-tab-header">
                     <button class="kpi-tab-btn active" id="btn-tab-perf" onclick="switchKpiTab('perf')">1. 업무 성과</button>
                     <button class="kpi-tab-btn" id="btn-tab-contrib" onclick="switchKpiTab('contrib')">2. 팀 기여도</button>
                     <button class="kpi-tab-btn" id="btn-tab-capa" onclick="switchKpiTab('capa')">3. 개인 역량</button>
                 </div>
                 
-                <div class="kpi-tab-body" style="overflow-y: auto; padding: 25px; flex: 1;">
+                <div class="kpi-tab-body kpi-tab-container">
                     
                     <div id="tab-perf" class="kpi-tab-content active">
-                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-                            <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('perf')">🗑️ 현재 탭 초기화</button>
+                        <div class="kpi-action-right">
+                            <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('perf')">🗑️ 현재 탭 초기화</button>
                         </div>
 
                         <div class="form-group">
-                            <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 15px;">1. Defect 검출 갯수</label>
-                            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background: var(--bg-color); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">Blocker</label>
-                                    <input type="number" id="def_blocker" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                            <label class="kpi-section-heading">1. Defect 검출 갯수</label>
+                            <div class="kpi-defect-box">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">Blocker</label>
+                                    <input type="number" id="def_blocker" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">Critical</label>
-                                    <input type="number" id="def_critical" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">Critical</label>
+                                    <input type="number" id="def_critical" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">Major</label>
-                                    <input type="number" id="def_major" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">Major</label>
+                                    <input type="number" id="def_major" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">Minor</label>
-                                    <input type="number" id="def_minor" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">Minor</label>
+                                    <input type="number" id="def_minor" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">Trivial</label>
-                                    <input type="number" id="def_trivial" min="0" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">Trivial</label>
+                                    <input type="number" id="def_trivial" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; max-width: 450px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 450px;">
-                                    <label style="font-size: 1rem;">전월 팀 평균</label>
-                                    <div style="display: flex; gap: 8px;">
-                                        <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" style="width: 150px; padding: 12px; font-size: 1.05rem;">
-                                        <button class="btn-remove" style="background: #ef4444; color: white; padding: 5px 10px; font-size: 0.75rem;" onclick="resetTeamAverage()">초기화</button>
+                                <hr class="kpi-divider">
+                                <div class="kpi-defect-row">
+                                    <label class="kpi-defect-label">전월 팀 평균</label>
+                                    <div class="kpi-avg-group">
+                                        <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" class="kpi-defect-input">
+                                        <button class="btn-avg-reset" onclick="resetTeamAverage()">초기화</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <label style="color:var(--accent-blue); font-size: 1.1rem; margin: 0;">2. TC 수행 업무 (PoC별 취합)</label>
-                                <button class="btn-clear-top" style="background: var(--text-main);" onclick="addTcRow()">➕ TC 추가</button>
+                            <div class="kpi-tc-header">
+                                <label class="kpi-section-heading-inline">2. TC 수행 업무 (PoC별 취합)</label>
+                                <button class="btn-clear-top btn-tc-add" onclick="addTcRow()">➕ TC 추가</button>
                             </div>
-                            <div id="tc_container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            <div id="tc_container" class="kpi-tc-list"></div>
                         </div>
                         
-                        <div class="form-group" style="margin-top: 25px; margin-bottom: 0;">
-                            <label style="color:var(--accent-blue); font-size: 1.1rem; margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
-                            <textarea id="tc_update_text" style="height: 120px;" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
+                        <div class="form-group kpi-update-group">
+                            <label class="kpi-section-heading" style="margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
+                            <textarea id="tc_update_text" class="kpi-textarea-md" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
                         </div>
                     </div>
 
                     <div id="tab-contrib" class="kpi-tab-content" style="display: none;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">팀 기여도 및 업무태도</label>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn-save" style="padding: 8px 12px; font-size: 0.9rem; background: linear-gradient(135deg, #3b82f6, #2563eb);" onclick="generateNarrativeReport()">✨ 성과 요약 자동 작성</button>
-                                <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                        <div class="kpi-tc-header" style="margin-bottom: 15px;">
+                            <label class="kpi-section-heading-bold">팀 기여도 및 업무태도</label>
+                            <div class="kpi-contrib-actions">
+                                <button class="btn-kpi-auto" onclick="generateNarrativeReport()">✨ 성과 요약 자동 작성</button>
+                                <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
                             </div>
                         </div>
-                        <textarea id="kpi_contrib_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        <textarea id="kpi_contrib_text" class="kpi-textarea-lg" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
                     </div>
 
                     <div id="tab-capa" class="kpi-tab-content" style="display: none;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <label style="color:var(--accent-blue); font-size: 1.1rem; font-weight: bold;">역량강화 (개인 역량)</label>
-                            <button class="btn-remove" style="background: var(--text-sub);" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
+                        <div class="kpi-tc-header" style="margin-bottom: 15px;">
+                            <label class="kpi-section-heading-bold">역량강화 (개인 역량)</label>
+                            <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
                         </div>
-                        <textarea id="kpi_capa_text" style="width: 100%; height: 500px; padding: 15px; font-size: 1rem; line-height: 1.6; border: 1px solid var(--border-color); border-radius: 8px; resize: none; box-sizing: border-box;" placeholder="개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        <textarea id="kpi_capa_text" class="kpi-textarea-lg" placeholder="개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="completion-preview-side" style="margin: 0;">
-                <div class="setting-box preview-box" style="height: calc(100% - 70px); margin-bottom: 15px;">
+            <div class="completion-preview-side kpi-preview-side">
+                <div class="setting-box preview-box kpi-preview-box">
                     <label id="kpi_preview_label">📊 [업무 성과] 리포트 미리보기</label>
                     <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
                 </div>
-                <button class="btn-save" style="background: linear-gradient(135deg, #a855f7, #7e22ce);" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                <button class="btn-save btn-kpi-copy" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
             </div>
         </div>
     </div>
