@@ -2,7 +2,8 @@ body.auth-locked {
     overflow: hidden;
 }
 
-#auth-overlay {
+/* JS에서 동적으로 제어하도록 ID 대신 Class로 변경 및 display: none 기본화 */
+.auth-overlay-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -10,10 +11,14 @@ body.auth-locked {
     height: 100vh;
     background: rgba(15, 23, 42, 0.95);
     z-index: 99999;
-    display: flex;
+    display: none; 
     justify-content: center;
     align-items: center;
     will-change: opacity;
+}
+
+.auth-overlay-container.auth-active {
+    display: flex;
 }
 
 .auth-box {
@@ -92,6 +97,12 @@ body.auth-locked {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-main, #ffffff);
     border-color: var(--text-sub, #94a3b8);
+}
+
+/* JS에서 걷어낸 레거시 상태 온라인 UI 디자인 추가 */
+.legacy-status-online {
+    color: #10b981 !important;
+    font-weight: 800 !important;
 }
 
 @keyframes popIn {
