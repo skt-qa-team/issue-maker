@@ -10,7 +10,7 @@
     background: rgba(244, 63, 94, 0.08);
     border: 1px solid rgba(244, 63, 94, 0.2);
     padding: 18px 24px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     color: #e11d48;
     font-weight: 800;
     font-size: 1.05rem;
@@ -36,9 +36,9 @@
     overflow-y: auto;
     background: var(--bg-color);
     padding: 25px;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+    box-shadow: var(--shadow-inset);
 }
 
 .comp-device-scroll::-webkit-scrollbar {
@@ -57,12 +57,9 @@
 .comp-os-label {
     font-size: 1rem;
     font-weight: 800;
-    margin-bottom: 18px;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
-    margin: 0; 
-    border: none; 
-    padding: 0; 
+    margin: 0;
+    border: none;
+    padding: 0;
 }
 
 .completion-preview-side {
@@ -74,13 +71,13 @@
 .preview-box {
     background: #0f172a;
     border: 1px solid #334155;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 30px;
     flex: 1;
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
-    box-shadow: 0 12px 20px -5px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-lg);
 }
 
 .preview-box label {
@@ -102,32 +99,39 @@
     background: #1e293b;
     color: #f8fafc;
     border: 1px solid #475569;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     padding: 20px;
     box-sizing: border-box;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     outline: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-fast);
 }
 
 .preview-area:focus {
-    border-color: #38bdf8;
+    border-color: var(--accent-blue);
     box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
 }
 
-/* --- [신규 추가] JS에서 걷어낸 완료문 모달 인라인 스타일들 --- */
-.comp-os-section { display: block; margin-bottom: 15px; }
+.comp-os-section {
+    display: block;
+    margin-bottom: 15px;
+}
 
 .comp-device-header {
-    display: flex; 
-    justify-content: space-between; 
-    margin-bottom: 10px; 
-    border-bottom: 2px solid var(--border-color); 
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 8px;
 }
 
-.comp-and-color { color: #10b981; }
-.comp-ios-color { color: #3b82f6; }
+.comp-and-color {
+    color: var(--accent-green);
+}
+
+.comp-ios-color {
+    color: var(--accent-blue);
+}
 
 .comp-server-group {
     display: flex;
@@ -143,30 +147,33 @@
 }
 
 .comp-input-label {
-    font-weight: 700; 
-    font-size: 0.88rem; 
-    color: var(--text-sub); 
-    margin-bottom: 8px; 
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--text-sub);
+    margin-bottom: 8px;
     display: block;
 }
 
 .comp-input-field {
-    width: 100%; 
-    box-sizing: border-box; 
-    padding: 12px; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 8px; 
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
     font-size: 0.92rem;
     outline: none;
-    transition: border-color 0.2s;
+    background: var(--bg-color);
+    color: var(--text-main);
+    transition: var(--transition-fast);
 }
 
 .comp-input-field:focus {
     border-color: var(--accent-blue);
+    background: var(--panel-bg);
 }
 
 .comp-pill-label {
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
