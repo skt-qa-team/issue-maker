@@ -1,0 +1,165 @@
+/* --- [헤더/탑바 관리자 버튼] --- */
+.admin-icon {
+    background: #ef4444 !important; 
+    border-color: #b91c1c !important;
+}
+
+/* --- [관리자 모달 전체 레이아웃] --- */
+.modal-admin {
+    max-width: 600px;
+    width: 90%;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+/* --- [모달 헤더 영역] --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 15px;
+}
+
+.admin-title {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.3rem;
+}
+
+.admin-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0;
+    line-height: 1;
+}
+
+.admin-close-btn:hover {
+    color: #1e293b;
+}
+
+/* --- [유저 리스트 컨테이너] --- */
+.admin-user-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px; /* 스크롤바 여백 */
+}
+
+.admin-loading-text, .admin-empty-text {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* --- [개별 유저 카드 디자인] --- */
+.admin-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    gap: 10px;
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.admin-user-details {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.admin-user-name {
+    font-weight: 800;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+}
+
+.admin-user-email {
+    font-size: 0.8rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.admin-badge-me {
+    font-size: 0.7rem;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 1px 4px;
+    border-radius: 4px;
+    margin-left: 6px;
+    display: inline-block;
+}
+
+/* --- [우측 상태/권한 변경 액션 영역] --- */
+.admin-action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.admin-status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* 상태별 색상 제어 */
+.status-approved { background: #10b981; }
+.status-pending { background: #f59e0b; }
+.status-rejected { background: #ef4444; }
+
+.admin-status-select {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: #334155;
+    background: #ffffff;
+    white-space: nowrap;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.admin-status-select:hover, .admin-status-select:focus {
+    border-color: #3b82f6;
+}
