@@ -11,17 +11,18 @@
 
 .toast-msg {
     background: rgba(15, 23, 42, 0.9);
-    color: #fff;
+    color: #ffffff;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 0.85rem;
     font-weight: 700;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
     backdrop-filter: blur(4px);
     transform: translateY(100px);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    border: 1px solid #334155;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
 }
 
 .toast-msg.show {
@@ -31,12 +32,13 @@
 
 .clickable-preview {
     cursor: pointer !important;
-    transition: all 0.2s !important;
+    transition: var(--transition-fast) !important;
+    pointer-events: auto;
 }
 
 .clickable-preview:hover {
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
-    border-color: #3b82f6 !important;
+    border-color: var(--accent-blue) !important;
 }
 
 .copy-feedback {
@@ -46,12 +48,12 @@
 @keyframes flashSuccess {
     0% {
         background-color: rgba(16, 185, 129, 0.2) !important;
-        border-color: #10b981 !important;
-        color: #10b981 !important;
+        border-color: var(--accent-green) !important;
+        color: var(--accent-green) !important;
     }
     100% {
-        background-color: #1e293b !important;
-        border-color: #2e3c52 !important;
-        color: #e2e8f0 !important;
+        background-color: var(--panel-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-main) !important;
     }
 }
