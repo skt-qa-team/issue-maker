@@ -97,14 +97,24 @@ function previewTheme() {
 
 function saveTheme() {
     const getVal = id => { const el = document.getElementById(id); return el ? el.value : null; };
-    localStorage.setItem('skm_custom_palette', JSON.stringify({
+    const themeData = {
         bg: getVal('picker_bg'),
         panel: getVal('picker_panel'),
         textMain: getVal('picker_text_main'),
         textSub: getVal('picker_text_sub'),
         border: getVal('picker_border'),
         accent: getVal('picker_accent')
-    }));
+    };
+    
+    localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
+    
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref('users/' + user.uid + '/theme').set(themeData);
+        }
+    }
+    
     closeThemeModal();
 }
 
@@ -119,21 +129,18 @@ function renderThemeTabs(activeCategory) {
 
     const categories = [...new Set(Object.values(THEME_PRESETS).map(p => p.category))];
 
-    let html = `<div style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; overflow-x: auto;">`;
+    let html = `<div class="theme-category-container">`;
     categories.forEach(cat => {
-        const isAct = cat === activeCategory;
-        const bg = isAct ? 'var(--accent-blue)' : 'var(--bg-color)';
-        const color = isAct ? '#ffffff' : 'var(--text-sub)';
-        const border = isAct ? 'var(--accent-blue)' : 'var(--border-color)';
-        html += `<button type="button" onclick="renderThemeTabs('${cat}')" style="padding: 6px 12px; border-radius: 20px; border: 1px solid ${border}; background: ${bg}; color: ${color}; font-size: 0.8rem; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.2s;">${cat}</button>`;
+        const activeClass = cat === activeCategory ? 'active' : '';
+        html += `<button type="button" class="theme-category-btn ${activeClass}" onclick="renderThemeTabs('${cat}')">${cat}</button>`;
     });
     html += `</div>`;
 
-    html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px;">`;
+    html += `<div class="theme-preset-grid">`;
     Object.keys(THEME_PRESETS).forEach(key => {
         const p = THEME_PRESETS[key];
         if (p.category === activeCategory) {
-            html += `<button type="button" class="preset-btn" style="background:${p.panel}; border: 1.5px solid ${p.border}; color:${p.textMain}; padding:10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem; display:flex; align-items:center; gap:8px; transition:0.2s;" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span style="display:inline-block; min-width:14px; height:14px; border-radius:50%; background:${p.accent};"></span>${p.name}</button>`;
+            html += `<button type="button" class="theme-preset-btn" style="background:${p.panel}; border-color:${p.border}; color:${p.textMain};" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span class="theme-preset-dot" style="background:${p.accent};"></span>${p.name}</button>`;
         }
     });
     html += `</div>`;
@@ -215,3 +222,26 @@ function openModal() {
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user && !user.isAnonymous) {
+                firebase.database().ref('users/' + user.uid + '/settings').once('value').then(snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+                    }
+                });
+                firebase.database().ref('users/' + user.uid + '/theme').once('value').then(snapshot => {
+                    const themeData = snapshot.val();
+                    if (themeData) {
+                        localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
+                        initCustomTheme();
+                    }
+                });
+            }
+        });
+    }
+});
