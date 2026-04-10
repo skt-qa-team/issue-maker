@@ -45,15 +45,16 @@
 }
 
 .setting-btn-float {
-    background: #334155;
-    color: white;
+    background: var(--text-main);
+    color: var(--panel-bg);
     width: 42px;
     height: 42px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #1e293b;
+    border: 2px solid var(--border-color);
+    transition: var(--transition-fast);
 }
 
 .header-horizontal-divider {
@@ -72,19 +73,20 @@
 
 .version-info {
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: var(--text-sub);
     font-weight: 500;
 }
 
 .current-time {
     font-family: 'Consolas', monospace;
     font-size: 1rem;
-    color: #2563eb;
+    color: var(--accent-blue);
     background: var(--panel-bg);
     padding: 8px 14px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-weight: 700;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .presence-active {
@@ -96,11 +98,11 @@
 .presence-avatar {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     object-fit: cover;
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+    border: 2px solid var(--panel-bg);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-fast);
     cursor: pointer;
     position: relative;
 }
@@ -108,6 +110,7 @@
 .presence-avatar:hover {
     transform: translateY(-3px);
     z-index: 101 !important;
+    box-shadow: var(--shadow-md);
 }
 
 .toast-message {
@@ -116,16 +119,17 @@
     left: 50%;
     transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.9);
-    color: #f8fafc;
+    color: #ffffff;
     padding: 12px 24px;
-    border-radius: 30px;
+    border-radius: var(--radius-pill);
     z-index: 9999;
     font-size: 0.95rem;
     font-weight: 700;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: var(--transition-normal);
     pointer-events: none;
+    backdrop-filter: blur(4px);
 }
 
 .toast-message.show {
