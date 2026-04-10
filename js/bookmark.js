@@ -1,5 +1,8 @@
 var ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
 let currentUserUid = null;
+let bookmarks = [];
+let currentFolderId = null;
+let editingLinkId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -7,39 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
         else currentUserUid = null;
     });
 
-    const modalHtml = `
-    <div class="modal-overlay" id="bookmarkModal" style="display:none;">
-        <div class="modal-content modal-bm">
-            <div class="bm-header">
-                <div class="bm-header-title-group">
-                    <h2 class="bm-title">🔖 공용 북마크 센터</h2>
-                    <span class="bm-badge">SYNC LIVE</span>
-                </div>
-                <button class="close-btn bm-close-btn" onclick="closeBookmarkModal()">×</button>
-            </div>
-            <div class="bm-body">
-                <div class="bm-sidebar" id="bm_folder_list"></div>
-                <div class="bm-main">
-                    <div class="bm-add-link-form" id="bm_add_form">
-                        <h4 id="bm_form_title" class="bm-form-title">🔗 링크 추가</h4>
-                        <input type="text" id="bm_input_name" class="bm-input" placeholder="사이트 닉네임">
-                        <input type="text" id="bm_input_url" class="bm-input" placeholder="URL (예: https://...)">
-                        <div class="bm-form-actions">
-                            <button class="bm-btn-icon-text" onclick="toggleAddForm(false)">취소</button>
-                            <button class="bm-btn-primary" id="bm_save_btn" onclick="saveNewLink()">저장하기</button>
-                        </div>
-                    </div>
-                    <div class="bm-folder-header">
-                        <h3 id="bm_current_folder_title" class="bm-current-folder-title">📂 폴더를 선택하세요</h3>
-                        <button class="bm-btn-primary bm-btn-sm" onclick="openAddForm()">+ 링크 추가</button>
-                    </div>
-                    <div id="bm_link_list" class="bm-link-list"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const loadBookmarkComponent = async () => {
+        try {
+            const response = await fetch('components/bookmark-modal.html');
+            const html = await response.text();
+            const placeholder = document.getElementById('modal-placeholder-bookmark');
+            if (placeholder) {
+                placeholder.innerHTML = html;
+                
+                const handleEnter = (e) => {
+                    if (e.key === 'Enter') saveNewLink();
+                };
+                document.getElementById('bm_input_name').addEventListener('keyup', handleEnter);
+                document.getElementById('bm_input_url').addEventListener('keyup', handleEnter);
+            }
+            initSharedBookmarks();
+        } catch (error) {
+            console.error('Bookmark modal failed to load:', error);
+        }
+    };
+
+    loadBookmarkComponent();
 
     const injectButton = setInterval(() => {
         const topBarBtns = document.querySelector('.top-bar-btns');
@@ -64,19 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             topBarBtns.prepend(wrapper);
         }
     }, 100);
-
-    const handleEnter = (e) => {
-        if (e.key === 'Enter') saveNewLink();
-    };
-    document.getElementById('bm_input_name').addEventListener('keyup', handleEnter);
-    document.getElementById('bm_input_url').addEventListener('keyup', handleEnter);
-
-    initSharedBookmarks();
 });
-
-let bookmarks = [];
-let currentFolderId = null;
-let editingLinkId = null;
 
 function initSharedBookmarks() {
     const bmRef = firebase.database().ref('shared_bookmarks');
@@ -109,19 +88,25 @@ function saveBookmarksToFirebase() {
 }
 
 window.openBookmarkModal = () => {
-    document.getElementById('bookmarkModal').style.display = 'flex';
-    renderBookmarks();
+    const modal = document.getElementById('bookmarkModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderBookmarks();
+    }
 };
 
 window.closeBookmarkModal = () => {
-    document.getElementById('bookmarkModal').style.display = 'none';
+    const modal = document.getElementById('bookmarkModal');
+    if (modal) modal.style.display = 'none';
 };
 
 function renderBookmarks() {
     const fList = document.getElementById('bm_folder_list');
     const lList = document.getElementById('bm_link_list');
     const titleText = document.getElementById('bm_current_folder_title');
-    if (!fList || !lList || document.getElementById('bookmarkModal').style.display === 'none') return;
+    const modal = document.getElementById('bookmarkModal');
+    
+    if (!fList || !lList || !modal || modal.style.display === 'none') return;
 
     fList.innerHTML = '';
     lList.innerHTML = '';
@@ -230,13 +215,15 @@ window.deleteFolder = (id) => {
 };
 
 window.toggleAddForm = (s) => { 
-    document.getElementById('bm_add_form').style.display = s ? 'flex' : 'none';
+    const form = document.getElementById('bm_add_form');
+    if (form) form.style.display = s ? 'flex' : 'none';
     if (!s) editingLinkId = null;
 };
 
 window.openAddForm = () => { 
     editingLinkId = null; 
-    document.getElementById('bm_form_title').innerText = "🔗 링크 추가"; 
+    const title = document.getElementById('bm_form_title');
+    if (title) title.innerText = "🔗 링크 추가"; 
     document.getElementById('bm_input_name').value = '';
     document.getElementById('bm_input_url').value = '';
     toggleAddForm(true); 
@@ -244,10 +231,13 @@ window.openAddForm = () => {
 };
 
 window.openEditForm = (id) => {
-    const l = bookmarks.find(f => f.id === currentFolderId).links.find(x => x.id === id);
+    const f = bookmarks.find(f => f.id === currentFolderId);
+    if (!f) return;
+    const l = f.links.find(x => x.id === id);
     if (!l) return;
     editingLinkId = id;
-    document.getElementById('bm_form_title').innerText = "✏️ 링크 수정";
+    const title = document.getElementById('bm_form_title');
+    if (title) title.innerText = "✏️ 링크 수정";
     document.getElementById('bm_input_name').value = l.name;
     document.getElementById('bm_input_url').value = l.url;
     toggleAddForm(true);
