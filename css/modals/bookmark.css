@@ -74,16 +74,6 @@
     overflow-x: hidden;
 }
 
-.dragging {
-    opacity: 0.4;
-    border: 1px dashed var(--accent-blue) !important;
-    background: rgba(59, 130, 246, 0.05) !important;
-}
-
-.drag-over {
-    border-top: 3px solid var(--accent-blue) !important;
-}
-
 .bm-folder {
     padding: 12px 16px;
     border-radius: var(--radius-md);
@@ -98,20 +88,12 @@
 
 .bm-folder:hover {
     background: var(--bg-color);
-    color: var(--text-main);
 }
 
 .bm-folder.active {
     background: rgba(59, 130, 246, 0.08);
     color: var(--accent-blue);
     border-left: 4px solid var(--accent-blue);
-}
-
-.bm-folder-name {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .bm-link-card {
@@ -128,7 +110,6 @@
 
 .bm-link-card:hover {
     border-color: var(--accent-blue);
-    background: var(--panel-bg);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
@@ -152,16 +133,7 @@
 .bm-link-info small {
     color: var(--text-sub);
     font-size: 0.8rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: block;
-}
-
-.bm-drag-handle {
-    cursor: grab;
-    color: var(--border-color);
-    font-size: 1.1rem;
 }
 
 .bm-actions {
@@ -178,9 +150,6 @@
     padding: 6px;
     border-radius: var(--radius-sm);
     transition: var(--transition-fast);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .bm-btn-icon:hover {
@@ -188,9 +157,21 @@
     color: var(--accent-blue);
 }
 
-.bm-btn-icon.del:hover {
-    color: var(--accent-red);
-    background: #fee2e2;
+.bm-btn-add-inline {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-sub);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.bm-btn-add-inline:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
 }
 
 .bm-add-link-form {
@@ -208,22 +189,33 @@
 .bm-form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
 }
 
-.bm-folder-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 0 5px;
-}
-
-.bm-current-folder-title {
-    margin: 0;
-    font-size: 1rem;
+.bm-btn-save {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
     font-weight: 800;
-    color: var(--text-main);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.bm-btn-cancel {
+    background: var(--text-sub);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.bm-btn-save:hover, .bm-btn-cancel:hover {
+    filter: brightness(1.1);
 }
 
 .bm-btn-add-folder {
@@ -242,7 +234,6 @@
 .bm-btn-add-folder:hover {
     border-color: var(--accent-blue);
     color: var(--accent-blue);
-    background: rgba(59, 130, 246, 0.02);
 }
 
 @keyframes pulse {
