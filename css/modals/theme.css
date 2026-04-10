@@ -1,28 +1,122 @@
-/* 모달 사이즈 규격화 */
 .modal-md { max-width: 550px; }
 
-/* 테마 프리셋 레이아웃 */
+.theme-category-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    overflow-x: auto;
+}
+
+.theme-category-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-sub);
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.theme-category-btn.active {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: #ffffff;
+}
+
 .theme-preset-grid { 
     display: grid; 
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
     gap: 10px; 
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
     margin-top: 10px; 
 }
 
-/* 컬러 텍스트 라벨 */
+.theme-preset-btn {
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    border: 1.5px solid transparent;
+}
+
+.theme-preset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.theme-preset-dot {
+    display: inline-block;
+    min-width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+.color-picker-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.color-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel-bg);
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.color-row:hover {
+    border-color: var(--accent-blue);
+}
+
 .color-label { 
     font-weight: 700; 
     color: var(--text-sub); 
 }
 
-/* 하단 버튼 영역 */
+input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    background: transparent;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+}
+
 .theme-action-row { 
     margin-top: 25px; 
     gap: 15px; 
+    display: flex;
 }
 
 .btn-theme-reset { 
-    width: 100%; 
+    flex: 1;
     justify-content: center; 
     padding: 14px; 
     background: #64748b; 
@@ -39,6 +133,7 @@
 }
 
 .btn-theme-save { 
+    flex: 1;
     padding: 14px; 
     font-size: 1rem; 
 }
