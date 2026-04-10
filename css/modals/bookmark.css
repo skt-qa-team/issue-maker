@@ -201,6 +201,7 @@
     font-weight: 800;
     font-size: 0.85rem;
     cursor: pointer;
+    transition: var(--transition-fast);
 }
 
 .bm-btn-cancel {
@@ -212,10 +213,12 @@
     font-weight: 800;
     font-size: 0.85rem;
     cursor: pointer;
+    transition: var(--transition-fast);
 }
 
 .bm-btn-save:hover, .bm-btn-cancel:hover {
     filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 .bm-btn-add-folder {
@@ -234,6 +237,7 @@
 .bm-btn-add-folder:hover {
     border-color: var(--accent-blue);
     color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.02);
 }
 
 @keyframes pulse {
