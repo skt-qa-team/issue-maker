@@ -52,7 +52,7 @@ function updateConditionPreview() {
     let resultText = "";
     let index = 1;
     
-    for(let i = 1; i <= totalCondSteps; i++) {
+    for (let i = 1; i <= totalCondSteps; i++) {
         const checkedRadio = document.querySelector(`input[name="cond_g${i}"]:checked`);
         if (checkedRadio) {
             if (checkedRadio.classList.contains('cond-other-cb')) {

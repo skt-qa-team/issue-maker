@@ -1,0 +1,48 @@
+<div class="top-action-bar">
+    <div class="top-bar-left-group">
+        <div id="currentTime" class="current-time"></div>
+        <div id="presence-list" class="presence-list"></div>
+    </div>
+    
+    <div class="top-bar-center-group">
+        <div class="top-bar-title">
+            <span class="main-title">[SKM] 이슈틀 생성기</span>
+            <span class="version-info">- V21.18</span>
+        </div>
+    </div>
+
+    <div class="top-bar-btns">
+        <div class="menu-item-wrapper" onclick="openHistoryModal()">
+            <div class="setting-btn-float" style="background: #f59e0b; border-color: #d97706;">🕒</div>
+            <span class="menu-label">히스토리</span>
+        </div>
+        <div class="menu-item-wrapper" onclick="openKpiModal()">
+            <div class="setting-btn-float" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border-color: #9333ea;">📊</div>
+            <span class="menu-label">KPI</span>
+        </div>
+        <div class="menu-item-wrapper" onclick="openCompletionModal()">
+            <div class="setting-btn-float" style="background: #10b981; border-color: #059669;">✅</div>
+            <span class="menu-label">완료문</span>
+        </div>
+        <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="menu-item-wrapper" style="text-decoration: none;">
+            <div class="setting-btn-float groupware-btn">🏢</div>
+            <span class="menu-label">그룹웨어</span>
+        </a>
+        <div class="menu-item-wrapper" onclick="openThemeModal()">
+            <div class="setting-btn-float">🎨</div>
+            <span class="menu-label">테마</span>
+        </div>
+        <div class="menu-item-wrapper" onclick="openChangelogModal()">
+            <div class="setting-btn-float">📜</div>
+            <span class="menu-label">변경사항</span>
+        </div>
+        <div class="menu-item-wrapper" onclick="openModal()">
+            <div class="setting-btn-float">⚙️</div>
+            <span class="menu-label">설정</span>
+        </div>
+        <div class="menu-item-wrapper" onclick="toggleAuth()">
+            <div class="setting-btn-float" id="auth-btn-icon" style="background: var(--accent-red);">G</div>
+            <span class="menu-label" id="auth-btn-label">⏳ 대기중</span>
+        </div>
+    </div>
+</div>

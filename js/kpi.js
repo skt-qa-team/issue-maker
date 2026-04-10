@@ -20,7 +20,6 @@ function switchKpiTab(tabId) {
         targetTab.classList.add('active'); 
     }
     
-    // 탭 전환 시 미리보기 화면 즉시 갱신
     generateKPI();
 }
 
@@ -94,11 +93,9 @@ function removeTcRow(btn) {
 function generateKPI() {
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
     
-    // 현재 활성화된 탭 식별
     const activeTabBtn = document.querySelector('.kpi-tab-btn.active');
     const activeTabId = activeTabBtn ? activeTabBtn.id.replace('btn-tab-', '') : 'perf';
     
-    // 라벨 및 버튼 동적 업데이트용
     const previewLabel = document.getElementById('kpi_preview_label');
     const copyBtn = document.querySelector('.completion-preview-side .btn-save');
 
@@ -108,7 +105,6 @@ function generateKPI() {
         if(previewLabel) previewLabel.innerText = '📊 [업무 성과] 리포트 미리보기';
         if(copyBtn) copyBtn.innerText = '📋 [업무 성과] 복사하기';
 
-        // 1. Defect 통계 산출
         const blocker = parseInt(getVal('def_blocker')) || 0;
         const critical = parseInt(getVal('def_critical')) || 0;
         const major = parseInt(getVal('def_major')) || 0;
@@ -127,15 +123,21 @@ function generateKPI() {
             if (trivial > 0) report += ` - Trivial ${trivial}개\n`;
         }
 
-        // 전월 대비 팀 평균 계산
         if (prevAvgStr !== '') {
-            const prevAvg = parseInt(prevAvgStr) || 0;
+            const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
-            let diffText = diff > 0 ? `${diff}개 상승` : (diff < 0 ? `${Math.abs(diff)}개 하락` : '동일');
-            report += `\n전월 팀 평균 Defect 검출 갯수 : ${prevAvg}개 (${diffText})\n`;
+            
+            const absDiff = parseFloat(Math.abs(diff).toFixed(1));
+            const displayPrevAvg = parseFloat(prevAvg.toFixed(1));
+
+            let diffText = '';
+            if (diff > 0) diffText = `${absDiff}개 상승`;
+            else if (diff < 0) diffText = `${absDiff}개 하락`;
+            else diffText = '동일';
+
+            report += `\n전월 팀 평균 Defect 검출 갯수 : ${displayPrevAvg}개 (${diffText})\n`;
         }
 
-        // 2. TC 수행 업무 (PoC별 취합)
         report += `\nTC 수행 업무\n`;
         const rows = document.querySelectorAll('.tc-row');
         let totalTc = 0;
@@ -172,7 +174,6 @@ function generateKPI() {
             report += `- 수행 내역 없음\n\n`;
         }
 
-        // 3. TC 작성 및 수정 업무
         const tcUpdate = getVal('tc_update_text');
         report += `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
         
@@ -180,7 +181,6 @@ function generateKPI() {
             const lines = tcUpdate.split('\n').map(line => line.trim()).filter(l => l);
             if (lines.length > 0) {
                 lines.forEach(line => {
-                    // 사용자가 하이픈을 안 썼을 경우 자동으로 붙여줌
                     if (line.startsWith('-')) report += ` ${line}\n`;
                     else report += ` - ${line}\n`;
                 });
@@ -204,11 +204,78 @@ function generateKPI() {
         report += capa ? capa : '입력된 개인 역량 내역이 없습니다.';
     }
 
-    // 미리보기 반영
     const outEl = document.getElementById('output_kpi_result');
     if (outEl) outEl.value = report.trim();
 
     saveKpiData();
+}
+
+function generateNarrativeReport() {
+    const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+    
+    const blocker = parseInt(getVal('def_blocker')) || 0;
+    const critical = parseInt(getVal('def_critical')) || 0;
+    const major = parseInt(getVal('def_major')) || 0;
+    const minor = parseInt(getVal('def_minor')) || 0;
+    const trivial = parseInt(getVal('def_trivial')) || 0;
+    const totalDefect = blocker + critical + major + minor + trivial;
+    const prevAvgStr = getVal('prev_avg');
+    
+    let defectText = "";
+    if (totalDefect > 0) {
+        defectText = `이번 달은 총 ${totalDefect}개의 Defect를 검출`;
+        if (prevAvgStr !== '') {
+            const prevAvg = parseFloat(prevAvgStr) || 0;
+            const diff = totalDefect - prevAvg;
+            const absDiff = parseFloat(Math.abs(diff).toFixed(1));
+            if (diff > 0) defectText += `하며 전월 팀 평균 대비 ${absDiff}개 높은 성과를 달성했습니다. `;
+            else if (diff < 0) defectText += `하여 전월 팀 평균 대비 ${absDiff}개 낮은 수치를 기록했습니다. `;
+            else defectText += `하여 전월 팀 평균과 동일한 성과를 달성했습니다. `;
+        } else {
+            defectText += `하는 성과를 달성했습니다. `;
+        }
+        
+        if (blocker > 0 || critical > 0) {
+            defectText += `특히 서비스에 치명적일 수 있는 Blocker 및 Critical 결함을 사전에 식별하여 앱 안정성에 크게 기여했습니다.\n\n`;
+        } else {
+            defectText += `꼼꼼한 검증을 통해 서비스 품질 향상에 기여했습니다.\n\n`;
+        }
+    } else {
+        defectText = `이번 달은 안정적인 서비스 품질을 유지하는 데 집중하며 검증 업무를 수행했습니다.\n\n`;
+    }
+
+    let totalTc = 0;
+    let pocSet = new Set();
+    document.querySelectorAll('.tc-row').forEach(row => {
+        const poc = row.querySelector('.tc-poc').value;
+        const total = parseInt(row.querySelector('.tc-total').value) || 0;
+        totalTc += total;
+        if(poc !== '기타') pocSet.add(poc);
+    });
+    
+    let tcText = "";
+    if (totalTc > 0) {
+        const pocListStr = Array.from(pocSet).join(', ');
+        tcText = `검증 업무로는 ${pocListStr ? pocListStr + ' 등의 ' : ''}프로젝트를 중심으로 총 ${totalTc}건의 TC를 수행했습니다. 교차 확인을 위해 단말기 2대로 꼼꼼하게 테스트를 진행하여 누락을 최소화했습니다.\n\n`;
+    }
+
+    const tcUpdate = getVal('tc_update_text');
+    let updateText = "";
+    if (tcUpdate.trim().length > 0) {
+        const lines = tcUpdate.split('\n').map(line => line.trim()).filter(l => l);
+        updateText = `또한, 향후 원활한 검증 환경을 위해 본인 영역의 TC 최신화 작업에도 많은 시간을 할애했습니다. 총 ${lines.length}가지 주요 항목에 대한 TC를 즉각적으로 현행화하며 마무리했습니다. 앞으로도 이슈 검출뿐만 아니라 지속적인 TC 관리로 프로젝트 품질 향상에 노력하겠습니다.`;
+    } else {
+        updateText = `앞으로도 적극적인 이슈 검출과 꼼꼼한 TC 관리로 팀 프로젝트의 전반적인 품질 향상에 지속적으로 기여하겠습니다.`;
+    }
+
+    const finalNarrative = defectText + tcText + updateText;
+    
+    const contribEl = document.getElementById('kpi_contrib_text');
+    if (contribEl) {
+        if (contribEl.value.trim() !== '' && !confirm('기존 작성된 내용이 지워집니다. 자동 생성 내용으로 덮어쓰시겠습니까?')) return;
+        contribEl.value = finalNarrative;
+        generateKPI();
+    }
 }
 
 function saveKpiData() {
@@ -275,7 +342,6 @@ function loadKpiLocal() {
         }
     }
     
-    // UI 로드 후 미리보기 결과 업데이트
     generateKPI();
 }
 
