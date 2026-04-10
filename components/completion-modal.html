@@ -1,0 +1,48 @@
+<div class="modal-overlay" id="completionModal">
+    <div class="modal-content" style="max-width: 1100px; width: 95%;">
+        <button class="close-btn" onclick="closeCompletionModal()">×</button>
+        <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+            <h2 style="margin: 0;">✅ 완료문 작성</h2>
+            <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+        </div>
+        <div class="completion-modal-body">
+            <div class="setting-box" style="margin-bottom:0;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 8px; display: block;">■ POC</label>
+                    <select id="comp_poc" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem; font-weight: 600;" onchange="handleCompPocChange()">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="에이닷">에이닷</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>■ Device(OS Ver.)</label>
+                    <div id="comp_device_area" class="comp-device-scroll">
+                        <div id="comp_and_section">
+                            <div class="comp-os-label" style="color:#10b981;">Android</div>
+                            <div id="comp_and_list" class="pill-group"></div>
+                        </div>
+                        <div id="comp_ios_section">
+                            <div class="comp-os-label" style="color:#3b82f6;">iOS</div>
+                            <div id="comp_ios_list" class="pill-group"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>■ 버전</label><div id="comp_version_list" class="checkbox-group vertical"></div></div>
+                    <div class="form-group"><label>■ 서버</label><div id="comp_server_list" class="checkbox-group vertical"></div></div>
+                </div>
+                <div class="form-group" style="margin-bottom:0;"><label>■ 현상 check</label><textarea id="comp_check" style="height: 100px;" placeholder="확인 내용을 입력하세요"></textarea></div>
+            </div>
+            <div class="completion-preview-side">
+                <div class="setting-box preview-box">
+                    <label>📊 미리보기</label>
+                    <textarea id="comp_preview" class="output-field preview-area" readonly></textarea>
+                </div>
+                <button class="btn-save" onclick="copyCompletionReport()">📋 완료문 복사하기</button>
+            </div>
+        </div>
+    </div>
+</div>

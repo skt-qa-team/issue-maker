@@ -7,16 +7,45 @@ const defaultConfig = {
 const STORAGE_KEY = 'qa_system_config_master';
 
 const THEME_PRESETS = {
-    defaultLight: { name: '기본 라이트', bg: '#f0f2f5', panel: '#ffffff', textMain: '#1e293b', textSub: '#475569', border: '#e2e8f0', accent: '#3b82f6' },
-    defaultDark: { name: '기본 다크', bg: '#0f172a', panel: '#1e293b', textMain: '#f8fafc', textSub: '#94a3b8', border: '#334155', accent: '#38bdf8' },
-    githubLight: { name: '깃허브 라이트', bg: '#f6f8fa', panel: '#ffffff', textMain: '#24292f', textSub: '#57606a', border: '#d0d7de', accent: '#0969da' },
-    githubDark: { name: '깃허브 다크', bg: '#0d1117', panel: '#161b22', textMain: '#c9d1d9', textSub: '#8b949e', border: '#30363d', accent: '#58a6ff' },
-    dracula: { name: '드라큘라', bg: '#282a36', panel: '#44475a', textMain: '#f8f8f2', textSub: '#6272a4', border: '#6272a4', accent: '#bd93f9' },
-    nord: { name: '노드 쿨', bg: '#2e3440', panel: '#3b4252', textMain: '#eceff4', textSub: '#d8dee9', border: '#4c566a', accent: '#88c0d0' },
-    solarLight: { name: '솔라 라이트', bg: '#fdf6e3', panel: '#eee8d5', textMain: '#657b83', textSub: '#839496', border: '#ccc2a3', accent: '#2aa198' },
-    solarDark: { name: '솔라 다크', bg: '#002b36', panel: '#073642', textMain: '#839496', textSub: '#586e75', border: '#104b5a', accent: '#b58900' },
-    mint: { name: '민트 프레쉬', bg: '#f0fdf4', panel: '#ffffff', textMain: '#14532d', textSub: '#166534', border: '#bbf7d0', accent: '#10b981' },
-    sepia: { name: '세피아 웜', bg: '#f4ecd8', panel: '#fffbf0', textMain: '#433422', textSub: '#705a3e', border: '#dfd3b6', accent: '#d97706' }
+    defaultLight: { category: '라이트', name: '기본 라이트', bg: '#f0f2f5', panel: '#ffffff', textMain: '#1e293b', textSub: '#475569', border: '#e2e8f0', accent: '#3b82f6' },
+    githubLight: { category: '라이트', name: '깃허브 라이트', bg: '#f6f8fa', panel: '#ffffff', textMain: '#24292f', textSub: '#57606a', border: '#d0d7de', accent: '#0969da' },
+    cleanWhite: { category: '라이트', name: '퓨어 화이트', bg: '#fbfbfe', panel: '#ffffff', textMain: '#000000', textSub: '#555555', border: '#eeeeee', accent: '#000000' },
+    notion: { category: '라이트', name: '노션 캔버스', bg: '#ffffff', panel: '#f7f7f5', textMain: '#37352f', textSub: '#787774', border: '#e9e9e7', accent: '#2383e2' },
+    snow: { category: '라이트', name: '스노우 펄', bg: '#f9fafb', panel: '#ffffff', textMain: '#111827', textSub: '#4b5563', border: '#e5e7eb', accent: '#6366f1' },
+
+    defaultDark: { category: '다크', name: '기본 다크', bg: '#0f172a', panel: '#1e293b', textMain: '#f8fafc', textSub: '#94a3b8', border: '#334155', accent: '#38bdf8' },
+    githubDark: { category: '다크', name: '깃허브 다크', bg: '#0d1117', panel: '#161b22', textMain: '#c9d1d9', textSub: '#8b949e', border: '#30363d', accent: '#58a6ff' },
+    tokyoNight: { category: '다크', name: '도쿄 나이트', bg: '#1a1b26', panel: '#24283b', textMain: '#c0caf5', textSub: '#a9b1d6', border: '#414868', accent: '#7aa2f7' },
+    oledBlack: { category: '다크', name: '올레드 블랙', bg: '#000000', panel: '#111111', textMain: '#ffffff', textSub: '#aaaaaa', border: '#333333', accent: '#ff3366' },
+    discord: { category: '다크', name: '디스코드 다크', bg: '#313338', panel: '#2b2d31', textMain: '#dbdee1', textSub: '#949ba4', border: '#1e1f22', accent: '#5865f2' },
+    obsidian: { category: '다크', name: '옵시디언', bg: '#1e1e1e', panel: '#252526', textMain: '#d4d4d4', textSub: '#cccccc', border: '#3c3c3c', accent: '#007acc' },
+
+    nord: { category: '블루/쿨', name: '노드 쿨', bg: '#2e3440', panel: '#3b4252', textMain: '#eceff4', textSub: '#d8dee9', border: '#4c566a', accent: '#88c0d0' },
+    oceanic: { category: '블루/쿨', name: '오셔닉 블루', bg: '#1b2b34', panel: '#343d46', textMain: '#d8dee9', textSub: '#a6accd', border: '#4f5b66', accent: '#6699cc' },
+    navy: { category: '블루/쿨', name: '딥 네이비', bg: '#0a192f', panel: '#112240', textMain: '#ccd6f6', textSub: '#8892b0', border: '#233554', accent: '#64ffda' },
+    blueberry: { category: '블루/쿨', name: '블루베리', bg: '#e0e7ff', panel: '#ffffff', textMain: '#1e1b4b', textSub: '#3730a3', border: '#c7d2fe', accent: '#4f46e5' },
+    dracula: { category: '블루/쿨', name: '드라큘라', bg: '#282a36', panel: '#44475a', textMain: '#f8f8f2', textSub: '#8be9fd', border: '#6272a4', accent: '#bd93f9' },
+    cobalt: { category: '블루/쿨', name: '코발트 빈티지', bg: '#193549', panel: '#224b6d', textMain: '#ffffff', textSub: '#9eb4c5', border: '#34658a', accent: '#ffc600' },
+
+    mint: { category: '그린/자연', name: '민트 프레쉬', bg: '#f0fdf4', panel: '#ffffff', textMain: '#14532d', textSub: '#166534', border: '#bbf7d0', accent: '#10b981' },
+    forest: { category: '그린/자연', name: '딥 포레스트', bg: '#1c2e26', panel: '#263b32', textMain: '#d1e8df', textSub: '#9ebcae', border: '#3b5448', accent: '#4ade80' },
+    gruvbox: { category: '그린/자연', name: '그루브박스', bg: '#282828', panel: '#3c3836', textMain: '#ebdbb2', textSub: '#a89984', border: '#504945', accent: '#fe8019' },
+    emerald: { category: '그린/자연', name: '에메랄드 시티', bg: '#ecfdf5', panel: '#ffffff', textMain: '#064e3b', textSub: '#047857', border: '#a7f3d0', accent: '#059669' },
+    hacker: { category: '그린/자연', name: '해커 터미널', bg: '#0d1117', panel: '#000000', textMain: '#00ff00', textSub: '#00cc00', border: '#004400', accent: '#00ff00' },
+
+    sepia: { category: '웜/파스텔', name: '세피아 웜', bg: '#f4ecd8', panel: '#fffbf0', textMain: '#433422', textSub: '#705a3e', border: '#dfd3b6', accent: '#d97706' },
+    solarLight: { category: '웜/파스텔', name: '솔라 라이트', bg: '#fdf6e3', panel: '#eee8d5', textMain: '#073642', textSub: '#586e75', border: '#ccc2a3', accent: '#2aa198' },
+    solarDark: { category: '웜/파스텔', name: '솔라 다크', bg: '#002b36', panel: '#073642', textMain: '#839496', textSub: '#93a1a1', border: '#104b5a', accent: '#b58900' },
+    peach: { category: '웜/파스텔', name: '피치 블라썸', bg: '#fff7ed', panel: '#ffffff', textMain: '#431407', textSub: '#7c2d12', border: '#ffedd5', accent: '#ea580c' },
+    roseWater: { category: '웜/파스텔', name: '로즈 워터', bg: '#fff0f5', panel: '#ffffff', textMain: '#5c1a3b', textSub: '#8a2b58', border: '#ffd1e3', accent: '#e11d48' },
+    sunset: { category: '웜/파스텔', name: '선셋 다크', bg: '#2a1b18', panel: '#3a2622', textMain: '#fde0d9', textSub: '#d4a398', border: '#5c3a33', accent: '#ff7b54' },
+    lavender: { category: '웜/파스텔', name: '라벤더 블룸', bg: '#f3f0ff', panel: '#ffffff', textMain: '#3b2164', textSub: '#5a3b8c', border: '#e5d5ff', accent: '#8b5cf6' },
+    latte: { category: '웜/파스텔', name: '카페 라떼', bg: '#fdf8f5', panel: '#ffffff', textMain: '#4a3b32', textSub: '#705c4f', border: '#ebd8cc', accent: '#c28e6a' },
+
+    hcLight: { category: '고대비/스페셜', name: '고대비 라이트', bg: '#ffffff', panel: '#ffffff', textMain: '#000000', textSub: '#000000', border: '#000000', accent: '#0000ff' },
+    hcDark: { category: '고대비/스페셜', name: '고대비 다크', bg: '#000000', panel: '#000000', textMain: '#ffffff', textSub: '#ffffff', border: '#ffffff', accent: '#ffff00' },
+    monokai: { category: '고대비/스페셜', name: '모노카이', bg: '#272822', panel: '#3e3d32', textMain: '#f8f8f2', textSub: '#a6e22e', border: '#75715e', accent: '#fd971f' },
+    oneDark: { category: '고대비/스페셜', name: '원 다크', bg: '#282c34', panel: '#21252b', textMain: '#abb2bf', textSub: '#5c6370', border: '#3e4451', accent: '#61afef' }
 };
 
 function initCustomTheme() {
@@ -68,14 +97,24 @@ function previewTheme() {
 
 function saveTheme() {
     const getVal = id => { const el = document.getElementById(id); return el ? el.value : null; };
-    localStorage.setItem('skm_custom_palette', JSON.stringify({
+    const themeData = {
         bg: getVal('picker_bg'),
         panel: getVal('picker_panel'),
         textMain: getVal('picker_text_main'),
         textSub: getVal('picker_text_sub'),
         border: getVal('picker_border'),
         accent: getVal('picker_accent')
-    }));
+    };
+    
+    localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
+    
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref('users/' + user.uid + '/theme').set(themeData);
+        }
+    }
+    
     closeThemeModal();
 }
 
@@ -84,15 +123,34 @@ function resetTheme() {
     localStorage.removeItem('skm_custom_palette');
 }
 
-function openThemeModal() {
+function renderThemeTabs(activeCategory) {
     const container = document.getElementById('preset_buttons_container');
-    if (container && container.innerHTML.trim() === '') {
-        container.innerHTML = '';
-        Object.keys(THEME_PRESETS).forEach(key => {
-            const p = THEME_PRESETS[key];
-            container.innerHTML += `<button type="button" class="preset-btn" style="background:${p.panel}; border: 1.5px solid ${p.border}; color:${p.textMain}; padding:10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem; display:flex; align-items:center; gap:8px; transition:0.2s;" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:${p.accent};"></span>${p.name}</button>`;
-        });
-    }
+    if (!container) return;
+
+    const categories = [...new Set(Object.values(THEME_PRESETS).map(p => p.category))];
+
+    let html = `<div class="theme-category-container">`;
+    categories.forEach(cat => {
+        const activeClass = cat === activeCategory ? 'active' : '';
+        html += `<button type="button" class="theme-category-btn ${activeClass}" onclick="renderThemeTabs('${cat}')">${cat}</button>`;
+    });
+    html += `</div>`;
+
+    html += `<div class="theme-preset-grid">`;
+    Object.keys(THEME_PRESETS).forEach(key => {
+        const p = THEME_PRESETS[key];
+        if (p.category === activeCategory) {
+            html += `<button type="button" class="theme-preset-btn" style="background:${p.panel}; border-color:${p.border}; color:${p.textMain};" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span class="theme-preset-dot" style="background:${p.accent};"></span>${p.name}</button>`;
+        }
+    });
+    html += `</div>`;
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+}
+
+function openThemeModal() {
+    renderThemeTabs('라이트');
     document.getElementById('themeModal').style.display = 'flex';
 }
 
@@ -164,3 +222,26 @@ function openModal() {
 function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
 function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
 function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user && !user.isAnonymous) {
+                firebase.database().ref('users/' + user.uid + '/settings').once('value').then(snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+                    }
+                });
+                firebase.database().ref('users/' + user.uid + '/theme').once('value').then(snapshot => {
+                    const themeData = snapshot.val();
+                    if (themeData) {
+                        localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
+                        initCustomTheme();
+                    }
+                });
+            }
+        });
+    }
+});

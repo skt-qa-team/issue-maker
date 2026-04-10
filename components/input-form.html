@@ -1,0 +1,171 @@
+<div class="panel">
+    <h2 style="margin-top: 0; margin-bottom: 20px;">📝 이슈 내용 입력</h2>
+    
+    <div class="form-group">
+        <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
+        <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
+    </div>
+
+    <div class="prefix-panel">
+        <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
+        <div class="grid-2" style="gap: 12px;">
+            <div>
+                <label style="font-size: 0.75rem;">Critical 구분</label>
+                <select id="prefix_critical" onchange="generateTemplate()">
+                    <option value="">해당 없음</option>
+                    <option value="Block">Block</option>
+                    <option value="Crash">Crash</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem;">특정 OS 버전 (신규)</label>
+                <input type="text" id="prefix_spec_os" placeholder="예: iOS 16" oninput="generateTemplate()">
+            </div>
+            <div>
+                <label style="font-size: 0.75rem;">특정 Device 결함</label>
+                <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+            </div>
+            <div>
+                <label style="font-size: 0.75rem;">특수 계정 결함</label>
+                <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
+                <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group">
+            <label>OS 구분</label>
+            <select id="osType" onchange="syncEnvironmentByOS()">
+                <option value="[Android/iOS]">[Android/iOS]</option>
+                <option value="[Android]">[Android]</option>
+                <option value="[iOS]">[iOS]</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>POC</label>
+            <select id="poc" onchange="handlePocChange()">
+                <option value="T 멤버십">T 멤버십</option>
+                <option value="에이닷">에이닷</option>
+                <option value="PC Web">PC Web</option>
+                <option value="AI Layer">AI Layer</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>서버</label>
+        <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="STG" checked onchange="generateTemplate()"> STG</label>
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="GRN" onchange="generateTemplate()"> GRN</label>
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb" value="PRD" onchange="generateTemplate()"> 상용(PRD)</label>
+        </div>
+    </div>
+    
+    <div class="form-group" id="deviceGroup">
+        <label>디바이스 선택</label>
+        <div class="device-split-container">
+            <div id="andDeviceCol" class="device-col">
+                <div class="device-col-header">
+                    <span style="color: #10b981;">Android</span>
+                    <div class="radio-tab-group small">
+                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked onchange="toggleDeviceMode('and')"> <span>검증</span></label>
+                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
+                    </div>
+                </div>
+                <div id="andNormalList" class="pill-group"></div>
+                <div id="andSpecialList" class="pill-group" style="display:none;"></div>
+            </div>
+            <div id="iosDeviceCol" class="device-col">
+                <div class="device-col-header">
+                    <span style="color: #3b82f6;">iOS</span>
+                    <div class="radio-tab-group small">
+                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
+                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
+                    </div>
+                </div>
+                <div id="iosNormalList" class="pill-group"></div>
+                <div id="iosSpecialList" class="pill-group" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" id="appVersionGroup">
+        <div class="label-action-row">
+            <label id="appVersionLabel">앱 버전</label>
+            <div id="ios-ver-toggle" style="display: none; gap: 10px;">
+                <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="TestFlight" checked onchange="syncEnvironmentByOS()"> TestFlight</label>
+                <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="App Distribution" onchange="syncEnvironmentByOS()"> App Distribution</label>
+            </div>
+        </div>
+        <input type="text" id="appVersion" oninput="generateTemplate()">
+    </div>
+
+    <div class="form-group" id="urlGroup" style="display: none;">
+        <label id="urlLabel">URL</label>
+        <input type="text" id="targetUrl" oninput="generateTemplate()">
+    </div>
+
+    <div class="form-group">
+        <div class="label-action-row">
+            <label>[Pre-Condition]</label>
+            <button class="btn-copy-mini" style="background:#10b981; border-color:#059669; color:white; padding: 6px 12px; border-radius: 6px;" onclick="openConditionModal()">🛠️ 조건 조합기</button>
+        </div>
+        <textarea id="preCondition" oninput="generateTemplate()"></textarea>
+    </div>
+
+    <div class="form-group">
+        <div class="label-action-row">
+            <label>[재현스텝]</label>
+            <div class="case-ctrl-row">
+                <button class="btn-case-main" onclick="addCase('steps')">CASE +</button>
+                <div class="case-num-group">
+                    <span onclick="applyIndividualPreset('steps', 2)">2</span>
+                    <span onclick="applyIndividualPreset('steps', 3)">3</span>
+                    <span onclick="applyIndividualPreset('steps', 4)">4</span>
+                </div>
+            </div>
+        </div>
+        <textarea id="steps" oninput="generateTemplate()"></textarea>
+    </div>
+
+    <div class="form-group">
+        <div class="label-action-row">
+            <label>[실행결과-문제현상]</label>
+            <div class="case-ctrl-row">
+                <button class="btn-case-main" onclick="addCase('actualResult')">CASE +</button>
+                <div class="case-num-group">
+                    <span onclick="applyIndividualPreset('actualResult', 2)">2</span>
+                    <span onclick="applyIndividualPreset('actualResult', 3)">3</span>
+                    <span onclick="applyIndividualPreset('actualResult', 4)">4</span>
+                </div>
+            </div>
+        </div>
+        <textarea id="actualResult" oninput="generateTemplate()"></textarea>
+    </div>
+
+    <div class="form-group">
+        <div class="label-action-row">
+            <label>[기대결과]</label>
+            <div class="case-ctrl-row">
+                <button class="btn-case-main" onclick="addCase('expectedResult')">CASE +</button>
+                <div class="case-num-group">
+                    <span onclick="applyIndividualPreset('expectedResult', 2)">2</span>
+                    <span onclick="applyIndividualPreset('expectedResult', 3)">3</span>
+                    <span onclick="applyIndividualPreset('expectedResult', 4)">4</span>
+                </div>
+            </div>
+        </div>
+        <textarea id="expectedResult" oninput="generateTemplate()"></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>[참고사항]</label>
+        <input type="text" id="ref_prd" placeholder="1. 상용 재현 여부" oninput="generateTemplate()" style="margin-bottom: 8px;">
+        <textarea id="ref_notes" placeholder="기타 참고 내용" oninput="generateTemplate()"></textarea>
+    </div>
+</div>

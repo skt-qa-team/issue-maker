@@ -1,0 +1,22 @@
+<div class="panel result-panel">
+    <div class="result-header">
+        <h2>📄 리포트 결과</h2>
+        <button class="btn-clear-top" onclick="clearForm()">🔄 새로 작성</button>
+    </div>
+    
+    <div class="output-section">
+        <div class="output-label-group">
+            <label>📌 제목 (Title)</label>
+            <button class="btn-copy-mini" onclick="copySpecific('outputTitle')">제목만 복사</button>
+        </div>
+        <input type="text" id="outputTitle" class="output-field" readonly>
+    </div>
+
+    <div class="output-section" style="flex: 1; display: flex; flex-direction: column; min-height: 200px;">
+        <div class="output-label-group">
+            <label>📝 본문 (Description)</label>
+            <button class="btn-copy-mini" onclick="copySpecific('outputBody')">본문만 복사</button>
+        </div>
+        <textarea id="outputBody" class="output-field" readonly style="flex: 1; resize: none;"></textarea>
+    </div>
+</div>
