@@ -147,11 +147,18 @@ function generateTemplate() {
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
-    const specOsPrefix = getValue('prefix_spec_os').trim() ? `[${getValue('prefix_spec_os').trim()}]` : '';
+    
+    const specOsVal = getValue('prefix_spec_os').trim();
+    const specOsPrefix = specOsVal ? `[${specOsVal}]` : '';
+    
+    const devVal = getValue('prefix_device').trim();
+    const devPrefix = devVal ? `[${devVal}]` : '';
+    
+    const accVal = getValue('prefix_account').trim();
+    const accPrefix = accVal ? `[${accVal}]` : '';
+
     const pocPrefix = (poc && poc !== 'T 멤버십') ? `[${poc}]` : '';
     const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
-    const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
-    const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
