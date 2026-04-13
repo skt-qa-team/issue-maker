@@ -1,0 +1,200 @@
+/* 캘린더 전체 래퍼 */
+.cal-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 700px;
+    background: var(--panel-bg, #ffffff);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-sm, 0 2px 10px rgba(0,0,0,0.05));
+    border: 1px solid var(--border-color, #e5e7eb);
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* 상단 헤더 (월 이동 및 버튼) */
+.cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-color, #e5e7eb);
+    margin-bottom: 15px;
+}
+
+.cal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#cal-month-year {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main, #111827);
+    margin: 0;
+    min-width: 140px;
+    text-align: center;
+}
+
+.cal-nav-btn {
+    background: transparent;
+    border: 1px solid var(--border-color, #e5e7eb);
+    color: var(--text-sub, #6b7280);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.cal-nav-btn:hover {
+    background: var(--bg-color, #f3f4f6);
+    color: var(--accent-blue, #3b82f6);
+    border-color: var(--accent-blue, #3b82f6);
+}
+
+.cal-today-btn {
+    padding: 8px 16px;
+    background: var(--bg-color, #f3f4f6);
+    border: 1px solid var(--border-color, #e5e7eb);
+    color: var(--text-main, #111827);
+    border-radius: var(--radius-sm, 6px);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+}
+
+.cal-today-btn:hover {
+    background: var(--border-color, #e5e7eb);
+}
+
+.cal-add-btn {
+    padding: 10px 20px;
+    background: var(--accent-blue, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md, 8px);
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.cal-add-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* 캘린더 본문 (그리드) */
+.cal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 800;
+    padding-bottom: 10px;
+    color: var(--text-sub, #6b7280);
+    font-size: 0.95rem;
+}
+
+.cal-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(100px, 1fr);
+    gap: 1px;
+    background: var(--border-color, #e5e7eb); /* 그리드 선 색상 역할 */
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: var(--radius-sm, 6px);
+    overflow: hidden;
+}
+
+/* 개별 날짜 셀 */
+.cal-day {
+    background: var(--panel-bg, #ffffff);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.cal-day:hover {
+    background: var(--bg-color, #f9fafb);
+}
+
+.cal-day.empty {
+    background: var(--bg-color, #f9fafb);
+    cursor: default;
+}
+
+.day-number {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-main, #111827);
+    align-self: flex-end;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* 주말 색상 포인트 */
+.cal-weekdays .sun, .cal-day.sun .day-number { color: #ef4444; }
+.cal-weekdays .sat, .cal-day.sat .day-number { color: #3b82f6; }
+
+/* 오늘 날짜 강조 */
+.cal-day.today .day-number {
+    background: var(--accent-blue, #3b82f6);
+    color: white;
+}
+.cal-day.today {
+    background: rgba(59, 130, 246, 0.03);
+}
+
+/* 스케줄(일정) 바 디자인 */
+.cal-schedule {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-blue, #3b82f6);
+    border-left: 3px solid var(--accent-blue, #3b82f6);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.cal-schedule:hover {
+    transform: translateX(2px);
+    filter: brightness(0.95);
+}
+
+/* 일정 타입별 색상 (예시) */
+.cal-schedule.type-release {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border-left-color: #10b981;
+}
+
+.cal-schedule.type-meeting {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border-left-color: #f59e0b;
+}
