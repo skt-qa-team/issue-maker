@@ -1,0 +1,26 @@
+<div class="cal-wrapper">
+    <div class="cal-header">
+        <div class="cal-title-group">
+            <button class="cal-nav-btn" onclick="changeMonth(-1)">◀</button>
+            <h2 id="cal-month-year">2026. 04</h2>
+            <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+            <button class="cal-today-btn" onclick="goToday()">오늘</button>
+        </div>
+        <div class="cal-actions">
+            <button class="cal-add-btn" onclick="openScheduleModal()">+ 일정 추가</button>
+        </div>
+    </div>
+    
+    <div class="cal-body">
+        <div class="cal-weekdays">
+            <div class="weekday sun">일</div>
+            <div class="weekday">월</div>
+            <div class="weekday">화</div>
+            <div class="weekday">수</div>
+            <div class="weekday">목</div>
+            <div class="weekday">금</div>
+            <div class="weekday sat">토</div>
+        </div>
+        <div id="cal-grid" class="cal-grid"></div>
+    </div>
+</div>
