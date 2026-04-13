@@ -127,17 +127,45 @@ function renderBookmarks() {
                         </div>`;
         div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
         
-        div.ondragstart = (e) => { e.dataTransfer.setData('fIdx', idx); div.classList.add('dragging'); };
+        // 드래그 시작 (폴더 이동용)
+        div.ondragstart = (e) => { 
+            e.dataTransfer.setData('type', 'folder');
+            e.dataTransfer.setData('fIdx', idx); 
+            div.classList.add('dragging'); 
+        };
         div.ondragend = () => div.classList.remove('dragging');
         div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
         div.ondragleave = () => div.classList.remove('drag-over');
+        
+        // 드롭 (폴더 순서 변경 및 타 폴더에서 링크 받아오기)
         div.ondrop = (e) => {
-            e.preventDefault(); div.classList.remove('drag-over');
-            const from = e.dataTransfer.getData('fIdx');
-            if (from !== "" && from !== idx.toString()) {
-                const item = bookmarks.splice(from, 1)[0];
-                bookmarks.splice(idx, 0, item);
-                saveBookmarksToFirebase();
+            e.preventDefault(); 
+            div.classList.remove('drag-over');
+            const type = e.dataTransfer.getData('type');
+
+            if (type === 'folder') {
+                const from = e.dataTransfer.getData('fIdx');
+                if (from !== "" && from !== idx.toString()) {
+                    const item = bookmarks.splice(from, 1)[0];
+                    bookmarks.splice(idx, 0, item);
+                    saveBookmarksToFirebase();
+                }
+            } else if (type === 'link') {
+                const sourceFid = e.dataTransfer.getData('sourceFid');
+                const linkId = e.dataTransfer.getData('lId');
+
+                // 다른 폴더에서 드래그 해온 경우만 처리
+                if (sourceFid && sourceFid !== f.id) {
+                    const sourceFolder = bookmarks.find(folder => folder.id === sourceFid);
+                    if (sourceFolder) {
+                        const linkIndex = sourceFolder.links.findIndex(link => link.id === linkId);
+                        if (linkIndex !== -1) {
+                            const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
+                            f.links.push(movingLink);
+                            saveBookmarksToFirebase();
+                        }
+                    }
+                }
             }
         };
         folderFragment.appendChild(div);
@@ -170,17 +198,36 @@ function renderBookmarks() {
                                 <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
                                 ${deleteLinkBtn}
                              </div>`;
-            card.ondragstart = (e) => { e.dataTransfer.setData('lIdx', lIdx); card.classList.add('dragging'); };
+                             
+            // 드래그 시작 (링크 데이터 세팅)
+            card.ondragstart = (e) => { 
+                e.stopPropagation();
+                e.dataTransfer.setData('type', 'link');
+                e.dataTransfer.setData('sourceFid', activeF.id);
+                e.dataTransfer.setData('lId', l.id);
+                e.dataTransfer.setData('lIdx', lIdx); 
+                card.classList.add('dragging'); 
+            };
             card.ondragend = () => card.classList.remove('dragging');
             card.ondragover = (e) => { e.preventDefault(); card.classList.add('drag-over'); };
             card.ondragleave = () => card.classList.remove('drag-over');
+            
+            // 드롭 (같은 폴더 내에서 링크 순서 변경)
             card.ondrop = (e) => {
-                e.preventDefault(); card.classList.remove('drag-over');
-                const from = e.dataTransfer.getData('lIdx');
-                if (from !== "" && from !== lIdx.toString()) {
-                    const item = activeF.links.splice(from, 1)[0];
-                    activeF.links.splice(lIdx, 0, item);
-                    saveBookmarksToFirebase();
+                e.preventDefault(); 
+                e.stopPropagation();
+                card.classList.remove('drag-over');
+                const type = e.dataTransfer.getData('type');
+                
+                if (type === 'link') {
+                    const sourceFid = e.dataTransfer.getData('sourceFid');
+                    const fromIdx = e.dataTransfer.getData('lIdx');
+
+                    if (sourceFid === activeF.id && fromIdx !== "" && fromIdx !== lIdx.toString()) {
+                        const item = activeF.links.splice(fromIdx, 1)[0];
+                        activeF.links.splice(lIdx, 0, item);
+                        saveBookmarksToFirebase();
+                    }
                 }
             };
             linkFragment.appendChild(card);
