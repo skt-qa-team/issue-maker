@@ -10,10 +10,26 @@ let calSchedules = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 페이지 로드 시 달력 즉시 렌더링
-    renderCalendar();
+    // ✨ 필수 로직: components/calendar.html 뼈대를 불러와서 화면에 삽입
+    const loadCalendarComponent = async () => {
+        try {
+            const response = await fetch('components/calendar.html');
+            const html = await response.text();
+            const placeholder = document.getElementById('comp-calendar');
+            if (placeholder) {
+                placeholder.innerHTML = html;
+            }
+            // HTML 뼈대가 완전히 삽입된 후에 달력을 그립니다.
+            renderCalendar();
+        } catch (error) {
+            console.error('Calendar component failed to load:', error);
+        }
+    };
 
-    // ✨ 신규: 상단 메뉴바에 '이슈 작성'과 '일정 관리' 버튼을 자동으로 꽂아넣는 로직
+    // 로드 함수 실행
+    loadCalendarComponent();
+
+    // 상단 메뉴바에 '이슈 작성'과 '일정 관리' 버튼을 자동으로 꽂아넣는 로직
     const injectCalButton = setInterval(() => {
         const topBarBtns = document.querySelector('.top-bar-btns');
         if (topBarBtns && !document.querySelector('.cal-btn-wrapper')) {
@@ -63,7 +79,7 @@ window.switchMainTab = (tabName) => {
 function renderCalendar() {
     const grid = document.getElementById('cal-grid');
     const title = document.getElementById('cal-month-year');
-    if (!grid || !title) return;
+    if (!grid || !title) return; // 뼈대가 없으면 동작 중지
 
     const year = calCurrentDate.getFullYear();
     const month = calCurrentDate.getMonth(); // 0 ~ 11
