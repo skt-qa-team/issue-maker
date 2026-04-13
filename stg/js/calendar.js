@@ -12,6 +12,30 @@ let calSchedules = [
 document.addEventListener('DOMContentLoaded', () => {
     // 페이지 로드 시 달력 즉시 렌더링
     renderCalendar();
+
+    // ✨ 신규: 상단 메뉴바에 '이슈 작성'과 '일정 관리' 버튼을 자동으로 꽂아넣는 로직
+    const injectCalButton = setInterval(() => {
+        const topBarBtns = document.querySelector('.top-bar-btns');
+        if (topBarBtns && !document.querySelector('.cal-btn-wrapper')) {
+            clearInterval(injectCalButton);
+
+            // 1. 일정 관리(달력) 버튼 생성
+            const calWrapper = document.createElement('div');
+            calWrapper.className = 'menu-item-wrapper cal-btn-wrapper';
+            calWrapper.onclick = () => switchMainTab('calendar');
+            calWrapper.innerHTML = `<div class="setting-btn-float cal-icon">📅</div><span class="menu-label">일정 관리</span>`;
+
+            // 2. 메인(이슈틀) 복귀 버튼 생성
+            const issueWrapper = document.createElement('div');
+            issueWrapper.className = 'menu-item-wrapper issue-btn-wrapper';
+            issueWrapper.onclick = () => switchMainTab('issue');
+            issueWrapper.innerHTML = `<div class="setting-btn-float main-icon">📝</div><span class="menu-label">이슈 작성</span>`;
+
+            // 메뉴바 맨 앞에 두 버튼을 나란히 추가
+            topBarBtns.prepend(calWrapper);
+            topBarBtns.prepend(issueWrapper);
+        }
+    }, 100);
 });
 
 // 메인 탭 전환 함수 (이슈틀 <-> 일정 관리)
