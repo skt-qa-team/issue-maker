@@ -3,7 +3,7 @@ let currentUserUid = null;
 let bookmarks = [];
 let currentFolderId = null;
 let editingLinkId = null;
-let bmDragState = null; // 드래그 상태를 추적하기 위한 전역 변수
+let bmDragState = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -84,13 +84,11 @@ function initSharedBookmarks() {
     });
 }
 
+// 💡 수정: 문제되던 transaction을 가장 안정적인 set으로 복구하고 에러 추적 추가
 function saveBookmarksToFirebase() {
-    const bmRef = firebase.database().ref('shared_bookmarks');
-    bmRef.transaction((currentData) => {
-        if (currentData === null) {
-            return bookmarks;
-        }
-        return bookmarks;
+    firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
+        console.error("Firebase 저장 실패:", err);
+        alert("데이터 저장에 실패했습니다. (DB 규칙을 확인해주세요)");
     });
 }
 
@@ -146,7 +144,6 @@ function renderBookmarks() {
         
         // --- 📂 폴더 드래그 앤 드롭 ---
         div.ondragstart = (e) => { 
-            // 💡 수정된 부분: 브라우저가 드래그를 인식하도록 빈 데이터라도 세팅해야 함
             e.dataTransfer.setData('text/plain', 'folder'); 
             bmDragState = { type: 'folder', id: f.id };
             div.classList.add('dragging'); 
@@ -195,6 +192,7 @@ function renderBookmarks() {
                     const insertIdx = isTop ? newToIdx : newToIdx + 1;
                     bookmarks.splice(insertIdx, 0, item);
                     saveBookmarksToFirebase();
+                    renderBookmarks(); // 💡 즉각적인 UI 반응을 위한 낙관적 렌더링
                 }
             } else if (bmDragState.type === 'link') {
                 if (bmDragState.sourceFid !== f.id) {
@@ -205,6 +203,7 @@ function renderBookmarks() {
                             const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
                             f.links.push(movingLink);
                             saveBookmarksToFirebase();
+                            renderBookmarks(); // 💡 즉각적인 UI 반응
                             if (typeof showToast === 'function') showToast(`[${escapeHTML(movingLink.name)}] ➡️ ${escapeHTML(f.name)} 이동 완료`);
                         }
                     }
@@ -245,7 +244,6 @@ function renderBookmarks() {
             // --- 🔗 링크 드래그 앤 드롭 ---
             card.ondragstart = (e) => { 
                 e.stopPropagation();
-                // 💡 수정된 부분: 브라우저가 드래그를 인식하도록 세팅
                 e.dataTransfer.setData('text/plain', 'link'); 
                 bmDragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
                 card.classList.add('dragging'); 
@@ -291,6 +289,7 @@ function renderBookmarks() {
                         const insertIdx = isTop ? newToIdx : newToIdx + 1;
                         activeF.links.splice(insertIdx, 0, item);
                         saveBookmarksToFirebase();
+                        renderBookmarks(); // 💡 즉각적인 UI 반응
                     }
                 }
             };
