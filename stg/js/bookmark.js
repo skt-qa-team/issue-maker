@@ -3,6 +3,7 @@ let currentUserUid = null;
 let bookmarks = [];
 let currentFolderId = null;
 let editingLinkId = null;
+let bmDragState = null; // 드래그 상태를 추적하기 위한 전역 변수
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -127,42 +128,68 @@ function renderBookmarks() {
                         </div>`;
         div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
         
-        // 드래그 시작 (폴더 이동용)
+        // --- 📂 폴더 드래그 앤 드롭 ---
         div.ondragstart = (e) => { 
-            e.dataTransfer.setData('type', 'folder');
-            e.dataTransfer.setData('fIdx', idx); 
+            bmDragState = { type: 'folder', id: f.id };
             div.classList.add('dragging'); 
         };
-        div.ondragend = () => div.classList.remove('dragging');
-        div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
-        div.ondragleave = () => div.classList.remove('drag-over');
+        div.ondragend = () => { 
+            div.classList.remove('dragging'); 
+            bmDragState = null; 
+        };
         
-        // 드롭 (폴더 순서 변경 및 타 폴더에서 링크 받아오기)
+        div.ondragover = (e) => { 
+            e.preventDefault(); 
+            if (!bmDragState) return;
+            
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+            
+            if (bmDragState.type === 'link') {
+                // 링크를 타 폴더로 이동할 때는 폴더 전체 강조 (초록 박스)
+                if (bmDragState.sourceFid !== f.id) div.classList.add('drag-over');
+            } else if (bmDragState.type === 'folder' && bmDragState.id !== f.id) {
+                // 폴더끼리 순서를 바꿀 때는 마우스 위치에 따라 위/아래 실선 (파란 선)
+                const bounding = div.getBoundingClientRect();
+                if (e.clientY - bounding.top < bounding.height / 2) {
+                    div.classList.add('drag-over-top');
+                } else {
+                    div.classList.add('drag-over-bottom');
+                }
+            }
+        };
+        
+        div.ondragleave = () => { 
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom'); 
+        };
+        
         div.ondrop = (e) => {
             e.preventDefault(); 
-            div.classList.remove('drag-over');
-            const type = e.dataTransfer.getData('type');
+            const isTop = div.classList.contains('drag-over-top');
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+            
+            if (!bmDragState) return;
 
-            if (type === 'folder') {
-                const from = e.dataTransfer.getData('fIdx');
-                if (from !== "" && from !== idx.toString()) {
-                    const item = bookmarks.splice(from, 1)[0];
-                    bookmarks.splice(idx, 0, item);
+            if (bmDragState.type === 'folder') {
+                const fromIdx = bookmarks.findIndex(bf => bf.id === bmDragState.id);
+                const toIdx = bookmarks.findIndex(bf => bf.id === f.id);
+                
+                if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+                    const item = bookmarks.splice(fromIdx, 1)[0];
+                    const newToIdx = bookmarks.findIndex(bf => bf.id === f.id);
+                    const insertIdx = isTop ? newToIdx : newToIdx + 1;
+                    bookmarks.splice(insertIdx, 0, item);
                     saveBookmarksToFirebase();
                 }
-            } else if (type === 'link') {
-                const sourceFid = e.dataTransfer.getData('sourceFid');
-                const linkId = e.dataTransfer.getData('lId');
-
-                // 다른 폴더에서 드래그 해온 경우만 처리
-                if (sourceFid && sourceFid !== f.id) {
-                    const sourceFolder = bookmarks.find(folder => folder.id === sourceFid);
+            } else if (bmDragState.type === 'link') {
+                if (bmDragState.sourceFid !== f.id) {
+                    const sourceFolder = bookmarks.find(folder => folder.id === bmDragState.sourceFid);
                     if (sourceFolder) {
-                        const linkIndex = sourceFolder.links.findIndex(link => link.id === linkId);
+                        const linkIndex = sourceFolder.links.findIndex(link => link.id === bmDragState.lId);
                         if (linkIndex !== -1) {
                             const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
                             f.links.push(movingLink);
                             saveBookmarksToFirebase();
+                            if (typeof showToast === 'function') showToast(`[${movingLink.name}] ➡️ ${f.name} 이동 완료`);
                         }
                     }
                 }
@@ -199,33 +226,52 @@ function renderBookmarks() {
                                 ${deleteLinkBtn}
                              </div>`;
                              
-            // 드래그 시작 (링크 데이터 세팅)
+            // --- 🔗 링크 드래그 앤 드롭 ---
             card.ondragstart = (e) => { 
                 e.stopPropagation();
-                e.dataTransfer.setData('type', 'link');
-                e.dataTransfer.setData('sourceFid', activeF.id);
-                e.dataTransfer.setData('lId', l.id);
-                e.dataTransfer.setData('lIdx', lIdx); 
+                bmDragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
                 card.classList.add('dragging'); 
             };
-            card.ondragend = () => card.classList.remove('dragging');
-            card.ondragover = (e) => { e.preventDefault(); card.classList.add('drag-over'); };
-            card.ondragleave = () => card.classList.remove('drag-over');
+            card.ondragend = () => { 
+                card.classList.remove('dragging'); 
+                bmDragState = null; 
+            };
             
-            // 드롭 (같은 폴더 내에서 링크 순서 변경)
+            card.ondragover = (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); // 폴더로 이벤트 넘어가는 것 방지
+                if (!bmDragState || bmDragState.type !== 'link' || bmDragState.sourceFid !== activeF.id || bmDragState.lId === l.id) return;
+                
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+                const bounding = card.getBoundingClientRect();
+                if (e.clientY - bounding.top < bounding.height / 2) {
+                    card.classList.add('drag-over-top');
+                } else {
+                    card.classList.add('drag-over-bottom');
+                }
+            };
+            
+            card.ondragleave = () => { 
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom'); 
+            };
+            
             card.ondrop = (e) => {
                 e.preventDefault(); 
                 e.stopPropagation();
-                card.classList.remove('drag-over');
-                const type = e.dataTransfer.getData('type');
+                const isTop = card.classList.contains('drag-over-top');
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
                 
-                if (type === 'link') {
-                    const sourceFid = e.dataTransfer.getData('sourceFid');
-                    const fromIdx = e.dataTransfer.getData('lIdx');
-
-                    if (sourceFid === activeF.id && fromIdx !== "" && fromIdx !== lIdx.toString()) {
+                if (!bmDragState || bmDragState.type !== 'link') return;
+                
+                if (bmDragState.sourceFid === activeF.id) {
+                    const fromIdx = activeF.links.findIndex(bl => bl.id === bmDragState.lId);
+                    const toIdx = activeF.links.findIndex(bl => bl.id === l.id);
+                    
+                    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
                         const item = activeF.links.splice(fromIdx, 1)[0];
-                        activeF.links.splice(lIdx, 0, item);
+                        const newToIdx = activeF.links.findIndex(bl => bl.id === l.id);
+                        const insertIdx = isTop ? newToIdx : newToIdx + 1;
+                        activeF.links.splice(insertIdx, 0, item);
                         saveBookmarksToFirebase();
                     }
                 }
