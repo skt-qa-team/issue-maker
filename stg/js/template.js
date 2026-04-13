@@ -1,5 +1,16 @@
 let isInitialRender = true;
 
+// ✨ 보안 패치: 설정값(기기명 등) 렌더링 시 XSS 해킹 코드를 무력화하는 함수
+function escapeHTMLTemplate(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function syncEnvironmentByOS() {
     const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
@@ -36,7 +47,11 @@ function syncEnvironmentByOS() {
                 isCheckedStr = 'checked';
                 claimedDevices.add(dev);
             }
-            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
+            
+            // ✨ 보안 패치 적용: 기기명을 안전한 문자열로 변환 후 화면에 삽입
+            const safeDevName = escapeHTMLTemplate(dev);
+            
+            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
         });
     };
 
