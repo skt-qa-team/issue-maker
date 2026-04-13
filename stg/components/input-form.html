@@ -2,7 +2,7 @@
     <h2 style="margin-top: 0; margin-bottom: 20px;">📝 이슈 내용 입력</h2>
     
     <div class="form-group">
-        <label style="color:#ef4444 !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
+        <label style="color: var(--accent-red) !important;">📌 현상 요약 (AS-IS 경로 제외)</label>
         <input type="text" id="title" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="generateTemplate()">
     </div>
 
@@ -18,16 +18,16 @@
                 </select>
             </div>
             <div>
-                <label style="font-size: 0.75rem;">특정 OS 버전 (신규)</label>
-                <input type="text" id="prefix_spec_os" placeholder="예: iOS 16" oninput="generateTemplate()">
+                <label style="font-size: 0.75rem;">OS</label>
+                <input type="text" id="prefix_spec_os" placeholder="예: OS16" oninput="generateTemplate()">
             </div>
             <div>
-                <label style="font-size: 0.75rem;">특정 Device 결함</label>
-                <input type="text" id="prefix_device" placeholder="예: 갤럭시 Z플립5" oninput="generateTemplate()">
+                <label style="font-size: 0.75rem;">Device</label>
+                <input type="text" id="prefix_device" placeholder="예: 폴드" oninput="generateTemplate()">
             </div>
             <div>
-                <label style="font-size: 0.75rem;">특수 계정 결함</label>
-                <input type="text" id="prefix_account" placeholder="예: 타사LITE" oninput="generateTemplate()">
+                <label style="font-size: 0.75rem;">계정</label>
+                <input type="text" id="prefix_account" placeholder="예: VIP" oninput="generateTemplate()">
             </div>
             <div style="grid-column: span 2;">
                 <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
@@ -49,7 +49,6 @@
             <label>POC</label>
             <select id="poc" onchange="handlePocChange()">
                 <option value="T 멤버십">T 멤버십</option>
-                <option value="에이닷">에이닷</option>
                 <option value="PC Web">PC Web</option>
                 <option value="AI Layer">AI Layer</option>
                 <option value="Admin">Admin</option>
@@ -71,7 +70,7 @@
         <div class="device-split-container">
             <div id="andDeviceCol" class="device-col">
                 <div class="device-col-header">
-                    <span style="color: #10b981;">Android</span>
+                    <span style="color: var(--accent-green);">Android</span>
                     <div class="radio-tab-group small">
                         <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked onchange="toggleDeviceMode('and')"> <span>검증</span></label>
                         <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" onchange="toggleDeviceMode('and')"> <span>특수</span></label>
@@ -82,7 +81,7 @@
             </div>
             <div id="iosDeviceCol" class="device-col">
                 <div class="device-col-header">
-                    <span style="color: #3b82f6;">iOS</span>
+                    <span style="color: var(--accent-blue);">iOS</span>
                     <div class="radio-tab-group small">
                         <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked onchange="toggleDeviceMode('ios')"> <span>검증</span></label>
                         <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" onchange="toggleDeviceMode('ios')"> <span>특수</span></label>
@@ -111,10 +110,7 @@
     </div>
 
     <div class="form-group">
-        <div class="label-action-row">
-            <label>[Pre-Condition]</label>
-            <button class="btn-copy-mini" style="background:#10b981; border-color:#059669; color:white; padding: 6px 12px; border-radius: 6px;" onclick="openConditionModal()">🛠️ 조건 조합기</button>
-        </div>
+        <label>[Pre-Condition]</label>
         <textarea id="preCondition" oninput="generateTemplate()"></textarea>
     </div>
 
