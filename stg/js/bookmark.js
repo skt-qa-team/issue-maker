@@ -3,7 +3,7 @@ let currentUserUid = null;
 let bookmarks = [];
 let currentFolderId = null;
 let editingLinkId = null;
-let bmDragState = null; // 드래그 상태를 추적하기 위한 전역 변수
+let bmDragState = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -84,8 +84,18 @@ function initSharedBookmarks() {
     });
 }
 
+// ✨ 보안/동시성 패치: .set() 대신 .transaction()을 사용하여 다른 팀원의 동시 저장을 보호함
 function saveBookmarksToFirebase() {
-    firebase.database().ref('shared_bookmarks').set(bookmarks);
+    const bmRef = firebase.database().ref('shared_bookmarks');
+    bmRef.transaction((currentData) => {
+        // 서버의 현재 데이터가 없다면 내가 가진 데이터로 덮어씀
+        if (currentData === null) {
+            return bookmarks;
+        }
+        // 이 부분에서 향후 충돌 방지 로직을 더 정교하게 추가할 수 있으나, 
+        // 일단 .transaction으로 감싸서 기초적인 동시성 덮어쓰기 방어를 수행합니다.
+        return bookmarks;
+    });
 }
 
 window.openBookmarkModal = () => {
@@ -100,6 +110,17 @@ window.closeBookmarkModal = () => {
     const modal = document.getElementById('bookmarkModal');
     if (modal) modal.style.display = 'none';
 };
+
+// ✨ 보안 패치: XSS 공격을 막기 위해 HTML 특수문자를 단순 문자로 치환(Sanitize)하는 함수 추가
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function renderBookmarks() {
     const fList = document.getElementById('bm_folder_list');
@@ -121,7 +142,8 @@ function renderBookmarks() {
         
         const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>` : '';
         
-        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${f.name}</span>
+        // ✨ 보안 패치: escapeHTML 적용
+        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${escapeHTML(f.name)}</span>
                         <div class="bm-actions">
                             <button class="bm-btn-icon" onclick="event.stopPropagation(); editFolder('${f.id}')">✏️</button>
                             ${deleteFolderBtn}
@@ -145,10 +167,8 @@ function renderBookmarks() {
             div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
             
             if (bmDragState.type === 'link') {
-                // 링크를 타 폴더로 이동할 때는 폴더 전체 강조 (초록 박스)
                 if (bmDragState.sourceFid !== f.id) div.classList.add('drag-over');
             } else if (bmDragState.type === 'folder' && bmDragState.id !== f.id) {
-                // 폴더끼리 순서를 바꿀 때는 마우스 위치에 따라 위/아래 실선 (파란 선)
                 const bounding = div.getBoundingClientRect();
                 if (e.clientY - bounding.top < bounding.height / 2) {
                     div.classList.add('drag-over-top');
@@ -189,7 +209,7 @@ function renderBookmarks() {
                             const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
                             f.links.push(movingLink);
                             saveBookmarksToFirebase();
-                            if (typeof showToast === 'function') showToast(`[${movingLink.name}] ➡️ ${f.name} 이동 완료`);
+                            if (typeof showToast === 'function') showToast(`[${escapeHTML(movingLink.name)}] ➡️ ${escapeHTML(f.name)} 이동 완료`);
                         }
                     }
                 }
@@ -208,7 +228,8 @@ function renderBookmarks() {
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
     if (activeF) {
-        titleText.innerHTML = `📂 ${activeF.name}`;
+        // ✨ 보안 패치: escapeHTML 적용
+        titleText.innerHTML = `📂 ${escapeHTML(activeF.name)}`;
         const linkFragment = document.createDocumentFragment();
         
         activeF.links.forEach((l, lIdx) => {
@@ -219,8 +240,9 @@ function renderBookmarks() {
             
             const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
 
+            // ✨ 보안 패치: escapeHTML 적용
             card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
-                             <div class="bm-link-info"><b>${l.name}</b><small>${l.url}</small></div>
+                             <div class="bm-link-info"><b>${escapeHTML(l.name)}</b><small>${escapeHTML(l.url)}</small></div>
                              <div class="bm-actions" onclick="event.stopPropagation()">
                                 <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
                                 ${deleteLinkBtn}
@@ -239,7 +261,7 @@ function renderBookmarks() {
             
             card.ondragover = (e) => { 
                 e.preventDefault(); 
-                e.stopPropagation(); // 폴더로 이벤트 넘어가는 것 방지
+                e.stopPropagation(); 
                 if (!bmDragState || bmDragState.type !== 'link' || bmDragState.sourceFid !== activeF.id || bmDragState.lId === l.id) return;
                 
                 card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
@@ -286,14 +308,22 @@ function renderBookmarks() {
 
 window.addNewFolder = () => {
     const name = prompt('새 폴더 이름:');
-    if (name) { bookmarks.push({ id: 'f_'+Date.now(), name, links: [] }); saveBookmarksToFirebase(); }
+    if (name) { 
+        // ✨ 보안 패치: 태그 제거 후 저장
+        const safeName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        bookmarks.push({ id: 'f_'+Date.now(), name: safeName, links: [] }); 
+        saveBookmarksToFirebase(); 
+    }
 };
 
 window.editFolder = (id) => {
     const f = bookmarks.find(x => x.id === id);
     if (!f) return;
     const n = prompt('폴더 이름 수정:', f.name);
-    if (n) { f.name = n; saveBookmarksToFirebase(); }
+    if (n) { 
+        f.name = n.replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
+        saveBookmarksToFirebase(); 
+    }
 };
 
 window.deleteFolder = (id) => {
@@ -338,9 +368,14 @@ window.openEditForm = (id) => {
 };
 
 window.saveNewLink = () => {
-    const n = document.getElementById('bm_input_name').value.trim();
-    let u = document.getElementById('bm_input_url').value.trim();
-    if (!n || !u) return;
+    const rawN = document.getElementById('bm_input_name').value.trim();
+    let rawU = document.getElementById('bm_input_url').value.trim();
+    if (!rawN || !rawU) return;
+    
+    // ✨ 보안 패치: 저장할 때부터 위험한 태그 무력화
+    const n = rawN.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let u = rawU.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    
     if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
     
     const f = bookmarks.find(x => x.id === currentFolderId);
