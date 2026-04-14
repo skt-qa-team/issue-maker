@@ -118,11 +118,24 @@ function renderCalendar() {
             if (!lanes[laneIndex]) lanes[laneIndex] = [];
             lanes[laneIndex].push(sch);
             
-            weekDays.forEach(wd => {
+            let isHeadAssigned = false;
+            weekDays.forEach((wd, dayIdx) => {
                 const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
                 if (sch.start <= dateStr && sch.end >= dateStr) {
                     if (!laneMap.has(dateStr)) laneMap.set(dateStr, []);
-                    laneMap.get(dateStr)[laneIndex] = sch;
+                    
+                    let isHead = false;
+                    let span = 0;
+                    if (!isHeadAssigned) {
+                        isHead = true;
+                        isHeadAssigned = true;
+                        for (let k = dayIdx; k < 7; k++) {
+                            const checkDate = `${weekDays[k].year}-${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
+                            if (sch.start <= checkDate && sch.end >= checkDate) span++;
+                            else break;
+                        }
+                    }
+                    laneMap.get(dateStr)[laneIndex] = { sch, isHead, span };
                 }
             });
         });
@@ -146,16 +159,12 @@ function renderCalendar() {
         const maxLane = dayLanes.length;
 
         for (let l = 0; l < maxLane; l++) {
-            const sch = dayLanes[l];
-            if (sch) {
-                let spanClass = 'span-single';
-                if (sch.start !== sch.end) {
-                    if (dateStr === sch.start) spanClass = 'span-start';
-                    else if (dateStr === sch.end) spanClass = 'span-end';
-                    else spanClass = 'span-mid';
-                }
-                const isLabelDay = (spanClass === 'span-start' || spanClass === 'span-single' || dayOfWeek === 0 || wd.day === 1);
-                html += `<div class="cal-schedule ${spanClass}" style="background-color:${sch.color}" onclick="event.stopPropagation(); openScheduleDetail('${sch.id}')">${isLabelDay ? sch.title : '&nbsp;'}</div>`;
+            const item = dayLanes[l];
+            if (item && item.isHead) {
+                const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px)`;
+                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5;" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
+            } else if (item && !item.isHead) {
+                html += `<div class="cal-schedule spacer"></div>`;
             } else {
                 html += `<div class="cal-schedule spacer"></div>`;
             }
