@@ -10,6 +10,43 @@ function escapeHTMLTemplate(str) {
         .replace(/'/g, "&#039;");
 }
 
+function updateVersionCheckboxesByOS() {
+    const osEl = document.getElementById('osType');
+    const pocEl = document.getElementById('poc');
+    if (!osEl || !pocEl) return;
+    
+    const osType = osEl.value;
+    const poc = pocEl.value;
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+
+    const cbAnd = document.getElementById('ver_cb_android');
+    const cbIos = document.getElementById('ver_cb_ios');
+    const cbSam = document.getElementById('ver_cb_samsung');
+    const cbSaf = document.getElementById('ver_cb_safari');
+    const cbChr = document.getElementById('ver_cb_chrome');
+    const cbEdg = document.getElementById('ver_cb_edge');
+
+    if (cbAnd) cbAnd.checked = false;
+    if (cbIos) cbIos.checked = false;
+    if (cbSam) cbSam.checked = false;
+    if (cbSaf) cbSaf.checked = false;
+    if (cbChr) cbChr.checked = false;
+    if (cbEdg) cbEdg.checked = false;
+
+    if (!isPureWeb) {
+        if (osType === "[Android/iOS]") {
+            if (cbAnd) cbAnd.checked = true;
+            if (cbIos) cbIos.checked = true;
+        } else if (osType === "[Android]") {
+            if (cbAnd) cbAnd.checked = true;
+        } else if (osType === "[iOS]") {
+            if (cbIos) cbIos.checked = true;
+        }
+    } else {
+        if (cbChr) cbChr.checked = true; 
+    }
+}
+
 function syncEnvironmentByOS() {
     const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
@@ -21,6 +58,7 @@ function syncEnvironmentByOS() {
     if (isInitialRender) {
         currentSelected = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
         isInitialRender = false;
+        updateVersionCheckboxesByOS(); 
     }
 
     const andCol = document.getElementById('andDeviceCol');
@@ -42,9 +80,11 @@ function syncEnvironmentByOS() {
         container.innerHTML = '';
         list.forEach(dev => {
             let isCheckedStr = '';
-            if (currentSelected.includes(dev) && !claimedDevices.has(dev)) {
+            
+            const uniqueKey = `${idPrefix}_${dev}`;
+            if (currentSelected.includes(dev) && !claimedDevices.has(uniqueKey)) {
                 isCheckedStr = 'checked';
-                claimedDevices.add(dev);
+                claimedDevices.add(uniqueKey);
             }
             
             const safeDevName = escapeHTMLTemplate(dev);
@@ -88,7 +128,7 @@ function toggleDeviceMode(platform) {
         if(specialList) specialList.classList.remove('d-none');
         if(normalList) normalList.classList.add('d-none');
     }
-    generateTemplate();
+    generateTemplate(); 
 }
 
 function handlePocChange() {
@@ -114,10 +154,14 @@ function handlePocChange() {
         if(targetUrl) targetUrl.value = poc === 'Admin' ? (cfg.adminUrl || '') : (cfg.pcUrl || '');
     }
     
+    updateVersionCheckboxesByOS();
+    
     if (!isPureWeb) {
         syncEnvironmentByOS();
+    } else {
+        updateVersionTextbox();
+        generateTemplate();
     }
-    generateTemplate();
 }
 
 function updateVersionTextbox() {
@@ -162,13 +206,30 @@ function generateTemplate() {
     let devices = "";
     
     if (!isPureWeb) {
-        let checkedDeviceCbs = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
-        if (os === "[Android]") {
-            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('and_'));
-        } else if (os === "[iOS]") {
-            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('ios_'));
+        let activeDeviceLists = [];
+        
+        const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
+        const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
+
+        if (os === "[Android]" || os === "[Android/iOS]") {
+            if (andMode === 'normal') activeDeviceLists.push(document.getElementById('andNormalList'));
+            else activeDeviceLists.push(document.getElementById('andSpecialList'));
         }
-        devices = checkedDeviceCbs.map(cb => cb.value).join(' / ');
+        
+        if (os === "[iOS]" || os === "[Android/iOS]") {
+            if (iosMode === 'normal') activeDeviceLists.push(document.getElementById('iosNormalList'));
+            else activeDeviceLists.push(document.getElementById('iosSpecialList'));
+        }
+
+        let checkedDeviceValues = [];
+        activeDeviceLists.forEach(list => {
+            if (list) {
+                const checkedInList = Array.from(list.querySelectorAll('.issue-device-cb:checked'));
+                checkedDeviceValues.push(...checkedInList.map(cb => cb.value));
+            }
+        });
+        
+        devices = checkedDeviceValues.join(' / ');
     }
 
     let ver = getValue('appVersion');
