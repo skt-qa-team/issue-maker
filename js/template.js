@@ -1,6 +1,5 @@
 let isInitialRender = true;
 
-// ✨ 보안 패치: 설정값(기기명 등) 렌더링 시 XSS 해킹 코드를 무력화하는 함수
 function escapeHTMLTemplate(str) {
     if (!str) return '';
     return str.toString()
@@ -48,7 +47,6 @@ function syncEnvironmentByOS() {
                 claimedDevices.add(dev);
             }
             
-            // ✨ 보안 패치 적용: 기기명을 안전한 문자열로 변환 후 화면에 삽입
             const safeDevName = escapeHTMLTemplate(dev);
             
             container.innerHTML += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
@@ -60,20 +58,7 @@ function syncEnvironmentByOS() {
     render('iosNormalList', config.iosDevices || [], 'ios_n');
     render('iosSpecialList', config.iosSpecialDevices || [], 'ios_s');
 
-    let ver = "";
-    const iosTypeChecked = document.querySelector('input[name="ios_ver_type"]:checked');
-    const iosMode = iosTypeChecked ? iosTypeChecked.value : 'TestFlight';
-
-    if (osType === "[Android/iOS]") {
-        ver = `App Tester_${config.andAppTester || ''} / ${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`;
-    } else if (osType === "[Android]") {
-        ver = config.andAppTester || '';
-    } else {
-        ver = (iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''));
-    }
-    const verInput = document.getElementById('appVersion');
-    if(verInput) verInput.value = ver;
-    generateTemplate();
+    updateVersionTextbox();
 }
 
 function handleDeviceClick(element) {
@@ -111,11 +96,15 @@ function handlePocChange() {
     if(!pocEl) return;
     const poc = pocEl.value;
     const isWeb = poc === 'Admin' || poc === 'PC Web';
+    const isAI = poc === 'AI Layer';
+
     const devGroup = document.getElementById('deviceGroup');
     const urlGroup = document.getElementById('urlGroup');
+    const aiModeGroup = document.getElementById('aiModeGroup');
     
     if(devGroup) isWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
     if(urlGroup) isWeb ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    if(aiModeGroup) isAI ? aiModeGroup.style.display = 'block' : aiModeGroup.style.display = 'none';
     
     if (isWeb) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
@@ -127,6 +116,34 @@ function handlePocChange() {
     generateTemplate();
 }
 
+function updateVersionTextbox() {
+    const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+    const checkedTypes = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.value);
+    
+    let versionParts = [];
+    const iosTypeChecked = document.querySelector('input[name="ios_ver_type"]:checked');
+    const iosMode = iosTypeChecked ? iosTypeChecked.value : 'TestFlight';
+
+    checkedTypes.forEach(type => {
+        if (type === 'Android') {
+            versionParts.push(`App Tester_${config.andAppTester || ''}`);
+        } else if (type === 'iOS') {
+            versionParts.push(`${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`);
+        } else if (type === '삼성 브라우저') {
+            versionParts.push(`삼성 브라우저_${config.samsungBrowser || ''}`);
+        } else if (type === 'Safari') {
+            versionParts.push(`Safari_${config.safariBrowser || ''}`);
+        } else if (type === '크롬') {
+            versionParts.push(`크롬_${config.chromeBrowser || ''}`);
+        } else if (type === 'Edge') {
+            versionParts.push(`Edge_${config.edgeBrowser || ''}`);
+        }
+    });
+
+    const verInput = document.getElementById('appVersion');
+    if (verInput) verInput.value = versionParts.join(' / ');
+}
+
 function generateTemplate() {
     const getValue = (id) => {
         const el = document.getElementById(id);
@@ -135,6 +152,12 @@ function generateTemplate() {
     
     const poc = getValue('poc');
     const os = getValue('osType');
+    
+    let pocAppWeb = [];
+    if (document.getElementById('poc_type_app') && document.getElementById('poc_type_app').checked) pocAppWeb.push('App');
+    if (document.getElementById('poc_type_web') && document.getElementById('poc_type_web').checked) pocAppWeb.push('Web');
+    const pocSuffix = pocAppWeb.length > 0 ? ` ${pocAppWeb.join(' / ')}` : '';
+    const finalPocText = `${poc}${pocSuffix}`;
     
     const isWeb = poc === 'Admin' || poc === 'PC Web';
     let servers = [];
@@ -152,12 +175,6 @@ function generateTemplate() {
     }
 
     let ver = getValue('appVersion');
-    
-    if (poc === 'T 멤버십') {
-        const iosTypeEl = document.querySelector('input[name="ios_ver_type"]:checked');
-        if (os === "[Android]") ver = `App Tester_${ver}`;
-        else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
-    }
     
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
@@ -178,11 +195,18 @@ function generateTemplate() {
     
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
-    let envSection = `[Environment]\n■ POC : ${poc}\n`;
+    let envSection = `[Environment]\n■ POC : ${finalPocText}\n`;
     if (poc === 'Admin' || poc === 'PC Web') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
+    }
+
+    if (poc === 'AI Layer') {
+        const aiModeVal = getValue('aiMode');
+        if (aiModeVal) {
+            envSection += `\n■ 모드 : ${aiModeVal}`;
+        }
     }
     
     const prdRef = getValue('ref_prd').trim();
