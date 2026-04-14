@@ -109,25 +109,21 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-auto-rows: 1fr; 
-    background: var(--panel-bg, #ffffff);
-    border-top: 1px solid var(--border-color, #e5e7eb);
-    border-left: 1px solid var(--border-color, #e5e7eb);
+    background: var(--border-color, #e5e7eb);
+    gap: 1px;
+    border: 1px solid var(--border-color, #e5e7eb);
     border-radius: var(--radius-sm, 6px);
     overflow: hidden;
 }
 
 .cal-day {
-    background: var(--panel-bg, #ffffff);
-    padding: 6px;
+    background: #ffffff;
+    padding: 0; 
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    border-right: 1px solid var(--border-color, #e5e7eb);
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
-    transition: background-color 0.2s;
-    cursor: pointer;
     min-height: 100px;
     position: relative;
+    cursor: pointer;
 }
 
 .cal-day:hover {
@@ -148,9 +144,9 @@
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--text-main, #111827);
-    padding: 2px 4px;
+    padding: 8px 8px 4px 8px;
     border-radius: 6px;
-    margin-bottom: 2px;
+    box-sizing: border-box;
 }
 
 .holiday-label {
@@ -168,17 +164,27 @@
 .cal-day.today .day-number {
     background: var(--accent-blue, #3b82f6);
     color: white;
+    border-radius: 4px;
+    width: auto;
+    padding: 2px 6px;
 }
 
 .cal-day.today {
     background: rgba(59, 130, 246, 0.03);
 }
 
+.sch-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 4px;
+}
+
 .cal-schedule {
     font-size: 0.75rem;
     font-weight: 700;
-    height: 22px;
-    line-height: 22px;
+    height: 24px;
+    line-height: 24px;
     padding: 0 8px;
     white-space: nowrap;
     overflow: hidden;
@@ -186,9 +192,15 @@
     color: #ffffff;
     cursor: pointer;
     transition: filter 0.1s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     position: relative;
     z-index: 1;
+    box-sizing: border-box;
+}
+
+.cal-schedule.spacer {
+    background: transparent !important;
+    pointer-events: none;
+    box-shadow: none;
 }
 
 .cal-schedule:hover {
@@ -198,27 +210,28 @@
 
 .cal-schedule.span-single {
     border-radius: 4px;
-    margin: 0 2px 2px 2px;
+    margin: 0 4px;
 }
 
 .cal-schedule.span-start {
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
-    margin: 0 0 2px 2px;
-    width: calc(100% + 1px);
+    margin-left: 4px;
+    width: calc(100% - 3px);
+    margin-right: -1px;
 }
 
 .cal-schedule.span-mid {
     border-radius: 0;
-    margin: 0 0 2px 0;
+    margin-left: -1px;
+    margin-right: -1px;
     width: calc(100% + 2px);
-    left: -1px;
 }
 
 .cal-schedule.span-end {
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
-    margin: 0 2px 2px 0;
-    width: calc(100% - 2px);
-    left: -1px;
+    margin-right: 4px;
+    margin-left: -1px;
+    width: calc(100% - 3px);
 }
