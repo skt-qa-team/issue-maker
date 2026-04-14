@@ -10,37 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'modal-placeholder-kpi', url: 'components/kpi-modal.html' },
         { id: 'modal-placeholder-theme', url: 'components/theme-modal.html' },
         { id: 'modal-placeholder-setting', url: 'components/setting-modal.html' },
-        { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' }
+        { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' },
+        { id: 'modal-placeholder-schedule', url: 'components/schedule-modal.html' }
     ];
 
-
-    async function safeLoadComponent(url, placeholderId) {
-    try {
-        const response = await fetch(url);
-        // 응답 상태가 200(정상)이 아니면, 404 HTML을 그리지 않고 즉시 중단합니다.
-        if (!response.ok) {
-            console.warn(`[로드 실패] ${url} 파일을 찾을 수 없습니다. 경로를 확인하세요.`);
-            return; 
-        }
-        const html = await response.text();
-        const placeholder = document.getElementById(placeholderId);
-        if (placeholder) {
-            placeholder.innerHTML = html;
-        }
-    } catch (error) {
-        console.error(`[오류] ${url} 로드 중 문제 발생:`, error);
-    }
-}
-
-// 스크립트가 실행될 때 안전하게 스케줄 모달을 불러옵니다.
-document.addEventListener('DOMContentLoaded', () => {
-    safeLoadComponent('modals/schedule-modal.html', 'modal-placeholder-schedule');
-});
-
-
-    
-
-    
     Promise.all(components.map(comp => 
         fetch(comp.url + '?v=' + new Date().getTime()) 
             .then(response => {
