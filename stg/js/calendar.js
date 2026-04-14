@@ -1,5 +1,6 @@
 let calCurrentDate = new Date();
 let calSchedules = [];
+let currentViewingScheduleId = null;
 
 const holidays = {
     "01-01": "신정",
@@ -137,15 +138,20 @@ function renderCalendar() {
         const todaysSchedules = calSchedules.filter(s => s.start <= dateStringYYYYMMDD && s.end >= dateStringYYYYMMDD);
         
         todaysSchedules.forEach(schedule => {
-            htmlContent += `<div class="cal-schedule" style="background-color: ${schedule.color};" onclick="event.stopPropagation(); openScheduleDetail('${schedule.id}')">${schedule.title}</div>`;
+            let spanClass = 'span-single';
+            if (schedule.start !== schedule.end) {
+                if (dateStringYYYYMMDD === schedule.start) spanClass = 'span-start';
+                else if (dateStringYYYYMMDD === schedule.end) spanClass = 'span-end';
+                else spanClass = 'span-mid';
+            }
+
+            let displayText = (spanClass === 'span-start' || spanClass === 'span-single' || currentDayOfWeek === 0 || i === 1) 
+                              ? schedule.title : '&nbsp;';
+
+            htmlContent += `<div class="cal-schedule ${spanClass}" style="background-color: ${schedule.color};" onclick="event.stopPropagation(); openScheduleDetail('${schedule.id}')">${displayText}</div>`;
         });
 
         cell.innerHTML = htmlContent;
-        
-        cell.onclick = () => {
-            openScheduleModal(dateStringYYYYMMDD);
-        };
-
         grid.appendChild(cell);
     }
 
@@ -170,16 +176,40 @@ window.goToday = () => {
     renderCalendar();
 };
 
-window.openScheduleModal = (dateStr) => {
+window.openScheduleModal = (id = null) => {
     const modal = document.getElementById('scheduleModal');
     if (!modal) return;
     
-    document.getElementById('sch_start').value = dateStr || '';
-    document.getElementById('sch_end').value = dateStr || '';
-    document.getElementById('sch_title').value = '';
-    document.getElementById('sch_epic').value = '';
-    document.getElementById('sch_desc').value = '';
+    const idField = document.getElementById('sch_id');
+    if (!idField) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = 'sch_id';
+        modal.querySelector('.modal-content').appendChild(hiddenInput);
+    }
+
+    if (id) {
+        const sch = calSchedules.find(s => s.id === id);
+        if (sch) {
+            document.getElementById('sch_id').value = sch.id;
+            document.getElementById('sch_title').value = sch.title;
+            document.getElementById('sch_start').value = sch.start;
+            document.getElementById('sch_end').value = sch.end;
+            document.getElementById('sch_epic').value = sch.epic;
+            document.getElementById('sch_desc').value = sch.desc;
+            const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
+            if(radio) radio.checked = true;
+        }
+    } else {
+        document.getElementById('sch_id').value = '';
+        document.getElementById('sch_start').value = '';
+        document.getElementById('sch_end').value = '';
+        document.getElementById('sch_title').value = '';
+        document.getElementById('sch_epic').value = '';
+        document.getElementById('sch_desc').value = '';
+    }
     
+    closeScheduleDetail(); 
     modal.style.display = 'flex';
 };
 
@@ -189,6 +219,8 @@ window.closeScheduleModal = () => {
 };
 
 window.saveSchedule = () => {
+    const idField = document.getElementById('sch_id');
+    const id = (idField && idField.value) ? idField.value : Date.now().toString();
     const title = document.getElementById('sch_title').value;
     const start = document.getElementById('sch_start').value;
     const end = document.getElementById('sch_end').value;
@@ -201,15 +233,17 @@ window.saveSchedule = () => {
         return;
     }
 
-    const newSchedule = {
-        id: Date.now().toString(),
-        title, start, end, epic, desc, color
-    };
+    if (start > end) {
+        alert("종료일이 시작일보다 빠를 수 없습니다.");
+        return;
+    }
+
+    const newSchedule = { id, title, start, end, epic, desc, color };
 
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         firebase.database().ref('shared_schedules/' + newSchedule.id).set(newSchedule)
             .then(() => {
-                if(typeof showToast === 'function') showToast("일정이 공유되었습니다.");
+                if(typeof showToast === 'function') showToast("일정이 저장되었습니다.");
                 closeScheduleModal();
             })
             .catch((error) => {
@@ -217,38 +251,75 @@ window.saveSchedule = () => {
                 alert("권한이 없거나 저장에 실패했습니다.");
             });
     } else {
-        calSchedules.push(newSchedule);
+        const index = calSchedules.findIndex(s => s.id === id);
+        if(index > -1) calSchedules[index] = newSchedule;
+        else calSchedules.push(newSchedule);
         renderCalendar();
         closeScheduleModal();
     }
 };
 
+window.openScheduleDetail = (id) => {
+    const sch = calSchedules.find(s => s.id === id);
+    if (!sch) return;
+
+    currentViewingScheduleId = id;
+
+    const modal = document.getElementById('scheduleDetailModal');
+    if (!modal) return;
+
+    document.getElementById('detail_color_bar').style.backgroundColor = sch.color;
+    document.getElementById('detail_title').innerText = sch.title;
+    document.getElementById('detail_date').innerText = `${sch.start} ~ ${sch.end}`;
+    document.getElementById('detail_epic').innerText = sch.epic || '등록된 링크 없음';
+    document.getElementById('detail_desc').innerText = sch.desc || '상세 내용이 없습니다.';
+
+    modal.style.display = 'flex';
+};
+
+window.closeScheduleDetail = () => {
+    const modal = document.getElementById('scheduleDetailModal');
+    if (modal) modal.style.display = 'none';
+    currentViewingScheduleId = null;
+};
+
+window.deleteSchedule = () => {
+    if (!currentViewingScheduleId) return;
+    if (!confirm("이 일정을 정말 삭제하시겠습니까?")) return;
+
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        firebase.database().ref('shared_schedules/' + currentViewingScheduleId).remove()
+            .then(() => {
+                if(typeof showToast === 'function') showToast("일정이 삭제되었습니다.");
+                closeScheduleDetail();
+            });
+    }
+};
+
+window.editSchedule = () => {
+    if (!currentViewingScheduleId) return;
+    openScheduleModal(currentViewingScheduleId);
+};
+
 window.startScheduleWorkflow = () => {
-    const epicLink = document.getElementById('sch_epic').value.trim();
+    if (!currentViewingScheduleId) return;
+    const sch = calSchedules.find(s => s.id === currentViewingScheduleId);
     
-    if (!epicLink) {
+    if (!sch || !sch.epic) {
         alert("Epic Link가 입력되지 않았습니다. 이슈 연동을 진행할 수 없습니다.");
         return;
     }
 
-    closeScheduleModal();
+    closeScheduleDetail();
     switchMainTab('issue');
     
     const prefixPageInput = document.getElementById('prefix_page');
     if (prefixPageInput) {
-        prefixPageInput.value = epicLink;
-        if (typeof generateTemplate === 'function') {
-            generateTemplate();
-        }
+        prefixPageInput.value = sch.epic;
+        if (typeof generateTemplate === 'function') generateTemplate();
         
         prefixPageInput.style.transition = "all 0.3s";
         prefixPageInput.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.5)";
-        setTimeout(() => {
-            prefixPageInput.style.boxShadow = "none";
-        }, 1500);
+        setTimeout(() => { prefixPageInput.style.boxShadow = "none"; }, 1500);
     }
-};
-
-window.openScheduleDetail = (id) => {
-    console.log("Detail view for schedule:", id);
 };
