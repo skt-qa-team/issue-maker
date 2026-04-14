@@ -46,16 +46,11 @@
             </select>
         </div>
         <div class="form-group">
-            <div class="label-action-row" style="margin-bottom: 8px;">
-                <label style="margin-bottom: 0;">POC</label>
-                <div class="checkbox-group" style="gap: 10px;">
-                    <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="poc_type_app" value="App" onchange="generateTemplate()"> App</label>
-                    <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="poc_type_web" value="Web" onchange="generateTemplate()"> Web</label>
-                </div>
-            </div>
+            <label>POC</label>
             <select id="poc" onchange="handlePocChange()">
-                <option value="T 멤버십">T 멤버십</option>
+                <option value="T 멤버십 App">T 멤버십 App</option>
                 <option value="PC Web">PC Web</option>
+                <option value="PC M.Web">PC M.Web</option>
                 <option value="AI Layer">AI Layer</option>
                 <option value="Admin">Admin</option>
             </select>
