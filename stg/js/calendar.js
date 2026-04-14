@@ -17,11 +17,15 @@ function getLunarHolidays(year) {
 }
 
 function fetchSchedulesFromFirebase() {
-    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-        firebase.database().ref('shared_schedules').on('value', (snapshot) => {
-            const data = snapshot.val();
-            calSchedules = data ? Object.values(data) : [];
-            renderCalendar();
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                firebase.database().ref('shared_schedules').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    calSchedules = data ? Object.values(data) : [];
+                    renderCalendar();
+                });
+            }
         });
     }
 }
