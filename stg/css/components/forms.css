@@ -8,6 +8,7 @@
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
+    min-height: 0;
 }
 
 .form-group {
@@ -45,6 +46,15 @@ label {
     min-width: 0;
     display: flex;
     flex-direction: column;
+}
+
+.device-col textarea {
+    flex: 1;
+    min-height: 0;
+    resize: none;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .device-col-header {
@@ -126,6 +136,13 @@ label {
     outline: none;
     box-sizing: border-box;
     transition: var(--transition-fast);
+    resize: none;
+    overflow-y: auto;
+}
+
+.output-field:not(#outputTitle) {
+    flex: 1;
+    min-height: 0;
 }
 
 .output-field:focus {
@@ -137,6 +154,7 @@ label {
     font-weight: 800;
     color: #38bdf8 !important;
     border-color: #38bdf8 !important;
+    flex: none;
 }
 
 .pill-container {
