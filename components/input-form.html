@@ -46,7 +46,13 @@
             </select>
         </div>
         <div class="form-group">
-            <label>POC</label>
+            <div class="label-action-row" style="margin-bottom: 8px;">
+                <label style="margin-bottom: 0;">POC</label>
+                <div class="checkbox-group" style="gap: 10px;">
+                    <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="poc_type_app" value="App" onchange="generateTemplate()"> App</label>
+                    <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="poc_type_web" value="Web" onchange="generateTemplate()"> Web</label>
+                </div>
+            </div>
             <select id="poc" onchange="handlePocChange()">
                 <option value="T 멤버십">T 멤버십</option>
                 <option value="PC Web">PC Web</option>
@@ -95,11 +101,19 @@
 
     <div class="form-group" id="appVersionGroup">
         <div class="label-action-row">
-            <label id="appVersionLabel">앱 버전</label>
+            <label id="appVersionLabel">버전</label>
             <div id="ios-ver-toggle" style="display: none; gap: 10px;">
                 <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="TestFlight" checked onchange="syncEnvironmentByOS()"> TestFlight</label>
                 <label class="checkbox-label" style="font-size: 0.75rem;"><input type="radio" name="ios_ver_type" value="App Distribution" onchange="syncEnvironmentByOS()"> App Distribution</label>
             </div>
+        </div>
+        <div class="checkbox-group" style="margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="Android" onchange="updateVersionTextbox(); generateTemplate();"> Android</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="iOS" onchange="updateVersionTextbox(); generateTemplate();"> iOS</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="삼성 브라우저" onchange="updateVersionTextbox(); generateTemplate();"> 삼성 브라우저</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="Safari" onchange="updateVersionTextbox(); generateTemplate();"> Safari</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="크롬" onchange="updateVersionTextbox(); generateTemplate();"> 크롬</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" class="ver-type-cb" value="Edge" onchange="updateVersionTextbox(); generateTemplate();"> Edge</label>
         </div>
         <input type="text" id="appVersion" oninput="generateTemplate()">
     </div>
@@ -107,6 +121,18 @@
     <div class="form-group" id="urlGroup" style="display: none;">
         <label id="urlLabel">URL</label>
         <input type="text" id="targetUrl" oninput="generateTemplate()">
+    </div>
+
+    <div class="form-group" id="aiModeGroup" style="display: none;">
+        <label>■ 모드</label>
+        <select id="aiMode" onchange="generateTemplate()">
+            <option value="자동(default)">자동(default)</option>
+            <option value="테스트 모드">테스트 모드</option>
+            <option value="QA 모드">QA 모드</option>
+            <option value="일반 모드">일반 모드</option>
+            <option value="A Bucket">A Bucket</option>
+            <option value="B Bucket">B Bucket</option>
+        </select>
     </div>
 
     <div class="form-group">
