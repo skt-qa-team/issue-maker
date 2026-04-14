@@ -34,34 +34,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1500);
         }
     });
-
-    document.addEventListener('click', (e) => {
-        const targetIds = ['comp_preview', 'outputField', 'kpi_preview', 'outputTitle', 'outputBody'];
-        if (targetIds.includes(e.target.id)) {
-            const el = e.target;
-            if (!el.value || !el.value.trim()) return;
-
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(el.value).then(() => {
-                    window.showToast(`✨ 텍스트 복사 완료!`);
-                });
-            } else {
-                el.select();
-                document.execCommand('copy');
-                window.showToast(`✨ 텍스트 복사 완료!`);
-            }
-            
-            el.classList.add('copy-feedback');
-            setTimeout(() => el.classList.remove('copy-feedback'), 500);
-            window.getSelection().removeAllRanges();
-        }
-    });
-    
-    document.addEventListener('mouseover', (e) => {
-        const targetIds = ['comp_preview', 'outputField', 'kpi_preview', 'outputTitle', 'outputBody'];
-        if (targetIds.includes(e.target.id)) {
-            e.target.classList.add('clickable-preview');
-            e.target.title = "💡 클릭하면 전체 내용이 복사됩니다";
-        }
-    });
 });
