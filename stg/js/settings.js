@@ -198,7 +198,14 @@ function saveSettings() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
         const user = firebase.auth().currentUser;
         if (user && !user.isAnonymous) {
-            firebase.database().ref('users/' + user.uid + '/settings').set(data);
+            firebase.database().ref('users/' + user.uid + '/settings').set(data)
+                .then(() => {
+                    if (typeof showToast === 'function') showToast('✅ 파이어베이스 설정 저장 완료!');
+                })
+                .catch((error) => {
+                    console.error("Firebase save error: ", error);
+                    alert("파이어베이스 저장에 실패했습니다. 관리자에게 문의하세요.");
+                });
         }
     }
 
