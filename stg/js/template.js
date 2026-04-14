@@ -58,8 +58,9 @@ function syncEnvironmentByOS() {
     if (isInitialRender) {
         currentSelected = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
         isInitialRender = false;
-        updateVersionCheckboxesByOS(); 
     }
+
+    updateVersionCheckboxesByOS();
 
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
@@ -99,6 +100,7 @@ function syncEnvironmentByOS() {
     render('iosSpecialList', config.iosSpecialDevices || [], 'ios_s');
 
     updateVersionTextbox();
+    generateTemplate();
 }
 
 function handleDeviceClick(element) {
