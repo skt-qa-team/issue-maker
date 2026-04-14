@@ -133,7 +133,7 @@ function renderCalendar() {
         const todaysSchedules = calSchedules.filter(s => s.start <= dateStringYYYYMMDD && s.end >= dateStringYYYYMMDD);
         
         todaysSchedules.forEach(schedule => {
-            htmlContent += `<div class="cal-schedule" style="background-color: ${schedule.color};" onclick="openScheduleDetail('${schedule.id}')">${schedule.title}</div>`;
+            htmlContent += `<div class="cal-schedule" style="background-color: ${schedule.color};" onclick="event.stopPropagation(); openScheduleDetail('${schedule.id}')">${schedule.title}</div>`;
         });
 
         cell.innerHTML = htmlContent;
@@ -207,6 +207,10 @@ window.saveSchedule = () => {
             .then(() => {
                 if(typeof showToast === 'function') showToast("일정이 공유되었습니다.");
                 closeScheduleModal();
+            })
+            .catch((error) => {
+                console.error("Firebase save error:", error);
+                alert("권한이 없거나 저장에 실패했습니다.");
             });
     } else {
         calSchedules.push(newSchedule);
@@ -239,4 +243,8 @@ window.startScheduleWorkflow = () => {
             prefixPageInput.style.boxShadow = "none";
         }, 1500);
     }
+};
+
+window.openScheduleDetail = (id) => {
+    console.log("Detail view for schedule:", id);
 };
