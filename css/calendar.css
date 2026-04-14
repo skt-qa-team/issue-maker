@@ -113,7 +113,7 @@
     gap: 1px;
     border: 1px solid var(--border-color, #e5e7eb);
     border-radius: var(--radius-sm, 6px);
-    overflow: hidden;
+    overflow: visible; /* 중요: 긴 바가 옆으로 뻗어나가야 함 */
 }
 
 .cal-day {
@@ -124,6 +124,7 @@
     min-height: 100px;
     position: relative;
     cursor: pointer;
+    overflow: visible; /* 중요: 자식 요소인 일정이 옆 칸을 덮어야 함 */
 }
 
 .cal-day:hover {
@@ -148,7 +149,7 @@
     border-radius: 6px;
     box-sizing: border-box;
     position: relative;
-    z-index: 1;
+    z-index: 10; /* 날짜 숫자가 일정 바보다 위에 오도록 함 */
 }
 
 .holiday-label {
@@ -181,10 +182,6 @@
     z-index: -1;
 }
 
-.cal-day.today .holiday-label {
-    background: rgba(239, 68, 68, 0.15);
-}
-
 .cal-day.today {
     background: rgba(59, 130, 246, 0.03);
 }
@@ -194,6 +191,7 @@
     flex-direction: column;
     gap: 2px;
     padding-bottom: 4px;
+    position: relative;
 }
 
 .cal-schedule {
@@ -208,10 +206,15 @@
     color: #ffffff;
     cursor: pointer;
     transition: filter 0.1s;
-    position: relative;
-    z-index: 1;
     box-sizing: border-box;
     text-align: center;
+}
+
+.cal-schedule.span-head {
+    position: relative;
+    border-radius: 4px;
+    margin: 0 4px 2px 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .cal-schedule.spacer {
@@ -222,33 +225,5 @@
 
 .cal-schedule:hover {
     filter: brightness(1.1);
-    z-index: 10;
-}
-
-.cal-schedule.span-single {
-    border-radius: 4px;
-    margin: 0 4px;
-}
-
-.cal-schedule.span-start {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    margin-left: 4px;
-    width: calc(100% - 3px);
-    margin-right: -1px;
-}
-
-.cal-schedule.span-mid {
-    border-radius: 0;
-    margin-left: -1px;
-    margin-right: -1px;
-    width: calc(100% + 2px);
-}
-
-.cal-schedule.span-end {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    margin-right: 4px;
-    margin-left: -1px;
-    width: calc(100% - 3px);
+    z-index: 20 !important; /* 마우스 올렸을 때 가장 위로 */
 }
