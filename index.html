@@ -31,6 +31,7 @@
     <div id="modal-placeholder-setting"></div>
     <div id="modal-placeholder-changelog"></div>
     <div id="modal-placeholder-bookmark"></div>
+    <div id="modal-placeholder-schedule"></div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -72,6 +73,14 @@
         window.closeCompletionModal = window.closeCompletionModal || function() {
             document.getElementById('completionModal').style.display = 'none';
         };
+
+        fetch('modals/schedule-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                const placeholder = document.getElementById('modal-placeholder-schedule');
+                if (placeholder) placeholder.innerHTML = html;
+            })
+            .catch(err => console.error("일정 모달 로드 실패:", err));
     </script>
 </body>
 </html>
