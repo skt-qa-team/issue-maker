@@ -147,6 +147,8 @@
     padding: 8px 8px 4px 8px;
     border-radius: 6px;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
 }
 
 .holiday-label {
@@ -162,11 +164,25 @@
 .cal-weekdays .sat, .cal-day.sat .day-number { color: #3b82f6; }
 
 .cal-day.today .day-number {
+    background: transparent;
+    color: #ffffff;
+}
+
+.cal-day.today .day-number::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
     background: var(--accent-blue, #3b82f6);
-    color: white;
-    border-radius: 4px;
-    width: auto;
-    padding: 2px 6px;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.cal-day.today .holiday-label {
+    background: rgba(239, 68, 68, 0.15);
 }
 
 .cal-day.today {
@@ -195,6 +211,7 @@
     position: relative;
     z-index: 1;
     box-sizing: border-box;
+    text-align: center;
 }
 
 .cal-schedule.spacer {
