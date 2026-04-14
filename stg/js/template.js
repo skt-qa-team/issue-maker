@@ -95,22 +95,26 @@ function handlePocChange() {
     const pocEl = document.getElementById('poc');
     if(!pocEl) return;
     const poc = pocEl.value;
-    const isWeb = poc === 'Admin' || poc === 'PC Web';
+    
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+    const needsUrl = poc === 'Admin' || poc === 'PC Web' || poc === 'PC M.Web';
     const isAI = poc === 'AI Layer';
 
     const devGroup = document.getElementById('deviceGroup');
     const urlGroup = document.getElementById('urlGroup');
     const aiModeGroup = document.getElementById('aiModeGroup');
     
-    if(devGroup) isWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
-    if(urlGroup) isWeb ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    if(devGroup) isPureWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
+    if(urlGroup) needsUrl ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
     if(aiModeGroup) isAI ? aiModeGroup.style.display = 'block' : aiModeGroup.style.display = 'none';
     
-    if (isWeb) {
+    if (needsUrl) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const targetUrl = document.getElementById('targetUrl');
         if(targetUrl) targetUrl.value = poc === 'Admin' ? (cfg.adminUrl || '') : (cfg.pcUrl || '');
-    } else {
+    }
+    
+    if (!isPureWeb) {
         syncEnvironmentByOS();
     }
     generateTemplate();
@@ -153,18 +157,11 @@ function generateTemplate() {
     const poc = getValue('poc');
     const os = getValue('osType');
     
-    let pocAppWeb = [];
-    if (document.getElementById('poc_type_app') && document.getElementById('poc_type_app').checked) pocAppWeb.push('App');
-    if (document.getElementById('poc_type_web') && document.getElementById('poc_type_web').checked) pocAppWeb.push('Web');
-    const pocSuffix = pocAppWeb.length > 0 ? ` ${pocAppWeb.join(' / ')}` : '';
-    const finalPocText = `${poc}${pocSuffix}`;
-    
-    const isWeb = poc === 'Admin' || poc === 'PC Web';
-    let servers = [];
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+    let servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     let devices = "";
     
-    servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    if (!isWeb) {
+    if (!isPureWeb) {
         let checkedDeviceCbs = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
         if (os === "[Android]") {
             checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('and_'));
@@ -176,6 +173,11 @@ function generateTemplate() {
 
     let ver = getValue('appVersion');
     
+    const searchEngines = Array.from(document.querySelectorAll('.ver-type-cb:checked'))
+        .map(cb => cb.value)
+        .filter(val => ['삼성 브라우저', 'Safari', '크롬', 'Edge'].includes(val))
+        .join(' / ');
+
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
@@ -189,23 +191,30 @@ function generateTemplate() {
     const accVal = getValue('prefix_account').trim();
     const accPrefix = accVal ? `[${accVal}]` : '';
 
-    const pocPrefix = (poc && poc !== 'T 멤버십') ? `[${poc}]` : '';
+    const pocPrefix = (poc && poc !== 'T 멤버십 App') ? `[${poc}]` : '';
     const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
     const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
-    let envSection = `[Environment]\n■ POC : ${finalPocText}\n`;
-    if (poc === 'Admin' || poc === 'PC Web') {
+    let envSection = `[Environment]\n■ POC : ${poc}\n`;
+
+    if (poc === 'PC Web') {
+        if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
+    } else if (poc === 'PC M.Web') {
+        envSection += `■ Device : ${devices || '-'}\n`;
+        if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
+    } else if (poc === 'Admin') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
-    }
-
-    if (poc === 'AI Layer') {
-        const aiModeVal = getValue('aiMode');
-        if (aiModeVal) {
-            envSection += `\n■ 모드 : ${aiModeVal}`;
+        if (poc === 'AI Layer') {
+            const aiModeVal = getValue('aiMode');
+            if (aiModeVal) {
+                envSection += `\n■ 모드 : ${aiModeVal}`;
+            }
         }
     }
     
