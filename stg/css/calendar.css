@@ -234,7 +234,7 @@
     z-index: 20 !important;
 }
 
-.modal-overlay {
+.cal-modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5);
@@ -244,87 +244,87 @@
     z-index: 999;
 }
 
-.modal-content {
+.cal-modal-content {
     max-width: 600px; width: 90%; padding: 30px;
     border-top: 6px solid var(--accent-blue, #3b82f6);
     border-radius: 16px; background: #ffffff; position: relative;
     max-height: 90vh; overflow-y: auto;
 }
 
-.close-btn {
+.cal-close-btn {
     position: absolute; top: 20px; right: 20px;
     background: none; border: none; font-size: 24px;
     cursor: pointer; color: #6b7280;
 }
 
-.modal-header {
+.cal-modal-header {
     margin-bottom: 25px; border-bottom: 1px solid var(--border-color, #e5e7eb); padding-bottom: 15px;
 }
 
-.modal-header h2 { margin: 0; font-weight: 800; color: var(--text-main, #111827); font-size: 1.5rem; }
+.cal-modal-header h2 { margin: 0; font-weight: 800; color: var(--text-main, #111827); font-size: 1.5rem; }
 
-.form-group { margin-bottom: 20px; }
-.form-group label { font-weight: 700; margin-bottom: 8px; display: block; color: #374151; font-size: 0.95rem; }
+.cal-form-group { margin-bottom: 20px; }
+.cal-form-group label { font-weight: 700; margin-bottom: 8px; display: block; color: #374151; font-size: 0.95rem; }
 
-.form-control {
+.cal-form-control {
     width: 100%; padding: 12px; border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 8px; box-sizing: border-box; font-family: inherit;
     font-size: 0.95rem; transition: border-color 0.2s;
 }
 
-.form-control:focus {
+.cal-form-control:focus {
     outline: none; border-color: var(--accent-blue, #3b82f6);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-textarea.form-control { height: 80px; resize: none; }
-.grid-2 { display: flex; gap: 20px; }
-.grid-2 .form-group { flex: 1; margin-bottom: 0; }
-.radio-tab-group { display: flex; gap: 8px; }
+textarea.cal-form-control { height: 80px; resize: none; }
+.cal-grid-2 { display: flex; gap: 20px; }
+.cal-grid-2 .cal-form-group { flex: 1; margin-bottom: 0; }
+.cal-radio-tab-group { display: flex; gap: 8px; }
 
-.radio-tab {
+.cal-radio-tab {
     flex: 1; text-align: center; border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 8px; cursor: pointer; font-weight: 800;
     background: #f9fafb; transition: all 0.2s; font-size: 0.95rem;
 }
 
-.radio-tab input[type="radio"] { display: none; }
-.radio-tab span { display: block; padding: 12px 0; }
+.cal-radio-tab input[type="radio"] { display: none; }
+.cal-radio-tab span { display: block; padding: 12px 0; }
 
-.radio-tab input[type="radio"][value="#3b82f6"]:checked + span { background: #3b82f6; color: #ffffff; border-radius: 7px; }
-.radio-tab input[type="radio"][value="#f59e0b"]:checked + span { background: #f59e0b; color: #ffffff; border-radius: 7px; }
-.radio-tab input[type="radio"][value="#10b981"]:checked + span { background: #10b981; color: #ffffff; border-radius: 7px; }
-.radio-tab input[type="radio"][value="#8b5cf6"]:checked + span { background: #8b5cf6; color: #ffffff; border-radius: 7px; }
+.cal-radio-tab input[type="radio"][value="#3b82f6"]:checked + span { background: #3b82f6; color: #ffffff; border-radius: 7px; }
+.cal-radio-tab input[type="radio"][value="#f59e0b"]:checked + span { background: #f59e0b; color: #ffffff; border-radius: 7px; }
+.cal-radio-tab input[type="radio"][value="#10b981"]:checked + span { background: #10b981; color: #ffffff; border-radius: 7px; }
+.cal-radio-tab input[type="radio"][value="#8b5cf6"]:checked + span { background: #8b5cf6; color: #ffffff; border-radius: 7px; }
 
-.btn-save {
+.cal-btn-save {
     width: 100%; padding: 15px; font-size: 1.1rem; font-weight: 800;
     background: var(--accent-blue, #3b82f6); color: #ffffff;
     border: none; border-radius: 8px; cursor: pointer;
     margin-bottom: 20px; transition: background 0.2s;
 }
 
-.btn-save:hover { background: #2563eb; }
+.cal-btn-save:hover { background: #2563eb; }
 
-.quota-info { text-align: center; font-size: 13px; margin-bottom: 10px; font-weight: 700; color: #6b7280; }
+.cal-quota-info { text-align: center; font-size: 13px; margin-bottom: 10px; font-weight: 700; color: #6b7280; }
 
-.ai-dropzone {
+.cal-ai-dropzone {
     border: 2px dashed var(--accent-blue, #3b82f6); border-radius: 8px;
     padding: 25px; text-align: center; cursor: pointer;
     background: rgba(59, 130, 246, 0.05); transition: background 0.2s;
 }
 
-.ai-dropzone:hover { background: rgba(59, 130, 246, 0.1); }
-.ai-dropzone.dragover { background: rgba(59, 130, 246, 0.15); border-color: #2563eb; }
-.ai-icon { font-size: 2rem; margin-bottom: 10px; }
-.ai-title { font-weight: 800; color: var(--accent-blue, #3b82f6); margin-bottom: 5px; }
-.ai-desc { font-size: 0.8rem; color: #6b7280; }
+.cal-ai-dropzone:hover { background: rgba(59, 130, 246, 0.1); }
+.cal-ai-dropzone.dragover { background: rgba(59, 130, 246, 0.15); border-color: #2563eb; }
+.cal-ai-icon { font-size: 2rem; margin-bottom: 10px; }
+.cal-ai-title { font-weight: 800; color: var(--accent-blue, #3b82f6); margin-bottom: 5px; }
+.cal-ai-desc { font-size: 0.8rem; color: #6b7280; }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
-.spinner { font-size: 2rem; margin-bottom: 10px; display: inline-block; animation: spin 1s linear infinite; }
+.cal-spinner { font-size: 2rem; margin-bottom: 10px; display: inline-block; animation: spin 1s linear infinite; }
 
-.d-none { display: none !important; }
+.cal-d-none { display: none !important; }
 
-.detail-modal-content {
+.cal-detail-modal-content {
     max-width: 550px;
     width: 90%;
     padding: 0;
@@ -334,49 +334,49 @@ textarea.form-control { height: 80px; resize: none; }
     position: relative;
 }
 
-.detail-color-bar {
+.cal-detail-color-bar {
     height: 10px;
     width: 100%;
 }
 
-.detail-body {
+.cal-detail-body {
     padding: 30px;
 }
 
-.detail-header-group {
+.cal-detail-header-group {
     margin-bottom: 25px;
 }
 
-.detail-title {
+.cal-detail-title {
     margin: 0 0 10px 0;
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--text-main, #111827);
 }
 
-.detail-date {
+.cal-detail-date {
     margin: 0;
     color: var(--text-sub, #6b7280);
     font-weight: 600;
     font-size: 1rem;
 }
 
-.detail-info-box {
+.cal-detail-info-box {
     background: var(--bg-color, #f3f4f6);
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 25px;
 }
 
-.detail-info-item {
+.cal-detail-info-item {
     margin-bottom: 15px;
 }
 
-.detail-info-item:last-child {
+.cal-detail-info-item:last-child {
     margin-bottom: 0;
 }
 
-.detail-label {
+.cal-detail-label {
     display: block;
     font-size: 0.8rem;
     color: var(--text-sub, #6b7280);
@@ -384,24 +384,24 @@ textarea.form-control { height: 80px; resize: none; }
     font-weight: 700;
 }
 
-.detail-value-epic {
+.cal-detail-value-epic {
     font-weight: 800;
     color: var(--accent-blue, #3b82f6);
     font-size: 1.1rem;
 }
 
-.detail-value-desc {
+.cal-detail-value-desc {
     line-height: 1.6;
     color: var(--text-main, #111827);
     white-space: pre-wrap;
 }
 
-.detail-btn-group {
+.cal-detail-btn-group {
     display: flex;
     gap: 10px;
 }
 
-.btn-action-primary {
+.cal-btn-action-primary {
     flex: 2;
     padding: 12px;
     font-weight: 800;
@@ -413,11 +413,11 @@ textarea.form-control { height: 80px; resize: none; }
     transition: background 0.2s;
 }
 
-.btn-action-primary:hover {
+.cal-btn-action-primary:hover {
     background: #2563eb;
 }
 
-.btn-action-secondary {
+.cal-btn-action-secondary {
     flex: 1;
     padding: 12px;
     font-weight: 700;
@@ -428,11 +428,11 @@ textarea.form-control { height: 80px; resize: none; }
     transition: background 0.2s;
 }
 
-.btn-action-secondary:hover {
+.cal-btn-action-secondary:hover {
     background: var(--bg-color, #f3f4f6);
 }
 
-.btn-action-danger {
+.cal-btn-action-danger {
     flex: 1;
     padding: 12px;
     font-weight: 700;
@@ -444,6 +444,6 @@ textarea.form-control { height: 80px; resize: none; }
     transition: background 0.2s;
 }
 
-.btn-action-danger:hover {
+.cal-btn-action-danger:hover {
     background: #fef2f2;
 }
