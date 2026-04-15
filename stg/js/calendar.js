@@ -465,11 +465,25 @@ window.openScheduleDetail = (id) => {
     currentViewingScheduleId = id;
     const modal = document.getElementById('scheduleDetailModal');
     if (!modal) return;
+    
     document.getElementById('detail_color_bar').style.backgroundColor = sch.color;
     document.getElementById('detail_title').innerText = sch.title;
     document.getElementById('detail_date').innerText = `${sch.start} ~ ${sch.end}`;
-    document.getElementById('detail_epic').innerText = sch.epic || '-';
     document.getElementById('detail_desc').innerText = sch.desc || '-';
+    
+    // 🔥 Epic Link 유무에 따른 노출/숨김 처리
+    const epicWrapper = document.getElementById('detail_epic_wrapper');
+    const startEpicBtn = document.getElementById('btn_start_epic');
+    
+    if (sch.epic && sch.epic.trim() !== '') {
+        epicWrapper.style.display = 'block';
+        startEpicBtn.style.display = 'block';
+        document.getElementById('detail_epic').innerText = sch.epic;
+    } else {
+        epicWrapper.style.display = 'none';
+        startEpicBtn.style.display = 'none';
+    }
+
     modal.style.display = 'flex';
 };
 
