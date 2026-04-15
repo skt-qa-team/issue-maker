@@ -3,8 +3,26 @@ let calSchedules = [];
 let currentViewingScheduleId = null;
 
 const holidays = {
-    "01-01": "신정", "03-01": "3·1절", "05-05": "어린이날", "06-06": "현충일",
-    "08-15": "광복절", "10-03": "개천절", "10-09": "한글날", "12-25": "기독탄신일"
+    "01-01": "신정",
+    "02-16": "설날 연휴",
+    "02-17": "설날",
+    "02-18": "설날 연휴",
+    "03-01": "삼일절",
+    "03-02": "대체공휴일",
+    "05-05": "어린이날",
+    "05-24": "부처님오신날",
+    "05-25": "대체공휴일",
+    "06-06": "현충일",
+    "08-15": "광복절",
+    "08-17": "대체공휴일",
+    "09-24": "추석 연휴",
+    "09-25": "추석",
+    "09-26": "추석 연휴",
+    "09-28": "대체공휴일",
+    "10-03": "개천절",
+    "10-05": "대체공휴일",
+    "10-09": "한글날",
+    "12-25": "성탄절"
 };
 
 function fetchSchedulesFromFirebase() {
@@ -31,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchSchedulesFromFirebase(); 
             renderCalendar();
         } catch (error) {
-            console.error('Calendar component failed to load:', error);
+            console.error(error);
         }
     };
     loadCalendarComponent();
@@ -310,7 +328,20 @@ function renderCalendar() {
     for (let i = 1; i <= remain; i++) allDays.push({ day: i, month: month + 1, year, type: 'empty' });
 
     const laneMap = new Map(); 
+
+    const colorOrder = {
+        "#3b82f6": 1,
+        "#10b981": 2,
+        "#f59e0b": 3,
+        "#ef4444": 4,
+        "#8b5cf6": 5
+    };
+
     const sortedSchedules = [...calSchedules].sort((a, b) => {
+        const weightA = colorOrder[a.color] || 99;
+        const weightB = colorOrder[b.color] || 99;
+        if (weightA !== weightB) return weightA - weightB;
+
         if (!a.start || !b.start) return 0;
         if (a.start !== b.start) return new Date(a.start) - new Date(b.start);
         return (new Date(b.end) - new Date(b.start)) - (new Date(a.end) - new Date(a.start));
@@ -356,14 +387,15 @@ function renderCalendar() {
         const cell = document.createElement('div');
         cell.className = `cal-day ${wd.type}`;
         const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+        const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
         const dayOfWeek = idx % 7;
         
-        if (dayOfWeek === 0 || (wd.type === 'current' && holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`])) cell.classList.add('sun');
+        if (dayOfWeek === 0 || (wd.type === 'current' && holidays[keyMMDD])) cell.classList.add('sun');
         else if (dayOfWeek === 6) cell.classList.add('sat');
         if (isThisMonth && wd.type === 'current' && wd.day === today.getDate()) cell.classList.add('today');
 
-        let holidayLabel = (wd.type === 'current' && holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]) 
-                          ? `<span class="holiday-label">${holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]}</span>` : '';
+        let holidayLabel = (wd.type === 'current' && holidays[keyMMDD]) 
+                          ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '';
         
         let html = `<div class="day-number">${wd.day}${holidayLabel}</div><div class="sch-container">`;
         const dayLanes = laneMap.get(dateStr) || [];
