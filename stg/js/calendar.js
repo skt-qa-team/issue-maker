@@ -128,13 +128,13 @@ async function processScreenshot(file) {
                 const base64Image = reader.result.split(',')[1];
                 const mimeType = file.type;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${savedKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${savedKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열은 무시하세요. 날짜는 2026년 기준으로 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
+                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열 데이터는 완전히 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 만약 시작일과 종료일이 같다면 start와 end에 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
                                 { inline_data: { mime_type: mimeType, data: base64Image } }
                             ]
                         }]
@@ -189,6 +189,7 @@ async function processScreenshot(file) {
                 alert("처리 오류: " + innerError.message);
             } finally {
                 dropzoneContent.style.display = 'block';
+                loadingContent.style.none = 'none';
                 loadingContent.style.display = 'none';
             }
         };
