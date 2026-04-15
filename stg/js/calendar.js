@@ -2,6 +2,8 @@ let calCurrentDate = new Date();
 let calSchedules = [];
 let currentViewingScheduleId = null;
 
+const GEMINI_API_KEY = "AIzaSyA3u-gBRUtcIzFt5EQYUzLjNL66NVfAdlI";
+
 const holidays = {
     "01-01": "신정", "03-01": "3·1절", "05-05": "어린이날", "06-06": "현충일",
     "08-15": "광복절", "10-03": "개천절", "10-09": "한글날", "12-25": "기독탄신일"
@@ -53,6 +55,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 100);
 });
+
+document.addEventListener('change', async (e) => {
+    if (e.target.id === 'ai_image_input') {
+        const file = e.target.files[0];
+        if (file) await processScreenshot(file);
+        e.target.value = '';
+    }
+});
+
+document.addEventListener('dragover', (e) => {
+    const dropzone = e.target.closest('#ai_dropzone');
+    if (dropzone) {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    }
+});
+
+document.addEventListener('dragleave', (e) => {
+    const dropzone = e.target.closest('#ai_dropzone');
+    if (dropzone) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+    }
+});
+
+document.addEventListener('drop', async (e) => {
+    const dropzone = e.target.closest('#ai_dropzone');
+    if (dropzone) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            await processScreenshot(file);
+        }
+    }
+});
+
+async function processScreenshot(file) {
+    const dropzoneContent = document.getElementById('ai_dropzone_content');
+    const loadingContent = document.getElementById('ai_loading_content');
+    if (!dropzoneContent || !loadingContent) return;
+
+    dropzoneContent.style.display = 'none';
+    loadingContent.style.display = 'block';
+
+    try {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const base64Image = reader.result.split(',')[1];
+            const mimeType = file.type;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: "이 이미지에서 일정을 파악하여 JSON으로 반환하라. 필드는 title, start(YYYY-MM-DD), end(YYYY-MM-DD), epic, desc를 포함하라. 마크다운 기호 없이 순수한 JSON 문자열만 출력하라." },
+                            { inline_data: { mime_type: mimeType, data: base64Image } }
+                        ]
+                    }]
+                })
+            });
+
+            const result = await response.json();
+            let textResult = result.candidates[0].content.parts[0].text;
+            textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(textResult);
+
+            if (parsed.title) document.getElementById('sch_title').value = parsed.title;
+            if (parsed.start) document.getElementById('sch_start').value = parsed.start;
+            if (parsed.end) document.getElementById('sch_end').value = parsed.end;
+            if (parsed.epic) document.getElementById('sch_epic').value = parsed.epic;
+            if (parsed.desc) document.getElementById('sch_desc').value = parsed.desc;
+            
+            if (typeof showToast === 'function') showToast("AI 분석 및 자동 입력이 완료되었습니다.");
+        };
+    } catch (error) {
+        console.error("Vision API Error:", error);
+        alert("이미지 분석 중 오류가 발생했습니다.");
+    } finally {
+        setTimeout(() => {
+            dropzoneContent.style.display = 'block';
+            loadingContent.style.display = 'none';
+        }, 500);
+    }
+}
 
 window.switchMainTab = (tabName) => {
     const allTabs = document.querySelectorAll('.main-tab-content');
