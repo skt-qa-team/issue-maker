@@ -36,22 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loadCalendarComponent();
 
-    // 탭 변환 및 동적 UI 제어 이벤트
     document.addEventListener('change', (e) => {
-        // 라벨 색상(유형) 변경 시 UI 업데이트
         if (e.target.name === 'sch_color') {
             handleScheduleTypeChange();
         }
         
-        // 시작일 입력 시, 종료일 자동 셋팅 로직
         if (e.target.id === 'sch_start') {
             const endInput = document.getElementById('sch_end');
             const typeRadio = document.querySelector('input[name="sch_color"]:checked');
             
             if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
-                endInput.value = e.target.value; // 다른 유형은 시작일=종료일 동일시
+                endInput.value = e.target.value;
             } else if (!endInput.value || endInput.value < e.target.value) {
-                endInput.value = e.target.value; // 빈칸이거나 역전현상 방지
+                endInput.value = e.target.value;
             }
         }
     });
@@ -74,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
-// 일정 유형에 따른 입력폼 동적 제어
 function handleScheduleTypeChange() {
     const selectedRadio = document.querySelector('input[name="sch_color"]:checked');
     if (!selectedRadio) return;
@@ -226,7 +222,6 @@ async function processScreenshot(file) {
                     let savedCount = 0;
 
                     parsedArray.forEach((item, index) => {
-                        // DB 찌꺼기 방지: 시작일과 제목이 없으면 등록 패스
                         if (!item.title || !item.start) return; 
 
                         const newSch = {
@@ -236,7 +231,7 @@ async function processScreenshot(file) {
                             end: item.end || item.start,
                             epic: '',
                             desc: 'AI 자동 추출 (스크린샷)',
-                            color: '#3b82f6' // AI는 기본 검증 색상
+                            color: '#3b82f6' 
                         };
 
                         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
@@ -376,9 +371,8 @@ function renderCalendar() {
         for (let l = 0; l < dayLanes.length; l++) {
             const item = dayLanes[l];
             if (item && item.isHead) {
-                // width 와 background-color는 일정마다 달라지므로 인라인으로 둡니다.
-                const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px)`;
-                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal};" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
+                const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px - 10px)`;
+                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; margin-left: 5px;" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
             } else {
                 html += `<div class="cal-schedule spacer"></div>`;
             }
@@ -423,7 +417,7 @@ window.openScheduleModal = (id = null) => {
     if (detailModal) detailModal.style.display = 'none';
     currentViewingScheduleId = null;
 
-    handleScheduleTypeChange(); // UI 초기 세팅 동기화
+    handleScheduleTypeChange(); 
     updateQuotaDisplay();
     modal.style.display = 'flex';
 };
@@ -440,7 +434,6 @@ window.saveSchedule = () => {
     const colorRadio = document.querySelector('input[name="sch_color"]:checked');
     const color = colorRadio ? colorRadio.value : '#3b82f6';
     
-    // 검증 유형이 아니면 종료일을 강제로 시작일과 맞춤
     let end = document.getElementById('sch_end').value;
     if (colorRadio && colorRadio.getAttribute('data-type') !== '검증') end = start;
 
@@ -471,17 +464,16 @@ window.openScheduleDetail = (id) => {
     document.getElementById('detail_date').innerText = `${sch.start} ~ ${sch.end}`;
     document.getElementById('detail_desc').innerText = sch.desc || '-';
     
-    // 🔥 Epic Link 유무에 따른 노출/숨김 처리
     const epicWrapper = document.getElementById('detail_epic_wrapper');
     const startEpicBtn = document.getElementById('btn_start_epic');
     
     if (sch.epic && sch.epic.trim() !== '') {
-        epicWrapper.style.display = 'block';
-        startEpicBtn.style.display = 'block';
+        if (epicWrapper) epicWrapper.style.display = 'block';
+        if (startEpicBtn) startEpicBtn.style.display = 'block';
         document.getElementById('detail_epic').innerText = sch.epic;
     } else {
-        epicWrapper.style.display = 'none';
-        startEpicBtn.style.display = 'none';
+        if (epicWrapper) epicWrapper.style.display = 'none';
+        if (startEpicBtn) startEpicBtn.style.display = 'none';
     }
 
     modal.style.display = 'flex';
