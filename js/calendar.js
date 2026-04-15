@@ -2,7 +2,7 @@ let calCurrentDate = new Date();
 let calSchedules = [];
 let currentViewingScheduleId = null;
 
-const GEMINI_API_KEY = "AIzaSyA3u-gBRUtcIzFt5EQYUzLjNL66NVfAdlI";
+const GEMINI_API_KEY = "AIzaSyBcmPDVqoaHI4-dergdI-oe1DctnaW5l7c";
 
 const holidays = {
     "01-01": "신정", "03-01": "3·1절", "05-05": "어린이날", "06-06": "현충일",
