@@ -128,13 +128,13 @@ async function processScreenshot(file) {
                 const base64Image = reader.result.split(',')[1];
                 const mimeType = file.type;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${savedKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${savedKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열 데이터는 완전히 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
+                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열은 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
                                 { inline_data: { mime_type: mimeType, data: base64Image } }
                             ]
                         }]
@@ -152,6 +152,8 @@ async function processScreenshot(file) {
                 }
 
                 if (!response.ok) throw new Error("API 요청 실패");
+
+                if (!result.candidates || !result.candidates[0]) throw new Error("AI가 데이터를 분석하지 못했습니다.");
 
                 let textResult = result.candidates[0].content.parts[0].text;
                 textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -310,7 +312,7 @@ function renderCalendar() {
         let holidayLabel = (wd.type === 'current' && holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]) 
                           ? `<span class="holiday-label">${holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]}</span>` : '';
         
-        let html = `<div class="day-number">${wd.day}${holidayLabel}</div><div class="sch-container">`;
+        let html = `<div class="day-number">${wd.day}${holidayLabel}</div><div class="sch-container" style="gap: 4px; display: flex; flex-direction: column;">`;
         const dayLanes = laneMap.get(dateStr) || [];
         const maxLane = dayLanes.length;
 
@@ -318,11 +320,9 @@ function renderCalendar() {
             const item = dayLanes[l];
             if (item && item.isHead) {
                 const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px)`;
-                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5; margin-bottom: 3px; border: 1px solid rgba(255,255,255,0.2);" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
-            } else if (item && !item.isHead) {
-                html += `<div class="cal-schedule spacer" style="margin-bottom: 3px;"></div>`;
+                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5; margin-bottom: 2px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 1px 2px rgba(0,0,0,0.1);" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
             } else {
-                html += `<div class="cal-schedule spacer" style="margin-bottom: 3px;"></div>`;
+                html += `<div class="cal-schedule spacer" style="height: 24px; margin-bottom: 2px;"></div>`;
             }
         }
         html += `</div>`;
