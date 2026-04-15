@@ -118,77 +118,82 @@ async function processScreenshot(file) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
-            const base64Image = reader.result.split(',')[1];
-            const mimeType = file.type;
+            try {
+                const base64Image = reader.result.split(',')[1];
+                const mimeType = file.type;
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 사용하고, 2, 3, 5열은 무시하세요. 여러 개의 일정을 추출하여 JSON 배열(Array)로 반환하세요. 날짜 포맷은 2026년 기준 'YYYY-MM-DD'로 변환하고, 시작과 종료일이 같으면 start와 end를 동일하게 설정하세요. 배열 형식: [{\"title\":\"...\", \"start\":\"...\", \"end\":\"...\"}]. 마크다운 기호 없이 순수한 JSON 배열 문자열만 출력하세요." },
-                            { inline_data: { mime_type: mimeType, data: base64Image } }
-                        ]
-                    }]
-                })
-            });
-
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error?.message || "API 요청 실패");
-            }
-
-            if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
-                throw new Error("API 응답 구조가 올바르지 않습니다.");
-            }
-
-            let textResult = result.candidates[0].content.parts[0].text;
-            textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
-            const parsedArray = JSON.parse(textResult);
-
-            if (Array.isArray(parsedArray)) {
-                let savePromises = [];
-                parsedArray.forEach((item, index) => {
-                    const newSch = {
-                        id: Date.now().toString() + index,
-                        title: item.title || '새 일정',
-                        start: item.start || '',
-                        end: item.end || '',
-                        epic: '',
-                        desc: 'AI 자동 추출됨',
-                        color: '#3b82f6'
-                    };
-
-                    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                        const promise = firebase.database().ref('shared_schedules/' + newSch.id).set(newSch);
-                        savePromises.push(promise);
-                    } else {
-                        calSchedules.push(newSch);
-                    }
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 사용하고, 2, 3, 5열은 무시하세요. 여러 개의 일정을 추출하여 JSON 배열(Array)로 반환하세요. 날짜 포맷은 2026년 기준 'YYYY-MM-DD'로 변환하고, 시작과 종료일이 같으면 start와 end를 동일하게 설정하세요. 배열 형식: [{\"title\":\"...\", \"start\":\"...\", \"end\":\"...\"}]. 마크다운 기호 없이 순수한 JSON 배열 문자열만 출력하세요." },
+                                { inline_data: { mime_type: mimeType, data: base64Image } }
+                            ]
+                        }]
+                    })
                 });
 
-                if (savePromises.length > 0) {
-                    await Promise.all(savePromises);
-                } else {
-                    renderCalendar();
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error?.message || "API 요청 실패");
                 }
 
-                if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
-                closeScheduleModal();
-            } else {
-                throw new Error("JSON 결과가 배열 형태가 아닙니다.");
+                if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
+                    throw new Error("API 응답 구조가 올바르지 않습니다.");
+                }
+
+                let textResult = result.candidates[0].content.parts[0].text;
+                textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
+                const parsedArray = JSON.parse(textResult);
+
+                if (Array.isArray(parsedArray)) {
+                    let savePromises = [];
+                    parsedArray.forEach((item, index) => {
+                        const newSch = {
+                            id: Date.now().toString() + index,
+                            title: item.title || '새 일정',
+                            start: item.start || '',
+                            end: item.end || '',
+                            epic: '',
+                            desc: 'AI 자동 추출됨',
+                            color: '#3b82f6'
+                        };
+
+                        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                            const promise = firebase.database().ref('shared_schedules/' + newSch.id).set(newSch);
+                            savePromises.push(promise);
+                        } else {
+                            calSchedules.push(newSch);
+                        }
+                    });
+
+                    if (savePromises.length > 0) {
+                        await Promise.all(savePromises);
+                    } else {
+                        renderCalendar();
+                    }
+
+                    if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
+                    closeScheduleModal();
+                } else {
+                    throw new Error("JSON 결과가 배열 형태가 아닙니다.");
+                }
+            } catch (innerError) {
+                console.error("Inner Processing Error:", innerError);
+                alert("이미지 처리 중 오류가 발생했습니다: " + innerError.message);
+            } finally {
+                dropzoneContent.style.display = 'block';
+                loadingContent.style.display = 'none';
             }
         };
     } catch (error) {
-        console.error("Vision API Error:", error);
-        alert("이미지 분석 중 오류가 발생했습니다: " + error.message);
-    } finally {
-        setTimeout(() => {
-            dropzoneContent.style.display = 'block';
-            loadingContent.style.display = 'none';
-        }, 500);
+        console.error("FileReader Error:", error);
+        alert("파일을 읽는 중 오류가 발생했습니다.");
+        dropzoneContent.style.display = 'block';
+        loadingContent.style.display = 'none';
     }
 }
 
