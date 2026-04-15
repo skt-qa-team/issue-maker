@@ -1,61 +1,61 @@
-<div class="modal-overlay" id="scheduleModal">
-    <div class="modal-content">
-        <button class="close-btn" onclick="closeScheduleModal()">×</button>
-        <div class="modal-header">
+<div class="cal-modal-overlay" id="scheduleModal">
+    <div class="cal-modal-content">
+        <button class="cal-close-btn" onclick="closeScheduleModal()">×</button>
+        <div class="cal-modal-header">
             <h2>📅 일정 등록/수정</h2>
         </div>
         
         <input type="hidden" id="sch_id">
-        <div id="ai_quota_info" class="quota-info"></div>
+        <div id="ai_quota_info" class="cal-quota-info"></div>
 
-        <div class="form-group">
+        <div class="cal-form-group">
             <label>라벨 (일정 유형)</label>
-            <div class="radio-tab-group" id="sch_type_group">
-                <label class="radio-tab"><input type="radio" name="sch_color" value="#3b82f6" data-type="검증" checked><span>검증</span></label>
-                <label class="radio-tab"><input type="radio" name="sch_color" value="#f59e0b" data-type="회의"><span>회의</span></label>
-                <label class="radio-tab"><input type="radio" name="sch_color" value="#10b981" data-type="할일"><span>할 일</span></label>
-                <label class="radio-tab"><input type="radio" name="sch_color" value="#8b5cf6" data-type="기타"><span>기타</span></label>
+            <div class="cal-radio-tab-group" id="sch_type_group">
+                <label class="cal-radio-tab"><input type="radio" name="sch_color" value="#3b82f6" data-type="검증" checked><span>검증</span></label>
+                <label class="cal-radio-tab"><input type="radio" name="sch_color" value="#f59e0b" data-type="회의"><span>회의</span></label>
+                <label class="cal-radio-tab"><input type="radio" name="sch_color" value="#10b981" data-type="할일"><span>할 일</span></label>
+                <label class="cal-radio-tab"><input type="radio" name="sch_color" value="#8b5cf6" data-type="기타"><span>기타</span></label>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="cal-form-group">
             <label>일정 제목 *</label>
-            <input type="text" id="sch_title" class="form-control" placeholder="일정 제목을 입력하세요">
+            <input type="text" id="sch_title" class="cal-form-control" placeholder="일정 제목을 입력하세요">
         </div>
         
-        <div class="grid-2" id="date_group">
-            <div class="form-group">
+        <div class="cal-grid-2" id="date_group">
+            <div class="cal-form-group">
                 <label id="label_sch_start">시작일 *</label>
-                <input type="date" id="sch_start" class="form-control">
+                <input type="date" id="sch_start" class="cal-form-control">
             </div>
-            <div class="form-group" id="group_sch_end">
+            <div class="cal-form-group" id="group_sch_end">
                 <label>종료일 *</label>
-                <input type="date" id="sch_end" class="form-control">
+                <input type="date" id="sch_end" class="cal-form-control">
             </div>
         </div>
         
-        <div class="form-group" id="group_sch_epic">
+        <div class="cal-form-group" id="group_sch_epic">
             <label>Epic Link</label>
-            <input type="text" id="sch_epic" class="form-control" placeholder="예: SKM-1024">
+            <input type="text" id="sch_epic" class="cal-form-control" placeholder="예: SKM-1024">
         </div>
         
-        <div class="form-group">
+        <div class="cal-form-group">
             <label>상세 내용</label>
-            <textarea id="sch_desc" class="form-control"></textarea>
+            <textarea id="sch_desc" class="cal-form-control"></textarea>
         </div>
         
-        <button class="btn-save" onclick="saveSchedule()">일정 저장</button>
+        <button class="cal-btn-save" onclick="saveSchedule()">일정 저장</button>
 
-        <div class="ai-dropzone" id="ai_dropzone" onclick="document.getElementById('ai_image_input').click()">
-            <input type="file" id="ai_image_input" accept="image/*" class="d-none">
+        <div class="cal-ai-dropzone" id="ai_dropzone" onclick="document.getElementById('ai_image_input').click()">
+            <input type="file" id="ai_image_input" accept="image/*" class="cal-d-none">
             <div id="ai_dropzone_content">
-                <div class="ai-icon">✨📸</div>
-                <div class="ai-title">스크린샷 AI 자동 분석</div>
-                <div class="ai-desc">이미지를 드래그하거나 클릭하여 업로드하세요</div>
+                <div class="cal-ai-icon">✨📸</div>
+                <div class="cal-ai-title">스크린샷 AI 자동 분석</div>
+                <div class="cal-ai-desc">이미지를 드래그하거나 클릭하여 업로드하세요</div>
             </div>
-            <div id="ai_loading_content" class="d-none">
-                <div class="spinner">⏳</div>
-                <div class="ai-title">Gemini가 일정을 추출하고 있습니다...</div>
+            <div id="ai_loading_content" class="cal-d-none">
+                <div class="cal-spinner">⏳</div>
+                <div class="cal-ai-title">Gemini가 일정을 추출하고 있습니다...</div>
             </div>
         </div>
     </div>
