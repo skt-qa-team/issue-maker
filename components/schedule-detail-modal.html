@@ -1,30 +1,30 @@
-<div class="modal-overlay" id="scheduleDetailModal">
-    <div class="detail-modal-content">
-        <div id="detail_color_bar" class="detail-color-bar" style="background-color: #3b82f6;"></div>
+<div class="cal-modal-overlay" id="scheduleDetailModal">
+    <div class="cal-detail-modal-content">
+        <div id="detail_color_bar" class="cal-detail-color-bar" style="background-color: #3b82f6;"></div>
         
-        <div class="detail-body">
-            <button class="close-btn" onclick="closeScheduleDetail()">×</button>
+        <div class="cal-detail-body">
+            <button class="cal-close-btn" onclick="closeScheduleDetail()">×</button>
             
-            <div class="detail-header-group">
-                <h2 id="detail_title" class="detail-title">일정 제목</h2>
-                <p id="detail_date" class="detail-date">2026-04-14 ~ 2026-04-17</p>
+            <div class="cal-detail-header-group">
+                <h2 id="detail_title" class="cal-detail-title">일정 제목</h2>
+                <p id="detail_date" class="cal-detail-date">2026-04-14 ~ 2026-04-17</p>
             </div>
 
-            <div class="detail-info-box">
-                <div class="detail-info-item" id="detail_epic_wrapper">
-                    <label class="detail-label">EPIC LINK</label>
-                    <div id="detail_epic" class="detail-value-epic">SKM-1234</div>
+            <div class="cal-detail-info-box">
+                <div class="cal-detail-info-item" id="detail_epic_wrapper">
+                    <label class="cal-detail-label">EPIC LINK</label>
+                    <div id="detail_epic" class="cal-detail-value-epic">SKM-1234</div>
                 </div>
-                <div class="detail-info-item">
-                    <label class="detail-label">상세 내용</label>
-                    <div id="detail_desc" class="detail-value-desc">상세 내용이 표시됩니다.</div>
+                <div class="cal-detail-info-item">
+                    <label class="cal-detail-label">상세 내용</label>
+                    <div id="detail_desc" class="cal-detail-value-desc">상세 내용이 표시됩니다.</div>
                 </div>
             </div>
 
-            <div class="detail-btn-group">
-                <button id="btn_start_epic" class="btn-action-primary" onclick="startScheduleWorkflow()">🚀 일정 시작 (Epic 연동)</button>
-                <button class="btn-action-secondary" onclick="editSchedule()">수정</button>
-                <button class="btn-action-danger" onclick="deleteSchedule()">삭제</button>
+            <div class="cal-detail-btn-group">
+                <button id="btn_start_epic" class="cal-btn-action-primary" onclick="startScheduleWorkflow()">🚀 일정 시작 (Epic 연동)</button>
+                <button class="cal-btn-action-secondary" onclick="editSchedule()">수정</button>
+                <button class="cal-btn-action-danger" onclick="deleteSchedule()">삭제</button>
             </div>
         </div>
     </div>
