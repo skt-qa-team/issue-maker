@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'modal-placeholder-kpi', url: 'components/kpi-modal.html' },
         { id: 'modal-placeholder-theme', url: 'components/theme-modal.html' },
         { id: 'modal-placeholder-setting', url: 'components/setting-modal.html' },
-        { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' }
+        { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' },
+        { id: 'modal-placeholder-schedule', url: 'components/schedule-modal.html' },
+        { id: 'modal-placeholder-schedule-detail', url: 'components/schedule-detail-modal.html' }
     ];
 
     Promise.all(components.map(comp => 

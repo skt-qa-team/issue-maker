@@ -1,5 +1,52 @@
 let isInitialRender = true;
 
+function escapeHTMLTemplate(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function updateVersionCheckboxesByOS() {
+    const osEl = document.getElementById('osType');
+    const pocEl = document.getElementById('poc');
+    if (!osEl || !pocEl) return;
+    
+    const osType = osEl.value;
+    const poc = pocEl.value;
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+
+    const cbAnd = document.getElementById('ver_cb_android');
+    const cbIos = document.getElementById('ver_cb_ios');
+    const cbSam = document.getElementById('ver_cb_samsung');
+    const cbSaf = document.getElementById('ver_cb_safari');
+    const cbChr = document.getElementById('ver_cb_chrome');
+    const cbEdg = document.getElementById('ver_cb_edge');
+
+    if (cbAnd) cbAnd.checked = false;
+    if (cbIos) cbIos.checked = false;
+    if (cbSam) cbSam.checked = false;
+    if (cbSaf) cbSaf.checked = false;
+    if (cbChr) cbChr.checked = false;
+    if (cbEdg) cbEdg.checked = false;
+
+    if (!isPureWeb) {
+        if (osType === "[Android/iOS]") {
+            if (cbAnd) cbAnd.checked = true;
+            if (cbIos) cbIos.checked = true;
+        } else if (osType === "[Android]") {
+            if (cbAnd) cbAnd.checked = true;
+        } else if (osType === "[iOS]") {
+            if (cbIos) cbIos.checked = true;
+        }
+    } else {
+        if (cbChr) cbChr.checked = true; 
+    }
+}
+
 function syncEnvironmentByOS() {
     const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
@@ -12,6 +59,8 @@ function syncEnvironmentByOS() {
         currentSelected = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
         isInitialRender = false;
     }
+
+    updateVersionCheckboxesByOS();
 
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
@@ -32,11 +81,16 @@ function syncEnvironmentByOS() {
         container.innerHTML = '';
         list.forEach(dev => {
             let isCheckedStr = '';
-            if (currentSelected.includes(dev) && !claimedDevices.has(dev)) {
+            
+            const uniqueKey = `${idPrefix}_${dev}`;
+            if (currentSelected.includes(dev) && !claimedDevices.has(uniqueKey)) {
                 isCheckedStr = 'checked';
-                claimedDevices.add(dev);
+                claimedDevices.add(uniqueKey);
             }
-            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${dev}" class="pill-cb issue-device-cb" value="${dev}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${dev}" class="pill-label">${dev}</label>`;
+            
+            const safeDevName = escapeHTMLTemplate(dev);
+            
+            container.innerHTML += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
         });
     };
 
@@ -45,19 +99,7 @@ function syncEnvironmentByOS() {
     render('iosNormalList', config.iosDevices || [], 'ios_n');
     render('iosSpecialList', config.iosSpecialDevices || [], 'ios_s');
 
-    let ver = "";
-    const iosTypeChecked = document.querySelector('input[name="ios_ver_type"]:checked');
-    const iosMode = iosTypeChecked ? iosTypeChecked.value : 'TestFlight';
-
-    if (osType === "[Android/iOS]") {
-        ver = `App Tester_${config.andAppTester || ''} / ${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`;
-    } else if (osType === "[Android]") {
-        ver = config.andAppTester || '';
-    } else {
-        ver = (iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''));
-    }
-    const verInput = document.getElementById('appVersion');
-    if(verInput) verInput.value = ver;
+    updateVersionTextbox();
     generateTemplate();
 }
 
@@ -88,28 +130,68 @@ function toggleDeviceMode(platform) {
         if(specialList) specialList.classList.remove('d-none');
         if(normalList) normalList.classList.add('d-none');
     }
-    generateTemplate();
+    generateTemplate(); 
 }
 
 function handlePocChange() {
     const pocEl = document.getElementById('poc');
     if(!pocEl) return;
     const poc = pocEl.value;
-    const isWeb = poc === 'Admin' || poc === 'PC Web';
+    
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+    const needsUrl = poc === 'Admin' || poc === 'PC Web' || poc === 'PC M.Web';
+    const isAI = poc === 'AI Layer';
+
     const devGroup = document.getElementById('deviceGroup');
     const urlGroup = document.getElementById('urlGroup');
+    const aiModeGroup = document.getElementById('aiModeGroup');
     
-    if(devGroup) isWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
-    if(urlGroup) isWeb ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    if(devGroup) isPureWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
+    if(urlGroup) needsUrl ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    if(aiModeGroup) isAI ? aiModeGroup.style.display = 'block' : aiModeGroup.style.display = 'none';
     
-    if (isWeb) {
+    if (needsUrl) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const targetUrl = document.getElementById('targetUrl');
         if(targetUrl) targetUrl.value = poc === 'Admin' ? (cfg.adminUrl || '') : (cfg.pcUrl || '');
-    } else {
-        syncEnvironmentByOS();
     }
-    generateTemplate();
+    
+    updateVersionCheckboxesByOS();
+    
+    if (!isPureWeb) {
+        syncEnvironmentByOS();
+    } else {
+        updateVersionTextbox();
+        generateTemplate();
+    }
+}
+
+function updateVersionTextbox() {
+    const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+    const checkedTypes = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.value);
+    
+    let versionParts = [];
+    const iosTypeChecked = document.querySelector('input[name="ios_ver_type"]:checked');
+    const iosMode = iosTypeChecked ? iosTypeChecked.value : 'TestFlight';
+
+    checkedTypes.forEach(type => {
+        if (type === 'Android') {
+            versionParts.push(`App Tester_${config.andAppTester || ''}`);
+        } else if (type === 'iOS') {
+            versionParts.push(`${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`);
+        } else if (type === '삼성 브라우저') {
+            versionParts.push(`삼성 브라우저_${config.samsungBrowser || ''}`);
+        } else if (type === 'Safari') {
+            versionParts.push(`Safari_${config.safariBrowser || ''}`);
+        } else if (type === '크롬') {
+            versionParts.push(`크롬_${config.chromeBrowser || ''}`);
+        } else if (type === 'Edge') {
+            versionParts.push(`Edge_${config.edgeBrowser || ''}`);
+        }
+    });
+
+    const verInput = document.getElementById('appVersion');
+    if (verInput) verInput.value = versionParts.join(' / ');
 }
 
 function generateTemplate() {
@@ -121,46 +203,82 @@ function generateTemplate() {
     const poc = getValue('poc');
     const os = getValue('osType');
     
-    const isWeb = poc === 'Admin' || poc === 'PC Web';
-    let servers = [];
+    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+    let servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     let devices = "";
     
-    servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    if (!isWeb) {
-        let checkedDeviceCbs = Array.from(document.querySelectorAll('.issue-device-cb:checked'));
-        if (os === "[Android]") {
-            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('and_'));
-        } else if (os === "[iOS]") {
-            checkedDeviceCbs = checkedDeviceCbs.filter(cb => cb.id.startsWith('ios_'));
+    if (!isPureWeb) {
+        let activeDeviceLists = [];
+        
+        const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
+        const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
+
+        if (os === "[Android]" || os === "[Android/iOS]") {
+            if (andMode === 'normal') activeDeviceLists.push(document.getElementById('andNormalList'));
+            else activeDeviceLists.push(document.getElementById('andSpecialList'));
         }
-        devices = checkedDeviceCbs.map(cb => cb.value).join(' / ');
+        
+        if (os === "[iOS]" || os === "[Android/iOS]") {
+            if (iosMode === 'normal') activeDeviceLists.push(document.getElementById('iosNormalList'));
+            else activeDeviceLists.push(document.getElementById('iosSpecialList'));
+        }
+
+        let checkedDeviceValues = [];
+        activeDeviceLists.forEach(list => {
+            if (list) {
+                const checkedInList = Array.from(list.querySelectorAll('.issue-device-cb:checked'));
+                checkedDeviceValues.push(...checkedInList.map(cb => cb.value));
+            }
+        });
+        
+        devices = checkedDeviceValues.join(' / ');
     }
 
     let ver = getValue('appVersion');
     
-    if (poc === 'T 멤버십') {
-        const iosTypeEl = document.querySelector('input[name="ios_ver_type"]:checked');
-        if (os === "[Android]") ver = `App Tester_${ver}`;
-        else if (os === "[iOS]" && iosTypeEl) ver = `${iosTypeEl.value}_${ver}`;
-    }
-    
+    const searchEngines = Array.from(document.querySelectorAll('.ver-type-cb:checked'))
+        .map(cb => cb.value)
+        .filter(val => ['삼성 브라우저', 'Safari', '크롬', 'Edge'].includes(val))
+        .join(' / ');
+
     const rawEnv = servers.join('/').replace('PRD', '상용');
     const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
     const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
-    const specOsPrefix = getValue('prefix_spec_os').trim() ? `[${getValue('prefix_spec_os').trim()}]` : '';
-    const pocPrefix = (poc && poc !== 'T 멤버십') ? `[${poc}]` : '';
+    
+    const specOsVal = getValue('prefix_spec_os').trim();
+    const specOsPrefix = specOsVal ? `[${specOsVal}]` : '';
+    
+    const devVal = getValue('prefix_device').trim();
+    const devPrefix = devVal ? `[${devVal}]` : '';
+    
+    const accVal = getValue('prefix_account').trim();
+    const accPrefix = accVal ? `[${accVal}]` : '';
+
+    const pocPrefix = (poc && poc !== 'T 멤버십 App') ? `[${poc}]` : '';
     const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
-    const devPrefix = getValue('prefix_device').trim() ? `[${getValue('prefix_device').trim()}]` : '';
-    const accPrefix = getValue('prefix_account').trim() ? `[${getValue('prefix_account').trim()}]` : '';
     const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
     
     const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
     
     let envSection = `[Environment]\n■ POC : ${poc}\n`;
-    if (poc === 'Admin' || poc === 'PC Web') {
+
+    if (poc === 'PC Web') {
+        if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
+    } else if (poc === 'PC M.Web') {
+        envSection += `■ Device : ${devices || '-'}\n`;
+        if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
+    } else if (poc === 'Admin') {
         envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
+        if (poc === 'AI Layer') {
+            const aiModeVal = getValue('aiMode');
+            if (aiModeVal) {
+                envSection += `\n■ 모드 : ${aiModeVal}`;
+            }
+        }
     }
     
     const prdRef = getValue('ref_prd').trim();

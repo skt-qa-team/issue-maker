@@ -10,11 +10,19 @@
 <body>
     <div id="comp-header"></div>
     <div class="header-horizontal-divider"></div>
-    <div class="wrapper">
-        <div id="comp-guide"></div>
-        <div id="comp-input"></div>
-        <div id="comp-result"></div>
+    
+    <div id="tab-issue-maker" class="main-tab-content">
+        <div class="wrapper">
+            <div id="comp-guide"></div>
+            <div id="comp-input"></div>
+            <div id="comp-result"></div>
+        </div>
     </div>
+
+    <div id="tab-calendar" class="main-tab-content" style="display: none;">
+        <div id="comp-calendar"></div>
+    </div>
+
     <div id="modal-placeholder-condition"></div>
     <div id="modal-placeholder-history"></div>
     <div id="modal-placeholder-completion"></div>
@@ -23,6 +31,8 @@
     <div id="modal-placeholder-setting"></div>
     <div id="modal-placeholder-changelog"></div>
     <div id="modal-placeholder-bookmark"></div>
+    <div id="modal-placeholder-schedule"></div> 
+    <div id="modal-placeholder-schedule-detail"></div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -55,6 +65,7 @@
     <script src="js/ux.js"></script>
     <script src="js/bookmark.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/calendar.js"></script>
     <script>
         window.openCompletionModal = window.openCompletionModal || function() {
             document.getElementById('completionModal').style.display = 'flex';

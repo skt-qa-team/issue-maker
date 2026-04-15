@@ -3,6 +3,7 @@ let currentUserUid = null;
 let bookmarks = [];
 let currentFolderId = null;
 let editingLinkId = null;
+let bmDragState = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -83,8 +84,12 @@ function initSharedBookmarks() {
     });
 }
 
+// 💡 수정: 문제되던 transaction을 가장 안정적인 set으로 복구하고 에러 추적 추가
 function saveBookmarksToFirebase() {
-    firebase.database().ref('shared_bookmarks').set(bookmarks);
+    firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
+        console.error("Firebase 저장 실패:", err);
+        alert("데이터 저장에 실패했습니다. (DB 규칙을 확인해주세요)");
+    });
 }
 
 window.openBookmarkModal = () => {
@@ -99,6 +104,16 @@ window.closeBookmarkModal = () => {
     const modal = document.getElementById('bookmarkModal');
     if (modal) modal.style.display = 'none';
 };
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function renderBookmarks() {
     const fList = document.getElementById('bm_folder_list');
@@ -120,24 +135,79 @@ function renderBookmarks() {
         
         const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>` : '';
         
-        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${f.name}</span>
+        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${escapeHTML(f.name)}</span>
                         <div class="bm-actions">
                             <button class="bm-btn-icon" onclick="event.stopPropagation(); editFolder('${f.id}')">✏️</button>
                             ${deleteFolderBtn}
                         </div>`;
         div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
         
-        div.ondragstart = (e) => { e.dataTransfer.setData('fIdx', idx); div.classList.add('dragging'); };
-        div.ondragend = () => div.classList.remove('dragging');
-        div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
-        div.ondragleave = () => div.classList.remove('drag-over');
+        // --- 📂 폴더 드래그 앤 드롭 ---
+        div.ondragstart = (e) => { 
+            e.dataTransfer.setData('text/plain', 'folder'); 
+            bmDragState = { type: 'folder', id: f.id };
+            div.classList.add('dragging'); 
+        };
+        div.ondragend = () => { 
+            div.classList.remove('dragging'); 
+            bmDragState = null; 
+        };
+        
+        div.ondragover = (e) => { 
+            e.preventDefault(); 
+            if (!bmDragState) return;
+            
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+            
+            if (bmDragState.type === 'link') {
+                if (bmDragState.sourceFid !== f.id) div.classList.add('drag-over');
+            } else if (bmDragState.type === 'folder' && bmDragState.id !== f.id) {
+                const bounding = div.getBoundingClientRect();
+                if (e.clientY - bounding.top < bounding.height / 2) {
+                    div.classList.add('drag-over-top');
+                } else {
+                    div.classList.add('drag-over-bottom');
+                }
+            }
+        };
+        
+        div.ondragleave = () => { 
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom'); 
+        };
+        
         div.ondrop = (e) => {
-            e.preventDefault(); div.classList.remove('drag-over');
-            const from = e.dataTransfer.getData('fIdx');
-            if (from !== "" && from !== idx.toString()) {
-                const item = bookmarks.splice(from, 1)[0];
-                bookmarks.splice(idx, 0, item);
-                saveBookmarksToFirebase();
+            e.preventDefault(); 
+            const isTop = div.classList.contains('drag-over-top');
+            div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+            
+            if (!bmDragState) return;
+
+            if (bmDragState.type === 'folder') {
+                const fromIdx = bookmarks.findIndex(bf => bf.id === bmDragState.id);
+                const toIdx = bookmarks.findIndex(bf => bf.id === f.id);
+                
+                if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+                    const item = bookmarks.splice(fromIdx, 1)[0];
+                    const newToIdx = bookmarks.findIndex(bf => bf.id === f.id);
+                    const insertIdx = isTop ? newToIdx : newToIdx + 1;
+                    bookmarks.splice(insertIdx, 0, item);
+                    saveBookmarksToFirebase();
+                    renderBookmarks(); // 💡 즉각적인 UI 반응을 위한 낙관적 렌더링
+                }
+            } else if (bmDragState.type === 'link') {
+                if (bmDragState.sourceFid !== f.id) {
+                    const sourceFolder = bookmarks.find(folder => folder.id === bmDragState.sourceFid);
+                    if (sourceFolder) {
+                        const linkIndex = sourceFolder.links.findIndex(link => link.id === bmDragState.lId);
+                        if (linkIndex !== -1) {
+                            const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
+                            f.links.push(movingLink);
+                            saveBookmarksToFirebase();
+                            renderBookmarks(); // 💡 즉각적인 UI 반응
+                            if (typeof showToast === 'function') showToast(`[${escapeHTML(movingLink.name)}] ➡️ ${escapeHTML(f.name)} 이동 완료`);
+                        }
+                    }
+                }
             }
         };
         folderFragment.appendChild(div);
@@ -153,7 +223,7 @@ function renderBookmarks() {
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
     if (activeF) {
-        titleText.innerHTML = `📂 ${activeF.name}`;
+        titleText.innerHTML = `📂 ${escapeHTML(activeF.name)}`;
         const linkFragment = document.createDocumentFragment();
         
         activeF.links.forEach((l, lIdx) => {
@@ -165,22 +235,62 @@ function renderBookmarks() {
             const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
 
             card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
-                             <div class="bm-link-info"><b>${l.name}</b><small>${l.url}</small></div>
+                             <div class="bm-link-info"><b>${escapeHTML(l.name)}</b><small>${escapeHTML(l.url)}</small></div>
                              <div class="bm-actions" onclick="event.stopPropagation()">
                                 <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
                                 ${deleteLinkBtn}
                              </div>`;
-            card.ondragstart = (e) => { e.dataTransfer.setData('lIdx', lIdx); card.classList.add('dragging'); };
-            card.ondragend = () => card.classList.remove('dragging');
-            card.ondragover = (e) => { e.preventDefault(); card.classList.add('drag-over'); };
-            card.ondragleave = () => card.classList.remove('drag-over');
+                             
+            // --- 🔗 링크 드래그 앤 드롭 ---
+            card.ondragstart = (e) => { 
+                e.stopPropagation();
+                e.dataTransfer.setData('text/plain', 'link'); 
+                bmDragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
+                card.classList.add('dragging'); 
+            };
+            card.ondragend = () => { 
+                card.classList.remove('dragging'); 
+                bmDragState = null; 
+            };
+            
+            card.ondragover = (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                if (!bmDragState || bmDragState.type !== 'link' || bmDragState.sourceFid !== activeF.id || bmDragState.lId === l.id) return;
+                
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+                const bounding = card.getBoundingClientRect();
+                if (e.clientY - bounding.top < bounding.height / 2) {
+                    card.classList.add('drag-over-top');
+                } else {
+                    card.classList.add('drag-over-bottom');
+                }
+            };
+            
+            card.ondragleave = () => { 
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom'); 
+            };
+            
             card.ondrop = (e) => {
-                e.preventDefault(); card.classList.remove('drag-over');
-                const from = e.dataTransfer.getData('lIdx');
-                if (from !== "" && from !== lIdx.toString()) {
-                    const item = activeF.links.splice(from, 1)[0];
-                    activeF.links.splice(lIdx, 0, item);
-                    saveBookmarksToFirebase();
+                e.preventDefault(); 
+                e.stopPropagation();
+                const isTop = card.classList.contains('drag-over-top');
+                card.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+                
+                if (!bmDragState || bmDragState.type !== 'link') return;
+                
+                if (bmDragState.sourceFid === activeF.id) {
+                    const fromIdx = activeF.links.findIndex(bl => bl.id === bmDragState.lId);
+                    const toIdx = activeF.links.findIndex(bl => bl.id === l.id);
+                    
+                    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+                        const item = activeF.links.splice(fromIdx, 1)[0];
+                        const newToIdx = activeF.links.findIndex(bl => bl.id === l.id);
+                        const insertIdx = isTop ? newToIdx : newToIdx + 1;
+                        activeF.links.splice(insertIdx, 0, item);
+                        saveBookmarksToFirebase();
+                        renderBookmarks(); // 💡 즉각적인 UI 반응
+                    }
                 }
             };
             linkFragment.appendChild(card);
@@ -193,14 +303,21 @@ function renderBookmarks() {
 
 window.addNewFolder = () => {
     const name = prompt('새 폴더 이름:');
-    if (name) { bookmarks.push({ id: 'f_'+Date.now(), name, links: [] }); saveBookmarksToFirebase(); }
+    if (name) { 
+        const safeName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        bookmarks.push({ id: 'f_'+Date.now(), name: safeName, links: [] }); 
+        saveBookmarksToFirebase(); 
+    }
 };
 
 window.editFolder = (id) => {
     const f = bookmarks.find(x => x.id === id);
     if (!f) return;
     const n = prompt('폴더 이름 수정:', f.name);
-    if (n) { f.name = n; saveBookmarksToFirebase(); }
+    if (n) { 
+        f.name = n.replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
+        saveBookmarksToFirebase(); 
+    }
 };
 
 window.deleteFolder = (id) => {
@@ -245,9 +362,13 @@ window.openEditForm = (id) => {
 };
 
 window.saveNewLink = () => {
-    const n = document.getElementById('bm_input_name').value.trim();
-    let u = document.getElementById('bm_input_url').value.trim();
-    if (!n || !u) return;
+    const rawN = document.getElementById('bm_input_name').value.trim();
+    let rawU = document.getElementById('bm_input_url').value.trim();
+    if (!rawN || !rawU) return;
+    
+    const n = rawN.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let u = rawU.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    
     if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
     
     const f = bookmarks.find(x => x.id === currentFolderId);

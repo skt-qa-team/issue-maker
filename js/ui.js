@@ -48,6 +48,11 @@ function applyIndividualPreset(id, n) {
 function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el) return;
+    
+    if (window.event && window.event.type === 'click' && window.event.target === el) {
+        return;
+    }
+
     el.select();
     document.execCommand('copy');
     showToast('복사되었습니다.');

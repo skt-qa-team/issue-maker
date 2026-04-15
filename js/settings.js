@@ -2,7 +2,8 @@ const defaultConfig = {
     andDevices: [], andSpecialDevices: [], andDefaultDevices: [],
     iosDevices: [], iosSpecialDevices: [], iosDefaultDevices: [],
     andAppTester: '', iosTestFlight: '', iosDistribution: '',
-    adminUrl: '', pcUrl: ''
+    adminUrl: '', pcUrl: '',
+    samsungBrowser: '', safariBrowser: '', chromeBrowser: '', edgeBrowser: ''
 };
 const STORAGE_KEY = 'qa_system_config_master';
 
@@ -180,6 +181,10 @@ function saveSettings() {
         andAppTester: document.getElementById('set_and_apptester').value,
         iosTestFlight: document.getElementById('set_ios_testflight').value,
         iosDistribution: document.getElementById('set_ios_distribution').value,
+        samsungBrowser: document.getElementById('set_samsung_browser').value,
+        safariBrowser: document.getElementById('set_safari_browser').value,
+        chromeBrowser: document.getElementById('set_chrome_browser').value,
+        edgeBrowser: document.getElementById('set_edge_browser').value,
         andDevices: split('set_and_devices'),
         andSpecialDevices: split('set_and_special'),
         andDefaultDevices: split('set_and_default'),
@@ -193,7 +198,14 @@ function saveSettings() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
         const user = firebase.auth().currentUser;
         if (user && !user.isAnonymous) {
-            firebase.database().ref('users/' + user.uid + '/settings').set(data);
+            firebase.database().ref('users/' + user.uid + '/settings').set(data)
+                .then(() => {
+                    if (typeof showToast === 'function') showToast('✅ 파이어베이스 설정 저장 완료!');
+                })
+                .catch((error) => {
+                    console.error("Firebase save error: ", error);
+                    alert("파이어베이스 저장에 실패했습니다. 관리자에게 문의하세요.");
+                });
         }
     }
 
@@ -211,6 +223,10 @@ function openModal() {
     document.getElementById('set_and_apptester').value = cfg.andAppTester || '';
     document.getElementById('set_ios_testflight').value = cfg.iosTestFlight || '';
     document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
+    document.getElementById('set_samsung_browser').value = cfg.samsungBrowser || '';
+    document.getElementById('set_safari_browser').value = cfg.safariBrowser || '';
+    document.getElementById('set_chrome_browser').value = cfg.chromeBrowser || '';
+    document.getElementById('set_edge_browser').value = cfg.edgeBrowser || '';
     document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n');
     document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
     document.getElementById('set_and_default').value = (cfg.andDefaultDevices || []).join('\n');

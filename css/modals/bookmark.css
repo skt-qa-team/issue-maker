@@ -84,6 +84,7 @@
     align-items: center;
     gap: 10px;
     transition: var(--transition-fast);
+    border: 2px solid transparent;
 }
 
 .bm-folder:hover {
@@ -94,6 +95,28 @@
     background: rgba(59, 130, 246, 0.08);
     color: var(--accent-blue);
     border-left: 4px solid var(--accent-blue);
+}
+
+/* 타 폴더로 링크를 넣을 때의 효과 (녹색) */
+.bm-folder.drag-over {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-color: var(--accent-green) !important;
+    border-style: dashed !important;
+    transform: scale(1.02);
+    color: var(--text-main);
+}
+
+/* 상하 순서 변경 시 꽂힐 위치를 알려주는 실선 피드백 (파란색) */
+.drag-over-top {
+    border-top: 3px solid var(--accent-blue) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.drag-over-bottom {
+    border-bottom: 3px solid var(--accent-blue) !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 }
 
 .bm-link-card {
@@ -114,12 +137,22 @@
     box-shadow: var(--shadow-md);
 }
 
+/* 드래그 중인 카드 원본 흐리게 처리 */
+.bm-link-card.dragging {
+    opacity: 0.4;
+    border: 2px dashed var(--accent-blue);
+    background: rgba(59, 130, 246, 0.05);
+    transform: scale(0.98);
+    box-shadow: none;
+}
+
 .bm-link-info {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
     overflow: hidden;
+    min-width: 0;
 }
 
 .bm-link-info b {
@@ -134,6 +167,9 @@
     color: var(--text-sub);
     font-size: 0.8rem;
     display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .bm-actions {
