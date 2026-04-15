@@ -56,6 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
+document.addEventListener('paste', async (e) => {
+    const modal = document.getElementById('scheduleModal');
+    if (modal && modal.style.display !== 'none') {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                await processScreenshot(file);
+                break;
+            }
+        }
+    }
+});
+
 document.addEventListener('change', async (e) => {
     if (e.target.id === 'ai_image_input') {
         const file = e.target.files[0];
@@ -107,13 +121,13 @@ async function processScreenshot(file) {
             const base64Image = reader.result.split(',')[1];
             const mimeType = file.type;
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{
                         parts: [
-                            { text: "이 이미지에서 일정을 파악하여 JSON으로 반환하라. 필드는 title, start(YYYY-MM-DD), end(YYYY-MM-DD), epic, desc를 포함하라. 마크다운 기호 없이 순수한 JSON 문자열만 출력하라." },
+                            { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 사용하고, 2, 3, 5열은 무시하세요. 여러 개의 일정을 추출하여 JSON 배열(Array)로 반환하세요. 날짜 포맷은 2026년 기준 'YYYY-MM-DD'로 변환하고, 시작과 종료일이 같으면 start와 end를 동일하게 설정하세요. 배열 형식: [{\"title\":\"...\", \"start\":\"...\", \"end\":\"...\"}]. 마크다운 기호 없이 순수한 JSON 배열 문자열만 출력하세요." },
                             { inline_data: { mime_type: mimeType, data: base64Image } }
                         ]
                     }]
@@ -121,21 +135,55 @@ async function processScreenshot(file) {
             });
 
             const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error?.message || "API 요청 실패");
+            }
+
+            if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
+                throw new Error("API 응답 구조가 올바르지 않습니다.");
+            }
+
             let textResult = result.candidates[0].content.parts[0].text;
             textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(textResult);
+            const parsedArray = JSON.parse(textResult);
 
-            if (parsed.title) document.getElementById('sch_title').value = parsed.title;
-            if (parsed.start) document.getElementById('sch_start').value = parsed.start;
-            if (parsed.end) document.getElementById('sch_end').value = parsed.end;
-            if (parsed.epic) document.getElementById('sch_epic').value = parsed.epic;
-            if (parsed.desc) document.getElementById('sch_desc').value = parsed.desc;
-            
-            if (typeof showToast === 'function') showToast("AI 분석 및 자동 입력이 완료되었습니다.");
+            if (Array.isArray(parsedArray)) {
+                let savePromises = [];
+                parsedArray.forEach((item, index) => {
+                    const newSch = {
+                        id: Date.now().toString() + index,
+                        title: item.title || '새 일정',
+                        start: item.start || '',
+                        end: item.end || '',
+                        epic: '',
+                        desc: 'AI 자동 추출됨',
+                        color: '#3b82f6'
+                    };
+
+                    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                        const promise = firebase.database().ref('shared_schedules/' + newSch.id).set(newSch);
+                        savePromises.push(promise);
+                    } else {
+                        calSchedules.push(newSch);
+                    }
+                });
+
+                if (savePromises.length > 0) {
+                    await Promise.all(savePromises);
+                } else {
+                    renderCalendar();
+                }
+
+                if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
+                closeScheduleModal();
+            } else {
+                throw new Error("JSON 결과가 배열 형태가 아닙니다.");
+            }
         };
     } catch (error) {
         console.error("Vision API Error:", error);
-        alert("이미지 분석 중 오류가 발생했습니다.");
+        alert("이미지 분석 중 오류가 발생했습니다: " + error.message);
     } finally {
         setTimeout(() => {
             dropzoneContent.style.display = 'block';
