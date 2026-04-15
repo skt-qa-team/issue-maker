@@ -116,13 +116,13 @@
     overflow: visible;
 }
 
+/* 🔥 핵심 수정 1: cal-day에서 position: relative 제거 (일정이 다음 칸을 덮을 수 있게 해제) */
 .cal-day {
     background: #ffffff;
     padding: 0; 
     display: flex;
     flex-direction: column;
     min-height: 100px;
-    position: relative;
     cursor: pointer;
     overflow: visible;
 }
@@ -136,6 +136,7 @@
     cursor: default;
 }
 
+/* 날짜 숫자는 일정 바 위로 올라와야 하므로 position: relative 와 z-index 유지 */
 .day-number {
     display: flex;
     flex-direction: row;
@@ -191,20 +192,21 @@
     background: rgba(59, 130, 246, 0.03);
 }
 
+/* 🔥 핵심 수정 2: sch-container에서도 position: relative 제거 */
 .sch-container {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding-bottom: 4px;
-    position: relative;
 }
 
+/* 🔥 일정 바 디자인 개선: 둥근 양끝 + 좌측 정렬 */
 .cal-schedule {
     font-size: 0.75rem;
     font-weight: 700;
     height: 24px;
     line-height: 24px;
-    padding: 0 8px;
+    padding: 0 8px; /* 좌우 여백 */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -212,14 +214,15 @@
     cursor: pointer;
     transition: filter 0.1s;
     box-sizing: border-box;
-    text-align: center;
+    text-align: left; /* 글자 좌측 정렬 (안 가려지게) */
 }
 
 .cal-schedule.span-head {
     position: relative;
-    border-radius: 12px;
+    border-radius: 6px; /* 양끝을 부드럽게 둥글게 */
     margin: 0 4px 2px 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 5; /* 다음 날짜 배경보다 위로 띄움 */
 }
 
 .cal-schedule.spacer {
@@ -233,221 +236,92 @@
     z-index: 20 !important;
 }
 
+/* --- 모달 UI CSS (이전과 동일) --- */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5);
-    display: none; /* 여기서 팝업 대란이 일어났습니다. none으로 수정 완료! */
+    display: none; 
     align-items: center;
     justify-content: center;
     z-index: 999;
 }
 
 .modal-content {
-    max-width: 600px;
-    width: 90%;
-    padding: 30px;
+    max-width: 600px; width: 90%; padding: 30px;
     border-top: 6px solid var(--accent-blue, #3b82f6);
-    border-radius: 16px;
-    background: #ffffff;
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
+    border-radius: 16px; background: #ffffff; position: relative;
+    max-height: 90vh; overflow-y: auto;
 }
 
 .close-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #6b7280;
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none; font-size: 24px;
+    cursor: pointer; color: #6b7280;
 }
 
 .modal-header {
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
-    padding-bottom: 15px;
+    margin-bottom: 25px; border-bottom: 1px solid var(--border-color, #e5e7eb); padding-bottom: 15px;
 }
 
-.modal-header h2 {
-    margin: 0;
-    font-weight: 800;
-    color: var(--text-main, #111827);
-    font-size: 1.5rem;
-}
+.modal-header h2 { margin: 0; font-weight: 800; color: var(--text-main, #111827); font-size: 1.5rem; }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    font-weight: 700;
-    margin-bottom: 8px;
-    display: block;
-    color: #374151;
-    font-size: 0.95rem;
-}
+.form-group { margin-bottom: 20px; }
+.form-group label { font-weight: 700; margin-bottom: 8px; display: block; color: #374151; font-size: 0.95rem; }
 
 .form-control {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-family: inherit;
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
+    width: 100%; padding: 12px; border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px; box-sizing: border-box; font-family: inherit;
+    font-size: 0.95rem; transition: border-color 0.2s;
 }
 
 .form-control:focus {
-    outline: none;
-    border-color: var(--accent-blue, #3b82f6);
+    outline: none; border-color: var(--accent-blue, #3b82f6);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-textarea.form-control {
-    height: 80px;
-    resize: none;
-}
-
-.grid-2 {
-    display: flex;
-    gap: 20px;
-}
-
-.grid-2 .form-group {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-.radio-tab-group {
-    display: flex;
-    gap: 8px;
-}
+textarea.form-control { height: 80px; resize: none; }
+.grid-2 { display: flex; gap: 20px; }
+.grid-2 .form-group { flex: 1; margin-bottom: 0; }
+.radio-tab-group { display: flex; gap: 8px; }
 
 .radio-tab {
-    flex: 1;
-    text-align: center;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 800;
-    background: #f9fafb;
-    transition: all 0.2s;
-    font-size: 0.95rem;
+    flex: 1; text-align: center; border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px; cursor: pointer; font-weight: 800;
+    background: #f9fafb; transition: all 0.2s; font-size: 0.95rem;
 }
 
-.radio-tab input[type="radio"] {
-    display: none;
-}
+.radio-tab input[type="radio"] { display: none; }
+.radio-tab span { display: block; padding: 12px 0; }
 
-.radio-tab span {
-    display: block;
-    padding: 12px 0;
-}
-
-.radio-tab input[type="radio"][value="#3b82f6"]:checked + span {
-    background: #3b82f6;
-    color: #ffffff;
-    border-radius: 7px;
-}
-
-.radio-tab input[type="radio"][value="#f59e0b"]:checked + span {
-    background: #f59e0b;
-    color: #ffffff;
-    border-radius: 7px;
-}
-
-.radio-tab input[type="radio"][value="#10b981"]:checked + span {
-    background: #10b981;
-    color: #ffffff;
-    border-radius: 7px;
-}
-
-.radio-tab input[type="radio"][value="#8b5cf6"]:checked + span {
-    background: #8b5cf6;
-    color: #ffffff;
-    border-radius: 7px;
-}
+.radio-tab input[type="radio"][value="#3b82f6"]:checked + span { background: #3b82f6; color: #ffffff; border-radius: 7px; }
+.radio-tab input[type="radio"][value="#f59e0b"]:checked + span { background: #f59e0b; color: #ffffff; border-radius: 7px; }
+.radio-tab input[type="radio"][value="#10b981"]:checked + span { background: #10b981; color: #ffffff; border-radius: 7px; }
+.radio-tab input[type="radio"][value="#8b5cf6"]:checked + span { background: #8b5cf6; color: #ffffff; border-radius: 7px; }
 
 .btn-save {
-    width: 100%;
-    padding: 15px;
-    font-size: 1.1rem;
-    font-weight: 800;
-    background: var(--accent-blue, #3b82f6);
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    transition: background 0.2s;
+    width: 100%; padding: 15px; font-size: 1.1rem; font-weight: 800;
+    background: var(--accent-blue, #3b82f6); color: #ffffff;
+    border: none; border-radius: 8px; cursor: pointer;
+    margin-bottom: 20px; transition: background 0.2s;
 }
 
-.btn-save:hover {
-    background: #2563eb;
-}
+.btn-save:hover { background: #2563eb; }
 
-.quota-info {
-    text-align: center;
-    font-size: 13px;
-    margin-bottom: 10px;
-    font-weight: 700;
-    color: #6b7280;
-}
+.quota-info { text-align: center; font-size: 13px; margin-bottom: 10px; font-weight: 700; color: #6b7280; }
 
 .ai-dropzone {
-    border: 2px dashed var(--accent-blue, #3b82f6);
-    border-radius: 8px;
-    padding: 25px;
-    text-align: center;
-    cursor: pointer;
-    background: rgba(59, 130, 246, 0.05);
-    transition: background 0.2s;
+    border: 2px dashed var(--accent-blue, #3b82f6); border-radius: 8px;
+    padding: 25px; text-align: center; cursor: pointer;
+    background: rgba(59, 130, 246, 0.05); transition: background 0.2s;
 }
 
-.ai-dropzone:hover {
-    background: rgba(59, 130, 246, 0.1);
-}
+.ai-dropzone:hover { background: rgba(59, 130, 246, 0.1); }
+.ai-dropzone.dragover { background: rgba(59, 130, 246, 0.15); border-color: #2563eb; }
+.ai-icon { font-size: 2rem; margin-bottom: 10px; }
+.ai-title { font-weight: 800; color: var(--accent-blue, #3b82f6); margin-bottom: 5px; }
+.ai-desc { font-size: 0.8rem; color: #6b7280; }
 
-.ai-dropzone.dragover {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: #2563eb;
-}
-
-.ai-icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-}
-
-.ai-title {
-    font-weight: 800;
-    color: var(--accent-blue, #3b82f6);
-    margin-bottom: 5px;
-}
-
-.ai-desc {
-    font-size: 0.8rem;
-    color: #6b7280;
-}
-
-@keyframes spin {
-    100% { transform: rotate(360deg); }
-}
-
-.spinner {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    display: inline-block;
-    animation: spin 1s linear infinite;
-}
-
-.d-none {
-    display: none !important;
-}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.spinner { font-size: 2rem; margin-bottom: 10px; display: inline-block; animation: spin 1s linear infinite; }
+.d-none { display: none !important; }
