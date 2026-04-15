@@ -122,13 +122,13 @@ async function processScreenshot(file) {
                 const base64Image = reader.result.split(',')[1];
                 const mimeType = file.type;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 사용하고, 2, 3, 5열은 무시하세요. 여러 개의 일정을 추출하여 JSON 배열(Array)로 반환하세요. 날짜 포맷은 2026년 기준 'YYYY-MM-DD'로 변환하고, 시작과 종료일이 같으면 start와 end를 동일하게 설정하세요. 배열 형식: [{\"title\":\"...\", \"start\":\"...\", \"end\":\"...\"}]. 마크다운 기호 없이 순수한 JSON 배열 문자열만 출력하세요." },
+                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열 데이터는 완전히 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요 (예: 4/14 -> 2026-04-14). 만약 시작일과 종료일이 같다면 start와 end에 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 예시: [{\"title\":\"테스트 1\", \"start\":\"2026-04-14\", \"end\":\"2026-04-17\"}]. 마크다운 기호(```json 등)를 절대 포함하지 말고 순수 JSON 배열만 출력하세요." },
                                 { inline_data: { mime_type: mimeType, data: base64Image } }
                             ]
                         }]
@@ -158,7 +158,7 @@ async function processScreenshot(file) {
                             start: item.start || '',
                             end: item.end || '',
                             epic: '',
-                            desc: 'AI 자동 추출됨',
+                            desc: 'AI 자동 추출 (스크린샷 일괄 등록)',
                             color: '#3b82f6'
                         };
 
@@ -172,9 +172,9 @@ async function processScreenshot(file) {
 
                     if (savePromises.length > 0) {
                         await Promise.all(savePromises);
-                    } else {
-                        renderCalendar();
                     }
+                    
+                    renderCalendar();
 
                     if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
                     closeScheduleModal();
