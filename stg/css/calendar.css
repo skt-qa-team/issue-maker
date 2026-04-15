@@ -74,7 +74,7 @@
 .cal-add-btn {
     padding: 10px 20px;
     background: var(--accent-blue, #3b82f6);
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: var(--radius-md, 8px);
     font-weight: 800;
@@ -240,7 +240,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.5);
-    display: flex;
+    display: none; /* 여기서 팝업 대란이 일어났습니다. none으로 수정 완료! */
     align-items: center;
     justify-content: center;
     z-index: 999;
@@ -446,4 +446,8 @@ textarea.form-control {
     margin-bottom: 10px;
     display: inline-block;
     animation: spin 1s linear infinite;
+}
+
+.d-none {
+    display: none !important;
 }
