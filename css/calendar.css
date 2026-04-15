@@ -113,7 +113,7 @@
     gap: 1px;
     border: 1px solid var(--border-color, #e5e7eb);
     border-radius: var(--radius-sm, 6px);
-    overflow: visible; /* 중요: 긴 바가 옆으로 뻗어나가야 함 */
+    overflow: visible;
 }
 
 .cal-day {
@@ -124,7 +124,7 @@
     min-height: 100px;
     position: relative;
     cursor: pointer;
-    overflow: visible; /* 중요: 자식 요소인 일정이 옆 칸을 덮어야 함 */
+    overflow: visible;
 }
 
 .cal-day:hover {
@@ -138,7 +138,7 @@
 
 .day-number {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -149,7 +149,7 @@
     border-radius: 6px;
     box-sizing: border-box;
     position: relative;
-    z-index: 10; /* 날짜 숫자가 일정 바보다 위에 오도록 함 */
+    z-index: 10;
 }
 
 .holiday-label {
@@ -161,8 +161,13 @@
     border-radius: 4px;
 }
 
-.cal-weekdays .sun, .cal-day.sun .day-number { color: #ef4444; }
-.cal-weekdays .sat, .cal-day.sat .day-number { color: #3b82f6; }
+.cal-weekdays .sun, .cal-day.sun .day-number {
+    color: #ef4444;
+}
+
+.cal-weekdays .sat, .cal-day.sat .day-number {
+    color: #3b82f6;
+}
 
 .cal-day.today .day-number {
     background: transparent;
@@ -172,7 +177,7 @@
 .cal-day.today .day-number::after {
     content: '';
     position: absolute;
-    right: 4px;
+    left: 4px;
     top: 50%;
     transform: translateY(-50%);
     width: 28px;
@@ -212,7 +217,7 @@
 
 .cal-schedule.span-head {
     position: relative;
-    border-radius: 4px;
+    border-radius: 12px;
     margin: 0 4px 2px 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
@@ -225,5 +230,220 @@
 
 .cal-schedule:hover {
     filter: brightness(1.1);
-    z-index: 20 !important; /* 마우스 올렸을 때 가장 위로 */
+    z-index: 20 !important;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-content {
+    max-width: 600px;
+    width: 90%;
+    padding: 30px;
+    border-top: 6px solid var(--accent-blue, #3b82f6);
+    border-radius: 16px;
+    background: #ffffff;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.modal-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    padding-bottom: 15px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-weight: 800;
+    color: var(--text-main, #111827);
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-blue, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.form-control {
+    height: 80px;
+    resize: none;
+}
+
+.grid-2 {
+    display: flex;
+    gap: 20px;
+}
+
+.grid-2 .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.radio-tab-group {
+    display: flex;
+    gap: 8px;
+}
+
+.radio-tab {
+    flex: 1;
+    text-align: center;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    background: #f9fafb;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.radio-tab input[type="radio"] {
+    display: none;
+}
+
+.radio-tab span {
+    display: block;
+    padding: 12px 0;
+}
+
+.radio-tab input[type="radio"][value="#3b82f6"]:checked + span {
+    background: #3b82f6;
+    color: #ffffff;
+    border-radius: 7px;
+}
+
+.radio-tab input[type="radio"][value="#f59e0b"]:checked + span {
+    background: #f59e0b;
+    color: #ffffff;
+    border-radius: 7px;
+}
+
+.radio-tab input[type="radio"][value="#10b981"]:checked + span {
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 7px;
+}
+
+.radio-tab input[type="radio"][value="#8b5cf6"]:checked + span {
+    background: #8b5cf6;
+    color: #ffffff;
+    border-radius: 7px;
+}
+
+.btn-save {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    background: var(--accent-blue, #3b82f6);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background 0.2s;
+}
+
+.btn-save:hover {
+    background: #2563eb;
+}
+
+.quota-info {
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.ai-dropzone {
+    border: 2px dashed var(--accent-blue, #3b82f6);
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(59, 130, 246, 0.05);
+    transition: background 0.2s;
+}
+
+.ai-dropzone:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.ai-dropzone.dragover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #2563eb;
+}
+
+.ai-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.ai-title {
+    font-weight: 800;
+    color: var(--accent-blue, #3b82f6);
+    margin-bottom: 5px;
+}
+
+.ai-desc {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
 }
