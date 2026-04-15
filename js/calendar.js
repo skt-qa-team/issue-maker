@@ -36,6 +36,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loadCalendarComponent();
 
+    // 탭 변환 및 동적 UI 제어 이벤트
+    document.addEventListener('change', (e) => {
+        // 라벨 색상(유형) 변경 시 UI 업데이트
+        if (e.target.name === 'sch_color') {
+            handleScheduleTypeChange();
+        }
+        
+        // 시작일 입력 시, 종료일 자동 셋팅 로직
+        if (e.target.id === 'sch_start') {
+            const endInput = document.getElementById('sch_end');
+            const typeRadio = document.querySelector('input[name="sch_color"]:checked');
+            
+            if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
+                endInput.value = e.target.value; // 다른 유형은 시작일=종료일 동일시
+            } else if (!endInput.value || endInput.value < e.target.value) {
+                endInput.value = e.target.value; // 빈칸이거나 역전현상 방지
+            }
+        }
+    });
+
     const injectCalButton = setInterval(() => {
         const topBarBtns = document.querySelector('.top-bar-btns');
         if (topBarBtns && !document.querySelector('.cal-btn-wrapper')) {
@@ -54,21 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
-function updateQuotaDisplay() {
-    const dropzone = document.getElementById('ai_dropzone');
-    if (dropzone) {
-        let quotaInfo = document.getElementById('ai_quota_info');
-        if (!quotaInfo) {
-            quotaInfo = document.createElement('div');
-            quotaInfo.id = 'ai_quota_info';
-            quotaInfo.style.textAlign = 'center';
-            quotaInfo.style.fontSize = '13px';
-            quotaInfo.style.color = '#6b7280';
-            quotaInfo.style.marginTop = '8px';
-            quotaInfo.style.fontWeight = '500';
-            dropzone.parentNode.insertBefore(quotaInfo, dropzone.nextSibling);
+// 일정 유형에 따른 입력폼 동적 제어
+function handleScheduleTypeChange() {
+    const selectedRadio = document.querySelector('input[name="sch_color"]:checked');
+    if (!selectedRadio) return;
+    
+    const type = selectedRadio.getAttribute('data-type');
+    const groupEnd = document.getElementById('group_sch_end');
+    const groupEpic = document.getElementById('group_sch_epic');
+    const labelStart = document.getElementById('label_sch_start');
+
+    if (type === '검증') {
+        if(groupEnd) groupEnd.style.display = 'block';
+        if(groupEpic) groupEpic.style.display = 'block';
+        if(labelStart) labelStart.innerText = '시작일 *';
+    } else {
+        if(groupEnd) groupEnd.style.display = 'none';
+        if(groupEpic) groupEpic.style.display = 'none';
+        if(labelStart) {
+            labelStart.innerText = type === '회의' ? '회의 날짜 *' : '날짜 *';
         }
-        
+    }
+}
+
+function updateQuotaDisplay() {
+    const quotaInfo = document.getElementById('ai_quota_info');
+    if (quotaInfo) {
         const d = new Date();
         const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
         let usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
@@ -80,12 +111,7 @@ function updateQuotaDisplay() {
 
         const remaining = Math.max(0, 20 - usageData.count);
         quotaInfo.innerText = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
-        
-        if (remaining === 0) {
-            quotaInfo.style.color = '#ef4444';
-        } else {
-            quotaInfo.style.color = '#6b7280';
-        }
+        quotaInfo.style.color = remaining === 0 ? '#ef4444' : '#6b7280';
     }
 }
 
@@ -113,18 +139,12 @@ document.addEventListener('change', async (e) => {
 
 document.addEventListener('dragover', (e) => {
     const dropzone = e.target.closest('#ai_dropzone');
-    if (dropzone) {
-        e.preventDefault();
-        dropzone.classList.add('dragover');
-    }
+    if (dropzone) { e.preventDefault(); dropzone.classList.add('dragover'); }
 });
 
 document.addEventListener('dragleave', (e) => {
     const dropzone = e.target.closest('#ai_dropzone');
-    if (dropzone) {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-    }
+    if (dropzone) { e.preventDefault(); dropzone.classList.remove('dragover'); }
 });
 
 document.addEventListener('drop', async (e) => {
@@ -141,7 +161,6 @@ document.addEventListener('drop', async (e) => {
 
 async function processScreenshot(file) {
     let savedKey = localStorage.getItem('GEMINI_API_KEY');
-    
     if (!savedKey) {
         savedKey = prompt("Gemini API 키가 필요합니다.\n(입력하신 키는 브라우저 내부에만 안전하게 보관됩니다.)");
         if (!savedKey) return;
@@ -153,10 +172,7 @@ async function processScreenshot(file) {
     let usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
     if (usageData.date !== todayStr) usageData = { date: todayStr, count: 0 };
 
-    if (usageData.count >= 20) {
-        alert("오늘 무료 제공량(20회)을 모두 소진했습니다. 내일 다시 시도해주세요.");
-        return;
-    }
+    if (usageData.count >= 20) return alert("오늘 무료 제공량(20회)을 모두 소진했습니다.");
 
     const dropzoneContent = document.getElementById('ai_dropzone_content');
     const loadingContent = document.getElementById('ai_loading_content');
@@ -171,16 +187,14 @@ async function processScreenshot(file) {
         reader.onload = async () => {
             try {
                 const base64Image = reader.result.split(',')[1];
-                const mimeType = file.type;
-
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${savedKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열은 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 반드시 다음 형식을 엄격히 지켜 JSON 배열로만 반환하세요: [{\"title\": \"일정명\", \"start\": \"2026-04-14\", \"end\": \"2026-04-17\"}]. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
-                                { inline_data: { mime_type: mimeType, data: base64Image } }
+                                { text: "이 이미지는 일정표입니다. 1열 텍스트는 'title' 키에, 4열의 기간(예: 4/14~4/17)은 분석하여 시작일을 'start' 키, 종료일을 'end' 키에 매핑하세요. 날짜는 2026년 기준 'YYYY-MM-DD' 포맷이어야 합니다. 키 이름은 반드시 영어 소문자 'title', 'start', 'end'만 사용해야 합니다. 결과는 엄격한 JSON 배열 형식으로 출력하세요. 예시: [{\"title\":\"테스트\",\"start\":\"2026-04-14\",\"end\":\"2026-04-17\"}]. 마크다운 기호 없이 순수 JSON만 반환하세요." },
+                                { inline_data: { mime_type: file.type, data: base64Image } }
                             ]
                         }]
                     })
@@ -189,15 +203,14 @@ async function processScreenshot(file) {
                 const result = await response.json();
                 
                 if (result.error) {
-                    if (result.error.code === 400 || result.error.code === 403 || result.error.message.includes("API key") || result.error.message.includes("leaked")) {
+                    if (result.error.code === 400 || result.error.code === 403 || result.error.message.includes("key")) {
                         localStorage.removeItem('GEMINI_API_KEY');
-                        throw new Error("API 키에 문제가 있습니다. 다시 시도하여 새로운 키를 입력해주세요.");
+                        throw new Error("API 키 오류. 다시 시도하여 새로운 키를 입력해주세요.");
                     }
                     throw new Error(result.error.message);
                 }
 
                 if (!response.ok) throw new Error("API 요청 실패");
-
                 if (!result.candidates || !result.candidates[0]) throw new Error("AI가 데이터를 분석하지 못했습니다.");
 
                 let textResult = result.candidates[0].content.parts[0].text;
@@ -213,16 +226,17 @@ async function processScreenshot(file) {
                     let savedCount = 0;
 
                     parsedArray.forEach((item, index) => {
-                        if (!item.title || !item.start || !item.end) return; 
+                        // DB 찌꺼기 방지: 시작일과 제목이 없으면 등록 패스
+                        if (!item.title || !item.start) return; 
 
                         const newSch = {
                             id: Date.now().toString() + index,
                             title: item.title,
                             start: item.start,
-                            end: item.end,
+                            end: item.end || item.start,
                             epic: '',
-                            desc: 'AI 자동 추출 (스크린샷 일괄 등록)',
-                            color: '#3b82f6'
+                            desc: 'AI 자동 추출 (스크린샷)',
+                            color: '#3b82f6' // AI는 기본 검증 색상
                         };
 
                         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
@@ -239,11 +253,11 @@ async function processScreenshot(file) {
                     if (typeof showToast === 'function' && savedCount > 0) {
                         showToast(`${savedCount}개의 일정이 등록되었습니다.`);
                     } else if (savedCount === 0) {
-                        alert("유효한 일정 데이터를 추출하지 못했습니다. 이미지를 다시 확인해주세요.");
+                        alert("유효한 일정(제목과 날짜)을 추출하지 못했습니다.");
                     }
                     closeScheduleModal();
                 } else {
-                    throw new Error("결과가 올바른 배열 형태가 아닙니다.");
+                    throw new Error("JSON 형태가 아닙니다.");
                 }
             } catch (innerError) {
                 console.error(innerError);
@@ -254,7 +268,6 @@ async function processScreenshot(file) {
             }
         };
     } catch (error) {
-        console.error(error);
         alert("파일 읽기 오류가 발생했습니다.");
         dropzoneContent.style.display = 'block';
         loadingContent.style.display = 'none';
@@ -270,16 +283,10 @@ window.switchMainTab = (tabName) => {
 
     if (tabName === 'calendar') {
         const calTab = document.getElementById('tab-calendar');
-        if (calTab) { 
-            calTab.style.display = 'block'; 
-            renderCalendar(); 
-        }
+        if (calTab) { calTab.style.display = 'block'; renderCalendar(); }
     } else {
         const issueTab = document.getElementById('tab-issue-maker');
-        if (issueTab) { 
-            issueTab.style.display = 'block'; 
-            window.scrollTo(0, 0);
-        }
+        if (issueTab) { issueTab.style.display = 'block'; window.scrollTo(0, 0); }
     }
 };
 
@@ -302,16 +309,10 @@ function renderCalendar() {
     grid.innerHTML = '';
     const allDays = [];
 
-    for (let i = firstDayIndex; i > 0; i--) {
-        allDays.push({ day: prevLastDay - i + 1, month: month - 1, year, type: 'empty' });
-    }
-    for (let i = 1; i <= lastDay; i++) {
-        allDays.push({ day: i, month: month, year, type: 'current' });
-    }
+    for (let i = firstDayIndex; i > 0; i--) allDays.push({ day: prevLastDay - i + 1, month: month - 1, year, type: 'empty' });
+    for (let i = 1; i <= lastDay; i++) allDays.push({ day: i, month: month, year, type: 'current' });
     const remain = 42 - allDays.length;
-    for (let i = 1; i <= remain; i++) {
-        allDays.push({ day: i, month: month + 1, year, type: 'empty' });
-    }
+    for (let i = 1; i <= remain; i++) allDays.push({ day: i, month: month + 1, year, type: 'empty' });
 
     const laneMap = new Map(); 
     const sortedSchedules = [...calSchedules].sort((a, b) => {
@@ -330,9 +331,7 @@ function renderCalendar() {
 
         weekSchedules.forEach(sch => {
             let laneIndex = 0;
-            while (lanes[laneIndex] && lanes[laneIndex].some(assigned => sch.start <= assigned.end && sch.end >= assigned.start)) {
-                laneIndex++;
-            }
+            while (lanes[laneIndex] && lanes[laneIndex].some(assigned => sch.start <= assigned.end && sch.end >= assigned.start)) laneIndex++;
             if (!lanes[laneIndex]) lanes[laneIndex] = [];
             lanes[laneIndex].push(sch);
             
@@ -341,7 +340,6 @@ function renderCalendar() {
                 const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
                 if (sch.start <= dateStr && sch.end >= dateStr) {
                     if (!laneMap.has(dateStr)) laneMap.set(dateStr, []);
-                    
                     let isHead = false;
                     let span = 0;
                     if (!isHeadAssigned) {
@@ -372,17 +370,17 @@ function renderCalendar() {
         let holidayLabel = (wd.type === 'current' && holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]) 
                           ? `<span class="holiday-label">${holidays[`${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`]}</span>` : '';
         
-        let html = `<div class="day-number">${wd.day}${holidayLabel}</div><div class="sch-container" style="gap: 4px; display: flex; flex-direction: column;">`;
+        let html = `<div class="day-number">${wd.day}${holidayLabel}</div><div class="sch-container">`;
         const dayLanes = laneMap.get(dateStr) || [];
-        const maxLane = dayLanes.length;
 
-        for (let l = 0; l < maxLane; l++) {
+        for (let l = 0; l < dayLanes.length; l++) {
             const item = dayLanes[l];
             if (item && item.isHead) {
+                // width 와 background-color는 일정마다 달라지므로 인라인으로 둡니다.
                 const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px)`;
-                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5; margin-bottom: 2px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 1px 2px rgba(0,0,0,0.1);" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
+                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal};" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
             } else {
-                html += `<div class="cal-schedule spacer" style="height: 24px; margin-bottom: 2px;"></div>`;
+                html += `<div class="cal-schedule spacer"></div>`;
             }
         }
         html += `</div>`;
@@ -399,6 +397,7 @@ window.openScheduleModal = (id = null) => {
     if (!modal) return;
     const idField = document.getElementById('sch_id');
     if (idField) idField.value = id || '';
+
     if (id) {
         const sch = calSchedules.find(s => s.id === id);
         if (sch) {
@@ -407,7 +406,8 @@ window.openScheduleModal = (id = null) => {
             document.getElementById('sch_end').value = sch.end;
             document.getElementById('sch_epic').value = sch.epic;
             document.getElementById('sch_desc').value = sch.desc;
-            document.querySelector(`input[name="sch_color"][value="${sch.color}"]`).checked = true;
+            const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
+            if (radio) radio.checked = true;
         }
     } else {
         document.getElementById('sch_title').value = '';
@@ -415,30 +415,34 @@ window.openScheduleModal = (id = null) => {
         document.getElementById('sch_end').value = '';
         document.getElementById('sch_epic').value = '';
         document.getElementById('sch_desc').value = '';
+        const defaultRadio = document.querySelector(`input[name="sch_color"][value="#3b82f6"]`);
+        if (defaultRadio) defaultRadio.checked = true;
     }
     
     const detailModal = document.getElementById('scheduleDetailModal');
     if (detailModal) detailModal.style.display = 'none';
     currentViewingScheduleId = null;
 
+    handleScheduleTypeChange(); // UI 초기 세팅 동기화
     updateQuotaDisplay();
-
     modal.style.display = 'flex';
 };
 
-window.closeScheduleModal = () => { 
-    document.getElementById('scheduleModal').style.display = 'none'; 
-};
+window.closeScheduleModal = () => { document.getElementById('scheduleModal').style.display = 'none'; };
 
 window.saveSchedule = () => {
     const idField = document.getElementById('sch_id');
     const id = (idField && idField.value) ? idField.value : Date.now().toString();
     const title = document.getElementById('sch_title').value;
     const start = document.getElementById('sch_start').value;
-    const end = document.getElementById('sch_end').value;
     const epic = document.getElementById('sch_epic').value;
     const desc = document.getElementById('sch_desc').value;
-    const color = document.querySelector('input[name="sch_color"]:checked').value;
+    const colorRadio = document.querySelector('input[name="sch_color"]:checked');
+    const color = colorRadio ? colorRadio.value : '#3b82f6';
+    
+    // 검증 유형이 아니면 종료일을 강제로 시작일과 맞춤
+    let end = document.getElementById('sch_end').value;
+    if (colorRadio && colorRadio.getAttribute('data-type') !== '검증') end = start;
 
     if (!title || !start || !end) return alert("필수 정보를 입력하세요.");
     const newSch = { id, title, start, end, epic, desc, color };
