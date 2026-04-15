@@ -54,6 +54,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
+function updateQuotaDisplay() {
+    const dropzone = document.getElementById('ai_dropzone');
+    if (dropzone) {
+        let quotaInfo = document.getElementById('ai_quota_info');
+        if (!quotaInfo) {
+            quotaInfo = document.createElement('div');
+            quotaInfo.id = 'ai_quota_info';
+            quotaInfo.style.textAlign = 'center';
+            quotaInfo.style.fontSize = '13px';
+            quotaInfo.style.color = '#6b7280';
+            quotaInfo.style.marginTop = '8px';
+            quotaInfo.style.fontWeight = '500';
+            dropzone.parentNode.insertBefore(quotaInfo, dropzone.nextSibling);
+        }
+        
+        const d = new Date();
+        const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+        let usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
+        
+        if (usageData.date !== todayStr) {
+            usageData = { date: todayStr, count: 0 };
+            localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
+        }
+
+        const remaining = Math.max(0, 20 - usageData.count);
+        quotaInfo.innerText = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
+        
+        if (remaining === 0) {
+            quotaInfo.style.color = '#ef4444';
+        } else {
+            quotaInfo.style.color = '#6b7280';
+        }
+    }
+}
+
 document.addEventListener('paste', async (e) => {
     const modal = document.getElementById('scheduleModal');
     if (modal && modal.style.display !== 'none') {
@@ -113,6 +148,16 @@ async function processScreenshot(file) {
         localStorage.setItem('GEMINI_API_KEY', savedKey.trim());
     }
 
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    let usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
+    if (usageData.date !== todayStr) usageData = { date: todayStr, count: 0 };
+
+    if (usageData.count >= 20) {
+        alert("오늘 무료 제공량(20회)을 모두 소진했습니다. 내일 다시 시도해주세요.");
+        return;
+    }
+
     const dropzoneContent = document.getElementById('ai_dropzone_content');
     const loadingContent = document.getElementById('ai_loading_content');
     if (!dropzoneContent || !loadingContent) return;
@@ -160,6 +205,10 @@ async function processScreenshot(file) {
                 const parsedArray = JSON.parse(textResult);
 
                 if (Array.isArray(parsedArray)) {
+                    usageData.count++;
+                    localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
+                    updateQuotaDisplay();
+
                     let savePromises = [];
                     parsedArray.forEach((item, index) => {
                         const newSch = {
@@ -360,6 +409,8 @@ window.openScheduleModal = (id = null) => {
     const detailModal = document.getElementById('scheduleDetailModal');
     if (detailModal) detailModal.style.display = 'none';
     currentViewingScheduleId = null;
+
+    updateQuotaDisplay();
 
     modal.style.display = 'flex';
 };
