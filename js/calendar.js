@@ -2,8 +2,6 @@ let calCurrentDate = new Date();
 let calSchedules = [];
 let currentViewingScheduleId = null;
 
-const GEMINI_API_KEY = "AIzaSyBcmPDVqoaHI4-dergdI-oe1DctnaW5l7c";
-
 const holidays = {
     "01-01": "신정", "03-01": "3·1절", "05-05": "어린이날", "06-06": "현충일",
     "08-15": "광복절", "10-03": "개천절", "10-09": "한글날", "12-25": "기독탄신일"
@@ -122,32 +120,13 @@ async function processScreenshot(file) {
                 const base64Image = reader.result.split(',')[1];
                 const mimeType = file.type;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열 데이터는 완전히 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요 (예: 4/14 -> 2026-04-14). 만약 시작일과 종료일이 같다면 start와 end에 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 예시: [{\"title\":\"테스트 1\", \"start\":\"2026-04-14\", \"end\":\"2026-04-17\"}]. 마크다운 기호(```json 등)를 절대 포함하지 말고 순수 JSON 배열만 출력하세요." },
-                                { inline_data: { mime_type: mimeType, data: base64Image } }
-                            ]
-                        }]
-                    })
+                const analyzeScheduleImage = firebase.functions().httpsCallable('analyzeScheduleImage');
+                const result = await analyzeScheduleImage({
+                    image: base64Image,
+                    mimeType: mimeType
                 });
 
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.error?.message || "API 요청 실패");
-                }
-
-                if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
-                    throw new Error("API 응답 구조가 올바르지 않습니다.");
-                }
-
-                let textResult = result.candidates[0].content.parts[0].text;
-                textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
-                const parsedArray = JSON.parse(textResult);
+                const parsedArray = result.data;
 
                 if (Array.isArray(parsedArray)) {
                     let savePromises = [];
@@ -158,13 +137,12 @@ async function processScreenshot(file) {
                             start: item.start || '',
                             end: item.end || '',
                             epic: '',
-                            desc: 'AI 자동 추출 (스크린샷 일괄 등록)',
+                            desc: 'AI 자동 추출 (서버사이드 처리)',
                             color: '#3b82f6'
                         };
 
                         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                            const promise = firebase.database().ref('shared_schedules/' + newSch.id).set(newSch);
-                            savePromises.push(promise);
+                            savePromises.push(firebase.database().ref('shared_schedules/' + newSch.id).set(newSch));
                         } else {
                             calSchedules.push(newSch);
                         }
@@ -179,19 +157,19 @@ async function processScreenshot(file) {
                     if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
                     closeScheduleModal();
                 } else {
-                    throw new Error("JSON 결과가 배열 형태가 아닙니다.");
+                    throw new Error("서버에서 올바른 배열을 반환하지 않았습니다.");
                 }
             } catch (innerError) {
-                console.error("Inner Processing Error:", innerError);
-                alert("이미지 처리 중 오류가 발생했습니다: " + innerError.message);
+                console.error(innerError);
+                alert("이미지 처리 중 오류가 발생했습니다: " + (innerError.message || "서버 통신 오류"));
             } finally {
                 dropzoneContent.style.display = 'block';
                 loadingContent.style.display = 'none';
             }
         };
     } catch (error) {
-        console.error("FileReader Error:", error);
-        alert("파일을 읽는 중 오류가 발생했습니다.");
+        console.error(error);
+        alert("파일 읽기 오류가 발생했습니다.");
         dropzoneContent.style.display = 'block';
         loadingContent.style.display = 'none';
     }
@@ -200,12 +178,22 @@ async function processScreenshot(file) {
 window.switchMainTab = (tabName) => {
     const allTabs = document.querySelectorAll('.main-tab-content');
     allTabs.forEach(tab => tab.style.display = 'none');
+    
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+
     if (tabName === 'calendar') {
         const calTab = document.getElementById('tab-calendar');
-        if (calTab) { calTab.style.display = 'block'; renderCalendar(); }
+        if (calTab) { 
+            calTab.style.display = 'block'; 
+            renderCalendar(); 
+        }
     } else {
         const issueTab = document.getElementById('tab-issue-maker');
-        if (issueTab) issueTab.style.display = 'block';
+        if (issueTab) { 
+            issueTab.style.display = 'block'; 
+            window.scrollTo(0, 0);
+        }
     }
 };
 
@@ -305,11 +293,11 @@ function renderCalendar() {
             const item = dayLanes[l];
             if (item && item.isHead) {
                 const widthVal = `calc(${item.span} * 100% + ${(item.span - 1)} * 1px)`;
-                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5;" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
+                html += `<div class="cal-schedule span-head" style="background-color:${item.sch.color}; width:${widthVal}; text-align:center; z-index:5; margin-bottom: 3px; border: 1px solid rgba(255,255,255,0.2);" onclick="event.stopPropagation(); openScheduleDetail('${item.sch.id}')">${item.sch.title}</div>`;
             } else if (item && !item.isHead) {
-                html += `<div class="cal-schedule spacer"></div>`;
+                html += `<div class="cal-schedule spacer" style="margin-bottom: 3px;"></div>`;
             } else {
-                html += `<div class="cal-schedule spacer"></div>`;
+                html += `<div class="cal-schedule spacer" style="margin-bottom: 3px;"></div>`;
             }
         }
         html += `</div>`;
@@ -343,11 +331,17 @@ window.openScheduleModal = (id = null) => {
         document.getElementById('sch_epic').value = '';
         document.getElementById('sch_desc').value = '';
     }
-    closeScheduleDetail(); 
+    
+    const detailModal = document.getElementById('scheduleDetailModal');
+    if (detailModal) detailModal.style.display = 'none';
+    currentViewingScheduleId = null;
+
     modal.style.display = 'flex';
 };
 
-window.closeScheduleModal = () => { document.getElementById('scheduleModal').style.display = 'none'; };
+window.closeScheduleModal = () => { 
+    document.getElementById('scheduleModal').style.display = 'none'; 
+};
 
 window.saveSchedule = () => {
     const idField = document.getElementById('sch_id');
