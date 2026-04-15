@@ -116,7 +116,6 @@
     overflow: visible;
 }
 
-/* 🔥 핵심 수정 1: cal-day에서 position: relative 제거 (일정이 다음 칸을 덮을 수 있게 해제) */
 .cal-day {
     background: #ffffff;
     padding: 0; 
@@ -136,7 +135,6 @@
     cursor: default;
 }
 
-/* 날짜 숫자는 일정 바 위로 올라와야 하므로 position: relative 와 z-index 유지 */
 .day-number {
     display: flex;
     flex-direction: row;
@@ -192,7 +190,6 @@
     background: rgba(59, 130, 246, 0.03);
 }
 
-/* 🔥 핵심 수정 2: sch-container에서도 position: relative 제거 */
 .sch-container {
     display: flex;
     flex-direction: column;
@@ -200,13 +197,12 @@
     padding-bottom: 4px;
 }
 
-/* 🔥 일정 바 디자인 개선: 둥근 양끝 + 좌측 정렬 */
 .cal-schedule {
     font-size: 0.75rem;
     font-weight: 700;
     height: 24px;
-    line-height: 24px;
-    padding: 0 8px; /* 좌우 여백 */
+    line-height: 22px;
+    padding: 0 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -214,21 +210,23 @@
     cursor: pointer;
     transition: filter 0.1s;
     box-sizing: border-box;
-    text-align: left; /* 글자 좌측 정렬 (안 가려지게) */
+    text-align: left;
 }
 
 .cal-schedule.span-head {
     position: relative;
-    border-radius: 6px; /* 양끝을 부드럽게 둥글게 */
-    margin: 0 4px 2px 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    z-index: 5; /* 다음 날짜 배경보다 위로 띄움 */
+    border-radius: 8px;
+    margin: 0 3px 2px 3px;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    z-index: 5;
 }
 
 .cal-schedule.spacer {
     background: transparent !important;
     pointer-events: none;
     box-shadow: none;
+    border: none;
 }
 
 .cal-schedule:hover {
@@ -236,7 +234,6 @@
     z-index: 20 !important;
 }
 
-/* --- 모달 UI CSS (이전과 동일) --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -324,4 +321,129 @@ textarea.form-control { height: 80px; resize: none; }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 .spinner { font-size: 2rem; margin-bottom: 10px; display: inline-block; animation: spin 1s linear infinite; }
+
 .d-none { display: none !important; }
+
+.detail-modal-content {
+    max-width: 550px;
+    width: 90%;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #ffffff;
+    position: relative;
+}
+
+.detail-color-bar {
+    height: 10px;
+    width: 100%;
+}
+
+.detail-body {
+    padding: 30px;
+}
+
+.detail-header-group {
+    margin-bottom: 25px;
+}
+
+.detail-title {
+    margin: 0 0 10px 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-main, #111827);
+}
+
+.detail-date {
+    margin: 0;
+    color: var(--text-sub, #6b7280);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.detail-info-box {
+    background: var(--bg-color, #f3f4f6);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.detail-info-item {
+    margin-bottom: 15px;
+}
+
+.detail-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-sub, #6b7280);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.detail-value-epic {
+    font-weight: 800;
+    color: var(--accent-blue, #3b82f6);
+    font-size: 1.1rem;
+}
+
+.detail-value-desc {
+    line-height: 1.6;
+    color: var(--text-main, #111827);
+    white-space: pre-wrap;
+}
+
+.detail-btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-action-primary {
+    flex: 2;
+    padding: 12px;
+    font-weight: 800;
+    background: var(--accent-blue, #3b82f6);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-action-primary:hover {
+    background: #2563eb;
+}
+
+.btn-action-secondary {
+    flex: 1;
+    padding: 12px;
+    font-weight: 700;
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-action-secondary:hover {
+    background: var(--bg-color, #f3f4f6);
+}
+
+.btn-action-danger {
+    flex: 1;
+    padding: 12px;
+    font-weight: 700;
+    background: #ffffff;
+    border: 1px solid #fee2e2;
+    color: #ef4444;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-action-danger:hover {
+    background: #fef2f2;
+}
