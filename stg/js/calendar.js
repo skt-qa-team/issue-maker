@@ -179,7 +179,7 @@ async function processScreenshot(file) {
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열은 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 여러 일정을 추출하여 반드시 JSON 배열 형식으로만 반환하세요. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
+                                { text: "이 이미지는 일정표입니다. 1열(제목)과 4열(일정, 예: 4/14~4/17) 데이터만 추출하고 2, 3, 5열은 무시하세요. 날짜는 2026년 기준으로 판단하여 'YYYY-MM-DD' 포맷으로 변경하세요. 시작일과 종료일이 같으면 동일한 날짜를 넣으세요. 반드시 다음 형식을 엄격히 지켜 JSON 배열로만 반환하세요: [{\"title\": \"일정명\", \"start\": \"2026-04-14\", \"end\": \"2026-04-17\"}]. 마크다운 기호 없이 순수 JSON 배열만 출력하세요." },
                                 { inline_data: { mime_type: mimeType, data: base64Image } }
                             ]
                         }]
@@ -210,12 +210,16 @@ async function processScreenshot(file) {
                     updateQuotaDisplay();
 
                     let savePromises = [];
+                    let savedCount = 0;
+
                     parsedArray.forEach((item, index) => {
+                        if (!item.title || !item.start || !item.end) return; 
+
                         const newSch = {
                             id: Date.now().toString() + index,
-                            title: item.title || '새 일정',
-                            start: item.start || '',
-                            end: item.end || '',
+                            title: item.title,
+                            start: item.start,
+                            end: item.end,
                             epic: '',
                             desc: 'AI 자동 추출 (스크린샷 일괄 등록)',
                             color: '#3b82f6'
@@ -226,11 +230,17 @@ async function processScreenshot(file) {
                         } else {
                             calSchedules.push(newSch);
                         }
+                        savedCount++;
                     });
 
                     if (savePromises.length > 0) await Promise.all(savePromises);
                     renderCalendar();
-                    if (typeof showToast === 'function') showToast(`${parsedArray.length}개의 일정이 등록되었습니다.`);
+                    
+                    if (typeof showToast === 'function' && savedCount > 0) {
+                        showToast(`${savedCount}개의 일정이 등록되었습니다.`);
+                    } else if (savedCount === 0) {
+                        alert("유효한 일정 데이터를 추출하지 못했습니다. 이미지를 다시 확인해주세요.");
+                    }
                     closeScheduleModal();
                 } else {
                     throw new Error("결과가 올바른 배열 형태가 아닙니다.");
@@ -305,6 +315,7 @@ function renderCalendar() {
 
     const laneMap = new Map(); 
     const sortedSchedules = [...calSchedules].sort((a, b) => {
+        if (!a.start || !b.start) return 0;
         if (a.start !== b.start) return new Date(a.start) - new Date(b.start);
         return (new Date(b.end) - new Date(b.start)) - (new Date(a.end) - new Date(a.start));
     });
@@ -314,7 +325,7 @@ function renderCalendar() {
         const firstDayOfWeek = `${weekDays[0].year}-${String(weekDays[0].month + 1).padStart(2, '0')}-${String(weekDays[0].day).padStart(2, '0')}`;
         const lastDayOfWeek = `${weekDays[6].year}-${String(weekDays[6].month + 1).padStart(2, '0')}-${String(weekDays[6].day).padStart(2, '0')}`;
 
-        const weekSchedules = sortedSchedules.filter(s => s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
+        const weekSchedules = sortedSchedules.filter(s => s.start && s.end && s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
         const lanes = [];
 
         weekSchedules.forEach(sch => {
