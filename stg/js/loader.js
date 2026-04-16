@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'modal-placeholder-setting', url: 'components/setting-modal.html' },
         { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' },
         { id: 'modal-placeholder-schedule', url: 'components/schedule-modal.html' },
-        { id: 'modal-placeholder-schedule-detail', url: 'components/schedule-detail-modal.html' }
+        { id: 'modal-placeholder-schedule-detail', url: 'components/schedule-detail-modal.html' },
+        { id: 'modal-placeholder-bugreport', url: 'components/bugreport-modal.html' }
     ];
 
     Promise.all(components.map(comp => 
