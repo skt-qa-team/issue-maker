@@ -25,6 +25,7 @@
                 <label style="font-size: 0.75rem;">OS</label>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <select id="osType" onchange="document.getElementById('osType_custom').style.display = this.value === 'direct' ? 'block' : 'none'; syncEnvironmentByOS(); generateTemplate();">
+                        <option value="">해당없음</option>
                         <option value="Android/iOS">Android/iOS</option>
                         <option value="Android">Android</option>
                         <option value="iOS">iOS</option>
