@@ -10,16 +10,56 @@
         <label class="prefix-title" style="font-size: 0.8rem; margin-bottom: 10px; display:block;">🔹 제목 Prefix 상세 조건 (선택)</label>
         <div class="grid-2" style="gap: 12px;">
             <div>
-                <label style="font-size: 0.75rem;">Critical 구분</label>
-                <select id="prefix_critical" onchange="generateTemplate()">
-                    <option value="">해당 없음</option>
-                    <option value="Block">Block</option>
-                    <option value="Crash">Crash</option>
-                </select>
+                <label style="font-size: 0.75rem;">환경</label>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <select id="prefix_env" onchange="document.getElementById('prefix_env_custom').style.display = this.value === 'direct' ? 'block' : 'none'; generateTemplate();">
+                        <option value="">선택</option>
+                        <option value="상용">상용</option>
+                        <option value="STG/상용">STG/상용</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="prefix_env_custom" placeholder="환경 입력" style="display: none;" oninput="generateTemplate()">
+                </div>
             </div>
             <div>
                 <label style="font-size: 0.75rem;">OS</label>
-                <input type="text" id="prefix_spec_os" placeholder="예: OS16" oninput="generateTemplate()">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <select id="osType" onchange="document.getElementById('osType_custom').style.display = this.value === 'direct' ? 'block' : 'none'; syncEnvironmentByOS(); generateTemplate();">
+                        <option value="Android/iOS">Android/iOS</option>
+                        <option value="Android">Android</option>
+                        <option value="iOS">iOS</option>
+                        <option value="모바일">모바일</option>
+                        <option value="태블릿">태블릿</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="osType_custom" placeholder="OS 입력" style="display: none;" oninput="generateTemplate(); syncEnvironmentByOS();">
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem;">PoC</label>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <select id="poc" onchange="document.getElementById('poc_custom').style.display = this.value === 'direct' ? 'block' : 'none'; handlePocChange(); generateTemplate();">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="PC M.Web">PC M.Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="poc_custom" placeholder="PoC 입력" style="display: none;" oninput="generateTemplate()">
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem;">Critical 구분</label>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <select id="prefix_critical" onchange="document.getElementById('prefix_critical_custom').style.display = this.value === 'direct' ? 'block' : 'none'; generateTemplate();">
+                        <option value="">해당없음</option>
+                        <option value="Block">Block</option>
+                        <option value="Crash">Crash</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="prefix_critical_custom" placeholder="Critical 입력" style="display: none;" oninput="generateTemplate()">
+                </div>
             </div>
             <div>
                 <label style="font-size: 0.75rem;">Device</label>
@@ -33,27 +73,6 @@
                 <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
                 <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
             </div>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div class="form-group">
-            <label>OS 구분</label>
-            <select id="osType" onchange="syncEnvironmentByOS(); generateTemplate();">
-                <option value="[Android/iOS]">[Android/iOS]</option>
-                <option value="[Android]">[Android]</option>
-                <option value="[iOS]">[iOS]</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>POC</label>
-            <select id="poc" onchange="handlePocChange()">
-                <option value="T 멤버십 App">T 멤버십 App</option>
-                <option value="PC Web">PC Web</option>
-                <option value="PC M.Web">PC M.Web</option>
-                <option value="AI Layer">AI Layer</option>
-                <option value="Admin">Admin</option>
-            </select>
         </div>
     </div>
 
