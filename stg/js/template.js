@@ -34,12 +34,12 @@ function updateVersionCheckboxesByOS() {
     if (cbEdg) cbEdg.checked = false;
 
     if (!isPureWeb) {
-        if (osType === "[Android/iOS]") {
+        if (osType === "Android/iOS" || osType === "모바일" || osType === "태블릿" || osType === "direct") {
             if (cbAnd) cbAnd.checked = true;
             if (cbIos) cbIos.checked = true;
-        } else if (osType === "[Android]") {
+        } else if (osType === "Android") {
             if (cbAnd) cbAnd.checked = true;
-        } else if (osType === "[iOS]") {
+        } else if (osType === "iOS") {
             if (cbIos) cbIos.checked = true;
         }
     } else {
@@ -66,8 +66,8 @@ function syncEnvironmentByOS() {
     const iosCol = document.getElementById('iosDeviceCol');
     const iosVerToggle = document.getElementById('ios-ver-toggle');
 
-    const showAnd = (osType === "[Android/iOS]" || osType === "[Android]");
-    const showIos = (osType === "[Android/iOS]" || osType === "[iOS]");
+    const showAnd = (osType === "Android/iOS" || osType === "Android" || osType === "모바일" || osType === "태블릿" || osType === "direct");
+    const showIos = (osType === "Android/iOS" || osType === "iOS" || osType === "모바일" || osType === "태블릿" || osType === "direct");
 
     if(andCol) showAnd ? andCol.classList.remove('d-none') : andCol.classList.add('d-none');
     if(iosCol) showIos ? iosCol.classList.remove('d-none') : iosCol.classList.add('d-none');
@@ -195,30 +195,56 @@ function updateVersionTextbox() {
 }
 
 function generateTemplate() {
-    const getValue = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value : '';
+    const getDropdownOrCustom = (dropdownId, customId) => {
+        const el = document.getElementById(dropdownId);
+        if (!el) return '';
+        if (el.value === 'direct') {
+            const customEl = document.getElementById(customId);
+            return customEl ? customEl.value.trim() : '';
+        }
+        return el.value.trim();
     };
+
+    const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
+    const osVal = getDropdownOrCustom('osType', 'osType_custom');
+    const pocVal = getDropdownOrCustom('poc', 'poc_custom');
+    const critVal = getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
     
-    const poc = getValue('poc');
-    const os = getValue('osType');
+    const pocDropdownVal = document.getElementById('poc')?.value || '';
+    const osDropdownVal = document.getElementById('osType')?.value || '';
     
-    const isPureWeb = poc === 'Admin' || poc === 'PC Web';
+    const devVal = document.getElementById('prefix_device') ? document.getElementById('prefix_device').value.trim() : '';
+    const accVal = document.getElementById('prefix_account') ? document.getElementById('prefix_account').value.trim() : '';
+    const pageVal = document.getElementById('prefix_page') ? document.getElementById('prefix_page').value.trim() : '';
+    const titleVal = document.getElementById('title') ? document.getElementById('title').value.trim() : '';
+
+    const envPrefix = envVal ? `[${envVal}]` : '';
+    const osPrefix = osVal ? `[${osVal}]` : '';
+    const pocPrefix = (pocVal && pocVal !== 'T 멤버십') ? `[${pocVal}]` : '';
+    const critPrefix = critVal ? `[${critVal}]` : '';
+    const devPrefix = devVal ? `[${devVal}]` : '';
+    const accPrefix = accVal ? `[${accVal}]` : '';
+    const pagePrefix = pageVal ? `[${pageVal}]` : '';
+
+    const titleText = `${envPrefix}${osPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${titleVal}`.replace(/\s+/g, ' ').trim();
+
+    const isPureWeb = pocDropdownVal === 'Admin' || pocDropdownVal === 'PC Web';
     let servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     let devices = "";
     
     if (!isPureWeb) {
         let activeDeviceLists = [];
-        
         const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
         const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
 
-        if (os === "[Android]" || os === "[Android/iOS]") {
+        const showAnd = (osDropdownVal === "Android/iOS" || osDropdownVal === "Android" || osDropdownVal === "모바일" || osDropdownVal === "태블릿" || osDropdownVal === "direct");
+        const showIos = (osDropdownVal === "Android/iOS" || osDropdownVal === "iOS" || osDropdownVal === "모바일" || osDropdownVal === "태블릿" || osDropdownVal === "direct");
+
+        if (showAnd) {
             if (andMode === 'normal') activeDeviceLists.push(document.getElementById('andNormalList'));
             else activeDeviceLists.push(document.getElementById('andSpecialList'));
         }
-        
-        if (os === "[iOS]" || os === "[Android/iOS]") {
+        if (showIos) {
             if (iosMode === 'normal') activeDeviceLists.push(document.getElementById('iosNormalList'));
             else activeDeviceLists.push(document.getElementById('iosSpecialList'));
         }
@@ -230,62 +256,46 @@ function generateTemplate() {
                 checkedDeviceValues.push(...checkedInList.map(cb => cb.value));
             }
         });
-        
         devices = checkedDeviceValues.join(' / ');
     }
 
-    let ver = getValue('appVersion');
-    
+    let ver = document.getElementById('appVersion') ? document.getElementById('appVersion').value : '';
     const searchEngines = Array.from(document.querySelectorAll('.ver-type-cb:checked'))
         .map(cb => cb.value)
         .filter(val => ['삼성 브라우저', 'Safari', '크롬', 'Edge'].includes(val))
         .join(' / ');
 
-    const rawEnv = servers.join('/').replace('PRD', '상용');
-    const envPrefix = (rawEnv === 'STG' || !rawEnv) ? '' : `[${rawEnv}]`;
-    const osPrefix = (poc === 'Admin' || poc === 'PC Web') ? '' : os;
-    
-    const specOsVal = getValue('prefix_spec_os').trim();
-    const specOsPrefix = specOsVal ? `[${specOsVal}]` : '';
-    
-    const devVal = getValue('prefix_device').trim();
-    const devPrefix = devVal ? `[${devVal}]` : '';
-    
-    const accVal = getValue('prefix_account').trim();
-    const accPrefix = accVal ? `[${accVal}]` : '';
+    let envSection = `[Environment]\n■ POC : ${pocVal}\n`;
 
-    const pocPrefix = (poc && poc !== 'T 멤버십 App') ? `[${poc}]` : '';
-    const critPrefix = getValue('prefix_critical') ? `[${getValue('prefix_critical')}]` : '';
-    const pagePrefix = getValue('prefix_page').trim() ? `[${getValue('prefix_page').trim()}]` : '';
-    
-    const titleText = `${envPrefix}${osPrefix}${specOsPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${getValue('title').trim()}`.replace(/\s+/g, ' ').trim();
-    
-    let envSection = `[Environment]\n■ POC : ${poc}\n`;
-
-    if (poc === 'PC Web') {
+    if (pocDropdownVal === 'PC Web') {
         if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
-        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
-    } else if (poc === 'PC M.Web') {
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${document.getElementById('targetUrl') ? document.getElementById('targetUrl').value : ''}`;
+    } else if (pocDropdownVal === 'PC M.Web') {
         envSection += `■ Device : ${devices || '-'}\n`;
         if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
-        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${getValue('targetUrl')}`;
-    } else if (poc === 'Admin') {
-        envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${getValue('targetUrl')}`;
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${document.getElementById('targetUrl') ? document.getElementById('targetUrl').value : ''}`;
+    } else if (pocDropdownVal === 'Admin') {
+        envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${document.getElementById('targetUrl') ? document.getElementById('targetUrl').value : ''}`;
     } else {
         envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
-        if (poc === 'AI Layer') {
-            const aiModeVal = getValue('aiMode');
+        if (pocDropdownVal === 'AI Layer') {
+            const aiModeVal = document.getElementById('aiMode') ? document.getElementById('aiMode').value : '';
             if (aiModeVal) {
                 envSection += `\n■ 모드 : ${aiModeVal}`;
             }
         }
     }
     
-    const prdRef = getValue('ref_prd').trim();
-    const notes = getValue('ref_notes').trim();
+    const prdRef = document.getElementById('ref_prd') ? document.getElementById('ref_prd').value.trim() : '';
+    const notes = document.getElementById('ref_notes') ? document.getElementById('ref_notes').value.trim() : '';
     const refSection = (prdRef || notes) ? `\n\n[참고사항]\n${prdRef ? '1. 상용 재현 여부 : ' + prdRef + '\n' : ''}${notes}` : '';
     
-    const body = `${envSection}\n\n[Pre-Condition]\n${getValue('preCondition')}\n\n[재현스텝]\n${getValue('steps')}\n\n[실행결과-문제현상]\n${getValue('actualResult')}\n\n[기대결과]\n${getValue('expectedResult')}${refSection}`;
+    const preCondition = document.getElementById('preCondition') ? document.getElementById('preCondition').value : '';
+    const steps = document.getElementById('steps') ? document.getElementById('steps').value : '';
+    const actualResult = document.getElementById('actualResult') ? document.getElementById('actualResult').value : '';
+    const expectedResult = document.getElementById('expectedResult') ? document.getElementById('expectedResult').value : '';
+
+    const body = `${envSection}\n\n[Pre-Condition]\n${preCondition}\n\n[재현스텝]\n${steps}\n\n[실행결과-문제현상]\n${actualResult}\n\n[기대결과]\n${expectedResult}${refSection}`;
     
     const outTitle = document.getElementById('outputTitle');
     const outBody = document.getElementById('outputBody');
