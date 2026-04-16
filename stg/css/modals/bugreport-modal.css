@@ -1,4 +1,4 @@
-.modal-overlay {
+.bug-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -12,7 +12,7 @@
     z-index: 9999;
 }
 
-.bug-modal {
+.bug-modal-container {
     width: 100%;
     max-width: 500px;
     background: #1e1e1e;
@@ -22,7 +22,7 @@
     overflow: hidden;
 }
 
-.modal-header {
+.bug-modal-header {
     padding: 16px 20px;
     background: #252525;
     border-bottom: 1px solid #333;
@@ -31,13 +31,13 @@
     align-items: center;
 }
 
-.modal-header h2 {
+.bug-modal-header h2 {
     margin: 0;
     font-size: 1.1rem;
     color: #e0e0e0;
 }
 
-.close-btn {
+.bug-close-btn {
     background: none;
     border: none;
     color: #888;
@@ -46,26 +46,26 @@
     line-height: 1;
 }
 
-.close-btn:hover {
+.bug-close-btn:hover {
     color: #fff;
 }
 
-.modal-body {
+.bug-modal-body {
     padding: 20px;
 }
 
-.modal-body .form-group {
+.bug-form-group {
     margin-bottom: 16px;
 }
 
-.modal-body label {
+.bug-modal-body label {
     display: block;
     margin-bottom: 8px;
     font-size: 0.9rem;
     color: #bbb;
 }
 
-.form-control {
+.bug-form-control {
     width: 100%;
     background: #2a2a2a;
     border: 1px solid #444;
@@ -77,16 +77,16 @@
     box-sizing: border-box;
 }
 
-.form-control:focus {
+.bug-form-control:focus {
     border-color: #0078d4;
 }
 
-textarea.form-control {
+textarea.bug-form-control {
     height: 120px;
     resize: none;
 }
 
-.modal-footer {
+.bug-modal-footer {
     padding: 16px 20px;
     background: #252525;
     border-top: 1px solid #333;
@@ -95,7 +95,7 @@ textarea.form-control {
     gap: 10px;
 }
 
-.btn-action-primary {
+.bug-btn-primary {
     background: #0078d4;
     color: #fff;
     border: none;
@@ -105,11 +105,11 @@ textarea.form-control {
     font-weight: 500;
 }
 
-.btn-action-primary:hover {
+.bug-btn-primary:hover {
     background: #0086f0;
 }
 
-.btn-action-secondary {
+.bug-btn-secondary {
     background: #444;
     color: #fff;
     border: none;
@@ -118,7 +118,7 @@ textarea.form-control {
     cursor: pointer;
 }
 
-.btn-action-secondary:hover {
+.bug-btn-secondary:hover {
     background: #555;
 }
 
