@@ -182,7 +182,14 @@ function handlePocChange() {
     
     if(devGroup) isPureWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
     if(urlGroup) needsUrl ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
-    if(aiModeGroup) isAI ? aiModeGroup.style.display = 'block' : aiModeGroup.style.display = 'none';
+    
+    if(aiModeGroup) {
+        if (isAI) {
+            aiModeGroup.classList.remove('d-none');
+        } else {
+            aiModeGroup.classList.add('d-none');
+        }
+    }
     
     if (needsUrl) {
         const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
