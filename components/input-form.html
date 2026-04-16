@@ -22,6 +22,20 @@
                 </div>
             </div>
             <div>
+                <label style="font-size: 0.75rem;">브라우저</label>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked onchange="if(this.checked) { document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false); document.getElementById('prefix_browser_custom').style.display='none'; } generateTemplate();"> 해당없음</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" class="prefix-browser-cb" value="삼성브라우저" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 삼성</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" class="prefix-browser-cb" value="크롬" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 크롬</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" class="prefix-browser-cb" value="엣지" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 엣지</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" class="prefix-browser-cb" value="Safari" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Safari</label>
+                        <label class="checkbox-label" style="font-size: 0.7rem;"><input type="checkbox" class="prefix-browser-cb" id="prefix_browser_etc" value="기타" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_browser_custom').style.display = this.checked ? 'block' : 'none'; generateTemplate();"> 기타</label>
+                    </div>
+                    <input type="text" id="prefix_browser_custom" placeholder="브라우저 입력" style="display: none;" oninput="generateTemplate()">
+                </div>
+            </div>
+            <div>
                 <label style="font-size: 0.75rem;">OS</label>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <select id="osType" onchange="document.getElementById('osType_custom').style.display = this.value === 'direct' ? 'block' : 'none'; syncEnvironmentByOS(); generateTemplate();">
@@ -71,7 +85,7 @@
                 <label style="font-size: 0.75rem;">계정</label>
                 <input type="text" id="prefix_account" placeholder="예: VIP" oninput="generateTemplate()">
             </div>
-            <div style="grid-column: span 2;">
+            <div>
                 <label style="font-size: 0.75rem;">이슈 발생 페이지</label>
                 <input type="text" id="prefix_page" placeholder="예: 출석체크" oninput="generateTemplate()">
             </div>
@@ -124,8 +138,8 @@
             </div>
         </div>
         <div class="checkbox-group" style="margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_android" class="ver-type-cb" value="Android" onchange="updateVersionTextbox(); generateTemplate();"> Android</label>
-            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb" value="iOS" onchange="updateVersionTextbox(); generateTemplate();"> iOS</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_android" class="ver-type-cb" value="Android" onchange="syncDeviceFromVersion('and'); updateVersionTextbox(); generateTemplate();"> Android</label>
+            <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb" value="iOS" onchange="syncDeviceFromVersion('ios'); updateVersionTextbox(); generateTemplate();"> iOS</label>
             <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb" value="삼성 브라우저" onchange="updateVersionTextbox(); generateTemplate();"> 삼성 브라우저</label>
             <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_safari" class="ver-type-cb" value="Safari" onchange="updateVersionTextbox(); generateTemplate();"> Safari</label>
             <label class="checkbox-label" style="font-size: 0.75rem;"><input type="checkbox" id="ver_cb_chrome" class="ver-type-cb" value="크롬" onchange="updateVersionTextbox(); generateTemplate();"> 크롬</label>
