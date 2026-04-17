@@ -157,11 +157,18 @@ function syncEnvironmentByOS() {
     const showAnd = (osType === "Android/iOS" || osType === "Android" || osType === "모바일" || osType === "태블릿" || osType === "모바일/태블릿" || osType === "direct");
     const showIos = (osType === "Android/iOS" || osType === "iOS" || osType === "모바일" || osType === "태블릿" || osType === "모바일/태블릿" || osType === "direct");
 
-    if(andCol) showAnd ? andCol.classList.remove('d-none') : andCol.classList.add('d-none');
-    if(iosCol) showIos ? iosCol.classList.remove('d-none') : iosCol.classList.add('d-none');
-    if(iosVerToggle) showIos ? iosVerToggle.classList.remove('d-none') : iosVerToggle.classList.add('d-none');
-
-    let claimedDevices = new Set();
+    if(andCol) {
+        if (showAnd) andCol.classList.remove('d-none');
+        else andCol.classList.add('d-none');
+    }
+    if(iosCol) {
+        if (showIos) iosCol.classList.remove('d-none');
+        else iosCol.classList.add('d-none');
+    }
+    if(iosVerToggle) {
+        if (showIos) iosVerToggle.classList.remove('d-none');
+        else iosVerToggle.classList.add('d-none');
+    }
 
     const render = (containerId, list, idPrefix) => {
         const container = document.getElementById(containerId);
@@ -169,15 +176,10 @@ function syncEnvironmentByOS() {
         container.innerHTML = '';
         list.forEach(dev => {
             let isCheckedStr = '';
-            
-            const uniqueKey = `${idPrefix}_${dev}`;
-            if (currentSelected.includes(dev) && !claimedDevices.has(uniqueKey)) {
-                isCheckedStr = 'checked';
-                claimedDevices.add(uniqueKey);
-            }
-            
             const safeDevName = escapeHTMLTemplate(dev);
-            
+            if (currentSelected.includes(dev)) {
+                isCheckedStr = 'checked';
+            }
             container.innerHTML += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isCheckedStr} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
         });
     };
@@ -268,15 +270,18 @@ function handlePocChange() {
     const urlGroup = document.getElementById('urlGroup');
     const aiModeGroup = document.getElementById('aiModeGroup');
     
-    if(devGroup) isPureWeb ? devGroup.classList.add('d-none') : devGroup.classList.remove('d-none');
-    if(urlGroup) needsUrl ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+    if(devGroup) {
+        if (isPureWeb) devGroup.classList.add('d-none');
+        else devGroup.classList.remove('d-none');
+    }
+    if(urlGroup) {
+        if (needsUrl) urlGroup.classList.remove('d-none');
+        else urlGroup.classList.add('d-none');
+    }
     
     if(aiModeGroup) {
-        if (isAI) {
-            aiModeGroup.classList.remove('d-none');
-        } else {
-            aiModeGroup.classList.add('d-none');
-        }
+        if (isAI) aiModeGroup.classList.remove('d-none');
+        else aiModeGroup.classList.add('d-none');
     }
     
     if (needsUrl) {
