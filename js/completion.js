@@ -1,13 +1,8 @@
 let currentCompConfig = {};
 
-function openCompletionModal() {
+function initCompletionPanel() {
     currentCompConfig = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
     
-    const modal = document.getElementById('completionModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
-
     const sList = document.getElementById('comp_server_list');
     if (sList) {
         sList.innerHTML = '';
@@ -44,11 +39,6 @@ function openCompletionModal() {
     }
 
     handleCompPocChange();
-}
-
-function closeCompletionModal() {
-    const modal = document.getElementById('completionModal');
-    if (modal) modal.style.display = 'none';
 }
 
 function handleCompPocChange() {
@@ -170,7 +160,6 @@ async function copyCompletionReport() {
             } else {
                 alert('완료문 복사 완료!');
             }
-            closeCompletionModal();
         } catch (err) {
             console.error('Failed to copy text: ', err);
             alert('복사에 실패했습니다.');
@@ -184,7 +173,6 @@ async function copyCompletionReport() {
             } else {
                 alert('완료문 복사 완료!');
             }
-            closeCompletionModal();
         } catch (err) {
             console.error('Fallback copy failed', err);
             alert('복사에 실패했습니다.');
