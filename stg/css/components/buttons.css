@@ -1,6 +1,6 @@
 .auth-btn {
     background: var(--accent-red);
-    color: white;
+    color: #ffffff;
     border: none;
     padding: 10px 18px;
     border-radius: var(--radius-pill);
@@ -18,7 +18,7 @@
 
 .btn-clear-top {
     background: var(--accent-blue);
-    color: white;
+    color: #ffffff;
     border: none;
     padding: 6px 12px;
     border-radius: var(--radius-sm);
@@ -49,7 +49,7 @@
 
 .btn-copy-mini:hover {
     background: var(--text-sub);
-    color: white;
+    color: #ffffff;
 }
 
 .btn-copy-all {
@@ -59,7 +59,7 @@
     border-radius: var(--radius-md);
     font-weight: 800;
     cursor: pointer;
-    color: white;
+    color: #ffffff;
     background: var(--accent-blue);
     font-size: 1.1rem;
     box-shadow: var(--shadow-md);
@@ -79,7 +79,7 @@
     padding: 16px;
     border: none;
     border-radius: var(--radius-md);
-    color: white;
+    color: #ffffff;
     font-weight: 800;
     cursor: pointer;
     transition: var(--transition-normal);
@@ -124,5 +124,5 @@
 
 .btn-remove:hover {
     background: var(--accent-red);
-    color: white;
+    color: #ffffff;
 }
