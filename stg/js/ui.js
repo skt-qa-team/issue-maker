@@ -45,7 +45,7 @@ function applyIndividualPreset(id, n) {
     if (typeof generateTemplate === 'function') generateTemplate();
 }
 
-function copySpecific(id) {
+async function copySpecific(id) {
     const el = document.getElementById(id);
     if (!el) return;
     
@@ -53,18 +53,47 @@ function copySpecific(id) {
         return;
     }
 
-    el.select();
-    document.execCommand('copy');
-    showToast('복사되었습니다.');
+    const textToCopy = el.value;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast('복사되었습니다.');
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            el.select();
+            document.execCommand('copy');
+            showToast('복사되었습니다.');
+        }
+    } else {
+        el.select();
+        document.execCommand('copy');
+        showToast('복사되었습니다.');
+    }
 }
 
-function copyAll() {
+async function copyAll() {
     const tVal = document.getElementById('outputTitle')?.value || '';
     const bVal = document.getElementById('outputBody')?.value || '';
     const combined = `${tVal}\n\n${bVal}`;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(combined);
+            showToast('전체 복사 완료!');
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            fallbackCopyText(combined);
+        }
+    } else {
+        fallbackCopyText(combined);
+    }
+}
+
+function fallbackCopyText(text) {
     const t = document.createElement("textarea");
     document.body.appendChild(t);
-    t.value = combined;
+    t.value = text;
     t.select();
     document.execCommand("copy");
     document.body.removeChild(t);
@@ -75,27 +104,58 @@ function renderPresence() {
     const presenceList = document.getElementById('presence-list');
     if (!presenceList) return;
 
-    firebase.database().ref('presence').on('value', (snapshot) => {
-        presenceList.innerHTML = '';
-        const users = snapshot.val();
+    if (typeof firebase !== 'undefined' && firebase.database) {
+        firebase.database().ref('presence').on('value', (snapshot) => {
+            presenceList.innerHTML = '';
+            const users = snapshot.val();
 
-        if (users) {
-            presenceList.classList.add('presence-active');
+            if (users) {
+                presenceList.classList.add('presence-active');
 
-            Object.values(users).forEach((u, idx) => {
-                const img = document.createElement('img');
-                img.src = u.photo && u.photo !== 'undefined' ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-                img.title = u.name || '알 수 없음';
-                img.className = 'presence-avatar';
-                img.style.marginLeft = idx === 0 ? '0' : '-12px';
-                img.style.zIndex = 100 - idx;
-                presenceList.appendChild(img);
+                Object.values(users).forEach((u, idx) => {
+                    const img = document.createElement('img');
+                    img.src = u.photo && u.photo !== 'undefined' ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                    img.title = u.name || '알 수 없음';
+                    img.className = 'presence-avatar';
+                    img.style.marginLeft = idx === 0 ? '0' : '-12px';
+                    img.style.zIndex = 100 - idx;
+                    presenceList.appendChild(img);
+                });
+            }
+        });
+    }
+}
+
+function initTabNavigation() {
+    const tabBtns = document.querySelectorAll('.main-tab-btn');
+    const panels = document.querySelectorAll('.main-panel-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const targetId = btn.getAttribute('data-target');
+            
+            panels.forEach(panel => {
+                if (panel.id === targetId) {
+                    panel.classList.remove('d-none');
+                    panel.classList.add('active');
+                } else {
+                    panel.classList.add('d-none');
+                    panel.classList.remove('active');
+                }
             });
-        }
+
+            if (targetId === 'panel-completion' && typeof openCompletionModal === 'function') {
+                openCompletionModal();
+            }
+        });
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     startClock();
     renderPresence();
+    initTabNavigation();
 });
