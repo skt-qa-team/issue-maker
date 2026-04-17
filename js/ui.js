@@ -17,7 +17,9 @@ function showToast(message) {
     setTimeout(() => toast.classList.add('show'), 10);
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => document.body.removeChild(toast), 300);
+        setTimeout(() => {
+            if (toast.parentNode) document.body.removeChild(toast);
+        }, 300);
     }, 2500);
 }
 
@@ -60,15 +62,10 @@ async function copySpecific(id) {
             await navigator.clipboard.writeText(textToCopy);
             showToast('복사되었습니다.');
         } catch (err) {
-            console.error('Failed to copy text: ', err);
-            el.select();
-            document.execCommand('copy');
-            showToast('복사되었습니다.');
+            fallbackCopyText(textToCopy);
         }
     } else {
-        el.select();
-        document.execCommand('copy');
-        showToast('복사되었습니다.');
+        fallbackCopyText(textToCopy);
     }
 }
 
@@ -82,7 +79,6 @@ async function copyAll() {
             await navigator.clipboard.writeText(combined);
             showToast('전체 복사 완료!');
         } catch (err) {
-            console.error('Failed to copy text: ', err);
             fallbackCopyText(combined);
         }
     } else {
@@ -92,12 +88,17 @@ async function copyAll() {
 
 function fallbackCopyText(text) {
     const t = document.createElement("textarea");
+    t.className = 'sr-only';
     document.body.appendChild(t);
     t.value = text;
     t.select();
-    document.execCommand("copy");
+    try {
+        document.execCommand("copy");
+        showToast('복사 완료!');
+    } catch (err) {
+        console.error('Copy fallback failed', err);
+    }
     document.body.removeChild(t);
-    showToast('전체 복사 완료!');
 }
 
 function renderPresence() {
@@ -111,14 +112,11 @@ function renderPresence() {
 
             if (users) {
                 presenceList.classList.add('presence-active');
-
-                Object.values(users).forEach((u, idx) => {
+                Object.values(users).forEach((u) => {
                     const img = document.createElement('img');
                     img.src = u.photo && u.photo !== 'undefined' ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                     img.title = u.name || '알 수 없음';
                     img.className = 'presence-avatar';
-                    img.style.marginLeft = idx === 0 ? '0' : '-12px';
-                    img.style.zIndex = 100 - idx;
                     presenceList.appendChild(img);
                 });
             }
@@ -132,10 +130,11 @@ function initTabNavigation() {
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            if (!targetId) return;
+
             tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
-            const targetId = btn.getAttribute('data-target');
             
             panels.forEach(panel => {
                 if (panel.id === targetId) {
