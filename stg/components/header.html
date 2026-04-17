@@ -9,40 +9,47 @@
 
     <div class="top-bar-btns">
         <div class="menu-item-wrapper" onclick="openConditionModal()">
-            <div class="setting-btn-float" style="background: var(--accent-blue); border-color: #2563eb;">🧩</div>
+            <div class="setting-btn-float btn-condition">🧩</div>
             <span class="menu-label">조건 조합기</span>
         </div>
         
         <div class="menu-item-wrapper" onclick="openHistoryModal()">
-            <div class="setting-btn-float" style="background: #f59e0b; border-color: #d97706;">🕒</div>
+            <div class="setting-btn-float btn-history">🕒</div>
             <span class="menu-label">히스토리</span>
         </div>
+
         <div class="menu-item-wrapper" onclick="openKpiModal()">
-            <div class="setting-btn-float" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border-color: #9333ea;">📊</div>
+            <div class="setting-btn-float btn-kpi">📊</div>
             <span class="menu-label">KPI</span>
         </div>
-        <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="menu-item-wrapper" style="text-decoration: none;">
-            <div class="setting-btn-float groupware-btn">🏢</div>
+
+        <a href="https://gwp.ktbizoffice.com/EKPHome/Login?compid=wisestone" target="_blank" class="menu-item-wrapper no-deco">
+            <div class="setting-btn-float btn-groupware">🏢</div>
             <span class="menu-label">그룹웨어</span>
         </a>
+
         <div class="menu-item-wrapper" onclick="openThemeModal()">
-            <div class="setting-btn-float">🎨</div>
+            <div class="setting-btn-float btn-theme">🎨</div>
             <span class="menu-label">테마</span>
         </div>
+
         <div class="menu-item-wrapper" onclick="openChangelogModal()">
-            <div class="setting-btn-float">📜</div>
+            <div class="setting-btn-float btn-changelog">📜</div>
             <span class="menu-label">변경사항</span>
         </div>
+
         <div class="menu-item-wrapper" onclick="openModal()">
-            <div class="setting-btn-float">⚙️</div>
+            <div class="setting-btn-float btn-setting">⚙️</div>
             <span class="menu-label">설정</span>
         </div>
+
         <div class="menu-item-wrapper" onclick="openBugReportModal()">
-            <div class="setting-btn-float" style="background: #ef4444; border-color: #dc2626;">🐛</div>
+            <div class="setting-btn-float btn-bugreport">🐛</div>
             <span class="menu-label">버그 제보</span>
         </div>
+
         <div class="menu-item-wrapper" onclick="toggleAuth()">
-            <div class="setting-btn-float" id="auth-btn-icon" style="background: var(--accent-red);">G</div>
+            <div class="setting-btn-float btn-auth" id="auth-btn-icon">G</div>
             <span class="menu-label" id="auth-btn-label">⏳ 대기중</span>
         </div>
     </div>
