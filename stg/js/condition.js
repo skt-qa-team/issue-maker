@@ -18,8 +18,7 @@ function showCondStep(step) {
     for (let i = 1; i <= totalCondSteps; i++) {
         const stepEl = document.getElementById(`cond-step-${i}`);
         if (stepEl) {
-            if (i === step) stepEl.classList.remove('d-none');
-            else stepEl.classList.add('d-none');
+            stepEl.classList.toggle('d-none', i !== step);
         }
     }
     
@@ -27,13 +26,11 @@ function showCondStep(step) {
     const nextBtn = document.getElementById('cond-next-btn');
     
     if (prevBtn) {
-        if (step === 1) prevBtn.classList.add('d-none');
-        else prevBtn.classList.remove('d-none');
+        prevBtn.classList.toggle('d-none', step === 1);
     }
 
     if (nextBtn) {
-        if (step === totalCondSteps) nextBtn.classList.add('d-none');
-        else nextBtn.classList.remove('d-none');
+        nextBtn.classList.toggle('d-none', step === totalCondSteps);
     }
 }
 
@@ -62,11 +59,8 @@ function updateConditionPreview() {
             if (checkedRadio.classList.contains('cond-other-cb')) {
                 const wrapper = checkedRadio.closest('.checkbox-group');
                 const input = wrapper.querySelector('.cond-other-input');
-                if (input && input.value.trim() !== "") {
-                    resultText += `${index}. ${input.value.trim()}\n`;
-                } else {
-                    resultText += `${index}. 기타\n`;
-                }
+                const customVal = input ? input.value.trim() : "";
+                resultText += `${index}. ${customVal || "기타"}\n`;
             } else {
                 resultText += `${index}. ${checkedRadio.value}\n`;
             }
@@ -94,33 +88,34 @@ function clearConditionChecks() {
 async function copyConditionText() {
     const previewEl = document.getElementById('cond_preview');
     if (!previewEl || !previewEl.value.trim()) {
-        if (typeof showToast === 'function') showToast('복사할 내용이 없습니다.');
+        if (typeof showToast === 'function') showToast('⚠️ 복사할 내용이 없습니다.');
         return;
     }
 
     const textToCopy = previewEl.value.trim();
 
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(textToCopy);
-            if (typeof showToast === 'function') showToast('조합된 조건이 복사되었습니다.');
-        } catch (err) {
-            fallbackCopyConditionText(textToCopy);
+            if (typeof showToast === 'function') showToast('📋 조건이 복사되었습니다.');
+        } else {
+            throw new Error('Clipboard API unavailable');
         }
-    } else {
+    } catch (err) {
         fallbackCopyConditionText(textToCopy);
     }
 }
 
 function fallbackCopyConditionText(text) {
     const t = document.createElement("textarea");
-    t.className = 'sr-only';
-    document.body.appendChild(t);
+    t.style.position = "fixed";
+    t.style.left = "-9999px";
     t.value = text;
+    document.body.appendChild(t);
     t.select();
     try {
         document.execCommand('copy');
-        if (typeof showToast === 'function') showToast('조합된 조건이 복사되었습니다.');
+        if (typeof showToast === 'function') showToast('📋 조건이 복사되었습니다.');
     } catch (err) {
         console.error('Copy fallback failed', err);
     }
@@ -132,46 +127,43 @@ function applyConditionToForm() {
     const preConditionEl = document.getElementById('preCondition');
     if (!previewEl || !preConditionEl) return;
 
-    if (!previewEl.value.trim()) {
-        if (typeof showToast === 'function') showToast('적용할 내용이 없습니다.');
+    const newText = previewEl.value.trim();
+    if (!newText) {
+        if (typeof showToast === 'function') showToast('⚠️ 적용할 내용이 없습니다.');
         return;
     }
 
     const currentText = preConditionEl.value.trim();
-    const newText = previewEl.value.trim();
-
     if (currentText) {
-        preConditionEl.value = currentText + '\n\n' + newText;
+        preConditionEl.value = currentText + '\n' + newText;
     } else {
         preConditionEl.value = newText;
     }
 
     if (typeof generateTemplate === 'function') generateTemplate();
     closeConditionModal();
-    if (typeof showToast === 'function') showToast('본문에 반영되었습니다.');
+    if (typeof showToast === 'function') showToast('✅ 본문에 반영되었습니다.');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.body.addEventListener('change', (e) => {
+    const condModal = document.getElementById('conditionModal');
+    if (!condModal) return;
+
+    condModal.addEventListener('change', (e) => {
         if (e.target.classList.contains('cond-cb')) {
             const wrapper = e.target.closest('.checkbox-group');
-            const allInputs = wrapper.querySelectorAll('.cond-other-input');
-            allInputs.forEach(input => {
-                input.classList.add('d-none');
-            });
-
-            if (e.target.classList.contains('cond-other-cb') && e.target.checked) {
-                const input = wrapper.querySelector('.cond-other-input');
-                if (input) {
-                    input.classList.remove('d-none');
-                    input.focus();
-                }
+            const otherInput = wrapper.querySelector('.cond-other-input');
+            
+            if (otherInput) {
+                const isOther = e.target.classList.contains('cond-other-cb') && e.target.checked;
+                otherInput.classList.toggle('d-none', !isOther);
+                if (isOther) setTimeout(() => otherInput.focus(), 10);
             }
             updateConditionPreview();
         }
     });
 
-    document.body.addEventListener('input', (e) => {
+    condModal.addEventListener('input', (e) => {
         if (e.target.classList.contains('cond-other-input')) {
             updateConditionPreview();
         }
