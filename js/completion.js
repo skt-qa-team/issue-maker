@@ -152,7 +152,6 @@ async function copyCompletionReport() {
         try {
             await navigator.clipboard.writeText(textToCopy);
             if (typeof showToast === 'function') showToast('완료문 복사 완료!');
-            else alert('완료문 복사 완료!');
         } catch (err) {
             fallbackCopy(textToCopy);
         }
@@ -163,15 +162,15 @@ async function copyCompletionReport() {
 
 function fallbackCopy(text) {
     const t = document.createElement("textarea");
+    t.className = "sr-only";
     document.body.appendChild(t);
     t.value = text;
     t.select();
     try {
         document.execCommand('copy');
         if (typeof showToast === 'function') showToast('완료문 복사 완료!');
-        else alert('완료문 복사 완료!');
     } catch (err) {
-        alert('복사에 실패했습니다.');
+        console.error('Copy failed', err);
     }
     document.body.removeChild(t);
 }
