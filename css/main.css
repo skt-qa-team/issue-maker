@@ -1,182 +1,20 @@
-/* [1] BASE & VARIABLES */
-:root {
-    --bg-color: #f0f2f5;
-    --panel-bg: #ffffff;
-    --text-main: #1e293b;
-    --text-sub: #475569;
-    --border-color: #e2e8f0;
-    --accent-blue: #3b82f6;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
-    --accent-orange: #f59e0b;
-    --accent-purple: #a062f2;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-pill: 30px;
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
-    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-    font-family: 'Pretendard', 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-sub);
-}
-
-button, input, select, textarea {
-    font-family: inherit;
-    color: inherit;
-    outline: none;
-}
-
-/* [2] LAYOUT & HEADER */
-.top-action-bar {
-    max-width: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 20px 20px 15px 20px;
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    z-index: 100;
-}
-
-.top-bar-left-group {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    justify-self: start;
-}
-
-.top-bar-btns {
-    display: flex;
-    align-items: flex-start;
-    gap: 18px;
-    justify-self: end;
-}
-
-.menu-item-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    min-width: 54px;
-    transition: var(--transition-fast);
-}
-
-.menu-item-wrapper:hover .setting-btn-float {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-blue);
-}
-
-.setting-btn-float {
-    background: var(--panel-bg);
-    color: var(--text-main);
-    width: 42px;
-    height: 42px;
-    border-radius: var(--radius-pill);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid var(--border-color);
-    transition: var(--transition-fast);
-    font-size: 1.2rem;
-    box-shadow: var(--shadow-sm);
-}
-
-.current-time {
-    font-family: 'Consolas', monospace;
-    font-size: 0.95rem;
-    color: var(--accent-blue);
-    background: var(--panel-bg);
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    letter-spacing: 0.5px;
-}
-
-/* [3] MODAL BASE & ANIMATIONS */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    opacity: 0;
-    transition: opacity var(--transition-normal);
-}
-
-.modal-overlay.active {
-    display: flex;
-    opacity: 1;
-}
-
-.modal-content {
-    background: var(--panel-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
-    position: relative;
-    transform: translateY(20px) scale(0.98);
-    opacity: 0;
-    transition: transform var(--transition-normal), opacity var(--transition-normal);
-    overflow: hidden;
-}
-
-.modal-overlay.active .modal-content {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
-/* [4] SPECIFIC MODALS (Audited) */
-/* KPI, Condition, Bookmark, Bugreport, Calendar, Auth Style Consolidated Here... */
-
-.legacy-status-online {
-    color: var(--accent-green) !important;
-    font-weight: 800 !important;
-}
-
-.d-none {
-    display: none !important;
-}
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('layout/layout.css');
+@import url('layout/header.css');
+@import url('components/buttons.css');
+@import url('components/inputs.css');
+@import url('components/forms.css');
+@import url('components/toast.css');
+@import url('modals/modal-base.css');
+@import url('modals/settings.css');
+@import url('modals/completion.css');
+@import url('modals/kpi.css');
+@import url('modals/condition.css');
+@import url('modals/bookmark.css');
+@import url('modals/theme.css');
+@import url('modals/admin.css');
+@import url('modals/history.css');
+@import url('modals/bugreport-modal.css');
+@import url('calendar.css');
+@import url('auth.css');
