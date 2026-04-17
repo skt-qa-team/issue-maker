@@ -113,26 +113,3 @@
     z-index: 101 !important;
     box-shadow: var(--shadow-md);
 }
-
-.toast-message {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.9);
-    color: #ffffff;
-    padding: 12px 24px;
-    border-radius: var(--radius-pill);
-    z-index: 9999;
-    font-size: 0.95rem;
-    font-weight: 700;
-    box-shadow: var(--shadow-lg);
-    opacity: 0;
-    transition: var(--transition-normal);
-    pointer-events: none;
-    backdrop-filter: blur(4px);
-}
-
-.toast-message.show {
-    opacity: 1;
-}
