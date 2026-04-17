@@ -3,23 +3,32 @@ function startClock() {
         const now = new Date();
         const clockEl = document.getElementById('currentTime');
         if (clockEl) {
-            clockEl.innerText = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            clockEl.textContent = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
         }
     }, 1000);
 }
 
 function showToast(message) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
     const toast = document.createElement('div');
-    toast.className = 'toast-message';
-    toast.innerText = message;
-    document.body.appendChild(toast);
+    toast.className = 'toast-msg';
+    toast.textContent = message;
+    container.appendChild(toast);
     
     setTimeout(() => toast.classList.add('show'), 10);
+    
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
-            if (toast.parentNode) document.body.removeChild(toast);
-        }, 300);
+            if (toast.parentNode) container.removeChild(toast);
+            if (container.childNodes.length === 0) document.body.removeChild(container);
+        }, 400);
     }, 2500);
 }
 
@@ -114,11 +123,13 @@ function renderPresence() {
                 presenceList.classList.add('presence-active');
                 Object.values(users).forEach((u) => {
                     const img = document.createElement('img');
-                    img.src = u.photo && u.photo !== 'undefined' ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-                    img.title = u.name || '알 수 없음';
+                    img.src = (u.photo && u.photo !== 'undefined') ? u.photo : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                    img.title = (u.name && u.name !== 'undefined') ? u.name : '알 수 없음';
                     img.className = 'presence-avatar';
                     presenceList.appendChild(img);
                 });
+            } else {
+                presenceList.classList.remove('presence-active');
             }
         });
     }
