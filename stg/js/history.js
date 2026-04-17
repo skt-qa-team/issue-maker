@@ -1,3 +1,6 @@
+const DRAFT_KEY = 'skm_draft';
+const HISTORY_KEY = 'skm_history';
+
 function saveDraft() {
     const getValue = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
     const checkedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
@@ -25,20 +28,30 @@ function saveDraft() {
         servers: checkedServers,
         devices: checkedDevices
     };
-    localStorage.setItem('skm_draft', JSON.stringify(draft));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
 }
 
 function loadDraft(dataToLoad) {
-    const draft = dataToLoad || JSON.parse(localStorage.getItem('skm_draft'));
+    const draft = dataToLoad || JSON.parse(localStorage.getItem(DRAFT_KEY));
     if (!draft) return;
     
-    const setValue = (id, val) => { if (document.getElementById(id)) document.getElementById(id).value = val || ''; };
+    const setValue = (id, val) => { 
+        const el = document.getElementById(id);
+        if (el) el.value = val || ''; 
+    };
     
-    ['epic_link', 'extra_notes', 'title', 'prefix_critical', 'prefix_spec_os', 'prefix_device', 'prefix_account', 'prefix_page', 'osType', 'poc', 'appVersion', 'targetUrl', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(key => {
-        setValue(key, draft[key]);
-    });
+    const fields = [
+        'epic_link', 'extra_notes', 'title', 'prefix_critical', 
+        'prefix_spec_os', 'prefix_device', 'prefix_account', 'prefix_page', 
+        'osType', 'poc', 'appVersion', 'targetUrl', 
+        'preCondition', 'steps', 'actualResult', 'expectedResult', 
+        'ref_prd', 'ref_notes'
+    ];
+
+    fields.forEach(key => setValue(key, draft[key]));
 
     if (dataToLoad) isInitialRender = false;
+    
     if (typeof handlePocChange === 'function') handlePocChange();
 
     setTimeout(() => {
@@ -53,17 +66,23 @@ function loadDraft(dataToLoad) {
             });
         }
         if (typeof generateTemplate === 'function') generateTemplate();
-    }, 100);
+    }, 150);
 }
 
 function clearForm() {
-    if(!confirm('초기화하시겠습니까? (현재 작성된 내용은 히스토리에 자동 저장됩니다)')) return;
+    if(!confirm('작성 내용을 초기화하시겠습니까?\n(현재 내용은 히스토리에 자동 저장됩니다)')) return;
     
     const tVal = document.getElementById('outputTitle')?.value || '';
     const bVal = document.getElementById('outputBody')?.value || '';
     saveToHistory(tVal, bVal);
 
-    ['title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 'prefix_page', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'].forEach(id => {
+    const fields = [
+        'title', 'prefix_spec_os', 'prefix_account', 'prefix_device', 
+        'prefix_page', 'preCondition', 'steps', 'actualResult', 
+        'expectedResult', 'ref_prd', 'ref_notes'
+    ];
+
+    fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -71,20 +90,21 @@ function clearForm() {
     isInitialRender = true;
     if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
     saveDraft();
-    if (typeof showToast === 'function') showToast('내용이 초기화되었습니다.');
+    if (typeof showToast === 'function') showToast('🧹 양식이 초기화되었습니다.');
 }
 
 function saveToHistory(title, body) {
     if (!title.trim() && !body.trim()) return;
-    let history = JSON.parse(localStorage.getItem('skm_history')) || [];
+    
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
     const now = new Date();
     const timeString = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const draftData = JSON.parse(localStorage.getItem('skm_draft')) || {};
+    const draftData = JSON.parse(localStorage.getItem(DRAFT_KEY)) || {};
     
     history.unshift({ title, body, time: timeString, data: draftData });
     if (history.length > 10) history = history.slice(0, 10);
     
-    localStorage.setItem('skm_history', JSON.stringify(history));
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     
     const modal = document.getElementById('historyModal');
     if (modal && modal.classList.contains('active')) {
@@ -114,7 +134,7 @@ function renderHistory() {
     const container = document.getElementById('history-container');
     if (!container) return;
     
-    let history = JSON.parse(localStorage.getItem('skm_history')) || [];
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
     if (history.length === 0) {
         container.innerHTML = '<div class="history-empty">최근 작성 내역이 없습니다.</div>';
         return;
@@ -137,18 +157,18 @@ function renderHistory() {
 }
 
 function loadHistoryItem(index) {
-    if(!confirm('현재 작성 중인 내용은 사라집니다. 불러오시겠습니까?')) return;
-    let history = JSON.parse(localStorage.getItem('skm_history')) || [];
+    if(!confirm('현재 작성 중인 내용이 교체됩니다. 불러오시겠습니까?')) return;
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
     if (!history[index] || !history[index].data) return;
     
     loadDraft(history[index].data);
     closeHistoryModal();
-    if (typeof showToast === 'function') showToast('히스토리를 성공적으로 불러왔습니다.');
+    if (typeof showToast === 'function') showToast('✅ 히스토리를 불러왔습니다.');
 }
 
 function deleteHistoryItem(index) {
-    let history = JSON.parse(localStorage.getItem('skm_history')) || [];
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
     history.splice(index, 1);
-    localStorage.setItem('skm_history', JSON.stringify(history));
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     renderHistory();
 }
