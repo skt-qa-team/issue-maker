@@ -7,8 +7,7 @@ let bmDragState = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
-        if (user) currentUserUid = user.uid;
-        else currentUserUid = null;
+        currentUserUid = user ? user.uid : null;
     });
 
     const loadBookmarkComponent = async () => {
@@ -21,8 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const handleEnter = (e) => {
                     if (e.key === 'Enter') saveNewLink();
                 };
-                document.getElementById('bm_input_name').addEventListener('keyup', handleEnter);
-                document.getElementById('bm_input_url').addEventListener('keyup', handleEnter);
+                const nameInput = document.getElementById('bm_input_name');
+                const urlInput = document.getElementById('bm_input_url');
+                if (nameInput) nameInput.addEventListener('keyup', handleEnter);
+                if (urlInput) urlInput.addEventListener('keyup', handleEnter);
             }
             initSharedBookmarks();
         } catch (error) {
@@ -62,7 +63,7 @@ function initSharedBookmarks() {
 function saveBookmarksToFirebase() {
     firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
         console.error("Firebase 저장 실패:", err);
-        if (typeof showToast === 'function') showToast("데이터 저장에 실패했습니다.");
+        if (typeof showToast === 'function') showToast("❌ 데이터 저장에 실패했습니다.");
     });
 }
 
@@ -172,7 +173,7 @@ function renderBookmarks() {
                             f.links.push(movingLink);
                             saveBookmarksToFirebase();
                             renderBookmarks();
-                            if (typeof showToast === 'function') showToast(`이동 완료`);
+                            if (typeof showToast === 'function') showToast(`📍 이동 완료`);
                         }
                     }
                 }
@@ -183,14 +184,14 @@ function renderBookmarks() {
 
     const addFolderBtn = document.createElement('button');
     addFolderBtn.className = 'bm-btn-add-folder';
-    addFolderBtn.innerHTML = "+ 새 폴더 추가";
+    addFolderBtn.textContent = "+ 새 폴더 추가";
     addFolderBtn.onclick = addNewFolder;
     folderFragment.appendChild(addFolderBtn);
     fList.appendChild(folderFragment);
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
     if (activeF) {
-        titleText.innerHTML = `📂 ${escapeHTML(activeF.name)}`;
+        titleText.textContent = `📂 ${activeF.name}`;
         const linkFragment = document.createDocumentFragment();
         activeF.links.forEach((l) => {
             const card = document.createElement('div');
@@ -252,15 +253,14 @@ function renderBookmarks() {
         });
         lList.appendChild(linkFragment);
     } else {
-        titleText.innerHTML = `📂 폴더를 선택하세요`;
+        titleText.textContent = `📂 폴더를 선택하세요`;
     }
 }
 
 window.addNewFolder = () => {
     const name = prompt('새 폴더 이름:');
     if (name) { 
-        const safeName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        bookmarks.push({ id: 'f_'+Date.now(), name: safeName, links: [] }); 
+        bookmarks.push({ id: 'f_'+Date.now(), name: name.trim(), links: [] }); 
         saveBookmarksToFirebase(); 
     }
 };
@@ -270,14 +270,14 @@ window.editFolder = (id) => {
     if (!f) return;
     const n = prompt('폴더 이름 수정:', f.name);
     if (n) { 
-        f.name = n.replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
+        f.name = n.trim(); 
         saveBookmarksToFirebase(); 
     }
 };
 
 window.deleteFolder = (id) => {
     if (currentUserUid !== ADMIN_UID) return;
-    if (confirm('폴더를 삭제하시겠습니까?')) { 
+    if (confirm('폴더를 삭제하시겠습니까?\n(폴더 내부의 모든 링크가 함께 삭제됩니다)')) { 
         bookmarks = bookmarks.filter(x => x.id !== id); 
         saveBookmarksToFirebase(); 
     }
@@ -295,7 +295,7 @@ window.toggleAddForm = (s) => {
 window.openAddForm = () => { 
     editingLinkId = null; 
     const title = document.getElementById('bm_form_title');
-    if (title) title.innerText = "🔗 링크 추가"; 
+    if (title) title.textContent = "🔗 링크 추가"; 
     document.getElementById('bm_input_name').value = '';
     document.getElementById('bm_input_url').value = '';
     toggleAddForm(true); 
@@ -309,7 +309,7 @@ window.openEditForm = (id) => {
     if (!l) return;
     editingLinkId = id;
     const title = document.getElementById('bm_form_title');
-    if (title) title.innerText = "✏️ 링크 수정";
+    if (title) title.textContent = "✏️ 링크 수정";
     document.getElementById('bm_input_name').value = l.name;
     document.getElementById('bm_input_url').value = l.url;
     toggleAddForm(true);
@@ -317,19 +317,22 @@ window.openEditForm = (id) => {
 };
 
 window.saveNewLink = () => {
-    const rawN = document.getElementById('bm_input_name').value.trim();
-    let rawU = document.getElementById('bm_input_url').value.trim();
+    const nameEl = document.getElementById('bm_input_name');
+    const urlEl = document.getElementById('bm_input_url');
+    const rawN = nameEl.value.trim();
+    let rawU = urlEl.value.trim();
+    
     if (!rawN || !rawU) return;
-    const n = rawN.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    let u = rawU.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    if (!/^https?:\/\//i.test(rawU)) rawU = 'https://' + rawU;
+    
     const f = bookmarks.find(x => x.id === currentFolderId);
     if (!f) return;
+    
     if (editingLinkId) {
         const l = f.links.find(x => x.id === editingLinkId);
-        if (l) { l.name = n; l.url = u; }
+        if (l) { l.name = rawN; l.url = rawU; }
     } else {
-        f.links.push({ id: 'l_'+Date.now(), name: n, url: u });
+        f.links.push({ id: 'l_'+Date.now(), name: rawN, url: rawU });
     }
     saveBookmarksToFirebase(); 
     toggleAddForm(false);
