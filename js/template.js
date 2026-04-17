@@ -1,4 +1,5 @@
 let isInitialRender = true;
+const DEFAULT_PREFIX_ORDER = ['env', 'browser', 'os', 'poc', 'critical', 'device', 'account', 'page'];
 
 function escapeHTMLTemplate(str) {
     if (!str) return '';
@@ -9,6 +10,99 @@ function escapeHTMLTemplate(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+function initDragAndDrop() {
+    const container = document.getElementById('prefixContainer');
+    if (!container) return;
+
+    let draggedItem = null;
+
+    container.querySelectorAll('.prefix-item').forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        });
+
+        item.addEventListener('dragend', function() {
+            setTimeout(() => {
+                this.classList.remove('dragging');
+                draggedItem = null;
+                generateTemplate();
+            }, 0);
+        });
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(container, e.clientY, e.clientX);
+            if (afterElement == null) {
+                container.appendChild(draggedItem);
+            } else {
+                container.insertBefore(draggedItem, afterElement);
+            }
+        });
+    });
+}
+
+function getDragAfterElement(container, y, x) {
+    const draggableElements = [...container.querySelectorAll('.prefix-item:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetY = y - box.top - box.height / 2;
+        const offsetX = x - box.left - box.width / 2;
+        
+        const distance = Math.sqrt(offsetX*offsetX + offsetY*offsetY);
+
+        if (offsetY < 0 && distance < closest.distance) {
+            return { offset: offsetY, element: child, distance: distance };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY, distance: Number.POSITIVE_INFINITY }).element;
+}
+
+function savePrefixOrder() {
+    const container = document.getElementById('prefixContainer');
+    if (!container) return;
+    const currentOrder = Array.from(container.querySelectorAll('.prefix-item')).map(item => item.dataset.id);
+    localStorage.setItem('qa_prefix_order', JSON.stringify(currentOrder));
+    if (typeof showToast === 'function') showToast('Prefix 순서가 저장되었습니다.');
+}
+
+function resetPrefixOrder() {
+    localStorage.removeItem('qa_prefix_order');
+    applyPrefixOrder(DEFAULT_PREFIX_ORDER);
+    if (typeof showToast === 'function') showToast('Prefix 순서가 초기화되었습니다.');
+}
+
+function loadPrefixOrder() {
+    const saved = localStorage.getItem('qa_prefix_order');
+    if (saved) {
+        applyPrefixOrder(JSON.parse(saved));
+    }
+}
+
+function applyPrefixOrder(orderArray) {
+    const container = document.getElementById('prefixContainer');
+    if (!container) return;
+    
+    const items = Array.from(container.querySelectorAll('.prefix-item'));
+    
+    orderArray.forEach(id => {
+        const item = items.find(el => el.dataset.id === id);
+        if (item) {
+            container.appendChild(item);
+        }
+    });
+    generateTemplate();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        initDragAndDrop();
+        loadPrefixOrder();
+    }, 500);
+});
 
 function updateVersionCheckboxesByOS() {
     const osEl = document.getElementById('osType');
@@ -220,12 +314,12 @@ function updateVersionTextbox() {
             versionParts.push(`App Tester_${config.andAppTester || ''}`);
         } else if (type === 'iOS') {
             versionParts.push(`${iosMode}_${(iosMode === 'TestFlight' ? (config.iosTestFlight || '') : (config.iosDistribution || ''))}`);
-        } else if (type === '삼성 브라우저') {
-            versionParts.push(`삼성 브라우저_${config.samsungBrowser || ''}`);
+        } else if (type === '삼성인터넷') {
+            versionParts.push(`삼성인터넷_${config.samsungBrowser || ''}`);
         } else if (type === 'Safari') {
             versionParts.push(`Safari_${config.safariBrowser || ''}`);
-        } else if (type === '크롬') {
-            versionParts.push(`크롬_${config.chromeBrowser || ''}`);
+        } else if (type === 'Chrome') {
+            versionParts.push(`Chrome_${config.chromeBrowser || ''}`);
         } else if (type === 'Edge') {
             versionParts.push(`Edge_${config.edgeBrowser || ''}`);
         }
@@ -246,18 +340,20 @@ function generateTemplate() {
         return el.value.trim();
     };
 
-    const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
-    const osVal = getDropdownOrCustom('osType', 'osType_custom');
-    let pocVal = getDropdownOrCustom('poc', 'poc_custom');
-    const critVal = getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
-    
-    if (pocVal === 'PC M.Web') {
-        pocVal = 'PCWeb';
-    }
+    let prefixMap = {
+        'env': '',
+        'browser': '',
+        'os': '',
+        'poc': '',
+        'critical': '',
+        'device': '',
+        'account': '',
+        'page': ''
+    };
 
-    const pocDropdownVal = document.getElementById('poc')?.value || '';
-    const osDropdownVal = document.getElementById('osType')?.value || '';
-    
+    const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
+    if (envVal) prefixMap['env'] = `[${envVal}]`;
+
     let browserVals = [];
     const browserNone = document.getElementById('prefix_browser_none');
     if (!browserNone || !browserNone.checked) {
@@ -270,23 +366,45 @@ function generateTemplate() {
             }
         });
     }
+    if (browserVals.length > 0) prefixMap['browser'] = `[${browserVals.join('/')}]`;
+
+    const osVal = getDropdownOrCustom('osType', 'osType_custom');
+    if (osVal) prefixMap['os'] = `[${osVal}]`;
+
+    let pocVal = getDropdownOrCustom('poc', 'poc_custom');
+    if (pocVal === 'PC M.Web') pocVal = 'PCWeb';
+    if (pocVal && pocVal !== 'T 멤버십') prefixMap['poc'] = `[${pocVal}]`;
+
+    const critVal = getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
+    if (critVal) prefixMap['critical'] = `[${critVal}]`;
 
     const devVal = document.getElementById('prefix_device') ? document.getElementById('prefix_device').value.trim() : '';
+    if (devVal) prefixMap['device'] = `[${devVal}]`;
+
     const accVal = document.getElementById('prefix_account') ? document.getElementById('prefix_account').value.trim() : '';
+    if (accVal) prefixMap['account'] = `[${accVal}]`;
+
     const pageVal = document.getElementById('prefix_page') ? document.getElementById('prefix_page').value.trim() : '';
+    if (pageVal) prefixMap['page'] = `[${pageVal}]`;
+
+    const container = document.getElementById('prefixContainer');
+    let orderedPrefixString = '';
+    
+    if (container) {
+        const items = Array.from(container.querySelectorAll('.prefix-item'));
+        items.forEach(item => {
+            const id = item.dataset.id;
+            if (prefixMap[id]) {
+                orderedPrefixString += prefixMap[id];
+            }
+        });
+    }
+
     const titleVal = document.getElementById('title') ? document.getElementById('title').value.trim() : '';
+    const titleText = `${orderedPrefixString} ${titleVal}`.replace(/\s+/g, ' ').trim();
 
-    const envPrefix = envVal ? `[${envVal}]` : '';
-    const browserPrefix = browserVals.length > 0 ? `[${browserVals.join('/')}]` : '';
-    const osPrefix = osVal ? `[${osVal}]` : '';
-    const pocPrefix = (pocVal && pocVal !== 'T 멤버십') ? `[${pocVal}]` : '';
-    const critPrefix = critVal ? `[${critVal}]` : '';
-    const devPrefix = devVal ? `[${devVal}]` : '';
-    const accPrefix = accVal ? `[${accVal}]` : '';
-    const pagePrefix = pageVal ? `[${pageVal}]` : '';
-
-    const titleText = `${envPrefix}${browserPrefix}${osPrefix}${pocPrefix}${critPrefix}${devPrefix}${accPrefix}${pagePrefix} ${titleVal}`.replace(/\s+/g, ' ').trim();
-
+    const pocDropdownVal = document.getElementById('poc')?.value || '';
+    const osDropdownVal = document.getElementById('osType')?.value || '';
     const isPureWeb = pocDropdownVal === 'Admin' || pocDropdownVal === 'PC Web';
     let servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     let devices = "";
@@ -321,7 +439,7 @@ function generateTemplate() {
     let ver = document.getElementById('appVersion') ? document.getElementById('appVersion').value : '';
     const searchEngines = Array.from(document.querySelectorAll('.ver-type-cb:checked'))
         .map(cb => cb.value)
-        .filter(val => ['삼성 브라우저', 'Safari', '크롬', 'Edge'].includes(val))
+        .filter(val => ['삼성인터넷', 'Safari', 'Chrome', 'Edge'].includes(val))
         .join(' / ');
 
     let envSection = `[Environment]\n■ POC : ${pocDropdownVal === 'PC M.Web' ? 'PC M.Web' : pocVal}\n`;
