@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'schedule-modal-placeholder', url: 'components/schedule-modal.html' },
         { id: 'schedule-detail-modal-placeholder', url: 'components/schedule-detail-modal.html' },
         { id: 'bugreport-modal-placeholder', url: 'components/bugreport-modal.html' },
-        { id: 'bookmark-modal-placeholder', url: 'components/bookmark-modal.html' }
+        { id: 'bookmark-modal-placeholder', url: 'components/bookmark-modal.html' },
+        { id: 'admin-modal-placeholder', url: 'components/admin-modal.html' }
     ];
 
     const versionTag = new Date().getTime();
