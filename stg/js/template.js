@@ -32,31 +32,23 @@ function applyAndSavePrefixOrder() {
         orderArray.push({ id: input.dataset.target, order: val });
     });
 
-    const sorted = orderArray.sort((a, b) => a.order - b.order);
-    const col1 = sorted.slice(0, 4);
-    const col2 = sorted.slice(4);
-    
-    const reordered = [];
-    for (let i = 0; i < 4; i++) {
-        if (col1[i]) reordered.push(col1[i]);
-        if (col2[i]) reordered.push(col2[i]);
-    }
+    orderArray.sort((a, b) => a.order - b.order);
 
     const container = document.getElementById('prefixContainer');
     if (container) {
-        reordered.forEach(item => {
+        orderArray.forEach(item => {
             const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
             if (el) container.appendChild(el);
         });
     }
 
-    localStorage.setItem('qa_prefix_order_map_v2', JSON.stringify(orderArray));
+    localStorage.setItem('qa_prefix_order_map_v3', JSON.stringify(orderArray));
     generateTemplate();
-    if (typeof showToast === 'function') showToast('Prefix 순서와 배치가 저장되었습니다.');
+    if (typeof showToast === 'function') showToast('Prefix 순서가 저장되었습니다.');
 }
 
 function resetPrefixOrder() {
-    localStorage.removeItem('qa_prefix_order_map_v2');
+    localStorage.removeItem('qa_prefix_order_map_v3');
     
     document.querySelectorAll('.prefix-order-input').forEach(input => {
         const defaultItem = DEFAULT_PREFIX_ORDER.find(item => item.id === input.dataset.target);
@@ -65,17 +57,9 @@ function resetPrefixOrder() {
 
     const container = document.getElementById('prefixContainer');
     if (container) {
-        const reordered = [
-            DEFAULT_PREFIX_ORDER[0], DEFAULT_PREFIX_ORDER[4],
-            DEFAULT_PREFIX_ORDER[1], DEFAULT_PREFIX_ORDER[5],
-            DEFAULT_PREFIX_ORDER[2], DEFAULT_PREFIX_ORDER[6],
-            DEFAULT_PREFIX_ORDER[3]
-        ];
-        reordered.forEach(item => {
-            if (item) {
-                const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
-                if (el) container.appendChild(el);
-            }
+        DEFAULT_PREFIX_ORDER.forEach(item => {
+            const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
+            if (el) container.appendChild(el);
         });
     }
 
@@ -84,7 +68,7 @@ function resetPrefixOrder() {
 }
 
 function loadPrefixOrder() {
-    const saved = localStorage.getItem('qa_prefix_order_map_v2');
+    const saved = localStorage.getItem('qa_prefix_order_map_v3');
     const container = document.getElementById('prefixContainer');
     if (!container) return;
 
@@ -96,15 +80,7 @@ function loadPrefixOrder() {
                 if (input) input.value = item.order;
             });
 
-            const sorted = orderArray.sort((a, b) => a.order - b.order);
-            const col1 = sorted.slice(0, 4);
-            const col2 = sorted.slice(4);
-            const reordered = [];
-            for (let i = 0; i < 4; i++) {
-                if (col1[i]) reordered.push(col1[i]);
-                if (col2[i]) reordered.push(col2[i]);
-            }
-            reordered.forEach(item => {
+            orderArray.sort((a, b) => a.order - b.order).forEach(item => {
                 const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
                 if (el) container.appendChild(el);
             });
@@ -410,6 +386,12 @@ function generateTemplate() {
     
     if (container) {
         const items = Array.from(container.querySelectorAll('.prefix-item'));
+        items.sort((a, b) => {
+            const orderA = parseInt(a.querySelector('.prefix-order-input')?.value || 99);
+            const orderB = parseInt(b.querySelector('.prefix-order-input')?.value || 99);
+            return orderA - orderB;
+        });
+
         items.forEach(item => {
             const id = item.dataset.id;
             if (prefixMap[id]) {
