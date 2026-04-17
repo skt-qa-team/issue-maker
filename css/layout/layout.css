@@ -30,13 +30,13 @@ html, body {
     color: var(--text-sub);
     cursor: pointer;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transition: all 0.2s;
+    transition: var(--transition-fast);
     position: relative;
 }
 
 .main-tab-btn:hover {
     color: var(--text-main);
-    background: rgba(0,0,0,0.02);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .main-tab-btn.active {
@@ -81,6 +81,7 @@ html, body {
     flex-direction: column;
     gap: 20px;
     overflow-y: auto;
+    min-height: 0;
 }
 
 .panel {
@@ -106,7 +107,7 @@ html, body {
 }
 
 .result-panel {
-    background: #162135 !important;
+    background: #162135;
     color: #f8fafc;
     border: none;
     box-shadow: var(--shadow-lg), inset 0 0 20px rgba(0, 0, 0, 0.2);
@@ -137,12 +138,7 @@ html, body {
     display: none !important;
 }
 
-#panel-calendar #calendar-placeholder {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
+#panel-calendar #calendar-placeholder,
 #panel-completion #completion-panel-placeholder {
     height: 100%;
     display: flex;
