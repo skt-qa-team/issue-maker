@@ -18,7 +18,7 @@
             <div class="form-group-sm prefix-item" data-id="env">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">환경</label>
-                    <input type="number" class="prefix-order-input" data-target="env" min="1" max="8" value="1">
+                    <input type="number" class="prefix-order-input" data-target="env" min="1" max="7" value="1">
                 </div>
                 <div class="input-stack">
                     <select id="prefix_env" class="form-control" onchange="document.getElementById('prefix_env_custom').classList.toggle('d-none', this.value !== 'direct'); generateTemplate();">
@@ -30,27 +30,11 @@
                     <input type="text" id="prefix_env_custom" class="form-control d-none" placeholder="환경 입력" oninput="generateTemplate()">
                 </div>
             </div>
-            <div class="form-group-sm prefix-item" data-id="browser">
-                <div class="prefix-label-row">
-                    <label class="form-label-sm">브라우저</label>
-                    <input type="number" class="prefix-order-input" data-target="browser" min="1" max="8" value="2">
-                </div>
-                <div class="input-stack">
-                    <div class="checkbox-wrap-group">
-                        <label class="checkbox-label text-sm"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked onchange="if(this.checked) { document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false); document.getElementById('prefix_browser_custom').classList.add('d-none'); } generateTemplate();"> 해당없음</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="삼성인터넷" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 삼성인터넷</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Safari" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Safari</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Chrome" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Chrome</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Edge" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Edge</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" id="prefix_browser_etc" value="기타" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_browser_custom').classList.remove('d-none'); } else { document.getElementById('prefix_browser_custom').classList.add('d-none'); } generateTemplate();"> 기타</label>
-                    </div>
-                    <input type="text" id="prefix_browser_custom" class="form-control d-none" placeholder="브라우저 입력" oninput="generateTemplate()">
-                </div>
-            </div>
+            
             <div class="form-group-sm prefix-item" data-id="os">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">OS</label>
-                    <input type="number" class="prefix-order-input" data-target="os" min="1" max="8" value="3">
+                    <input type="number" class="prefix-order-input" data-target="os" min="1" max="7" value="2">
                 </div>
                 <div class="input-stack">
                     <select id="osType" class="form-control" onchange="document.getElementById('osType_custom').classList.toggle('d-none', this.value !== 'direct'); syncEnvironmentByOS(); generateTemplate();">
@@ -66,10 +50,11 @@
                     <input type="text" id="osType_custom" class="form-control d-none" placeholder="OS 입력" oninput="generateTemplate(); syncEnvironmentByOS();">
                 </div>
             </div>
+
             <div class="form-group-sm prefix-item" data-id="poc">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">PoC</label>
-                    <input type="number" class="prefix-order-input" data-target="poc" min="1" max="8" value="4">
+                    <input type="number" class="prefix-order-input" data-target="poc" min="1" max="7" value="3">
                 </div>
                 <div class="input-stack">
                     <select id="poc" class="form-control" onchange="document.getElementById('poc_custom').classList.toggle('d-none', this.value !== 'direct'); handlePocChange(); generateTemplate();">
@@ -83,10 +68,11 @@
                     <input type="text" id="poc_custom" class="form-control d-none" placeholder="PoC 입력" oninput="generateTemplate()">
                 </div>
             </div>
+
             <div class="form-group-sm prefix-item" data-id="critical">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">Critical 구분</label>
-                    <input type="number" class="prefix-order-input" data-target="critical" min="1" max="8" value="5">
+                    <input type="number" class="prefix-order-input" data-target="critical" min="1" max="7" value="4">
                 </div>
                 <div class="input-stack">
                     <select id="prefix_critical" class="form-control" onchange="document.getElementById('prefix_critical_custom').classList.toggle('d-none', this.value !== 'direct'); generateTemplate();">
@@ -98,24 +84,38 @@
                     <input type="text" id="prefix_critical_custom" class="form-control d-none" placeholder="Critical 입력" oninput="generateTemplate()">
                 </div>
             </div>
+
             <div class="form-group-sm prefix-item" data-id="device">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">Device</label>
-                    <input type="number" class="prefix-order-input" data-target="device" min="1" max="8" value="6">
+                    <input type="number" class="prefix-order-input" data-target="device" min="1" max="7" value="5">
                 </div>
-                <input type="text" id="prefix_device" class="form-control" placeholder="예: 폴드" oninput="generateTemplate()">
+                <div class="input-stack">
+                    <div class="checkbox-wrap-group">
+                        <label class="checkbox-label text-sm"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked onchange="if(this.checked) { document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false); document.getElementById('prefix_browser_custom').classList.add('d-none'); document.getElementById('prefix_device_input').classList.remove('d-none'); } generateTemplate();"> 해당없음</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="삼성인터넷" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_device_input').classList.add('d-none'); } generateTemplate();"> 삼성인터넷</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Safari" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_device_input').classList.add('d-none'); } generateTemplate();"> Safari</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Chrome" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_device_input').classList.add('d-none'); } generateTemplate();"> Chrome</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Edge" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_device_input').classList.add('d-none'); } generateTemplate();"> Edge</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" id="prefix_browser_etc" value="기타" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_browser_custom').classList.remove('d-none'); document.getElementById('prefix_device_input').classList.add('d-none'); } else { document.getElementById('prefix_browser_custom').classList.add('d-none'); } generateTemplate();"> 기타</label>
+                    </div>
+                    <input type="text" id="prefix_browser_custom" class="form-control d-none mt-1" placeholder="브라우저 입력" oninput="generateTemplate()">
+                    <input type="text" id="prefix_device_input" class="form-control mt-1" placeholder="예: 폴드" oninput="generateTemplate()">
+                </div>
             </div>
+            
             <div class="form-group-sm prefix-item" data-id="account">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">계정</label>
-                    <input type="number" class="prefix-order-input" data-target="account" min="1" max="8" value="7">
+                    <input type="number" class="prefix-order-input" data-target="account" min="1" max="7" value="6">
                 </div>
                 <input type="text" id="prefix_account" class="form-control" placeholder="예: VIP" oninput="generateTemplate()">
             </div>
+            
             <div class="form-group-sm prefix-item" data-id="page">
                 <div class="prefix-label-row">
                     <label class="form-label-sm">이슈 발생 페이지</label>
-                    <input type="number" class="prefix-order-input" data-target="page" min="1" max="8" value="8">
+                    <input type="number" class="prefix-order-input" data-target="page" min="1" max="7" value="7">
                 </div>
                 <input type="text" id="prefix_page" class="form-control" placeholder="예: 출석체크" oninput="generateTemplate()">
             </div>
