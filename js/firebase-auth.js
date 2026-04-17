@@ -1,3 +1,18 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
+    authDomain: "skm-issue-helper.firebaseapp.com",
+    databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "skm-issue-helper",
+    storageBucket: "skm-issue-helper.firebasestorage.app",
+    messagingSenderId: "315338055920",
+    appId: "1:315338055920:web:bd1129cc9afb1569aba235",
+    measurementId: "G-98H9S1FQB0"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const provider = new firebase.auth.GoogleAuthProvider();
 
 function login() {
