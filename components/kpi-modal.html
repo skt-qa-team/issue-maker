@@ -63,13 +63,13 @@
                         </div>
                         
                         <div class="form-group kpi-update-group">
-                            <label class="kpi-section-heading" style="margin-bottom: 10px;">3. 본인영역 TC 작성 및 수정 업무</label>
+                            <label class="kpi-section-heading mb-2">3. 본인영역 TC 작성 및 수정 업무</label>
                             <textarea id="tc_update_text" class="kpi-textarea-md" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
                         </div>
                     </div>
 
-                    <div id="tab-contrib" class="kpi-tab-content" style="display: none;">
-                        <div class="kpi-tc-header" style="margin-bottom: 15px;">
+                    <div id="tab-contrib" class="kpi-tab-content d-none">
+                        <div class="kpi-tc-header mb-3">
                             <label class="kpi-section-heading-bold">팀 기여도 및 업무태도</label>
                             <div class="kpi-contrib-actions">
                                 <button class="btn-kpi-auto" onclick="generateNarrativeReport()">✨ 성과 요약 자동 작성</button>
@@ -79,8 +79,8 @@
                         <textarea id="kpi_contrib_text" class="kpi-textarea-lg" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
                     </div>
 
-                    <div id="tab-capa" class="kpi-tab-content" style="display: none;">
-                        <div class="kpi-tc-header" style="margin-bottom: 15px;">
+                    <div id="tab-capa" class="kpi-tab-content d-none">
+                        <div class="kpi-tc-header mb-3">
                             <label class="kpi-section-heading-bold">역량강화 (개인 역량)</label>
                             <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
                         </div>
@@ -91,7 +91,7 @@
 
             <div class="completion-preview-side kpi-preview-side">
                 <div class="setting-box preview-box kpi-preview-box">
-                    <label id="kpi_preview_label">📊 [업무 성과] 리포트 미리보기</label>
+                    <label id="kpi_preview_label" class="mb-2 d-block">📊 [업무 성과] 리포트 미리보기</label>
                     <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
                 </div>
                 <button class="btn-save btn-kpi-copy" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
