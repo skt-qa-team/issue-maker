@@ -13,27 +13,23 @@ const THEME_PRESETS = {
     cleanWhite: { category: '라이트', name: '퓨어 화이트', bg: '#fbfbfe', panel: '#ffffff', textMain: '#000000', textSub: '#555555', border: '#eeeeee', accent: '#000000' },
     notion: { category: '라이트', name: '노션 캔버스', bg: '#ffffff', panel: '#f7f7f5', textMain: '#37352f', textSub: '#787774', border: '#e9e9e7', accent: '#2383e2' },
     snow: { category: '라이트', name: '스노우 펄', bg: '#f9fafb', panel: '#ffffff', textMain: '#111827', textSub: '#4b5563', border: '#e5e7eb', accent: '#6366f1' },
-
     defaultDark: { category: '다크', name: '기본 다크', bg: '#0f172a', panel: '#1e293b', textMain: '#f8fafc', textSub: '#94a3b8', border: '#334155', accent: '#38bdf8' },
     githubDark: { category: '다크', name: '깃허브 다크', bg: '#0d1117', panel: '#161b22', textMain: '#c9d1d9', textSub: '#8b949e', border: '#30363d', accent: '#58a6ff' },
     tokyoNight: { category: '다크', name: '도쿄 나이트', bg: '#1a1b26', panel: '#24283b', textMain: '#c0caf5', textSub: '#a9b1d6', border: '#414868', accent: '#7aa2f7' },
     oledBlack: { category: '다크', name: '올레드 블랙', bg: '#000000', panel: '#111111', textMain: '#ffffff', textSub: '#aaaaaa', border: '#333333', accent: '#ff3366' },
     discord: { category: '다크', name: '디스코드 다크', bg: '#313338', panel: '#2b2d31', textMain: '#dbdee1', textSub: '#949ba4', border: '#1e1f22', accent: '#5865f2' },
     obsidian: { category: '다크', name: '옵시디언', bg: '#1e1e1e', panel: '#252526', textMain: '#d4d4d4', textSub: '#cccccc', border: '#3c3c3c', accent: '#007acc' },
-
     nord: { category: '블루/쿨', name: '노드 쿨', bg: '#2e3440', panel: '#3b4252', textMain: '#eceff4', textSub: '#d8dee9', border: '#4c566a', accent: '#88c0d0' },
     oceanic: { category: '블루/쿨', name: '오셔닉 블루', bg: '#1b2b34', panel: '#343d46', textMain: '#d8dee9', textSub: '#a6accd', border: '#4f5b66', accent: '#6699cc' },
     navy: { category: '블루/쿨', name: '딥 네이비', bg: '#0a192f', panel: '#112240', textMain: '#ccd6f6', textSub: '#8892b0', border: '#233554', accent: '#64ffda' },
     blueberry: { category: '블루/쿨', name: '블루베리', bg: '#e0e7ff', panel: '#ffffff', textMain: '#1e1b4b', textSub: '#3730a3', border: '#c7d2fe', accent: '#4f46e5' },
     dracula: { category: '블루/쿨', name: '드라큘라', bg: '#282a36', panel: '#44475a', textMain: '#f8f8f2', textSub: '#8be9fd', border: '#6272a4', accent: '#bd93f9' },
     cobalt: { category: '블루/쿨', name: '코발트 빈티지', bg: '#193549', panel: '#224b6d', textMain: '#ffffff', textSub: '#9eb4c5', border: '#34658a', accent: '#ffc600' },
-
     mint: { category: '그린/자연', name: '민트 프레쉬', bg: '#f0fdf4', panel: '#ffffff', textMain: '#14532d', textSub: '#166534', border: '#bbf7d0', accent: '#10b981' },
     forest: { category: '그린/자연', name: '딥 포레스트', bg: '#1c2e26', panel: '#263b32', textMain: '#d1e8df', textSub: '#9ebcae', border: '#3b5448', accent: '#4ade80' },
     gruvbox: { category: '그린/자연', name: '그루브박스', bg: '#282828', panel: '#3c3836', textMain: '#ebdbb2', textSub: '#a89984', border: '#504945', accent: '#fe8019' },
     emerald: { category: '그린/자연', name: '에메랄드 시티', bg: '#ecfdf5', panel: '#ffffff', textMain: '#064e3b', textSub: '#047857', border: '#a7f3d0', accent: '#059669' },
     hacker: { category: '그린/자연', name: '해커 터미널', bg: '#0d1117', panel: '#000000', textMain: '#00ff00', textSub: '#00cc00', border: '#004400', accent: '#00ff00' },
-
     sepia: { category: '웜/파스텔', name: '세피아 웜', bg: '#f4ecd8', panel: '#fffbf0', textMain: '#433422', textSub: '#705a3e', border: '#dfd3b6', accent: '#d97706' },
     solarLight: { category: '웜/파스텔', name: '솔라 라이트', bg: '#fdf6e3', panel: '#eee8d5', textMain: '#073642', textSub: '#586e75', border: '#ccc2a3', accent: '#2aa198' },
     solarDark: { category: '웜/파스텔', name: '솔라 다크', bg: '#002b36', panel: '#073642', textMain: '#839496', textSub: '#93a1a1', border: '#104b5a', accent: '#b58900' },
@@ -42,7 +38,6 @@ const THEME_PRESETS = {
     sunset: { category: '웜/파스텔', name: '선셋 다크', bg: '#2a1b18', panel: '#3a2622', textMain: '#fde0d9', textSub: '#d4a398', border: '#5c3a33', accent: '#ff7b54' },
     lavender: { category: '웜/파스텔', name: '라벤더 블룸', bg: '#f3f0ff', panel: '#ffffff', textMain: '#3b2164', textSub: '#5a3b8c', border: '#e5d5ff', accent: '#8b5cf6' },
     latte: { category: '웜/파스텔', name: '카페 라떼', bg: '#fdf8f5', panel: '#ffffff', textMain: '#4a3b32', textSub: '#705c4f', border: '#ebd8cc', accent: '#c28e6a' },
-
     hcLight: { category: '고대비/스페셜', name: '고대비 라이트', bg: '#ffffff', panel: '#ffffff', textMain: '#000000', textSub: '#000000', border: '#000000', accent: '#0000ff' },
     hcDark: { category: '고대비/스페셜', name: '고대비 다크', bg: '#000000', panel: '#000000', textMain: '#ffffff', textSub: '#ffffff', border: '#ffffff', accent: '#ffff00' },
     monokai: { category: '고대비/스페셜', name: '모노카이', bg: '#272822', panel: '#3e3d32', textMain: '#f8f8f2', textSub: '#a6e22e', border: '#75715e', accent: '#fd971f' },
@@ -141,22 +136,29 @@ function renderThemeTabs(activeCategory) {
     Object.keys(THEME_PRESETS).forEach(key => {
         const p = THEME_PRESETS[key];
         if (p.category === activeCategory) {
-            html += `<button type="button" class="theme-preset-btn" style="background:${p.panel}; border-color:${p.border}; color:${p.textMain};" onmouseover="this.style.borderColor='${p.accent}'" onmouseout="this.style.borderColor='${p.border}'" onclick="applyPreset('${key}')"><span class="theme-preset-dot" style="background:${p.accent};"></span>${p.name}</button>`;
+            html += `
+                <button type="button" class="theme-preset-btn" 
+                    data-panel="${p.panel}" data-border="${p.border}" data-text="${p.textMain}" data-accent="${p.accent}"
+                    onclick="applyPreset('${key}')">
+                    <span class="theme-preset-dot" data-accent="${p.accent}"></span>
+                    ${p.name}
+                </button>`;
         }
     });
     html += `</div>`;
 
     container.innerHTML = html;
-    container.style.display = 'block';
 }
 
 function openThemeModal() {
     renderThemeTabs('라이트');
-    document.getElementById('themeModal').style.display = 'flex';
+    const modal = document.getElementById('themeModal');
+    if (modal) modal.classList.add('active');
 }
 
 function closeThemeModal() { 
-    document.getElementById('themeModal').style.display = 'none'; 
+    const modal = document.getElementById('themeModal');
+    if (modal) modal.classList.remove('active');
     initCustomTheme(); 
 }
 
@@ -174,17 +176,20 @@ function renderChangelog() {
 function loadConfig() { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultConfig; }
 
 function saveSettings() {
-    const split = (id) => document.getElementById(id).value.split('\n').map(s => s.trim()).filter(Boolean);
+    const split = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.split('\n').map(s => s.trim()).filter(Boolean) : [];
+    };
     const data = {
-        adminUrl: document.getElementById('set_admin_url').value,
-        pcUrl: document.getElementById('set_pc_url').value,
-        andAppTester: document.getElementById('set_and_apptester').value,
-        iosTestFlight: document.getElementById('set_ios_testflight').value,
-        iosDistribution: document.getElementById('set_ios_distribution').value,
-        samsungBrowser: document.getElementById('set_samsung_browser').value,
-        safariBrowser: document.getElementById('set_safari_browser').value,
-        chromeBrowser: document.getElementById('set_chrome_browser').value,
-        edgeBrowser: document.getElementById('set_edge_browser').value,
+        adminUrl: document.getElementById('set_admin_url')?.value || '',
+        pcUrl: document.getElementById('set_pc_url')?.value || '',
+        andAppTester: document.getElementById('set_and_apptester')?.value || '',
+        iosTestFlight: document.getElementById('set_ios_testflight')?.value || '',
+        iosDistribution: document.getElementById('set_ios_distribution')?.value || '',
+        samsungBrowser: document.getElementById('set_samsung_browser')?.value || '',
+        safariBrowser: document.getElementById('set_safari_browser')?.value || '',
+        chromeBrowser: document.getElementById('set_chrome_browser')?.value || '',
+        edgeBrowser: document.getElementById('set_edge_browser')?.value || '',
         andDevices: split('set_and_devices'),
         andSpecialDevices: split('set_and_special'),
         andDefaultDevices: split('set_and_default'),
@@ -200,44 +205,55 @@ function saveSettings() {
         if (user && !user.isAnonymous) {
             firebase.database().ref('users/' + user.uid + '/settings').set(data)
                 .then(() => {
-                    if (typeof showToast === 'function') showToast('✅ 파이어베이스 설정 저장 완료!');
+                    if (typeof showToast === 'function') showToast('✅ 설정이 클라우드에 동기화되었습니다.');
                 })
                 .catch((error) => {
                     console.error("Firebase save error: ", error);
-                    alert("파이어베이스 저장에 실패했습니다. 관리자에게 문의하세요.");
                 });
         }
     }
 
-    if (typeof syncEnvironmentByOS === 'function') {
-        syncEnvironmentByOS();
-    }
-    closeModal();
+    if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+    closeSettingModal();
 }
 
-function openModal() {
+function openSettingModal() {
     const cfg = loadConfig();
-    document.getElementById('settingModal').style.display = 'flex';
-    document.getElementById('set_admin_url').value = cfg.adminUrl || '';
-    document.getElementById('set_pc_url').value = cfg.pcUrl || '';
-    document.getElementById('set_and_apptester').value = cfg.andAppTester || '';
-    document.getElementById('set_ios_testflight').value = cfg.iosTestFlight || '';
-    document.getElementById('set_ios_distribution').value = cfg.iosDistribution || '';
-    document.getElementById('set_samsung_browser').value = cfg.samsungBrowser || '';
-    document.getElementById('set_safari_browser').value = cfg.safariBrowser || '';
-    document.getElementById('set_chrome_browser').value = cfg.chromeBrowser || '';
-    document.getElementById('set_edge_browser').value = cfg.edgeBrowser || '';
-    document.getElementById('set_and_devices').value = (cfg.andDevices || []).join('\n');
-    document.getElementById('set_and_special').value = (cfg.andSpecialDevices || []).join('\n');
-    document.getElementById('set_and_default').value = (cfg.andDefaultDevices || []).join('\n');
-    document.getElementById('set_ios_devices').value = (cfg.iosDevices || []).join('\n');
-    document.getElementById('set_ios_special').value = (cfg.iosSpecialDevices || []).join('\n');
-    document.getElementById('set_ios_default').value = (cfg.iosDefaultDevices || []).join('\n');
+    const modal = document.getElementById('settingModal');
+    if (modal) modal.classList.add('active');
+    
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    setVal('set_admin_url', cfg.adminUrl);
+    setVal('set_pc_url', cfg.pcUrl);
+    setVal('set_and_apptester', cfg.andAppTester);
+    setVal('set_ios_testflight', cfg.iosTestFlight);
+    setVal('set_ios_distribution', cfg.iosDistribution);
+    setVal('set_samsung_browser', cfg.samsungBrowser);
+    setVal('set_safari_browser', cfg.safariBrowser);
+    setVal('set_chrome_browser', cfg.chromeBrowser);
+    setVal('set_edge_browser', cfg.edgeBrowser);
+    setVal('set_and_devices', (cfg.andDevices || []).join('\n'));
+    setVal('set_and_special', (cfg.andSpecialDevices || []).join('\n'));
+    setVal('set_and_default', (cfg.andDefaultDevices || []).join('\n'));
+    setVal('set_ios_devices', (cfg.iosDevices || []).join('\n'));
+    setVal('set_ios_special', (cfg.iosSpecialDevices || []).join('\n'));
+    setVal('set_ios_default', (cfg.iosDefaultDevices || []).join('\n'));
 }
 
-function closeModal() { document.getElementById('settingModal').style.display = 'none'; }
-function openChangelogModal() { document.getElementById('changelogModal').style.display = 'flex'; }
-function closeChangelogModal() { document.getElementById('changelogModal').style.display = 'none'; }
+function closeSettingModal() { 
+    const modal = document.getElementById('settingModal');
+    if (modal) modal.classList.remove('active'); 
+}
+
+function openChangelogModal() { 
+    const modal = document.getElementById('changelogModal');
+    if (modal) modal.classList.add('active'); 
+}
+
+function closeChangelogModal() { 
+    const modal = document.getElementById('changelogModal');
+    if (modal) modal.classList.remove('active'); 
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase !== 'undefined') {
