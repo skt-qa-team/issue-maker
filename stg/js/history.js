@@ -85,20 +85,29 @@ function saveToHistory(title, body) {
     if (history.length > 10) history = history.slice(0, 10);
     
     localStorage.setItem('skm_history', JSON.stringify(history));
-    if (document.getElementById('historyModal')?.style.display === 'flex') {
+    
+    const modal = document.getElementById('historyModal');
+    if (modal && modal.classList.contains('active')) {
         renderHistory();
     }
 }
 
 function openHistoryModal() {
     const modal = document.getElementById('historyModal');
-    if (modal) modal.style.display = 'flex';
-    renderHistory();
+    if (modal) {
+        modal.classList.add('active');
+        renderHistory();
+    }
 }
 
 function closeHistoryModal() {
     const modal = document.getElementById('historyModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('active');
+}
+
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 function renderHistory() {
@@ -113,16 +122,17 @@ function renderHistory() {
     
     container.innerHTML = '';
     history.forEach((item, index) => {
-        container.innerHTML += `
-            <div class="history-item-card">
-                <div class="history-time">${item.time}</div>
-                <div class="history-title">${item.title || '(제목 없음)'}</div>
-                <div class="history-action-group">
-                    <button class="btn-history-load" onclick="loadHistoryItem(${index})">불러오기</button>
-                    <button class="btn-history-del" onclick="deleteHistoryItem(${index})">삭제</button>
-                </div>
+        const div = document.createElement('div');
+        div.className = 'history-item-card';
+        div.innerHTML = `
+            <div class="history-time">${escapeHtml(item.time)}</div>
+            <div class="history-title">${item.title ? escapeHtml(item.title) : '(제목 없음)'}</div>
+            <div class="history-action-group">
+                <button class="btn-history-load" onclick="loadHistoryItem(${index})">불러오기</button>
+                <button class="btn-history-del" onclick="deleteHistoryItem(${index})">삭제</button>
             </div>
         `;
+        container.appendChild(div);
     });
 }
 
