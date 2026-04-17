@@ -11,6 +11,11 @@
     transition: var(--transition-fast);
 }
 
+.auth-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
 .btn-clear-top {
     background: var(--accent-blue);
     color: white;
@@ -31,9 +36,9 @@
 }
 
 .btn-copy-mini {
-    background: #2e3c52;
-    color: #cbd5e1;
-    border: 1px solid #475569;
+    background: var(--text-main);
+    color: var(--border-color);
+    border: 1px solid var(--text-sub);
     padding: 3px 8px;
     border-radius: var(--radius-sm);
     font-size: 0.7rem;
@@ -43,7 +48,7 @@
 }
 
 .btn-copy-mini:hover {
-    background: #475569;
+    background: var(--text-sub);
     color: white;
 }
 
@@ -65,6 +70,7 @@
 .btn-copy-all:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    filter: brightness(1.05);
 }
 
 .btn-save {
@@ -83,6 +89,7 @@
 .btn-save:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    filter: brightness(1.05);
 }
 
 .btn-case-main {
@@ -100,12 +107,13 @@
 .btn-case-main:hover {
     border-color: var(--accent-blue);
     color: var(--accent-blue);
+    background: var(--bg-color);
 }
 
 .btn-remove {
-    background: #fee2e2;
-    color: #ef4444;
-    border: none;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
     padding: 6px 12px;
     border-radius: var(--radius-sm);
     font-size: 0.75rem;
@@ -115,5 +123,6 @@
 }
 
 .btn-remove:hover {
-    background: #fecaca;
+    background: var(--accent-red);
+    color: white;
 }
