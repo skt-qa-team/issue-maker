@@ -1,5 +1,15 @@
 let isInitialRender = true;
-const DEFAULT_PREFIX_ORDER = ['env', 'browser', 'os', 'poc', 'critical', 'device', 'account', 'page'];
+
+const DEFAULT_PREFIX_ORDER = [
+    { id: 'env', order: 1 },
+    { id: 'browser', order: 2 },
+    { id: 'os', order: 3 },
+    { id: 'poc', order: 4 },
+    { id: 'critical', order: 5 },
+    { id: 'device', order: 6 },
+    { id: 'account', order: 7 },
+    { id: 'page', order: 8 }
+];
 
 function escapeHTMLTemplate(str) {
     if (!str) return '';
@@ -11,95 +21,79 @@ function escapeHTMLTemplate(str) {
         .replace(/'/g, "&#039;");
 }
 
-function initDragAndDrop() {
-    const container = document.getElementById('prefixContainer');
-    if (!container) return;
+function applyAndSavePrefixOrder() {
+    const inputs = document.querySelectorAll('.prefix-order-input');
+    let orderArray = [];
 
-    let draggedItem = null;
-
-    container.querySelectorAll('.prefix-item').forEach(item => {
-        item.addEventListener('dragstart', function(e) {
-            draggedItem = this;
-            setTimeout(() => this.classList.add('dragging'), 0);
-        });
-
-        item.addEventListener('dragend', function() {
-            setTimeout(() => {
-                this.classList.remove('dragging');
-                draggedItem = null;
-                generateTemplate();
-            }, 0);
-        });
-
-        item.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(container, e.clientY, e.clientX);
-            if (afterElement == null) {
-                container.appendChild(draggedItem);
-            } else {
-                container.insertBefore(draggedItem, afterElement);
-            }
-        });
+    inputs.forEach(input => {
+        let val = parseInt(input.value);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 8) val = 8;
+        input.value = val;
+        orderArray.push({ id: input.dataset.target, order: val });
     });
-}
 
-function getDragAfterElement(container, y, x) {
-    const draggableElements = [...container.querySelectorAll('.prefix-item:not(.dragging)')];
+    orderArray.sort((a, b) => a.order - b.order);
 
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offsetY = y - box.top - box.height / 2;
-        const offsetX = x - box.left - box.width / 2;
-        
-        const distance = Math.sqrt(offsetX*offsetX + offsetY*offsetY);
-
-        if (offsetY < 0 && distance < closest.distance) {
-            return { offset: offsetY, element: child, distance: distance };
-        } else {
-            return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY, distance: Number.POSITIVE_INFINITY }).element;
-}
-
-function savePrefixOrder() {
     const container = document.getElementById('prefixContainer');
-    if (!container) return;
-    const currentOrder = Array.from(container.querySelectorAll('.prefix-item')).map(item => item.dataset.id);
-    localStorage.setItem('qa_prefix_order', JSON.stringify(currentOrder));
+    if (container) {
+        orderArray.forEach(item => {
+            const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
+            if (el) container.appendChild(el);
+        });
+    }
+
+    localStorage.setItem('qa_prefix_order_map', JSON.stringify(orderArray));
+    generateTemplate();
     if (typeof showToast === 'function') showToast('Prefix 순서가 저장되었습니다.');
 }
 
 function resetPrefixOrder() {
-    localStorage.removeItem('qa_prefix_order');
-    applyPrefixOrder(DEFAULT_PREFIX_ORDER);
+    localStorage.removeItem('qa_prefix_order_map');
+    
+    document.querySelectorAll('.prefix-order-input').forEach(input => {
+        const defaultItem = DEFAULT_PREFIX_ORDER.find(item => item.id === input.dataset.target);
+        if (defaultItem) input.value = defaultItem.order;
+    });
+
+    const container = document.getElementById('prefixContainer');
+    if (container) {
+        DEFAULT_PREFIX_ORDER.forEach(item => {
+            const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
+            if (el) container.appendChild(el);
+        });
+    }
+
+    generateTemplate();
     if (typeof showToast === 'function') showToast('Prefix 순서가 초기화되었습니다.');
 }
 
 function loadPrefixOrder() {
-    const saved = localStorage.getItem('qa_prefix_order');
+    const saved = localStorage.getItem('qa_prefix_order_map');
     if (saved) {
-        applyPrefixOrder(JSON.parse(saved));
-    }
-}
+        try {
+            const orderArray = JSON.parse(saved);
+            
+            orderArray.forEach(item => {
+                const input = document.querySelector(`.prefix-order-input[data-target="${item.id}"]`);
+                if (input) input.value = item.order;
+            });
 
-function applyPrefixOrder(orderArray) {
-    const container = document.getElementById('prefixContainer');
-    if (!container) return;
-    
-    const items = Array.from(container.querySelectorAll('.prefix-item'));
-    
-    orderArray.forEach(id => {
-        const item = items.find(el => el.dataset.id === id);
-        if (item) {
-            container.appendChild(item);
+            const container = document.getElementById('prefixContainer');
+            if (container) {
+                orderArray.sort((a, b) => a.order - b.order).forEach(item => {
+                    const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
+                    if (el) container.appendChild(el);
+                });
+            }
+        } catch (e) {
+            console.error('Failed to load prefix order', e);
         }
-    });
-    generateTemplate();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        initDragAndDrop();
         loadPrefixOrder();
     }, 500);
 });
