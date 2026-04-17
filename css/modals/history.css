@@ -1,3 +1,50 @@
+#historyModal.modal-overlay {
+    display: none;
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#historyModal.modal-overlay.active {
+    display: flex;
+}
+
+.modal-history {
+    max-width: 700px;
+    width: 95%;
+    background: var(--bg-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.history-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-list-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
 .history-empty {
     text-align: center;
     padding: 30px;
@@ -5,12 +52,18 @@
 }
 
 .history-item-card {
-    background: var(--bg-color);
+    background: var(--panel-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     padding: 15px;
     position: relative;
-    margin-bottom: 12px;
+    transition: var(--transition-fast);
+}
+
+.history-item-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .history-time {
@@ -27,7 +80,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 60px;
+    padding-right: 10px;
 }
 
 .history-action-group {
@@ -41,14 +94,14 @@
     background: var(--accent-blue);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: var(--transition-fast);
 }
 
 .btn-history-load:hover {
-    background: #2563eb;
+    filter: brightness(1.1);
 }
 
 .btn-history-del {
@@ -56,10 +109,10 @@
     background: #ef4444;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: var(--transition-fast);
 }
 
 .btn-history-del:hover {
