@@ -50,11 +50,13 @@ function handleCompPocChange() {
     const urlGroup = document.getElementById('comp_url_group');
     
     if (deviceGroup) {
-        isWeb ? deviceGroup.classList.add('d-none') : deviceGroup.classList.remove('d-none');
+        if (isWeb) deviceGroup.classList.add('d-none');
+        else deviceGroup.classList.remove('d-none');
     }
     
     if (urlGroup) {
-        isWeb ? urlGroup.classList.remove('d-none') : urlGroup.classList.add('d-none');
+        if (isWeb) urlGroup.classList.remove('d-none');
+        else urlGroup.classList.add('d-none');
     }
 
     if (isWeb) {
@@ -102,11 +104,11 @@ function updateCompletionPreview() {
     
     if (!previewNode) return;
 
+    let versions = [];
     if (isWeb) {
         const urlInput = document.getElementById('comp_url');
         const urlString = urlInput ? urlInput.value : '-';
         
-        let versions = [];
         document.querySelectorAll('.comp-ver-cb:checked').forEach(cb => {
             const type = cb.value;
             if (type === 'Android') versions.push(`App Tester_${currentCompConfig.andAppTester || ''}`);
@@ -117,12 +119,9 @@ function updateCompletionPreview() {
             else if (type === 'Edge') versions.push(`Edge_${currentCompConfig.edgeBrowser || ''}`);
         });
         const verString = versions.join(' / ') || '-';
-
         previewNode.value = `■ 버전 : ${verString}\n■ 서버 : ${srvs}\n■ URL : ${urlString}\n■ 현상 check : ${compCheckVal}`;
     } else {
         const devs = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
-        
-        let versions = [];
         const checkedDevs = Array.from(document.querySelectorAll('.comp-dev-cb:checked'));
         const hasAndroid = checkedDevs.some(cb => cb.dataset.platform === 'android');
         const hasIos = checkedDevs.some(cb => cb.dataset.platform === 'ios');
@@ -139,9 +138,7 @@ function updateCompletionPreview() {
                 else if (type === 'Edge') versions.push(`Edge_${currentCompConfig.edgeBrowser || ''}`);
             }
         });
-
         const verString = versions.join(' / ') || '-';
-
         previewNode.value = `■ Device(OS Ver.) : ${devs}\n■ 버젼 : ${verString}\n■ 서버 : ${srvs}\n■ 현상 check : ${compCheckVal}`;
     }
 }
@@ -149,33 +146,32 @@ function updateCompletionPreview() {
 async function copyCompletionReport() {
     const el = document.getElementById('comp_preview');
     if (!el) return;
-
     const textToCopy = el.value;
 
     if (navigator.clipboard && window.isSecureContext) {
         try {
             await navigator.clipboard.writeText(textToCopy);
-            if (typeof showToast === 'function') {
-                showToast('완료문 복사 완료!');
-            } else {
-                alert('완료문 복사 완료!');
-            }
+            if (typeof showToast === 'function') showToast('완료문 복사 완료!');
+            else alert('완료문 복사 완료!');
         } catch (err) {
-            console.error('Failed to copy text: ', err);
-            alert('복사에 실패했습니다.');
+            fallbackCopy(textToCopy);
         }
     } else {
-        el.select();
-        try {
-            document.execCommand('copy');
-            if (typeof showToast === 'function') {
-                showToast('완료문 복사 완료!');
-            } else {
-                alert('완료문 복사 완료!');
-            }
-        } catch (err) {
-            console.error('Fallback copy failed', err);
-            alert('복사에 실패했습니다.');
-        }
+        fallbackCopy(textToCopy);
     }
+}
+
+function fallbackCopy(text) {
+    const t = document.createElement("textarea");
+    document.body.appendChild(t);
+    t.value = text;
+    t.select();
+    try {
+        document.execCommand('copy');
+        if (typeof showToast === 'function') showToast('완료문 복사 완료!');
+        else alert('완료문 복사 완료!');
+    } catch (err) {
+        alert('복사에 실패했습니다.');
+    }
+    document.body.removeChild(t);
 }
