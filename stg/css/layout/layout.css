@@ -58,7 +58,7 @@ html, body {
 .main-panel-content {
     flex: 1;
     min-height: 0;
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 
