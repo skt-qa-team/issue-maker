@@ -199,3 +199,28 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
 .mt-1 {
     margin-top: 6px;
 }
+
+.prefix-item {
+    background: var(--bg-color);
+    border: 1px dashed transparent;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.prefix-item.dragging {
+    opacity: 0.4;
+    border: 1px dashed var(--accent-blue);
+    background: var(--panel-bg);
+}
+
+.prefix-drag-handle {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.prefix-drag-handle:active {
+    cursor: grabbing;
+}
