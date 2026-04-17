@@ -15,6 +15,20 @@
     margin-bottom: 20px;
 }
 
+.form-group.mb-2 {
+    margin-bottom: 8px;
+}
+
+.form-group.mb-3 {
+    margin-bottom: 15px;
+}
+
+.form-group.flex-1 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -27,6 +41,12 @@ label {
     margin-bottom: 8px;
     font-size: 0.88rem;
     color: var(--text-sub);
+}
+
+.form-label-accent {
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-size: 0.95rem;
 }
 
 .device-split-container {
@@ -46,15 +66,6 @@ label {
     min-width: 0;
     display: flex;
     flex-direction: column;
-}
-
-.device-col textarea {
-    flex: 1;
-    min-height: 0;
-    resize: none;
-    overflow-y: auto;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .device-col-header {
@@ -140,9 +151,15 @@ label {
     overflow-y: auto;
 }
 
-.output-field:not(#outputTitle) {
+.result-body-section {
     flex: 1;
-    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.result-textarea {
+    flex: 1;
 }
 
 .output-field:focus {
