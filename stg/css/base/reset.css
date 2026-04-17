@@ -15,6 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 ::-webkit-scrollbar {
@@ -23,8 +24,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: var(--border-color);
     border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-sub);
 }
 
 ::-webkit-scrollbar-track {
@@ -34,6 +39,7 @@ body {
 button, input, select, textarea {
     font-family: inherit;
     color: inherit;
+    outline: none;
 }
 
 a {
@@ -43,4 +49,10 @@ a {
 
 ul, ol {
     list-style: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
