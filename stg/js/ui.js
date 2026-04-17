@@ -147,8 +147,8 @@ function initTabNavigation() {
                 }
             });
 
-            if (targetId === 'panel-completion' && typeof openCompletionModal === 'function') {
-                openCompletionModal();
+            if (targetId === 'panel-completion' && typeof initCompletionPanel === 'function') {
+                initCompletionPanel();
             }
         });
     });
