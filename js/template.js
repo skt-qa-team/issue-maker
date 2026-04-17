@@ -2,13 +2,12 @@ let isInitialRender = true;
 
 const DEFAULT_PREFIX_ORDER = [
     { id: 'env', order: 1 },
-    { id: 'browser', order: 2 },
-    { id: 'os', order: 3 },
-    { id: 'poc', order: 4 },
-    { id: 'critical', order: 5 },
-    { id: 'device', order: 6 },
-    { id: 'account', order: 7 },
-    { id: 'page', order: 8 }
+    { id: 'os', order: 2 },
+    { id: 'poc', order: 3 },
+    { id: 'critical', order: 4 },
+    { id: 'device', order: 5 },
+    { id: 'account', order: 6 },
+    { id: 'page', order: 7 }
 ];
 
 function escapeHTMLTemplate(str) {
@@ -28,28 +27,36 @@ function applyAndSavePrefixOrder() {
     inputs.forEach(input => {
         let val = parseInt(input.value);
         if (isNaN(val) || val < 1) val = 1;
-        if (val > 8) val = 8;
+        if (val > 7) val = 7;
         input.value = val;
         orderArray.push({ id: input.dataset.target, order: val });
     });
 
-    orderArray.sort((a, b) => a.order - b.order);
+    const sorted = orderArray.sort((a, b) => a.order - b.order);
+    const col1 = sorted.slice(0, 4);
+    const col2 = sorted.slice(4);
+    
+    const reordered = [];
+    for (let i = 0; i < 4; i++) {
+        if (col1[i]) reordered.push(col1[i]);
+        if (col2[i]) reordered.push(col2[i]);
+    }
 
     const container = document.getElementById('prefixContainer');
     if (container) {
-        orderArray.forEach(item => {
-            const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
+        reordered.forEach(item => {
+            const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
             if (el) container.appendChild(el);
         });
     }
 
-    localStorage.setItem('qa_prefix_order_map', JSON.stringify(orderArray));
+    localStorage.setItem('qa_prefix_order_map_v2', JSON.stringify(orderArray));
     generateTemplate();
-    if (typeof showToast === 'function') showToast('Prefix 순서가 저장되었습니다.');
+    if (typeof showToast === 'function') showToast('Prefix 순서와 배치가 저장되었습니다.');
 }
 
 function resetPrefixOrder() {
-    localStorage.removeItem('qa_prefix_order_map');
+    localStorage.removeItem('qa_prefix_order_map_v2');
     
     document.querySelectorAll('.prefix-order-input').forEach(input => {
         const defaultItem = DEFAULT_PREFIX_ORDER.find(item => item.id === input.dataset.target);
@@ -58,9 +65,17 @@ function resetPrefixOrder() {
 
     const container = document.getElementById('prefixContainer');
     if (container) {
-        DEFAULT_PREFIX_ORDER.forEach(item => {
-            const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
-            if (el) container.appendChild(el);
+        const reordered = [
+            DEFAULT_PREFIX_ORDER[0], DEFAULT_PREFIX_ORDER[4],
+            DEFAULT_PREFIX_ORDER[1], DEFAULT_PREFIX_ORDER[5],
+            DEFAULT_PREFIX_ORDER[2], DEFAULT_PREFIX_ORDER[6],
+            DEFAULT_PREFIX_ORDER[3]
+        ];
+        reordered.forEach(item => {
+            if (item) {
+                const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
+                if (el) container.appendChild(el);
+            }
         });
     }
 
@@ -69,26 +84,35 @@ function resetPrefixOrder() {
 }
 
 function loadPrefixOrder() {
-    const saved = localStorage.getItem('qa_prefix_order_map');
+    const saved = localStorage.getItem('qa_prefix_order_map_v2');
+    const container = document.getElementById('prefixContainer');
+    if (!container) return;
+
     if (saved) {
         try {
             const orderArray = JSON.parse(saved);
-            
             orderArray.forEach(item => {
                 const input = document.querySelector(`.prefix-order-input[data-target="${item.id}"]`);
                 if (input) input.value = item.order;
             });
 
-            const container = document.getElementById('prefixContainer');
-            if (container) {
-                orderArray.sort((a, b) => a.order - b.order).forEach(item => {
-                    const el = document.querySelector(`.prefix-item[data-id="${item.id}"]`);
-                    if (el) container.appendChild(el);
-                });
+            const sorted = orderArray.sort((a, b) => a.order - b.order);
+            const col1 = sorted.slice(0, 4);
+            const col2 = sorted.slice(4);
+            const reordered = [];
+            for (let i = 0; i < 4; i++) {
+                if (col1[i]) reordered.push(col1[i]);
+                if (col2[i]) reordered.push(col2[i]);
             }
+            reordered.forEach(item => {
+                const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
+                if (el) container.appendChild(el);
+            });
         } catch (e) {
-            console.error('Failed to load prefix order', e);
+            resetPrefixOrder();
         }
+    } else {
+        resetPrefixOrder();
     }
 }
 
@@ -336,7 +360,6 @@ function generateTemplate() {
 
     let prefixMap = {
         'env': '',
-        'browser': '',
         'os': '',
         'poc': '',
         'critical': '',
@@ -348,20 +371,6 @@ function generateTemplate() {
     const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
     if (envVal) prefixMap['env'] = `[${envVal}]`;
 
-    let browserVals = [];
-    const browserNone = document.getElementById('prefix_browser_none');
-    if (!browserNone || !browserNone.checked) {
-        document.querySelectorAll('.prefix-browser-cb:checked').forEach(cb => {
-            if (cb.value === '기타') {
-                const customBrowser = document.getElementById('prefix_browser_custom')?.value.trim();
-                if (customBrowser) browserVals.push(customBrowser);
-            } else {
-                browserVals.push(cb.value);
-            }
-        });
-    }
-    if (browserVals.length > 0) prefixMap['browser'] = `[${browserVals.join('/')}]`;
-
     const osVal = getDropdownOrCustom('osType', 'osType_custom');
     if (osVal) prefixMap['os'] = `[${osVal}]`;
 
@@ -372,8 +381,23 @@ function generateTemplate() {
     const critVal = getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
     if (critVal) prefixMap['critical'] = `[${critVal}]`;
 
-    const devVal = document.getElementById('prefix_device') ? document.getElementById('prefix_device').value.trim() : '';
-    if (devVal) prefixMap['device'] = `[${devVal}]`;
+    let deviceVal = '';
+    const browserNone = document.getElementById('prefix_browser_none');
+    if (!browserNone || !browserNone.checked) {
+        let browserVals = [];
+        document.querySelectorAll('.prefix-browser-cb:checked').forEach(cb => {
+            if (cb.value === '기타') {
+                const custom = document.getElementById('prefix_browser_custom')?.value.trim();
+                if (custom) browserVals.push(custom);
+            } else {
+                browserVals.push(cb.value);
+            }
+        });
+        if (browserVals.length > 0) deviceVal = browserVals.join('/');
+    } else {
+        deviceVal = document.getElementById('prefix_device_input')?.value.trim() || '';
+    }
+    if (deviceVal) prefixMap['device'] = `[${deviceVal}]`;
 
     const accVal = document.getElementById('prefix_account') ? document.getElementById('prefix_account').value.trim() : '';
     if (accVal) prefixMap['account'] = `[${accVal}]`;
