@@ -74,7 +74,7 @@
 
 .btn-clear-sm:hover {
     background: var(--accent-red);
-    color: #ffffff;
+    color: var(--panel-bg);
 }
 
 .changelog-list {
@@ -100,7 +100,7 @@
 
 .version-badge {
     background: linear-gradient(135deg, var(--accent-blue), #2563eb);
-    color: #ffffff;
+    color: var(--panel-bg);
     padding: 6px 14px;
     border-radius: var(--radius-pill);
     font-size: 0.85rem;
