@@ -7,10 +7,16 @@
     </div>
 
     <div class="prefix-panel">
-        <label class="prefix-title d-block mb-2">🔹 제목 Prefix 상세 조건 (선택)</label>
-        <div class="grid-2 prefix-grid">
-            <div class="form-group-sm">
-                <label class="form-label-sm">환경</label>
+        <div class="label-action-row mb-2">
+            <label class="prefix-title d-block">🔹 제목 Prefix 상세 조건 (선택)</label>
+            <div class="case-ctrl-row">
+                <button class="btn-action-secondary text-sm" onclick="savePrefixOrder()">저장</button>
+                <button class="btn-action-secondary text-sm" onclick="resetPrefixOrder()">초기화</button>
+            </div>
+        </div>
+        <div class="grid-2 prefix-grid" id="prefixContainer">
+            <div class="form-group-sm prefix-item" draggable="true" data-id="env">
+                <label class="form-label-sm prefix-drag-handle">↕️ 환경</label>
                 <div class="input-stack">
                     <select id="prefix_env" class="form-control" onchange="document.getElementById('prefix_env_custom').classList.toggle('d-none', this.value !== 'direct'); generateTemplate();">
                         <option value="">선택</option>
@@ -21,22 +27,22 @@
                     <input type="text" id="prefix_env_custom" class="form-control d-none" placeholder="환경 입력" oninput="generateTemplate()">
                 </div>
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">브라우저</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="browser">
+                <label class="form-label-sm prefix-drag-handle">↕️ 브라우저</label>
                 <div class="input-stack">
                     <div class="checkbox-wrap-group">
                         <label class="checkbox-label text-sm"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked onchange="if(this.checked) { document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false); document.getElementById('prefix_browser_custom').classList.add('d-none'); } generateTemplate();"> 해당없음</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="삼성브라우저" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 삼성</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="크롬" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 크롬</label>
-                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="엣지" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 엣지</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="삼성인터넷" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> 삼성인터넷</label>
                         <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Safari" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Safari</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Chrome" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Chrome</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" value="Edge" onchange="if(this.checked) document.getElementById('prefix_browser_none').checked = false; generateTemplate();"> Edge</label>
                         <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb" id="prefix_browser_etc" value="기타" onchange="if(this.checked) { document.getElementById('prefix_browser_none').checked = false; document.getElementById('prefix_browser_custom').classList.remove('d-none'); } else { document.getElementById('prefix_browser_custom').classList.add('d-none'); } generateTemplate();"> 기타</label>
                     </div>
                     <input type="text" id="prefix_browser_custom" class="form-control d-none" placeholder="브라우저 입력" oninput="generateTemplate()">
                 </div>
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">OS</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="os">
+                <label class="form-label-sm prefix-drag-handle">↕️ OS</label>
                 <div class="input-stack">
                     <select id="osType" class="form-control" onchange="document.getElementById('osType_custom').classList.toggle('d-none', this.value !== 'direct'); syncEnvironmentByOS(); generateTemplate();">
                         <option value="">해당없음</option>
@@ -51,8 +57,8 @@
                     <input type="text" id="osType_custom" class="form-control d-none" placeholder="OS 입력" oninput="generateTemplate(); syncEnvironmentByOS();">
                 </div>
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">PoC</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="poc">
+                <label class="form-label-sm prefix-drag-handle">↕️ PoC</label>
                 <div class="input-stack">
                     <select id="poc" class="form-control" onchange="document.getElementById('poc_custom').classList.toggle('d-none', this.value !== 'direct'); handlePocChange(); generateTemplate();">
                         <option value="T 멤버십">T 멤버십</option>
@@ -65,8 +71,8 @@
                     <input type="text" id="poc_custom" class="form-control d-none" placeholder="PoC 입력" oninput="generateTemplate()">
                 </div>
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">Critical 구분</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="critical">
+                <label class="form-label-sm prefix-drag-handle">↕️ Critical 구분</label>
                 <div class="input-stack">
                     <select id="prefix_critical" class="form-control" onchange="document.getElementById('prefix_critical_custom').classList.toggle('d-none', this.value !== 'direct'); generateTemplate();">
                         <option value="">해당없음</option>
@@ -77,16 +83,16 @@
                     <input type="text" id="prefix_critical_custom" class="form-control d-none" placeholder="Critical 입력" oninput="generateTemplate()">
                 </div>
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">Device</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="device">
+                <label class="form-label-sm prefix-drag-handle">↕️ Device</label>
                 <input type="text" id="prefix_device" class="form-control" placeholder="예: 폴드" oninput="generateTemplate()">
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">계정</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="account">
+                <label class="form-label-sm prefix-drag-handle">↕️ 계정</label>
                 <input type="text" id="prefix_account" class="form-control" placeholder="예: VIP" oninput="generateTemplate()">
             </div>
-            <div class="form-group-sm">
-                <label class="form-label-sm">이슈 발생 페이지</label>
+            <div class="form-group-sm prefix-item" draggable="true" data-id="page">
+                <label class="form-label-sm prefix-drag-handle">↕️ 이슈 발생 페이지</label>
                 <input type="text" id="prefix_page" class="form-control" placeholder="예: 출석체크" oninput="generateTemplate()">
             </div>
         </div>
@@ -140,9 +146,9 @@
         <div class="checkbox-wrap-group mb-2">
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_android" class="ver-type-cb" value="Android" onchange="syncDeviceFromVersion('and'); updateVersionTextbox(); generateTemplate();"> Android</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb" value="iOS" onchange="syncDeviceFromVersion('ios'); updateVersionTextbox(); generateTemplate();"> iOS</label>
-            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb" value="삼성 브라우저" onchange="updateVersionTextbox(); generateTemplate();"> 삼성 브라우저</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb" value="삼성인터넷" onchange="updateVersionTextbox(); generateTemplate();"> 삼성인터넷</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_safari" class="ver-type-cb" value="Safari" onchange="updateVersionTextbox(); generateTemplate();"> Safari</label>
-            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_chrome" class="ver-type-cb" value="크롬" onchange="updateVersionTextbox(); generateTemplate();"> 크롬</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_chrome" class="ver-type-cb" value="Chrome" onchange="updateVersionTextbox(); generateTemplate();"> Chrome</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_edge" class="ver-type-cb" value="Edge" onchange="updateVersionTextbox(); generateTemplate();"> Edge</label>
         </div>
         <input type="text" id="appVersion" class="form-control" oninput="generateTemplate()">
