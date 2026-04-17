@@ -1,19 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const components = [
-        { id: 'comp-header', url: 'components/header.html' },
-        { id: 'comp-guide', url: 'components/guide-panel.html' },
-        { id: 'comp-input', url: 'components/input-form.html' },
-        { id: 'comp-result', url: 'components/result-panel.html' },
-        { id: 'modal-placeholder-condition', url: 'components/condition-modal.html' },
-        { id: 'modal-placeholder-history', url: 'components/history-modal.html' },
-        { id: 'modal-placeholder-completion', url: 'components/completion-modal.html' },
-        { id: 'modal-placeholder-kpi', url: 'components/kpi-modal.html' },
-        { id: 'modal-placeholder-theme', url: 'components/theme-modal.html' },
-        { id: 'modal-placeholder-setting', url: 'components/setting-modal.html' },
-        { id: 'modal-placeholder-changelog', url: 'components/changelog-modal.html' },
-        { id: 'modal-placeholder-schedule', url: 'components/schedule-modal.html' },
-        { id: 'modal-placeholder-schedule-detail', url: 'components/schedule-detail-modal.html' },
-        { id: 'modal-placeholder-bugreport', url: 'components/bugreport-modal.html' }
+        { id: 'header-placeholder', url: 'components/header.html' },
+        { id: 'input-form-placeholder', url: 'components/input-form.html' },
+        { id: 'guide-panel-placeholder', url: 'components/guide-panel.html' },
+        { id: 'result-panel-placeholder', url: 'components/result-panel.html' },
+        { id: 'calendar-placeholder', url: 'components/calendar.html' },
+        { id: 'completion-panel-placeholder', url: 'components/completion-panel.html' },
+        { id: 'condition-modal-placeholder', url: 'components/condition-modal.html' },
+        { id: 'history-modal-placeholder', url: 'components/history-modal.html' },
+        { id: 'kpi-modal-placeholder', url: 'components/kpi-modal.html' },
+        { id: 'theme-modal-placeholder', url: 'components/theme-modal.html' },
+        { id: 'setting-modal-placeholder', url: 'components/setting-modal.html' },
+        { id: 'changelog-modal-placeholder', url: 'components/changelog-modal.html' },
+        { id: 'schedule-modal-placeholder', url: 'components/schedule-modal.html' },
+        { id: 'schedule-detail-modal-placeholder', url: 'components/schedule-detail-modal.html' },
+        { id: 'bugreport-modal-placeholder', url: 'components/bugreport-modal.html' },
+        { id: 'bookmark-modal-placeholder', url: 'components/bookmark-modal.html' }
     ];
 
     Promise.all(components.map(comp => 
