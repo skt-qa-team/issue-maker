@@ -3,33 +3,37 @@ const totalCondSteps = 6;
 
 function openConditionModal() {
     const modal = document.getElementById('conditionModal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) modal.classList.add('active');
     showCondStep(1);
     updateConditionPreview();
 }
 
 function closeConditionModal() {
     const modal = document.getElementById('conditionModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('active');
 }
 
 function showCondStep(step) {
     currentCondStep = step;
     for (let i = 1; i <= totalCondSteps; i++) {
         const stepEl = document.getElementById(`cond-step-${i}`);
-        if (stepEl) stepEl.style.display = (i === step) ? 'block' : 'none';
+        if (stepEl) {
+            if (i === step) stepEl.classList.remove('d-none');
+            else stepEl.classList.add('d-none');
+        }
     }
     
     const prevBtn = document.getElementById('cond-prev-btn');
     const nextBtn = document.getElementById('cond-next-btn');
     
-    if (prevBtn) prevBtn.style.display = (step === 1) ? 'none' : 'block';
+    if (prevBtn) {
+        if (step === 1) prevBtn.classList.add('d-none');
+        else prevBtn.classList.remove('d-none');
+    }
+
     if (nextBtn) {
-        if (step === totalCondSteps) {
-            nextBtn.style.display = 'none';
-        } else {
-            nextBtn.style.display = 'block';
-        }
+        if (step === totalCondSteps) nextBtn.classList.add('d-none');
+        else nextBtn.classList.remove('d-none');
     }
 }
 
@@ -79,7 +83,7 @@ function clearConditionChecks() {
     
     const otherInputs = document.querySelectorAll('.cond-other-input');
     otherInputs.forEach(input => {
-        input.style.display = 'none';
+        input.classList.add('d-none');
         input.value = '';
     });
 
@@ -87,15 +91,40 @@ function clearConditionChecks() {
     updateConditionPreview();
 }
 
-function copyConditionText() {
+async function copyConditionText() {
     const previewEl = document.getElementById('cond_preview');
     if (!previewEl || !previewEl.value.trim()) {
         if (typeof showToast === 'function') showToast('복사할 내용이 없습니다.');
         return;
     }
-    previewEl.select();
-    document.execCommand('copy');
-    if (typeof showToast === 'function') showToast('조합된 조건이 복사되었습니다.');
+
+    const textToCopy = previewEl.value.trim();
+
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            if (typeof showToast === 'function') showToast('조합된 조건이 복사되었습니다.');
+        } catch (err) {
+            fallbackCopyConditionText(textToCopy);
+        }
+    } else {
+        fallbackCopyConditionText(textToCopy);
+    }
+}
+
+function fallbackCopyConditionText(text) {
+    const t = document.createElement("textarea");
+    t.className = 'sr-only';
+    document.body.appendChild(t);
+    t.value = text;
+    t.select();
+    try {
+        document.execCommand('copy');
+        if (typeof showToast === 'function') showToast('조합된 조건이 복사되었습니다.');
+    } catch (err) {
+        console.error('Copy fallback failed', err);
+    }
+    document.body.removeChild(t);
 }
 
 function applyConditionToForm() {
@@ -128,13 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const wrapper = e.target.closest('.checkbox-group');
             const allInputs = wrapper.querySelectorAll('.cond-other-input');
             allInputs.forEach(input => {
-                input.style.display = 'none';
+                input.classList.add('d-none');
             });
 
             if (e.target.classList.contains('cond-other-cb') && e.target.checked) {
                 const input = wrapper.querySelector('.cond-other-input');
                 if (input) {
-                    input.style.display = 'block';
+                    input.classList.remove('d-none');
                     input.focus();
                 }
             }
