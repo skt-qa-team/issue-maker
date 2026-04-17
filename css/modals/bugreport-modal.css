@@ -15,17 +15,17 @@
 .bug-modal-container {
     width: 100%;
     max-width: 500px;
-    background: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
 }
 
 .bug-modal-header {
     padding: 16px 20px;
-    background: #252525;
-    border-bottom: 1px solid #333;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -34,20 +34,22 @@
 .bug-modal-header h2 {
     margin: 0;
     font-size: 1.1rem;
-    color: #e0e0e0;
+    font-weight: 800;
+    color: var(--text-main);
 }
 
 .bug-close-btn {
     background: none;
     border: none;
-    color: #888;
+    color: var(--text-sub);
     font-size: 24px;
     cursor: pointer;
     line-height: 1;
+    transition: var(--transition-fast);
 }
 
 .bug-close-btn:hover {
-    color: #fff;
+    color: var(--text-main);
 }
 
 .bug-modal-body {
@@ -62,23 +64,26 @@
     display: block;
     margin-bottom: 8px;
     font-size: 0.9rem;
-    color: #bbb;
+    font-weight: 700;
+    color: var(--text-sub);
 }
 
 .bug-form-control {
     width: 100%;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 6px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     padding: 10px;
-    color: #fff;
+    color: var(--text-main);
     font-size: 0.9rem;
     outline: none;
     box-sizing: border-box;
+    transition: var(--transition-fast);
 }
 
 .bug-form-control:focus {
-    border-color: #0078d4;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 textarea.bug-form-control {
@@ -88,56 +93,60 @@ textarea.bug-form-control {
 
 .bug-modal-footer {
     padding: 16px 20px;
-    background: #252525;
-    border-top: 1px solid #333;
+    background: var(--panel-bg);
+    border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
     gap: 10px;
 }
 
 .bug-btn-primary {
-    background: #0078d4;
-    color: #fff;
+    background: var(--accent-blue);
+    color: #ffffff;
     border: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 700;
+    transition: var(--transition-fast);
 }
 
 .bug-btn-primary:hover {
-    background: #0086f0;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 .bug-btn-secondary {
-    background: #444;
-    color: #fff;
+    background: var(--text-sub);
+    color: #ffffff;
     border: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    font-weight: 700;
+    transition: var(--transition-fast);
 }
 
 .bug-btn-secondary:hover {
-    background: #555;
+    filter: brightness(0.9);
 }
 
 .bug-report-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #333;
-    color: #eee;
-    border: 1px solid #444;
+    background: var(--panel-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition-fast);
 }
 
 .bug-report-btn:hover {
-    background: #444;
-    border-color: #555;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
 }
 
 .d-none {
