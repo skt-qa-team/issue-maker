@@ -18,10 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'bookmark-modal-placeholder', url: 'components/bookmark-modal.html' }
     ];
 
+    const versionTag = new Date().getTime();
+
     Promise.all(components.map(comp => 
-        fetch(comp.url + '?v=' + new Date().getTime()) 
+        fetch(`${comp.url}?v=${versionTag}`) 
             .then(response => {
-                if (!response.ok) throw new Error(`[404] ${comp.url} 파일을 찾을 수 없습니다.`);
+                if (!response.ok) throw new Error(`[${response.status}] ${comp.url}`);
                 return response.text();
             })
             .then(html => {
@@ -32,8 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(err => {
-                console.error("Loader Error:", err);
-                alert(`🔥 앗! 파일 로드 실패:\n${err.message}\ncomponents 폴더 안에 파일명 오타가 없는지 확인해 주세요!`);
+                console.error("Component Load Failure:", err);
             })
     )).then(() => {
         setTimeout(() => {
@@ -50,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     syncEnvironmentByOS(); 
                 }
             } catch(e) { 
-                console.error("Init Error:", e); 
+                console.error("Initialization Failure:", e); 
             }
         }, 300); 
     });
