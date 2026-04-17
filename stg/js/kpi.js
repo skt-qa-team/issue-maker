@@ -1,22 +1,27 @@
 function openKpiModal() {
-    document.getElementById('kpiModal').style.display = 'flex';
+    const modal = document.getElementById('kpiModal');
+    if (modal) modal.classList.add('active');
     loadKpiLocal();
 }
 
 function closeKpiModal() {
-    document.getElementById('kpiModal').style.display = 'none';
+    const modal = document.getElementById('kpiModal');
+    if (modal) modal.classList.remove('active');
 }
 
 function switchKpiTab(tabId) {
     document.querySelectorAll('.kpi-tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.kpi-tab-content').forEach(content => content.style.display = 'none');
+    document.querySelectorAll('.kpi-tab-content').forEach(content => {
+        content.classList.add('d-none');
+        content.classList.remove('active');
+    });
     
     const activeBtn = document.getElementById(`btn-tab-${tabId}`);
     if (activeBtn) activeBtn.classList.add('active');
     
     const targetTab = document.getElementById(`tab-${tabId}`);
     if (targetTab) {
-        targetTab.style.display = 'block';
+        targetTab.classList.remove('d-none');
         targetTab.classList.add('active'); 
     }
     
@@ -71,7 +76,7 @@ function addTcRow(data = {}) {
         <select class="tc-poc kpi-input" onchange="generateKPI()">
             ${pocOptions}
         </select>
-        <input type="text" class="tc-name kpi-input" placeholder="티켓 이름 (예: 무비 쿠폰)" value="${data.name || ''}" oninput="generateKPI()">
+        <input type="text" class="tc-name kpi-input" placeholder="티켓 이름" value="${data.name || ''}" oninput="generateKPI()">
         <input type="text" class="tc-ticket kpi-input" placeholder="티켓 번호" value="${data.ticket || ''}" oninput="generateKPI()">
         <input type="number" class="tc-total kpi-input" placeholder="건수" value="${data.total || ''}" min="0" oninput="generateKPI()">
         <label class="tc-devices-label">
@@ -97,7 +102,7 @@ function generateKPI() {
     const activeTabId = activeTabBtn ? activeTabBtn.id.replace('btn-tab-', '') : 'perf';
     
     const previewLabel = document.getElementById('kpi_preview_label');
-    const copyBtn = document.querySelector('.completion-preview-side .btn-save');
+    const copyBtn = document.querySelector('.btn-kpi-copy');
 
     let report = '';
 
@@ -126,7 +131,6 @@ function generateKPI() {
         if (prevAvgStr !== '') {
             const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
-            
             const absDiff = parseFloat(Math.abs(diff).toFixed(1));
             const displayPrevAvg = parseFloat(prevAvg.toFixed(1));
 
@@ -151,7 +155,6 @@ function generateKPI() {
             const isTwoDev = row.querySelector('.tc-devices').checked;
 
             totalTc += total;
-
             if (!pocGroups[poc]) pocGroups[poc] = { total: 0, items: [] };
             pocGroups[poc].total += total;
 
@@ -345,14 +348,38 @@ function loadKpiLocal() {
     generateKPI();
 }
 
-function copyKpiReport() {
+async function copyKpiReport() {
     const el = document.getElementById('output_kpi_result');
-    if (!el) return;
-    try {
-        el.select();
-        document.execCommand('copy');
-        alert('현재 활성화된 탭의 내용이 복사되었습니다!');
-    } catch (err) {
-        alert('복사에 실패했습니다.');
+    if (!el || !el.value.trim()) {
+        if (typeof showToast === 'function') showToast('복사할 내용이 없습니다.');
+        return;
     }
+
+    const textToCopy = el.value.trim();
+
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            if (typeof showToast === 'function') showToast('KPI 리포트가 복사되었습니다!');
+        } catch (err) {
+            fallbackCopyKpiText(textToCopy);
+        }
+    } else {
+        fallbackCopyKpiText(textToCopy);
+    }
+}
+
+function fallbackCopyKpiText(text) {
+    const t = document.createElement("textarea");
+    t.className = 'sr-only';
+    document.body.appendChild(t);
+    t.value = text;
+    t.select();
+    try {
+        document.execCommand('copy');
+        if (typeof showToast === 'function') showToast('KPI 리포트가 복사되었습니다!');
+    } catch (err) {
+        console.error('Copy fallback failed', err);
+    }
+    document.body.removeChild(t);
 }
