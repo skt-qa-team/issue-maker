@@ -40,98 +40,132 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function toggleDeviceMode(os) {
-    const isNormal = document.querySelector(`input[name="${os}_dev_mode"]:checked`).value === 'normal';
+    const checkedInput = document.querySelector(`input[name="${os}_dev_mode"]:checked`);
+    if (!checkedInput) return;
+
+    const isNormal = checkedInput.value === 'normal';
     const normalList = document.getElementById(`${os}NormalList`);
     const specialList = document.getElementById(`${os}SpecialList`);
 
     if (isNormal) {
-        normalList.classList.remove('d-none');
-        specialList.classList.add('d-none');
+        if (normalList) normalList.classList.remove('d-none');
+        if (specialList) specialList.classList.add('d-none');
     } else {
-        normalList.classList.add('d-none');
-        specialList.classList.remove('d-none');
+        if (normalList) normalList.classList.add('d-none');
+        if (specialList) specialList.classList.remove('d-none');
     }
 }
 
 function handlePocChange() {
-    const poc = document.getElementById('poc').value;
+    const pocEl = document.getElementById('poc');
+    if (!pocEl) return;
+
+    const poc = pocEl.value;
     const isWeb = (poc === 'PC Web' || poc === 'PC M.Web' || poc === 'Admin');
     const isAI = (poc === 'AI Layer');
 
-    document.getElementById('deviceGroup').classList.toggle('d-none', isWeb);
-    document.getElementById('appVersionGroup').classList.toggle('d-none', isWeb);
-    document.getElementById('urlGroup').classList.toggle('d-none', !isWeb);
-    document.getElementById('aiModeGroup').classList.toggle('d-none', !isAI);
+    const deviceGroup = document.getElementById('deviceGroup');
+    const appVersionGroup = document.getElementById('appVersionGroup');
+    const urlGroup = document.getElementById('urlGroup');
+    const aiModeGroup = document.getElementById('aiModeGroup');
+
+    if (deviceGroup) deviceGroup.classList.toggle('d-none', isWeb);
+    if (appVersionGroup) appVersionGroup.classList.toggle('d-none', isWeb);
+    if (urlGroup) urlGroup.classList.toggle('d-none', !isWeb);
+    if (aiModeGroup) aiModeGroup.classList.toggle('d-none', !isAI);
 
     if (isWeb) {
-        const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
-        document.getElementById('urlLabel').textContent = poc === 'Admin' ? 'Admin URL' : 'PC Web URL';
-        document.getElementById('targetUrl').value = poc === 'Admin' ? (config.adminUrl || '') : (config.pcUrl || '');
+        const configStr = localStorage.getItem('qa_system_config_master');
+        const config = configStr ? JSON.parse(configStr) : {};
+        const urlLabel = document.getElementById('urlLabel');
+        const targetUrl = document.getElementById('targetUrl');
+
+        if (urlLabel) urlLabel.textContent = poc === 'Admin' ? 'Admin URL' : 'PC Web URL';
+        if (targetUrl) targetUrl.value = poc === 'Admin' ? (config.adminUrl || '') : (config.pcUrl || '');
     }
 }
 
 function syncEnvironmentByOS() {
-    const osType = document.getElementById('osType').value;
+    const osTypeEl = document.getElementById('osType');
+    if (!osTypeEl) return;
+
+    const osType = osTypeEl.value;
     const iosVerToggle = document.getElementById('ios-ver-toggle');
     const appVersionLabel = document.getElementById('appVersionLabel');
 
     if (osType === 'iOS') {
-        iosVerToggle.classList.remove('d-none');
-        const verType = document.querySelector('input[name="ios_ver_type"]:checked').value;
-        appVersionLabel.textContent = `${verType} 버전`;
-    } else if (osType === 'Android') {
-        iosVerToggle.classList.add('d-none');
-        appVersionLabel.textContent = 'App Tester 버전';
+        if (iosVerToggle) iosVerToggle.classList.remove('d-none');
+        const checkedVer = document.querySelector('input[name="ios_ver_type"]:checked');
+        if (appVersionLabel && checkedVer) appVersionLabel.textContent = `${checkedVer.value} 버전`;
     } else {
-        iosVerToggle.classList.add('d-none');
-        appVersionLabel.textContent = '버전';
+        if (iosVerToggle) iosVerToggle.classList.add('d-none');
+        if (appVersionLabel) appVersionLabel.textContent = osType === 'Android' ? 'App Tester 버전' : '버전';
     }
 }
 
 function syncDeviceFromVersion(os) {
     const cb = document.getElementById(`ver_cb_${os}`);
     const col = document.getElementById(`${os}DeviceCol`);
+    if (!cb || !col) return;
+
     if (cb.checked) col.classList.remove('d-none');
     else col.classList.add('d-none');
 }
 
 function updateVersionTextbox() {
-    const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+    const configStr = localStorage.getItem('qa_system_config_master');
+    const config = configStr ? JSON.parse(configStr) : {};
     let versions = [];
-    if (document.getElementById('ver_cb_android').checked) versions.push(`App Tester_${config.andAppTester || ''}`);
-    if (document.getElementById('ver_cb_ios').checked) {
-        const verType = document.querySelector('input[name="ios_ver_type"]:checked').value;
+
+    const andCb = document.getElementById('ver_cb_android');
+    if (andCb && andCb.checked) versions.push(`App Tester_${config.andAppTester || ''}`);
+
+    const iosCb = document.getElementById('ver_cb_ios');
+    if (iosCb && iosCb.checked) {
+        const verType = document.querySelector('input[name="ios_ver_type"]:checked')?.value || 'TestFlight';
         versions.push(`${verType}_${config.iosTestFlight || ''}`);
     }
-    if (document.getElementById('ver_cb_samsung').checked) versions.push(`삼성인터넷_${config.samsungBrowser || ''}`);
-    if (document.getElementById('ver_cb_safari').checked) versions.push(`Safari_${config.safariBrowser || ''}`);
-    if (document.getElementById('ver_cb_chrome').checked) versions.push(`Chrome_${config.chromeBrowser || ''}`);
-    if (document.getElementById('ver_cb_edge').checked) versions.push(`Edge_${config.edgeBrowser || ''}`);
 
-    document.getElementById('appVersion').value = versions.join(' / ');
+    const browserMap = {
+        'samsung': { id: 'ver_cb_samsung', label: '삼성인터넷', key: 'samsungBrowser' },
+        'safari': { id: 'ver_cb_safari', label: 'Safari', key: 'safariBrowser' },
+        'chrome': { id: 'ver_cb_chrome', label: 'Chrome', key: 'chromeBrowser' },
+        'edge': { id: 'ver_cb_edge', label: 'Edge', key: 'edgeBrowser' }
+    };
+
+    Object.values(browserMap).forEach(b => {
+        const cb = document.getElementById(b.id);
+        if (cb && cb.checked) versions.push(`${b.label}_${config[b.key] || ''}`);
+    });
+
+    const appVerEl = document.getElementById('appVersion');
+    if (appVerEl) appVerEl.value = versions.join(' / ');
 }
 
 function applyAndSavePrefixOrder() {
     const container = document.getElementById('prefixContainer');
+    if (!container) return;
+
     const items = Array.from(container.querySelectorAll('.prefix-item'));
     const orders = {};
 
     items.sort((a, b) => {
-        const valA = parseInt(a.querySelector('.prefix-order-input').value);
-        const valB = parseInt(b.querySelector('.prefix-order-input').value);
+        const valA = parseInt(a.querySelector('.prefix-order-input')?.value || 0);
+        const valB = parseInt(b.querySelector('.prefix-order-input')?.value || 0);
         return valA - valB;
     });
 
     items.forEach((item, idx) => {
         const target = item.getAttribute('data-id');
         const orderVal = idx + 1;
-        item.querySelector('.prefix-order-input').value = orderVal;
+        const input = item.querySelector('.prefix-order-input');
+        if (input) input.value = orderVal;
         orders[target] = orderVal;
         container.appendChild(item);
     });
 
     localStorage.setItem('skm_prefix_order', JSON.stringify(orders));
-    if (typeof showToast === 'function') showToast('순서가 저장되었습니다.');
+    if (typeof window.showToast === 'function') window.showToast('순서가 저장되었습니다.');
     if (typeof generateTemplate === 'function') generateTemplate();
 }
 
@@ -141,10 +175,13 @@ function resetPrefixOrder() {
 }
 
 function loadPrefixOrder() {
-    const orders = JSON.parse(localStorage.getItem('skm_prefix_order'));
-    if (!orders) return;
+    const ordersStr = localStorage.getItem('skm_prefix_order');
+    if (!ordersStr) return;
+    const orders = JSON.parse(ordersStr);
 
     const container = document.getElementById('prefixContainer');
+    if (!container) return;
+
     const items = Array.from(container.querySelectorAll('.prefix-item'));
 
     items.sort((a, b) => {
@@ -155,7 +192,8 @@ function loadPrefixOrder() {
 
     items.forEach(item => {
         const id = item.getAttribute('data-id');
-        if (orders[id]) item.querySelector('.prefix-order-input').value = orders[id];
+        const input = item.querySelector('.prefix-order-input');
+        if (orders[id] && input) input.value = orders[id];
         container.appendChild(item);
     });
 }
