@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(toastContainer);
     }
 
-    window.showToast = function(message) {
+    window.showToast = (message) => {
         const toast = document.createElement('div');
         toast.className = 'toast-msg';
         toast.textContent = message;
@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let saveTimer;
     document.addEventListener('input', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
             if (e.target.readOnly) return;
             clearTimeout(saveTimer);
             saveTimer = setTimeout(() => {
-                if (typeof saveDraft === 'function') saveDraft();
+                if (typeof window.saveDraft === 'function') window.saveDraft();
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 window.showToast(`💾 ${timeStr} 자동 저장됨`);
@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    loadPrefixOrder();
+    if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
 });
 
-function toggleDeviceMode(os) {
+window.toggleDeviceMode = (os) => {
     const checkedInput = document.querySelector(`input[name="${os}_dev_mode"]:checked`);
     if (!checkedInput) return;
 
@@ -54,9 +54,11 @@ function toggleDeviceMode(os) {
         if (normalList) normalList.classList.add('d-none');
         if (specialList) specialList.classList.remove('d-none');
     }
-}
+    
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-function handlePocChange() {
+window.handlePocChange = () => {
     const pocEl = document.getElementById('poc');
     if (!pocEl) return;
 
@@ -83,9 +85,11 @@ function handlePocChange() {
         if (urlLabel) urlLabel.textContent = poc === 'Admin' ? 'Admin URL' : 'PC Web URL';
         if (targetUrl) targetUrl.value = poc === 'Admin' ? (config.adminUrl || '') : (config.pcUrl || '');
     }
-}
+    
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-function syncEnvironmentByOS() {
+window.syncEnvironmentByOS = () => {
     const osTypeEl = document.getElementById('osType');
     if (!osTypeEl) return;
 
@@ -93,7 +97,7 @@ function syncEnvironmentByOS() {
     const iosVerToggle = document.getElementById('ios-ver-toggle');
     const appVersionLabel = document.getElementById('appVersionLabel');
 
-    if (osType === 'iOS') {
+    if (osType === 'iOS' || osType === 'Android/iOS') {
         if (iosVerToggle) iosVerToggle.classList.remove('d-none');
         const checkedVer = document.querySelector('input[name="ios_ver_type"]:checked');
         if (appVersionLabel && checkedVer) appVersionLabel.textContent = `${checkedVer.value} 버전`;
@@ -101,18 +105,28 @@ function syncEnvironmentByOS() {
         if (iosVerToggle) iosVerToggle.classList.add('d-none');
         if (appVersionLabel) appVersionLabel.textContent = osType === 'Android' ? 'App Tester 버전' : '버전';
     }
-}
+    
+    if (typeof window.updateVersionTextbox === 'function') window.updateVersionTextbox();
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-function syncDeviceFromVersion(os) {
+window.syncDeviceFromVersion = (os) => {
     const cb = document.getElementById(`ver_cb_${os}`);
     const col = document.getElementById(`${os}DeviceCol`);
     if (!cb || !col) return;
 
     if (cb.checked) col.classList.remove('d-none');
-    else col.classList.add('d-none');
-}
+    else {
+        col.classList.add('d-none');
+        const checkboxes = col.querySelectorAll('.issue-device-cb');
+        checkboxes.forEach(box => box.checked = false);
+    }
+    
+    if (typeof window.updateVersionTextbox === 'function') window.updateVersionTextbox();
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-function updateVersionTextbox() {
+window.updateVersionTextbox = () => {
     const configStr = localStorage.getItem('qa_system_config_master');
     const config = configStr ? JSON.parse(configStr) : {};
     let versions = [];
@@ -140,9 +154,9 @@ function updateVersionTextbox() {
 
     const appVerEl = document.getElementById('appVersion');
     if (appVerEl) appVerEl.value = versions.join(' / ');
-}
+};
 
-function applyAndSavePrefixOrder() {
+window.applyAndSavePrefixOrder = () => {
     const container = document.getElementById('prefixContainer');
     if (!container) return;
 
@@ -165,16 +179,16 @@ function applyAndSavePrefixOrder() {
     });
 
     localStorage.setItem('skm_prefix_order', JSON.stringify(orders));
-    if (typeof window.showToast === 'function') window.showToast('순서가 저장되었습니다.');
-    if (typeof generateTemplate === 'function') generateTemplate();
-}
+    if (typeof window.showToast === 'function') window.showToast('✅ Prefix 순서가 저장되었습니다.');
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-function resetPrefixOrder() {
+window.resetPrefixOrder = () => {
     localStorage.removeItem('skm_prefix_order');
     location.reload();
-}
+};
 
-function loadPrefixOrder() {
+window.loadPrefixOrder = () => {
     const ordersStr = localStorage.getItem('skm_prefix_order');
     if (!ordersStr) return;
     const orders = JSON.parse(ordersStr);
@@ -196,4 +210,4 @@ function loadPrefixOrder() {
         if (orders[id] && input) input.value = orders[id];
         container.appendChild(item);
     });
-}
+};
