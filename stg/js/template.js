@@ -10,7 +10,7 @@ const DEFAULT_PREFIX_ORDER = [
     { id: 'page', order: 7 }
 ];
 
-function escapeHTMLTemplate(str) {
+window.escapeHTMLTemplate = (str) => {
     if (!str) return '';
     return str.toString()
         .replace(/&/g, "&amp;")
@@ -18,9 +18,9 @@ function escapeHTMLTemplate(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
+};
 
-function applyAndSavePrefixOrder() {
+window.applyAndSavePrefixOrder = () => {
     const inputs = document.querySelectorAll('.prefix-order-input');
     let orderArray = [];
 
@@ -43,11 +43,11 @@ function applyAndSavePrefixOrder() {
     }
 
     localStorage.setItem('qa_prefix_order_map_v3', JSON.stringify(orderArray));
-    generateTemplate();
-    if (typeof showToast === 'function') showToast('Prefix 순서가 저장되었습니다.');
-}
+    window.generateTemplate();
+    if (typeof showToast === 'function') showToast('✅ Prefix 순서가 저장되었습니다.');
+};
 
-function resetPrefixOrder() {
+window.resetPrefixOrder = () => {
     localStorage.removeItem('qa_prefix_order_map_v3');
     
     document.querySelectorAll('.prefix-order-input').forEach(input => {
@@ -63,11 +63,11 @@ function resetPrefixOrder() {
         });
     }
 
-    generateTemplate();
-    if (typeof showToast === 'function') showToast('Prefix 순서가 초기화되었습니다.');
-}
+    window.generateTemplate();
+    if (typeof showToast === 'function') showToast('🔄 Prefix 순서가 초기화되었습니다.');
+};
 
-function loadPrefixOrder() {
+window.loadPrefixOrder = () => {
     const saved = localStorage.getItem('qa_prefix_order_map_v3');
     const container = document.getElementById('prefixContainer');
     if (!container) return;
@@ -85,20 +85,20 @@ function loadPrefixOrder() {
                 if (el) container.appendChild(el);
             });
         } catch (e) {
-            resetPrefixOrder();
+            window.resetPrefixOrder();
         }
     } else {
-        resetPrefixOrder();
+        window.resetPrefixOrder();
     }
-}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        loadPrefixOrder();
+        if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
     }, 500);
 });
 
-function updateVersionCheckboxesByOS() {
+window.updateVersionCheckboxesByOS = () => {
     const osEl = document.getElementById('osType');
     const pocEl = document.getElementById('poc');
     if (!osEl || !pocEl) return;
@@ -126,10 +126,10 @@ function updateVersionCheckboxesByOS() {
     } else {
         if (document.getElementById('ver_cb_chrome')) document.getElementById('ver_cb_chrome').checked = true; 
     }
-}
+};
 
-function syncEnvironmentByOS() {
-    const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+window.syncEnvironmentByOS = () => {
+    const config = typeof window.loadConfig === 'function' ? window.loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const osEl = document.getElementById('osType');
     if (!osEl) return;
     const osType = osEl.value;
@@ -141,7 +141,7 @@ function syncEnvironmentByOS() {
         isInitialRender = false;
     }
 
-    updateVersionCheckboxesByOS();
+    window.updateVersionCheckboxesByOS();
 
     const andCol = document.getElementById('andDeviceCol');
     const iosCol = document.getElementById('iosDeviceCol');
@@ -160,7 +160,7 @@ function syncEnvironmentByOS() {
         if (!container) return;
         let html = '';
         list.forEach(dev => {
-            const safeDevName = escapeHTMLTemplate(dev);
+            const safeDevName = window.escapeHTMLTemplate(dev);
             const isChecked = currentSelected.includes(dev) ? 'checked' : '';
             html += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isChecked} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
         });
@@ -172,16 +172,16 @@ function syncEnvironmentByOS() {
     render('iosNormalList', config.iosDevices || [], 'ios_n');
     render('iosSpecialList', config.iosSpecialDevices || [], 'ios_s');
 
-    updateVersionTextbox();
-    generateTemplate();
-}
+    window.updateVersionTextbox();
+    window.generateTemplate();
+};
 
-function handleDeviceClick(element) {
+window.handleDeviceClick = (element) => {
     if (element.checked) {
         const sameValueCount = Array.from(document.querySelectorAll('.issue-device-cb:checked'))
             .filter(cb => cb.value === element.value).length;
         if (sameValueCount > 1) {
-            if (typeof showToast === 'function') showToast('이미 선택된 단말입니다.');
+            if (typeof showToast === 'function') showToast('⚠️ 이미 선택된 단말입니다.');
             element.checked = false;
             return;
         }
@@ -195,11 +195,11 @@ function handleDeviceClick(element) {
     if (cbAnd) cbAnd.checked = andChecked;
     if (cbIos) cbIos.checked = iosChecked;
 
-    updateVersionTextbox();
-    generateTemplate();
-}
+    window.updateVersionTextbox();
+    window.generateTemplate();
+};
 
-function syncDeviceFromVersion(platform) {
+window.syncDeviceFromVersion = (platform) => {
     const cb = document.getElementById(platform === 'and' ? 'ver_cb_android' : 'ver_cb_ios');
     if (!cb) return;
     const col = document.getElementById(`${platform}DeviceCol`);
@@ -220,9 +220,9 @@ function syncDeviceFromVersion(platform) {
             }
         }
     }
-}
+};
 
-function toggleDeviceMode(platform) {
+window.toggleDeviceMode = (platform) => {
     const modeEl = document.querySelector(`input[name="${platform}_dev_mode"]:checked`);
     if(!modeEl) return;
     const mode = modeEl.value;
@@ -231,10 +231,10 @@ function toggleDeviceMode(platform) {
     
     if(normalList) normalList.classList.toggle('d-none', mode !== 'normal');
     if(specialList) specialList.classList.toggle('d-none', mode === 'normal');
-    generateTemplate(); 
-}
+    window.generateTemplate(); 
+};
 
-function handlePocChange() {
+window.handlePocChange = () => {
     const pocEl = document.getElementById('poc');
     if(!pocEl) return;
     const poc = pocEl.value;
@@ -255,22 +255,22 @@ function handlePocChange() {
     });
     
     if (needsUrl) {
-        const cfg = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+        const cfg = typeof window.loadConfig === 'function' ? window.loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const targetUrl = document.getElementById('targetUrl');
         if(targetUrl) targetUrl.value = poc === 'Admin' ? (cfg.adminUrl || '') : (cfg.pcUrl || '');
     }
     
-    updateVersionCheckboxesByOS();
+    window.updateVersionCheckboxesByOS();
     
-    if (!isPureWeb) syncEnvironmentByOS();
+    if (!isPureWeb) window.syncEnvironmentByOS();
     else {
-        updateVersionTextbox();
-        generateTemplate();
+        window.updateVersionTextbox();
+        window.generateTemplate();
     }
-}
+};
 
-function updateVersionTextbox() {
-    const config = typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+window.updateVersionTextbox = () => {
+    const config = typeof window.loadConfig === 'function' ? window.loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
     const checkedTypes = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.value);
     
     let versionParts = [];
@@ -288,9 +288,9 @@ function updateVersionTextbox() {
 
     const verInput = document.getElementById('appVersion');
     if (verInput) verInput.value = versionParts.join(' / ');
-}
+};
 
-function generateTemplate() {
+window.generateTemplate = () => {
     const getDropdownOrCustom = (dropdownId, customId) => {
         const el = document.getElementById(dropdownId);
         if (!el) return '';
@@ -389,7 +389,7 @@ function generateTemplate() {
         .filter(val => ['삼성인터넷', 'Safari', 'Chrome', 'Edge'].includes(val))
         .join(' / ');
 
-    let envSection = `[Environment]\n■ POC : ${pocDropdownVal === 'PC M.Web' ? 'PC M.Web' : pocVal}\n`;
+    let envSection = `[Environment]\n■ POC : ${pocDropdownVal === 'PC M.Web' ? 'PC M.Web' : pocDropdownVal === 'direct' ? document.getElementById('poc_custom')?.value.trim() : pocDropdownVal}\n`;
 
     if (pocDropdownVal === 'PC Web') {
         if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
@@ -420,5 +420,5 @@ function generateTemplate() {
     if (outTitle) outTitle.value = titleText;
     if (outBody) outBody.value = body.trim();
 
-    if (typeof saveDraft === 'function') saveDraft();
-}
+    if (typeof window.saveDraft === 'function') window.saveDraft();
+};
