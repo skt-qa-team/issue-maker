@@ -44,25 +44,35 @@ const THEME_PRESETS = {
     oneDark: { category: '고대비/스페셜', name: '원 다크', bg: '#282c34', panel: '#21252b', textMain: '#abb2bf', textSub: '#5c6370', border: '#3e4451', accent: '#61afef' }
 };
 
-function initCustomTheme() {
+window.openModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+};
+
+window.closeModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+};
+
+window.initCustomTheme = () => {
     const savedTheme = JSON.parse(localStorage.getItem('skm_custom_palette'));
-    if(savedTheme) {
-        applyTheme(savedTheme.bg, savedTheme.panel, savedTheme.textMain, savedTheme.textSub, savedTheme.border, savedTheme.accent);
-        syncPickers(savedTheme.bg, savedTheme.panel, savedTheme.textMain, savedTheme.textSub, savedTheme.border, savedTheme.accent);
+    if (savedTheme) {
+        window.applyTheme(savedTheme.bg, savedTheme.panel, savedTheme.textMain, savedTheme.textSub, savedTheme.border, savedTheme.accent);
+        window.syncPickers(savedTheme.bg, savedTheme.panel, savedTheme.textMain, savedTheme.textSub, savedTheme.border, savedTheme.accent);
     }
-}
+};
 
-function applyTheme(bg, panel, textMain, textSub, border, accent) {
+window.applyTheme = (bg, panel, textMain, textSub, border, accent) => {
     const root = document.documentElement;
-    if(bg) root.style.setProperty('--bg-color', bg);
-    if(panel) root.style.setProperty('--panel-bg', panel);
-    if(textMain) root.style.setProperty('--text-main', textMain);
-    if(textSub) root.style.setProperty('--text-sub', textSub);
-    if(border) root.style.setProperty('--border-color', border);
-    if(accent) root.style.setProperty('--accent-blue', accent);
-}
+    if (bg) root.style.setProperty('--bg-color', bg);
+    if (panel) root.style.setProperty('--panel-bg', panel);
+    if (textMain) root.style.setProperty('--text-main', textMain);
+    if (textSub) root.style.setProperty('--text-sub', textSub);
+    if (border) root.style.setProperty('--border-color', border);
+    if (accent) root.style.setProperty('--accent-blue', accent);
+};
 
-function syncPickers(bg, panel, textMain, textSub, border, accent) {
+window.syncPickers = (bg, panel, textMain, textSub, border, accent) => {
     const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
     setVal('picker_bg', bg);
     setVal('picker_panel', panel);
@@ -70,18 +80,18 @@ function syncPickers(bg, panel, textMain, textSub, border, accent) {
     setVal('picker_text_sub', textSub);
     setVal('picker_border', border);
     setVal('picker_accent', accent);
-}
+};
 
-function applyPreset(presetKey) {
+window.applyPreset = (presetKey) => {
     const p = THEME_PRESETS[presetKey];
-    if(!p) return;
-    syncPickers(p.bg, p.panel, p.textMain, p.textSub, p.border, p.accent);
-    applyTheme(p.bg, p.panel, p.textMain, p.textSub, p.border, p.accent);
-}
+    if (!p) return;
+    window.syncPickers(p.bg, p.panel, p.textMain, p.textSub, p.border, p.accent);
+    window.applyTheme(p.bg, p.panel, p.textMain, p.textSub, p.border, p.accent);
+};
 
-function previewTheme() {
+window.previewTheme = () => {
     const getVal = id => { const el = document.getElementById(id); return el ? el.value : null; };
-    applyTheme(
+    window.applyTheme(
         getVal('picker_bg'),
         getVal('picker_panel'),
         getVal('picker_text_main'),
@@ -89,9 +99,9 @@ function previewTheme() {
         getVal('picker_border'),
         getVal('picker_accent')
     );
-}
+};
 
-function saveTheme() {
+window.saveTheme = () => {
     const getVal = id => { const el = document.getElementById(id); return el ? el.value : null; };
     const themeData = {
         bg: getVal('picker_bg'),
@@ -111,15 +121,15 @@ function saveTheme() {
         }
     }
     
-    closeThemeModal();
-}
+    window.closeThemeModal();
+};
 
-function resetTheme() {
-    applyPreset('defaultLight');
+window.resetTheme = () => {
+    window.applyPreset('defaultLight');
     localStorage.removeItem('skm_custom_palette');
-}
+};
 
-function renderThemeTabs(activeCategory) {
+window.renderThemeTabs = (activeCategory) => {
     const container = document.getElementById('preset_buttons_container');
     if (!container) return;
 
@@ -140,7 +150,7 @@ function renderThemeTabs(activeCategory) {
                 <button type="button" class="theme-preset-btn" 
                     data-panel="${p.panel}" data-border="${p.border}" data-text="${p.textMain}" data-accent="${p.accent}"
                     onclick="applyPreset('${key}')">
-                    <span class="theme-preset-dot" data-accent="${p.accent}"></span>
+                    <span class="theme-preset-dot" style="background-color: ${p.accent};"></span>
                     ${p.name}
                 </button>`;
         }
@@ -148,21 +158,19 @@ function renderThemeTabs(activeCategory) {
     html += `</div>`;
 
     container.innerHTML = html;
-}
+};
 
-function openThemeModal() {
-    renderThemeTabs('라이트');
-    const modal = document.getElementById('themeModal');
-    if (modal) modal.classList.add('active');
-}
+window.openThemeModal = () => {
+    window.renderThemeTabs('라이트');
+    window.openModal('themeModal');
+};
 
-function closeThemeModal() { 
-    const modal = document.getElementById('themeModal');
-    if (modal) modal.classList.remove('active');
-    initCustomTheme(); 
-}
+window.closeThemeModal = () => { 
+    window.closeModal('themeModal');
+    window.initCustomTheme(); 
+};
 
-function renderChangelog() {
+window.renderChangelog = () => {
     const container = document.getElementById('changelog-container');
     if (!container || typeof changelogData === 'undefined') return;
     let htmlString = '';
@@ -171,11 +179,13 @@ function renderChangelog() {
         htmlString += `<div class="changelog-item"><span class="version-badge">${log.version}</span><ul class="changelog-desc">${listItems}</ul></div>`;
     });
     container.innerHTML = htmlString;
-}
+};
 
-function loadConfig() { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultConfig; }
+window.loadConfig = () => { 
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultConfig; 
+};
 
-function saveSettings() {
+window.saveSettings = () => {
     const split = (id) => {
         const el = document.getElementById(id);
         return el ? el.value.split('\n').map(s => s.trim()).filter(Boolean) : [];
@@ -213,14 +223,13 @@ function saveSettings() {
         }
     }
 
-    if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
-    closeSettingModal();
-}
+    if (typeof syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
+    window.closeSettingModal();
+};
 
-function openSettingModal() {
-    const cfg = loadConfig();
-    const modal = document.getElementById('settingModal');
-    if (modal) modal.classList.add('active');
+window.openSettingModal = () => {
+    const cfg = window.loadConfig();
+    window.openModal('settingModal');
     
     const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
     setVal('set_admin_url', cfg.adminUrl);
@@ -238,22 +247,19 @@ function openSettingModal() {
     setVal('set_ios_devices', (cfg.iosDevices || []).join('\n'));
     setVal('set_ios_special', (cfg.iosSpecialDevices || []).join('\n'));
     setVal('set_ios_default', (cfg.iosDefaultDevices || []).join('\n'));
-}
+};
 
-function closeSettingModal() { 
-    const modal = document.getElementById('settingModal');
-    if (modal) modal.classList.remove('active'); 
-}
+window.closeSettingModal = () => { 
+    window.closeModal('settingModal'); 
+};
 
-function openChangelogModal() { 
-    const modal = document.getElementById('changelogModal');
-    if (modal) modal.classList.add('active'); 
-}
+window.openChangelogModal = () => { 
+    window.openModal('changelogModal'); 
+};
 
-function closeChangelogModal() { 
-    const modal = document.getElementById('changelogModal');
-    if (modal) modal.classList.remove('active'); 
-}
+window.closeChangelogModal = () => { 
+    window.closeModal('changelogModal'); 
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase !== 'undefined') {
@@ -263,14 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = snapshot.val();
                     if (data) {
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                        if (typeof syncEnvironmentByOS === 'function') syncEnvironmentByOS();
+                        if (typeof syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
                     }
                 });
                 firebase.database().ref('users/' + user.uid + '/theme').once('value').then(snapshot => {
                     const themeData = snapshot.val();
                     if (themeData) {
                         localStorage.setItem('skm_custom_palette', JSON.stringify(themeData));
-                        initCustomTheme();
+                        window.initCustomTheme();
                     }
                 });
             }
