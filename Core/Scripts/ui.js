@@ -27,6 +27,44 @@ window.showToast = (message) => {
     }, 2500);
 };
 
+window.switchMainTab = (tabName) => {
+    const tabs = {
+        'issue': 'form-panel-placeholder',
+        'calendar': 'calendar-placeholder',
+        'completion': 'completion-placeholder'
+    };
+
+    const targetPlaceholderId = tabs[tabName];
+    if (!targetPlaceholderId) return;
+
+    Object.values(tabs).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('d-none');
+    });
+
+    const targetEl = document.getElementById(targetPlaceholderId);
+    if (targetEl) {
+        targetEl.classList.remove('d-none');
+    }
+
+    document.querySelectorAll('.nav-btn, .main-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"], [data-target="${tabName}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+
+    if (tabName === 'calendar' && typeof window.renderCalendar === 'function') {
+        window.renderCalendar();
+    }
+    
+    if (tabName === 'completion' && typeof window.initCompletionPanel === 'function') {
+        window.initCompletionPanel();
+    }
+};
+
 window.addCase = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -42,23 +80,10 @@ window.addCase = (id) => {
     el.focus();
 };
 
-window.applyIndividualPreset = (id, n) => {
-    const target = document.getElementById(id);
-    if (!target) return;
-    let text = "";
-    for (let i = 1; i <= n; i++) text += `CASE ${i}. \n\n`;
-    target.value = text.trim();
-    if (typeof window.generateTemplate === 'function') window.generateTemplate();
-};
-
 window.copySpecific = async (id) => {
     const el = document.getElementById(id);
     if (!el) return;
     
-    if (window.event && window.event.type === 'click' && window.event.target === el) {
-        return;
-    }
-
     const textToCopy = el.value;
 
     if (navigator.clipboard && window.isSecureContext) {
@@ -70,23 +95,6 @@ window.copySpecific = async (id) => {
         }
     } else {
         window.fallbackCopyText(textToCopy);
-    }
-};
-
-window.copyAll = async () => {
-    const tVal = document.getElementById('outputTitle')?.value || '';
-    const bVal = document.getElementById('outputBody')?.value || '';
-    const combined = `${tVal}\n\n${bVal}`;
-    
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(combined);
-            window.showToast('전체 복사 완료!');
-        } catch (err) {
-            window.fallbackCopyText(combined);
-        }
-    } else {
-        window.fallbackCopyText(combined);
     }
 };
 
@@ -130,31 +138,23 @@ window.renderPresence = () => {
     }
 };
 
-window.initTabNavigation = () => {
-    const tabBtns = document.querySelectorAll('.main-tab-btn');
-    const panels = document.querySelectorAll('.main-panel-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            if (!targetId) return;
-
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            panels.forEach(panel => {
-                if (panel.id === targetId) {
-                    panel.classList.remove('d-none');
-                    panel.classList.add('active');
-                } else {
-                    panel.classList.add('d-none');
-                    panel.classList.remove('active');
-                }
-            });
-
-            if (targetId === 'panel-completion' && typeof window.initCompletionPanel === 'function') {
-                window.initCompletionPanel();
-            }
+window.clearForm = () => {
+    if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
+        const fields = [
+            'title', 'prefix_env_custom', 'osType_custom', 'poc_custom', 
+            'prefix_critical_custom', 'prefix_browser_custom', 'prefix_device_input',
+            'prefix_account', 'prefix_page', 'targetUrl', 'preCondition', 
+            'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'
+        ];
+        
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
         });
-    });
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        
+        if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        window.showToast('🔄 초기화되었습니다.');
+    }
 };
