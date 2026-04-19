@@ -274,3 +274,57 @@
 }
 
 .ai-dropzone:hover { border-color: var(--accent-blue); }
+
+
+
+/* Calendar/calendar.css 맨 하단에 추가 (보완본) */
+
+/* 1. 오버레이 강제 활성화 (공통) */
+#scheduleModal.modal-overlay:not(.d-none),
+#scheduleDetailModal.modal-overlay:not(.d-none) {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    z-index: 10000 !important; /* 최상단 보장 */
+}
+
+/* 2. 등록 모달 및 상세 모달 컨텐츠 강제 노출 */
+#scheduleModal.modal-overlay:not(.d-none) .modal-content,
+#scheduleDetailModal.modal-overlay:not(.d-none) .cal-detail-modal-content {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+    display: flex !important;
+    visibility: visible !important;
+    z-index: 10001 !important;
+}
+
+/* 3. 상세 모달 전용 레이아웃 보정 */
+.cal-detail-modal-content {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.cal-detail-color-bar {
+    height: 6px;
+    width: 100%;
+    background: var(--detail-bg, var(--accent-blue));
+}
+
+.cal-detail-body {
+    padding: 30px;
+    position: relative;
+}
+
+.cal-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
