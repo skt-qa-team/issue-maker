@@ -15,31 +15,31 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-function login() {
+window.login = () => {
     firebase.auth().signInWithPopup(provider).catch((error) => {
         console.error("Auth Error:", error);
         if (typeof window.showToast === 'function') window.showToast("❌ 로그인에 실패했습니다.");
     });
-}
+};
 
-function logout() {
+window.logout = () => {
     firebase.auth().signOut().then(() => {
         location.reload();
     });
-}
+};
 
-function toggleAuth() {
+window.toggleAuth = () => {
     const user = firebase.auth().currentUser;
     if (user) {
-        if (confirm("로그아웃 하시겠습니까?")) logout();
+        if (confirm("로그아웃 하시겠습니까?")) window.logout();
     } else {
-        login();
+        window.login();
     }
-}
+};
 
-function handleUserStatus(user) {
+window.handleUserStatus = (user) => {
     if (!user) {
-        showAuthOverlay("login");
+        window.showAuthOverlay("login");
         return;
     }
 
@@ -60,18 +60,18 @@ function handleUserStatus(user) {
         } else {
             const status = userData.status;
             if (status === "approved") {
-                hideAuthOverlay();
-                updateUserPresence(user);
-                applyLegacyFixes();
-                if (typeof renderPresence === 'function') setTimeout(renderPresence, 500);
+                window.hideAuthOverlay();
+                window.updateUserPresence(user);
+                window.applyLegacyFixes();
+                if (typeof window.renderPresence === 'function') setTimeout(window.renderPresence, 500);
             } else {
-                showAuthOverlay(status === "rejected" ? "rejected" : "pending");
+                window.showAuthOverlay(status === "rejected" ? "rejected" : "pending");
             }
         }
     });
-}
+};
 
-function applyLegacyFixes() {
+window.applyLegacyFixes = () => {
     setTimeout(() => {
         const targetNodes = document.querySelectorAll('.menu-label, .version-info, .status-badge');
         targetNodes.forEach(node => {
@@ -84,9 +84,9 @@ function applyLegacyFixes() {
             }
         });
     }, 500);
-}
+};
 
-function showAuthOverlay(mode) {
+window.showAuthOverlay = (mode) => {
     let overlay = document.getElementById('auth-overlay');
     if (!overlay) {
         overlay = document.createElement('div');
@@ -104,35 +104,35 @@ function showAuthOverlay(mode) {
             <div class="auth-box">
                 <h2>🔒 접근 제한</h2>
                 <p>승인된 인원만 사용할 수 있습니다.<br>로그인 후 승인을 요청해 주세요.</p>
-                <button onclick="login()" class="btn-login-google">Google 로그인</button>
+                <button onclick="window.login()" class="btn-login-google">Google 로그인</button>
             </div>`;
     } else if (mode === "pending") {
         contentHtml = `
             <div class="auth-box">
                 <h2>⏳ 승인 대기 중</h2>
                 <p>권한을 요청했습니다.<br>관리자의 승인을 기다려 주세요.</p>
-                <button onclick="logout()" class="btn-logout-sub">다른 계정으로 로그인</button>
+                <button onclick="window.logout()" class="btn-logout-sub">다른 계정으로 로그인</button>
             </div>`;
     } else if (mode === "rejected") {
         contentHtml = `
             <div class="auth-box">
                 <h2>🚫 접근 거부</h2>
                 <p>사용 권한이 거부된 계정입니다.</p>
-                <button onclick="logout()" class="btn-logout-sub">로그아웃</button>
+                <button onclick="window.logout()" class="btn-logout-sub">로그아웃</button>
             </div>`;
     }
     overlay.innerHTML = contentHtml;
-}
+};
 
-function hideAuthOverlay() {
+window.hideAuthOverlay = () => {
     const overlay = document.getElementById('auth-overlay');
     if (overlay) {
         overlay.classList.remove('auth-active');
         document.body.classList.remove('auth-locked');
     }
-}
+};
 
-function updateUserPresence(user) {
+window.updateUserPresence = (user) => {
     const presenceRef = firebase.database().ref('presence/' + user.uid);
     const data = {
         name: user.displayName || user.email.split('@')[0] || '알 수 없음',
@@ -146,10 +146,10 @@ function updateUserPresence(user) {
     const allPresenceRef = firebase.database().ref('presence');
     allPresenceRef.off('value');
     allPresenceRef.on('value', () => {
-        if (typeof renderPresence === 'function') renderPresence();
+        if (typeof window.renderPresence === 'function') window.renderPresence();
     });
-}
+};
 
 firebase.auth().onAuthStateChanged((user) => {
-    handleUserStatus(user);
+    window.handleUserStatus(user);
 });
