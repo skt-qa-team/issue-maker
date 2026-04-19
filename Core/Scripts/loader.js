@@ -1,22 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     const components = [
-        { id: 'header-placeholder', url: 'components/header.html' },
-        { id: 'input-form-placeholder', url: 'components/input-form.html' },
-        { id: 'guide-panel-placeholder', url: 'components/guide-panel.html' },
-        { id: 'result-panel-placeholder', url: 'components/result-panel.html' },
-        { id: 'calendar-placeholder', url: 'components/calendar.html' },
-        { id: 'completion-panel-placeholder', url: 'components/completion-panel.html' },
-        { id: 'condition-modal-placeholder', url: 'components/condition-modal.html' },
-        { id: 'history-modal-placeholder', url: 'components/history-modal.html' },
-        { id: 'kpi-modal-placeholder', url: 'components/kpi-modal.html' },
-        { id: 'theme-modal-placeholder', url: 'components/theme-modal.html' },
-        { id: 'setting-modal-placeholder', url: 'components/setting-modal.html' },
-        { id: 'changelog-modal-placeholder', url: 'components/changelog-modal.html' },
-        { id: 'schedule-modal-placeholder', url: 'components/schedule-modal.html' },
-        { id: 'schedule-detail-modal-placeholder', url: 'components/schedule-detail-modal.html' },
-        { id: 'bugreport-modal-placeholder', url: 'components/bugreport-modal.html' },
-        { id: 'bookmark-modal-placeholder', url: 'components/bookmark-modal.html' },
-        { id: 'admin-modal-placeholder', url: 'components/admin-modal.html' }
+        { id: 'header-placeholder', url: 'Header/header.html' },
+        { id: 'input-form-placeholder', url: 'InputForm/input-form.html' },
+        { id: 'guide-panel-placeholder', url: 'GuidePanel/guide-panel.html' },
+        { id: 'result-panel-placeholder', url: 'ResultPanel/result-panel.html' },
+        { id: 'calendar-placeholder', url: 'Calendar/calendar.html' },
+        { id: 'completion-panel-placeholder', url: 'Completion/completion.html' },
+        { id: 'condition-modal-placeholder', url: 'Condition/condition.html' },
+        { id: 'history-modal-placeholder', url: 'History/history.html' },
+        { id: 'kpi-modal-placeholder', url: 'Kpi/kpi.html' },
+        { id: 'theme-modal-placeholder', url: 'Theme/theme.html' },
+        { id: 'setting-modal-placeholder', url: 'Setting/setting.html' },
+        { id: 'changelog-modal-placeholder', url: 'Changelog/changelog.html' },
+        { id: 'schedule-modal-placeholder', url: 'Calendar/schedule.html' },
+        { id: 'schedule-detail-modal-placeholder', url: 'Calendar/schedule-detail.html' },
+        { id: 'bugreport-modal-placeholder', url: 'Bugreport/bugreport.html' },
+        { id: 'bookmark-modal-placeholder', url: 'Bookmark/bookmark.html' },
+        { id: 'admin-modal-placeholder', url: 'Admin/admin.html' }
     ];
 
     const versionTag = new Date().getTime();
