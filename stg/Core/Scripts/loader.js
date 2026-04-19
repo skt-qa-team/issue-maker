@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     )).then(() => {
         setTimeout(() => {
             try { if (typeof window.startClock === 'function') window.startClock(); } catch(e) { console.warn(e); }
-            try { if (typeof window.initPresenceSystem === 'function') window.initPresenceSystem(); } catch(e) { console.warn(e); }
+            try { if (typeof window.renderPresence === 'function') window.renderPresence(); } catch(e) { console.warn(e); }
             try { if (typeof window.renderChangelog === 'function') window.renderChangelog(); } catch(e) { console.warn(e); }
             try { if (typeof window.initCustomTheme === 'function') window.initCustomTheme(); } catch(e) { console.warn(e); }
             
@@ -55,7 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Initialization Failure:", e); 
             }
 
+            // [추가] 탭 전환 버튼들을 위한 초기화 강제 실행
+            try {
+                if (typeof window.switchMainTab === 'function') {
+                    window.switchMainTab('issue'); // 초기 화면 강제 설정
+                }
+            } catch(e) { console.warn("Tab Initialization Failed", e); }
+
             document.dispatchEvent(new CustomEvent('componentsLoaded'));
-        }, 100); 
+        }, 150); // 로딩 안정성을 위해 시간을 약간 늘림
     });
 });
