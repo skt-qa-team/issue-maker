@@ -37,7 +37,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
+    if (typeof window.loadDraft === 'function') window.loadDraft();
 });
+
+window.saveDraft = () => {
+    const fields = ['title', 'prefix_env', 'prefix_env_custom', 'osType', 'osType_custom', 'poc', 'poc_custom', 'prefix_critical', 'prefix_critical_custom', 'prefix_device_input', 'prefix_account', 'prefix_page', 'appVersion', 'targetUrl', 'aiMode', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
+    const data = {};
+    
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+    });
+
+    const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    data.selectedDevices = devices;
+
+    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    data.selectedServers = servers;
+
+    const verCbs = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.id);
+    data.selectedVerCbs = verCbs;
+
+    localStorage.setItem('skm_draft', JSON.stringify(data));
+};
+
+window.loadDraft = () => {
+    const raw = localStorage.getItem('skm_draft');
+    if (!raw) return;
+    
+    try {
+        const data = JSON.parse(raw);
+        
+        Object.entries(data).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el && !['selectedDevices', 'selectedServers', 'selectedVerCbs'].includes(id)) {
+                el.value = val;
+                if (id.includes('_custom')) {
+                    const baseId = id.replace('_custom', '');
+                    const baseEl = document.getElementById(baseId);
+                    if (baseEl && baseEl.value === 'direct') el.classList.remove('d-none');
+                }
+            }
+        });
+
+        if (data.selectedVerCbs) {
+            data.selectedVerCbs.forEach(id => {
+                const cb = document.getElementById(id);
+                if (cb) cb.checked = true;
+            });
+        }
+
+        if (data.selectedServers) {
+            document.querySelectorAll('.issue-server-cb').forEach(cb => {
+                cb.checked = data.selectedServers.includes(cb.value);
+            });
+        }
+
+        window.syncEnvironmentByOS();
+
+        if (data.selectedDevices) {
+            setTimeout(() => {
+                data.selectedDevices.forEach(dev => {
+                    const cb = document.querySelector(`.issue-device-cb[value="${dev}"]`);
+                    if (cb) cb.checked = true;
+                });
+                window.generateTemplate();
+            }, 100);
+        }
+    } catch (e) {
+        console.error("Draft Load Error:", e);
+    }
+};
 
 window.toggleDeviceMode = (os) => {
     const checkedInput = document.querySelector(`input[name="${os}_dev_mode"]:checked`);
