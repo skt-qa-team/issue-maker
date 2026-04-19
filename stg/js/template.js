@@ -114,7 +114,7 @@ window.updateVersionCheckboxesByOS = () => {
     });
 
     if (!isPureWeb) {
-        const multiOs = ["Android/iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
+        const multiOs = ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
         if (multiOs.includes(osType)) {
             if (document.getElementById('ver_cb_android')) document.getElementById('ver_cb_android').checked = true;
             if (document.getElementById('ver_cb_ios')) document.getElementById('ver_cb_ios').checked = true;
@@ -129,14 +129,21 @@ window.updateVersionCheckboxesByOS = () => {
 };
 
 window.syncEnvironmentByOS = () => {
-    const config = typeof window.loadConfig === 'function' ? window.loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+    const rawConfig = localStorage.getItem('qa_system_config_master');
+    const config = rawConfig ? JSON.parse(rawConfig) : {
+        andDevices: ["S21", "S22", "Fold4"],
+        iosDevices: ["iPhone 13", "iPhone 14"],
+        andDefaultDevices: ["S21"],
+        iosDefaultDevices: ["iPhone 13"]
+    };
+
     const osEl = document.getElementById('osType');
     if (!osEl) return;
     const osType = osEl.value;
     
     let currentSelected = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
 
-    if (isInitialRender) {
+    if (isInitialRender || currentSelected.length === 0) {
         currentSelected = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
         isInitialRender = false;
     }
@@ -161,8 +168,9 @@ window.syncEnvironmentByOS = () => {
         let html = '';
         list.forEach(dev => {
             const safeDevName = window.escapeHTMLTemplate(dev);
+            const domId = `${idPrefix}_${safeDevName.replace(/\s+/g, '_')}`;
             const isChecked = currentSelected.includes(dev) ? 'checked' : '';
-            html += `<input type="checkbox" id="${idPrefix}_${safeDevName}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isChecked} onchange="handleDeviceClick(this)"><label for="${idPrefix}_${safeDevName}" class="pill-label">${safeDevName}</label>`;
+            html += `<input type="checkbox" id="${domId}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isChecked} onchange="handleDeviceClick(this)"><label for="${domId}" class="pill-label">${safeDevName}</label>`;
         });
         container.innerHTML = html;
     };
@@ -365,13 +373,13 @@ window.generateTemplate = () => {
     if (!isPureWeb) {
         let activeDeviceLists = [];
         const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
-        const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
+        const iosMode = document.querySelector('input[name="ios_ver_type"]:checked')?.value;
         const osGroup = ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
         const showAnd = (osDropdownVal === "Android/iOS" || osDropdownVal === "Android" || osGroup.slice(3).includes(osDropdownVal));
         const showIos = (osDropdownVal === "Android/iOS" || osDropdownVal === "iOS" || osGroup.slice(3).includes(osDropdownVal));
 
         if (showAnd) activeDeviceLists.push(document.getElementById(`and${andMode === 'normal' ? 'Normal' : 'Special'}List`));
-        if (showIos) activeDeviceLists.push(document.getElementById(`ios${iosMode === 'normal' ? 'Normal' : 'Special'}List`));
+        if (showIos) activeDeviceLists.push(document.getElementById(`iosNormalList`)); 
 
         let checkedDeviceValues = [];
         activeDeviceLists.forEach(list => {
