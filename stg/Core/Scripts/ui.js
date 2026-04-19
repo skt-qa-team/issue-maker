@@ -29,29 +29,30 @@ window.showToast = (message) => {
 
 window.switchMainTab = (tabName) => {
     const tabs = {
-        'issue': 'form-panel-placeholder',
-        'calendar': 'calendar-placeholder',
-        'completion': 'completion-placeholder'
+        'issue': 'panel-issue',
+        'calendar': 'panel-calendar',
+        'completion': 'panel-completion'
     };
 
-    const targetPlaceholderId = tabs[tabName];
-    if (!targetPlaceholderId) return;
+    const targetId = tabs[tabName];
+    if (!targetId) return;
 
-    Object.values(tabs).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('d-none');
+    document.querySelectorAll('.main-panel-content').forEach(panel => {
+        panel.classList.add('d-none');
+        panel.classList.remove('active');
     });
 
-    const targetEl = document.getElementById(targetPlaceholderId);
+    const targetEl = document.getElementById(targetId);
     if (targetEl) {
         targetEl.classList.remove('d-none');
+        targetEl.classList.add('active');
     }
 
     document.querySelectorAll('.nav-btn, .main-tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
-    const activeBtn = document.querySelector(`[data-tab="${tabName}"], [data-target="${tabName}"]`);
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"], [data-target="${targetId}"]`);
     if (activeBtn) {
         activeBtn.classList.add('active');
     }
