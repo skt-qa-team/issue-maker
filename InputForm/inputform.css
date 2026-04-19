@@ -28,18 +28,40 @@ textarea {
     line-height: 1.6;
 }
 
-.preset-wrapper {
-    background: var(--bg-color);
-    padding: 18px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    margin-bottom: 25px;
-    box-shadow: var(--shadow-sm);
+.panel-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.preset-controls-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.preset-select {
+    width: 160px !important;
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: var(--radius-sm);
+    background: var(--panel-bg) !important;
+    cursor: pointer;
 }
 
 .preset-name-input {
-    width: 150px;
-    padding: 4px 10px;
+    width: 130px;
+    padding: 8px 12px;
     font-size: 0.85rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
@@ -54,27 +76,15 @@ textarea {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
+.preset-btn-group {
+    display: flex;
+    gap: 6px;
+}
+
 .btn-delete-preset:hover {
     background: var(--accent-red);
     color: white;
     border-color: var(--accent-red);
-}
-
-.preset-tab-group {
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding: 8px;
-    gap: 8px;
-    -webkit-overflow-scrolling: touch;
-}
-
-.preset-tab-group::-webkit-scrollbar {
-    height: 4px;
-}
-
-.preset-tab-group::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 10px;
 }
 
 .checkbox-group {
@@ -286,11 +296,12 @@ input[type="checkbox"].pill-cb:checked + .pill-label {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-sub);
-    padding: 4px 12px;
+    padding: 6px 12px;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
+    font-weight: 600;
 }
 
 .btn-outline-sm:hover {
