@@ -1,0 +1,25 @@
+<div id="bugReportModal" class="bug-modal-overlay d-none">
+    <div class="bug-modal-container">
+        <div class="bug-modal-header">
+            <h2>🐛 시스템 버그 제보</h2>
+            <button class="bug-close-btn" onclick="closeBugReportModal()">×</button>
+        </div>
+        
+        <div class="bug-modal-body">
+            <div class="bug-form-group">
+                <label class="form-label-accent">발생 위치 및 상황</label>
+                <input type="text" id="bug_location" class="bug-form-control" placeholder="예: 캘린더 화면에서 일정 저장 시">
+            </div>
+            
+            <div class="bug-form-group">
+                <label class="form-label-accent">상세 내용 *</label>
+                <textarea id="bug_description" class="bug-form-control" placeholder="어떤 문제가 발생했는지 최대한 자세히 설명해 주세요."></textarea>
+            </div>
+        </div>
+        
+        <div class="bug-modal-footer">
+            <button class="bug-btn-secondary" onclick="closeBugReportModal()">취소</button>
+            <button class="bug-btn-primary" onclick="submitBugReport()">제보하기</button>
+        </div>
+    </div>
+</div>

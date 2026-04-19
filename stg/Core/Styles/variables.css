@@ -1,0 +1,26 @@
+:root {
+    --bg-color: #f0f2f5;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sub: #475569;
+    --border-color: #e2e8f0;
+    
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-orange: #f59e0b;
+    --accent-purple: #a062f2;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-pill: 30px;
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
