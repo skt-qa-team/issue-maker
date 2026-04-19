@@ -1,4 +1,4 @@
-function startClock() {
+window.startClock = () => {
     setInterval(() => {
         const now = new Date();
         const clockEl = document.getElementById('currentTime');
@@ -6,15 +6,11 @@ function startClock() {
             clockEl.textContent = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
         }
     }, 1000);
-}
+};
 
-function showToast(message) {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
+window.showToast = (message) => {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
 
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
@@ -27,12 +23,11 @@ function showToast(message) {
         toast.classList.remove('show');
         setTimeout(() => {
             if (toast.parentNode) container.removeChild(toast);
-            if (container.childNodes.length === 0) document.body.removeChild(container);
         }, 400);
     }, 2500);
-}
+};
 
-function addCase(id) {
+window.addCase = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
     const match = el.value.match(/CASE (\d+)/g);
@@ -43,20 +38,20 @@ function addCase(id) {
     }
     const prefix = el.value.trim() === '' ? '' : '\n\n';
     el.value += `${prefix}CASE ${nextNum}.\n`;
-    if (typeof generateTemplate === 'function') generateTemplate();
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
     el.focus();
-}
+};
 
-function applyIndividualPreset(id, n) {
+window.applyIndividualPreset = (id, n) => {
     const target = document.getElementById(id);
     if (!target) return;
     let text = "";
     for (let i = 1; i <= n; i++) text += `CASE ${i}. \n\n`;
     target.value = text.trim();
-    if (typeof generateTemplate === 'function') generateTemplate();
-}
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+};
 
-async function copySpecific(id) {
+window.copySpecific = async (id) => {
     const el = document.getElementById(id);
     if (!el) return;
     
@@ -69,16 +64,16 @@ async function copySpecific(id) {
     if (navigator.clipboard && window.isSecureContext) {
         try {
             await navigator.clipboard.writeText(textToCopy);
-            showToast('복사되었습니다.');
+            window.showToast('복사되었습니다.');
         } catch (err) {
-            fallbackCopyText(textToCopy);
+            window.fallbackCopyText(textToCopy);
         }
     } else {
-        fallbackCopyText(textToCopy);
+        window.fallbackCopyText(textToCopy);
     }
-}
+};
 
-async function copyAll() {
+window.copyAll = async () => {
     const tVal = document.getElementById('outputTitle')?.value || '';
     const bVal = document.getElementById('outputBody')?.value || '';
     const combined = `${tVal}\n\n${bVal}`;
@@ -86,16 +81,16 @@ async function copyAll() {
     if (navigator.clipboard && window.isSecureContext) {
         try {
             await navigator.clipboard.writeText(combined);
-            showToast('전체 복사 완료!');
+            window.showToast('전체 복사 완료!');
         } catch (err) {
-            fallbackCopyText(combined);
+            window.fallbackCopyText(combined);
         }
     } else {
-        fallbackCopyText(combined);
+        window.fallbackCopyText(combined);
     }
-}
+};
 
-function fallbackCopyText(text) {
+window.fallbackCopyText = (text) => {
     const t = document.createElement("textarea");
     t.className = 'sr-only';
     document.body.appendChild(t);
@@ -103,14 +98,14 @@ function fallbackCopyText(text) {
     t.select();
     try {
         document.execCommand("copy");
-        showToast('복사 완료!');
+        window.showToast('복사 완료!');
     } catch (err) {
         console.error('Copy fallback failed', err);
     }
     document.body.removeChild(t);
-}
+};
 
-function renderPresence() {
+window.renderPresence = () => {
     const presenceList = document.getElementById('presence-list');
     if (!presenceList) return;
 
@@ -133,9 +128,9 @@ function renderPresence() {
             }
         });
     }
-}
+};
 
-function initTabNavigation() {
+window.initTabNavigation = () => {
     const tabBtns = document.querySelectorAll('.main-tab-btn');
     const panels = document.querySelectorAll('.main-panel-content');
 
@@ -157,15 +152,9 @@ function initTabNavigation() {
                 }
             });
 
-            if (targetId === 'panel-completion' && typeof initCompletionPanel === 'function') {
-                initCompletionPanel();
+            if (targetId === 'panel-completion' && typeof window.initCompletionPanel === 'function') {
+                window.initCompletionPanel();
             }
         });
     });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    startClock();
-    renderPresence();
-    initTabNavigation();
-});
+};
