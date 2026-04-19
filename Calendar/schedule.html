@@ -1,75 +1,71 @@
-<div class="modal-overlay d-none" id="scheduleModal">
-    <div class="cal-modal-content">
-        <button class="close-btn cal-close-btn" onclick="window.closeScheduleModal()">×</button>
-        <div class="cal-modal-header">
-            <h2>📅 일정 등록/수정</h2>
+<div id="scheduleModal" class="modal-overlay d-none">
+    <div class="modal-content modal-schedule">
+        <div class="modal-header">
+            <h2 id="modal_title">📅 일정 등록/수정</h2>
+            <button class="close-btn" onclick="window.closeScheduleModal()">×</button>
         </div>
         
-        <input type="hidden" id="sch_id">
-        <div id="ai_quota_info" class="cal-quota-info"></div>
+        <div class="modal-body">
+            <input type="hidden" id="sch_id">
+            
+            <div id="ai_dropzone" class="ai-dropzone">
+                <div id="ai_dropzone_content">
+                    <span>📸 일정표 스크린샷 붙여넣기 (Ctrl+V)</span>
+                </div>
+                <div id="ai_loading_content" class="d-none">
+                    <div class="spinner"></div>
+                    <span>AI가 일정을 분석 중입니다...</span>
+                </div>
+            </div>
+            <div id="ai_quota_info" class="ai-quota-info">⚡ 오늘 AI 자동 등록 남은 횟수: 20 / 20</div>
 
-        <div class="cal-form-group">
-            <label class="form-label-accent">라벨 (일정 유형)</label>
-            <div class="cal-radio-tab-group" id="sch_type_group">
-                <label class="cal-radio-tab">
-                    <input type="radio" name="sch_color" value="#3b82f6" data-type="검증" checked>
-                    <span>검증</span>
-                </label>
-                <label class="cal-radio-tab">
-                    <input type="radio" name="sch_color" value="#f59e0b" data-type="회의">
-                    <span>회의</span>
-                </label>
-                <label class="cal-radio-tab">
-                    <input type="radio" name="sch_color" value="#10b981" data-type="할일">
-                    <span>할 일</span>
-                </label>
-                <label class="cal-radio-tab">
-                    <input type="radio" name="sch_color" value="#8b5cf6" data-type="기타">
-                    <span>기타</span>
-                </label>
+            <div class="form-group">
+                <label>구분 *</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="sch_color" value="#3b82f6" data-type="검증" checked>
+                        <span class="radio-label color-blue">검증</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="sch_color" value="#10b981" data-type="회의">
+                        <span class="radio-label color-green">회의</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="sch_color" value="#f59e0b" data-type="기타">
+                        <span class="radio-label color-orange">기타</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="label_sch_start">시작일 *</label>
+                <input type="date" id="sch_start" class="form-control">
+            </div>
+
+            <div class="form-group" id="group_sch_end">
+                <label>종료일 *</label>
+                <input type="date" id="sch_end" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>일정 제목 *</label>
+                <input type="text" id="sch_title" class="form-control" placeholder="일정 제목을 입력하세요">
+            </div>
+
+            <div class="form-group" id="group_sch_epic">
+                <label>Epic Link</label>
+                <input type="text" id="sch_epic" class="form-control" placeholder="https://jira.com/browse/EPIC-123">
+            </div>
+
+            <div class="form-group">
+                <label>상세 설명</label>
+                <textarea id="sch_desc" class="form-control" placeholder="추가적인 메모를 입력하세요"></textarea>
             </div>
         </div>
 
-        <div class="cal-form-group">
-            <label class="form-label-accent">일정 제목 *</label>
-            <input type="text" id="sch_title" class="cal-form-control" placeholder="일정 제목을 입력하세요">
-        </div>
-        
-        <div class="cal-grid-2" id="date_group">
-            <div class="cal-form-group">
-                <label id="label_sch_start" class="form-label-accent">시작일 *</label>
-                <input type="date" id="sch_start" class="cal-form-control">
-            </div>
-            <div class="cal-form-group" id="group_sch_end">
-                <label class="form-label-accent">종료일 *</label>
-                <input type="date" id="sch_end" class="cal-form-control">
-            </div>
-        </div>
-        
-        <div class="cal-form-group" id="group_sch_epic">
-            <label class="form-label-accent">Epic Link</label>
-            <input type="text" id="sch_epic" class="cal-form-control" placeholder="예: SKM-1024">
-        </div>
-        
-        <div class="cal-form-group">
-            <label class="form-label-accent">상세 내용</label>
-            <textarea id="sch_desc" class="cal-form-control" placeholder="일정 관련 상세 내용을 메모하세요"></textarea>
-        </div>
-        
-        <button class="cal-btn-save" onclick="window.saveSchedule()">일정 저장</button>
-
-        <div class="cal-ai-dropzone" id="ai_dropzone" onclick="document.getElementById('ai_image_input').click()">
-            <input type="file" id="ai_image_input" accept="image/*" class="d-none">
-            <div id="ai_dropzone_content">
-                <div class="cal-ai-icon">✨📸</div>
-                <div class="cal-ai-title">스크린샷 AI 자동 분석</div>
-                <div class="cal-ai-desc">일정표 이미지를 드래그하거나 클릭하여 업로드하세요</div>
-            </div>
-            <div id="ai_loading_content" class="d-none">
-                <div class="cal-spinner">⏳</div>
-                <div class="cal-ai-title">Gemini가 일정을 정밀 추출 중입니다...</div>
-                <div class="cal-ai-desc">잠시만 기다려 주십시오.</div>
-            </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="window.closeScheduleModal()">취소</button>
+            <button class="btn-primary" onclick="window.saveSchedule()">저장하기</button>
         </div>
     </div>
 </div>
