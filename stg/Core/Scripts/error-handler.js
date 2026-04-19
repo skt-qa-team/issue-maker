@@ -3,23 +3,38 @@ window.showSystemError = (title, details) => {
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'global-error-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.75);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(4px);';
+        overlay.className = 'system-error-overlay';
         document.body.appendChild(overlay);
     }
 
     const modal = document.createElement('div');
-    modal.style.cssText = 'background:#ffffff;border-radius:12px;padding:24px;width:90%;max-width:550px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);font-family:sans-serif;border-left:8px solid #ef4444;box-sizing:border-box;';
-    
-    modal.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h3 style="margin:0;color:#ef4444;font-size:1.25rem;font-weight:900;letter-spacing:-0.5px;">🚨 System Error Monitor</h3>
-        </div>
-        <p style="margin:0 0 12px 0;font-weight:800;color:#1f2937;font-size:1rem;">${title}</p>
-        <div style="background:#f3f4f6;padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#374151;white-space:pre-wrap;word-break:break-all;max-height:250px;overflow-y:auto;border:1px solid #e5e7eb;">${details}</div>
-        <div style="margin-top:20px;text-align:right;">
-            <button onclick="this.closest('#global-error-overlay').remove()" style="background:#ef4444;color:#ffffff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:800;font-size:0.9rem;transition:background 0.2s;">인지했습니다 (닫기)</button>
-        </div>
-    `;
+    modal.className = 'system-error-modal';
+
+    const header = document.createElement('div');
+    header.className = 'system-error-header';
+    const h3 = document.createElement('h3');
+    h3.textContent = '🚨 System Error Monitor';
+    header.appendChild(h3);
+
+    const titleP = document.createElement('p');
+    titleP.className = 'system-error-title';
+    titleP.textContent = title;
+
+    const body = document.createElement('div');
+    body.className = 'system-error-body';
+    body.textContent = details;
+
+    const footer = document.createElement('div');
+    footer.className = 'system-error-footer';
+    const btn = document.createElement('button');
+    btn.textContent = '인지했습니다 (닫기)';
+    btn.onclick = () => overlay.remove();
+    footer.appendChild(btn);
+
+    modal.appendChild(header);
+    modal.appendChild(titleP);
+    modal.appendChild(body);
+    modal.appendChild(footer);
 
     overlay.innerHTML = '';
     overlay.appendChild(modal);
