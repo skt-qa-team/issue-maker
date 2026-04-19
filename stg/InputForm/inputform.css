@@ -54,19 +54,19 @@ textarea {
 }
 
 .preset-select {
-    flex: 0 1 200px;
-    min-width: 160px;
+    flex: 1;
+    min-width: 100px;
     padding: 8px 12px !important;
     font-size: 0.85rem !important;
     border-radius: var(--radius-sm);
     background: var(--panel-bg) !important;
     cursor: pointer;
-    width: auto !important;
+    width: 100% !important;
 }
 
 .preset-name-input {
-    flex: 0 1 180px;
-    min-width: 120px;
+    flex: 1;
+    min-width: 100px;
     padding: 8px 12px;
     font-size: 0.85rem;
     border: 1px solid var(--border-color);
@@ -75,6 +75,7 @@ textarea {
     color: var(--text-main);
     outline: none;
     transition: var(--transition-fast);
+    width: 100%;
 }
 
 .preset-name-input:focus {
