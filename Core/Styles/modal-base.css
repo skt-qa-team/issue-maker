@@ -6,7 +6,7 @@
     height: 100%;
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(6px);
-    display: none; /* 기본은 숨김 */
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 9000;
@@ -16,10 +16,8 @@
     transition: opacity var(--transition-normal);
 }
 
-/* [수정] d-none이 없고 active가 붙었을 때 혹은 활성화 시 */
-.modal-overlay.active,
-.modal-overlay:not(.d-none) {
-    display: flex !important;
+.modal-overlay.active {
+    display: flex;
     opacity: 1;
 }
 
@@ -39,9 +37,7 @@
     box-sizing: border-box;
 }
 
-/* [수정] 부모가 보일 때 컨텐츠 애니메이션 실행 */
-.modal-overlay.active .modal-content,
-.modal-overlay:not(.d-none) .modal-content {
+.modal-overlay.active .modal-content {
     transform: translateY(0) scale(1);
     opacity: 1;
 }
@@ -112,4 +108,29 @@
     border-bottom-left-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-lg);
     flex-shrink: 0;
+}
+
+.btn-base {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.modal-lg { max-width: 900px; }
+.modal-md { max-width: 600px; }
+.modal-sm { max-width: 400px; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.modal-error {
+    animation: shake 0.2s ease-in-out 0s 2;
+    border-color: var(--accent-red);
 }
