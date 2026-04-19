@@ -1,0 +1,82 @@
+.system-error-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.system-error-modal {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 550px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    font-family: sans-serif;
+    border-left: 8px solid #ef4444;
+    box-sizing: border-box;
+}
+
+.system-error-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.system-error-header h3 {
+    margin: 0;
+    color: #ef4444;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.system-error-title {
+    margin: 0 0 12px 0;
+    font-weight: 800;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.system-error-body {
+    background: #f3f4f6;
+    padding: 16px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #374151;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+}
+
+.system-error-footer {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.system-error-footer button {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.system-error-footer button:hover {
+    background: #dc2626;
+}
