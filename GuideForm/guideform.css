@@ -1,0 +1,74 @@
+.guide-form-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 20px;
+}
+
+.guide-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.guide-field-group.flex-grow {
+    flex: 1;
+    min-height: 0;
+}
+
+.guide-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.guide-label .icon {
+    font-size: 1rem;
+}
+
+.guide-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.guide-input:focus {
+    border-color: var(--accent-blue);
+    background: var(--panel-bg);
+}
+
+.guide-textarea-auto {
+    flex: 1;
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    outline: none;
+    resize: none;
+    transition: var(--transition-fast);
+}
+
+.guide-textarea-auto:focus {
+    border-color: var(--accent-blue);
+    background: var(--panel-bg);
+}
+
+.guide-status-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    margin-left: auto;
+}
