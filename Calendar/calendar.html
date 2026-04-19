@@ -7,22 +7,7 @@
             <button class="cal-today-btn" onclick="window.goToday()">오늘</button>
         </div>
         <div class="cal-actions">
-            <button class="cal-add-btn" onclick="
-                alert('✅ 1단계: 버튼 클릭이 정상적으로 인식되었습니다!');
-                
-                const testModal = document.getElementById('scheduleModal');
-                if(!testModal) {
-                    alert('🚨 2단계 실패: HTML에 scheduleModal이 존재하지 않습니다! loader.js 로드가 지연되었거나 404 에러입니다.');
-                } else {
-                    alert('✅ 2단계 성공: 모달을 찾았습니다! CSS를 무시하고 강제로 화면에 출력합니다.');
-                    testModal.classList.remove('d-none');
-                    testModal.style.setProperty('display', 'flex', 'important');
-                    testModal.style.setProperty('z-index', '999999', 'important');
-                    testModal.style.setProperty('visibility', 'visible', 'important');
-                    testModal.style.setProperty('opacity', '1', 'important');
-                    window.openScheduleModal();
-                }
-            ">+ 일정 추가</button>
+            <button class="cal-add-btn" onclick="window.openScheduleModal()">+ 일정 추가</button>
         </div>
     </div>
     
