@@ -92,31 +92,8 @@ window.loadPrefixOrder = () => {
     }
 };
 
-window.renderInputPresets = () => {
-    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    const container = document.getElementById('inputPresetList');
-    if (!container) return;
-    let html = '';
-    Object.keys(presets).forEach((name, index) => {
-        html += `<label class="radio-tab"><input type="radio" name="input_preset_select" value="${name}" onchange="window.applyInputPreset('${name}')"> <span>${name}</span></label>`;
-    });
-    container.innerHTML = html;
-};
-
-window.saveInputPreset = () => {
-    const nameInput = document.getElementById('newPresetName');
-    const name = nameInput ? nameInput.value.trim() : '';
-    if (!name) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
-        return;
-    }
-    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    if (Object.keys(presets).length >= 10 && !presets[name]) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
-        return;
-    }
-
-    const data = {
+window.getFormDataForPreset = () => {
+    return {
         title: document.getElementById('title')?.value || '',
         prefix_env: document.getElementById('prefix_env')?.value || '',
         prefix_env_custom: document.getElementById('prefix_env_custom')?.value || '',
@@ -147,25 +124,108 @@ window.saveInputPreset = () => {
         ios_dev_mode: document.querySelector('input[name="ios_dev_mode"]:checked')?.value || 'normal',
         ios_ver_type: document.querySelector('input[name="ios_ver_type"]:checked')?.value || 'TestFlight'
     };
+};
 
-    presets[name] = data;
+window.renderInputPresets = () => {
+    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    const selectEl = document.getElementById('inputPresetSelect');
+    if (!selectEl) return;
+    
+    const currentVal = selectEl.value;
+    let html = '<option value="">💾 프리셋 선택...</option>';
+    
+    Object.keys(presets).forEach(name => {
+        const safeName = window.escapeHTMLTemplate(name);
+        html += `<option value="${safeName}">${safeName}</option>`;
+    });
+    
+    selectEl.innerHTML = html;
+    
+    if (presets[currentVal]) {
+        selectEl.value = currentVal;
+    } else {
+        selectEl.value = '';
+        const editBtn = document.getElementById('btnEditPreset');
+        if(editBtn) editBtn.classList.add('d-none');
+    }
+};
+
+window.handlePresetDropdownChange = () => {
+    const selectEl = document.getElementById('inputPresetSelect');
+    const editBtn = document.getElementById('btnEditPreset');
+    if (!selectEl) return;
+    
+    const name = selectEl.value;
+    if (name) {
+        if (editBtn) editBtn.classList.remove('d-none');
+        window.applyInputPreset(name);
+    } else {
+        if (editBtn) editBtn.classList.add('d-none');
+    }
+};
+
+window.saveInputPreset = () => {
+    const nameInput = document.getElementById('newPresetName');
+    const name = nameInput ? nameInput.value.trim() : '';
+    
+    if (!name) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
+        return;
+    }
+    
+    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    if (Object.keys(presets).length >= 10 && !presets[name]) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
+        return;
+    }
+
+    presets[name] = window.getFormDataForPreset();
     localStorage.setItem('qa_input_presets', JSON.stringify(presets));
-    nameInput.value = '';
+    
+    if (nameInput) nameInput.value = '';
     window.renderInputPresets();
+    
+    const selectEl = document.getElementById('inputPresetSelect');
+    if (selectEl) {
+        selectEl.value = name;
+        window.handlePresetDropdownChange();
+    }
+    
     if (typeof window.showToast === 'function') window.showToast('✅ 프리셋이 저장되었습니다.');
 };
 
+window.editInputPreset = () => {
+    const selectEl = document.getElementById('inputPresetSelect');
+    if (!selectEl || !selectEl.value) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 수정할 프리셋을 선택해주세요.');
+        return;
+    }
+    
+    const name = selectEl.value;
+    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    
+    presets[name] = window.getFormDataForPreset();
+    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    
+    if (typeof window.showToast === 'function') window.showToast(`✏️ '${name}' 프리셋이 수정되었습니다.`);
+};
+
 window.deleteInputPreset = () => {
-    const selected = document.querySelector('input[name="input_preset_select"]:checked');
-    if (!selected) {
+    const selectEl = document.getElementById('inputPresetSelect');
+    if (!selectEl || !selectEl.value) {
         if (typeof window.showToast === 'function') window.showToast('⚠️ 삭제할 프리셋을 선택해주세요.');
         return;
     }
-    const name = selected.value;
+    
+    const name = selectEl.value;
     let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
     delete presets[name];
     localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    
+    selectEl.value = '';
+    window.handlePresetDropdownChange();
     window.renderInputPresets();
+    
     if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
 };
 
@@ -237,7 +297,6 @@ window.applyInputPreset = (name) => {
 
     window.updateVersionTextbox();
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
-    if (typeof window.showToast === 'function') window.showToast(`✨ '${name}' 프리셋을 불러왔습니다.`);
 };
 
 document.addEventListener('componentsLoaded', () => {
