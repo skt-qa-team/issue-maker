@@ -92,9 +92,158 @@ window.loadPrefixOrder = () => {
     }
 };
 
+window.renderInputPresets = () => {
+    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    const container = document.getElementById('inputPresetList');
+    if (!container) return;
+    let html = '';
+    Object.keys(presets).forEach((name, index) => {
+        html += `<label class="radio-tab"><input type="radio" name="input_preset_select" value="${name}" onchange="window.applyInputPreset('${name}')"> <span>${name}</span></label>`;
+    });
+    container.innerHTML = html;
+};
+
+window.saveInputPreset = () => {
+    const nameInput = document.getElementById('newPresetName');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (!name) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
+        return;
+    }
+    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    if (Object.keys(presets).length >= 10 && !presets[name]) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
+        return;
+    }
+
+    const data = {
+        title: document.getElementById('title')?.value || '',
+        prefix_env: document.getElementById('prefix_env')?.value || '',
+        prefix_env_custom: document.getElementById('prefix_env_custom')?.value || '',
+        osType: document.getElementById('osType')?.value || '',
+        osType_custom: document.getElementById('osType_custom')?.value || '',
+        poc: document.getElementById('poc')?.value || '',
+        poc_custom: document.getElementById('poc_custom')?.value || '',
+        prefix_critical: document.getElementById('prefix_critical')?.value || '',
+        prefix_critical_custom: document.getElementById('prefix_critical_custom')?.value || '',
+        prefix_browser_none: document.getElementById('prefix_browser_none')?.checked || false,
+        prefix_browser_custom: document.getElementById('prefix_browser_custom')?.value || '',
+        prefix_device_input: document.getElementById('prefix_device_input')?.value || '',
+        prefix_account: document.getElementById('prefix_account')?.value || '',
+        prefix_page: document.getElementById('prefix_page')?.value || '',
+        targetUrl: document.getElementById('targetUrl')?.value || '',
+        aiMode: document.getElementById('aiMode')?.value || '',
+        preCondition: document.getElementById('preCondition')?.value || '',
+        steps: document.getElementById('steps')?.value || '',
+        actualResult: document.getElementById('actualResult')?.value || '',
+        expectedResult: document.getElementById('expectedResult')?.value || '',
+        ref_prd: document.getElementById('ref_prd')?.value || '',
+        ref_notes: document.getElementById('ref_notes')?.value || '',
+        servers: Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(e => e.value),
+        devices: Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(e => e.value),
+        browsers: Array.from(document.querySelectorAll('.prefix-browser-cb:checked')).map(e => e.value),
+        versions: Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(e => e.value),
+        and_dev_mode: document.querySelector('input[name="and_dev_mode"]:checked')?.value || 'normal',
+        ios_dev_mode: document.querySelector('input[name="ios_dev_mode"]:checked')?.value || 'normal',
+        ios_ver_type: document.querySelector('input[name="ios_ver_type"]:checked')?.value || 'TestFlight'
+    };
+
+    presets[name] = data;
+    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    nameInput.value = '';
+    window.renderInputPresets();
+    if (typeof window.showToast === 'function') window.showToast('✅ 프리셋이 저장되었습니다.');
+};
+
+window.deleteInputPreset = () => {
+    const selected = document.querySelector('input[name="input_preset_select"]:checked');
+    if (!selected) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 삭제할 프리셋을 선택해주세요.');
+        return;
+    }
+    const name = selected.value;
+    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    delete presets[name];
+    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    window.renderInputPresets();
+    if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
+};
+
+window.applyInputPreset = (name) => {
+    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    const data = presets[name];
+    if (!data) return;
+
+    window.isInitialRender = false;
+
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    const setCheck = (id, checked) => { const el = document.getElementById(id); if (el) el.checked = checked; };
+    const toggleDnone = (id, isCustom) => { const el = document.getElementById(id); if (el) el.classList.toggle('d-none', !isCustom); };
+
+    setVal('title', data.title);
+    setVal('prefix_env', data.prefix_env);
+    setVal('prefix_env_custom', data.prefix_env_custom);
+    setVal('osType', data.osType);
+    setVal('osType_custom', data.osType_custom);
+    setVal('poc', data.poc);
+    setVal('poc_custom', data.poc_custom);
+    setVal('prefix_critical', data.prefix_critical);
+    setVal('prefix_critical_custom', data.prefix_critical_custom);
+    setCheck('prefix_browser_none', data.prefix_browser_none);
+    setVal('prefix_browser_custom', data.prefix_browser_custom);
+    setVal('prefix_device_input', data.prefix_device_input);
+    setVal('prefix_account', data.prefix_account);
+    setVal('prefix_page', data.prefix_page);
+    setVal('targetUrl', data.targetUrl);
+    setVal('aiMode', data.aiMode);
+    setVal('preCondition', data.preCondition);
+    setVal('steps', data.steps);
+    setVal('actualResult', data.actualResult);
+    setVal('expectedResult', data.expectedResult);
+    setVal('ref_prd', data.ref_prd);
+    setVal('ref_notes', data.ref_notes);
+
+    document.querySelectorAll('.issue-server-cb').forEach(cb => cb.checked = data.servers?.includes(cb.value));
+    document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = data.browsers?.includes(cb.value));
+
+    const andModeEl = document.querySelector(`input[name="and_dev_mode"][value="${data.and_dev_mode}"]`);
+    if (andModeEl) andModeEl.checked = true;
+    const iosModeEl = document.querySelector(`input[name="ios_dev_mode"][value="${data.ios_dev_mode}"]`);
+    if (iosModeEl) iosModeEl.checked = true;
+    const iosVerEl = document.querySelector(`input[name="ios_ver_type"][value="${data.ios_ver_type}"]`);
+    if (iosVerEl) iosVerEl.checked = true;
+
+    toggleDnone('prefix_env_custom', data.prefix_env === 'direct');
+    toggleDnone('osType_custom', data.osType === 'direct');
+    toggleDnone('poc_custom', data.poc === 'direct');
+    toggleDnone('prefix_critical_custom', data.prefix_critical === 'direct');
+
+    const browserCustomEl = document.getElementById('prefix_browser_custom');
+    if (browserCustomEl) browserCustomEl.classList.toggle('d-none', !data.browsers?.includes('기타'));
+
+    const deviceInputEl = document.getElementById('prefix_device_input');
+    if (deviceInputEl) deviceInputEl.classList.toggle('d-none', !data.prefix_browser_none);
+
+    window.toggleDeviceMode('and');
+    window.toggleDeviceMode('ios');
+    window.handlePocChange();
+    window.syncEnvironmentByOS();
+
+    document.querySelectorAll('.issue-device-cb').forEach(cb => {
+        cb.checked = data.devices?.includes(cb.value);
+    });
+
+    document.querySelectorAll('.ver-type-cb').forEach(cb => cb.checked = data.versions?.includes(cb.value));
+
+    window.updateVersionTextbox();
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+    if (typeof window.showToast === 'function') window.showToast(`✨ '${name}' 프리셋을 불러왔습니다.`);
+};
+
 document.addEventListener('componentsLoaded', () => {
     setTimeout(() => {
         if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
+        if (typeof window.renderInputPresets === 'function') window.renderInputPresets();
     }, 500);
 });
 
