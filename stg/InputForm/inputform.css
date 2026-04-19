@@ -28,6 +28,55 @@ textarea {
     line-height: 1.6;
 }
 
+.preset-wrapper {
+    background: var(--bg-color);
+    padding: 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 25px;
+    box-shadow: var(--shadow-sm);
+}
+
+.preset-name-input {
+    width: 150px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--panel-bg);
+    color: var(--text-main);
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.preset-name-input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.btn-delete-preset:hover {
+    background: var(--accent-red);
+    color: white;
+    border-color: var(--accent-red);
+}
+
+.preset-tab-group {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 8px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.preset-tab-group::-webkit-scrollbar {
+    height: 4px;
+}
+
+.preset-tab-group::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
 .checkbox-group {
     display: flex;
     flex-wrap: wrap;
@@ -88,6 +137,7 @@ textarea {
     cursor: pointer;
     flex: 1;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .radio-tab input {
