@@ -1,18 +1,21 @@
 #calendar-placeholder.main-tab-content {
     height: 100%;
     min-height: 700px;
+    display: flex; /* 레이아웃 안정화를 위해 추가 */
+    flex-direction: column;
 }
 
 .cal-wrapper {
     display: flex;
     flex-direction: column;
+    flex: 1; /* 부모 높이를 꽉 채우도록 변경 */
     height: 100%;
     background: var(--bg-color);
-    /* Apple 스타일 라운딩 강화를 위해 값을 늘립니다 */
     border-radius: 24px; 
     box-shadow: var(--shadow-lg);
     padding: 30px;
     box-sizing: border-box;
+    min-height: 0; /* Flex 자식의 높이 붕괴 방지 */
 }
 
 .cal-header {
@@ -22,6 +25,7 @@
     padding-bottom: 25px;
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* 헤더 영역 고정 */
 }
 
 .cal-title-group {
@@ -101,7 +105,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 0; /* 핵심: 그리드 스크롤 방지 */
 }
 
 .cal-weekdays {
@@ -114,6 +118,7 @@
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    flex-shrink: 0;
 }
 
 .cal-grid {
@@ -123,10 +128,9 @@
     grid-template-rows: repeat(6, 1fr);
     background: var(--border-color);
     gap: 1px;
-    /* 그리드 전체에 둥근 모서리 적용 (Apple 스타일) */
     border-radius: 16px; 
     border: 1px solid var(--border-color);
-    overflow: hidden; /* 자식 요소가 모서리를 튀어나오지 않게 방어 */
+    overflow: hidden; /* 멀티 데이 바가 튀어나가는 것을 최종 차단 */
 }
 
 .cal-day {
@@ -134,10 +138,10 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 120px;
+    min-height: 0; /* fr 단위가 작동하도록 조정 */
     cursor: pointer;
     position: relative;
-    overflow: visible;
+    overflow: visible; /* 자식인 span-head가 옆 칸으로 가야 하므로 visible 유지 */
     transition: background 0.15s;
 }
 
@@ -187,40 +191,43 @@
     flex-direction: column;
     gap: 3px;
     padding: 2px 0;
-    overflow: visible;
+    overflow: visible; /* 중요: 일정이 옆 칸으로 넘어가야 함 */
 }
 
 .cal-schedule {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 800;
     height: 22px;
     line-height: 22px;
-    padding: 0 8px;
+    padding: 0 10px;
     white-space: nowrap;
     color: #ffffff;
     cursor: pointer;
     transition: var(--transition-fast);
     box-sizing: border-box;
     text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cal-schedule.span-head {
     position: relative;
-    /* 양쪽 끝에 여백을 주기 위해 마진과 너비를 재설정합니다 */
-    margin-left: 4px;
-    margin-right: -1000px;
+    margin-left: 6px;
+    margin-right: -1000px; /* 옆 셀을 침범하기 위한 논리적 무시 */
     border-radius: 6px;
     z-index: 10;
     background-color: var(--sch-bg);
-    /* 셀 너비에서 양쪽 마진(8px)만큼 빼서 너비 계산 */
-    width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 1px) - 8px); 
-    box-shadow: var(--shadow-sm);
+    /* 계산식: (셀 너비 * 기간) + (경계선 두께 * (기간-1)) - (양쪽 마진합) */
+    width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 1px) - 12px); 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     border: 1px solid rgba(0,0,0,0.1);
+    pointer-events: auto; /* 클릭 가능하도록 보장 */
 }
 
 .cal-schedule.spacer {
     background: transparent !important;
     pointer-events: none;
+    visibility: hidden;
 }
 
 .cal-schedule:hover {
