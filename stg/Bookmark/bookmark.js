@@ -5,36 +5,29 @@ let currentFolderId = null;
 let editingLinkId = null;
 let bmDragState = null;
 
+// [수정] Firebase 인증 상태 및 초기화 로직 정돈
 document.addEventListener('DOMContentLoaded', () => {
     firebase.auth().onAuthStateChanged((user) => {
         currentUserUid = user ? user.uid : null;
     });
-
-    const loadBookmarkComponent = async () => {
-        try {
-            const response = await fetch('components/bookmark-modal.html');
-            const html = await response.text();
-            const placeholder = document.getElementById('bookmark-modal-placeholder');
-            if (placeholder) {
-                placeholder.innerHTML = html;
-                const handleEnter = (e) => {
-                    if (e.key === 'Enter') saveNewLink();
-                };
-                const nameInput = document.getElementById('bm_input_name');
-                const urlInput = document.getElementById('bm_input_url');
-                if (nameInput) nameInput.addEventListener('keyup', handleEnter);
-                if (urlInput) urlInput.addEventListener('keyup', handleEnter);
-            }
-            initSharedBookmarks();
-        } catch (error) {
-            console.error('Bookmark modal failed to load:', error);
-        }
-    };
-
-    loadBookmarkComponent();
 });
 
-function initSharedBookmarks() {
+// [수정] loader.js와 연동하여 컴포넌트 로드 후 이벤트 바인딩
+document.addEventListener('componentsLoaded', () => {
+    const nameInput = document.getElementById('bm_input_name');
+    const urlInput = document.getElementById('bm_input_url');
+    
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') window.saveNewLink();
+    };
+
+    if (nameInput) nameInput.addEventListener('keyup', handleEnter);
+    if (urlInput) urlInput.addEventListener('keyup', handleEnter);
+
+    window.initSharedBookmarks();
+});
+
+window.initSharedBookmarks = () => {
     const bmRef = firebase.database().ref('shared_bookmarks');
     bmRef.on('value', (snapshot) => {
         let data = snapshot.val();
@@ -56,22 +49,22 @@ function initSharedBookmarks() {
             currentFolderId = null;
         }
         
-        renderBookmarks();
+        window.renderBookmarks();
     });
-}
+};
 
-function saveBookmarksToFirebase() {
+window.saveBookmarksToFirebase = () => {
     firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
         console.error("Firebase 저장 실패:", err);
-        if (typeof showToast === 'function') showToast("❌ 데이터 저장에 실패했습니다.");
+        if (typeof window.showToast === 'function') window.showToast("❌ 데이터 저장에 실패했습니다.");
     });
-}
+};
 
 window.openBookmarkModal = () => {
     const modal = document.getElementById('bookmarkModal');
     if (modal) {
         modal.classList.add('active');
-        renderBookmarks();
+        window.renderBookmarks();
     }
 };
 
@@ -80,7 +73,7 @@ window.closeBookmarkModal = () => {
     if (modal) modal.classList.remove('active');
 };
 
-function escapeHTML(str) {
+window.escapeHTML = (str) => {
     if (!str) return '';
     return str.toString()
         .replace(/&/g, "&amp;")
@@ -88,9 +81,9 @@ function escapeHTML(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
+};
 
-function renderBookmarks() {
+window.renderBookmarks = () => {
     const fList = document.getElementById('bm_folder_list');
     const lList = document.getElementById('bm_link_list');
     const titleText = document.getElementById('bm_current_folder_title');
@@ -108,14 +101,14 @@ function renderBookmarks() {
         div.className = `bm-folder ${f.id === currentFolderId ? 'active' : ''}`;
         div.draggable = true;
         
-        const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteFolder('${f.id}')">🗑️</button>` : '';
+        const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); window.deleteFolder('${f.id}')">🗑️</button>` : '';
         
-        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${escapeHTML(f.name)}</span>
+        div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> <span class="bm-folder-name">${window.escapeHTML(f.name)}</span>
                         <div class="bm-actions">
-                            <button class="bm-btn-icon" onclick="event.stopPropagation(); editFolder('${f.id}')">✏️</button>
+                            <button class="bm-btn-icon" onclick="event.stopPropagation(); window.editFolder('${f.id}')">✏️</button>
                             ${deleteFolderBtn}
                         </div>`;
-        div.onclick = () => { currentFolderId = f.id; renderBookmarks(); };
+        div.onclick = () => { currentFolderId = f.id; window.renderBookmarks(); };
         
         div.ondragstart = (e) => { 
             e.dataTransfer.setData('text/plain', 'folder'); 
@@ -160,8 +153,8 @@ function renderBookmarks() {
                     const newToIdx = bookmarks.findIndex(bf => bf.id === f.id);
                     const insertIdx = isTop ? newToIdx : newToIdx + 1;
                     bookmarks.splice(insertIdx, 0, item);
-                    saveBookmarksToFirebase();
-                    renderBookmarks();
+                    window.saveBookmarksToFirebase();
+                    window.renderBookmarks();
                 }
             } else if (bmDragState.type === 'link') {
                 if (bmDragState.sourceFid !== f.id) {
@@ -171,9 +164,9 @@ function renderBookmarks() {
                         if (linkIndex !== -1) {
                             const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
                             f.links.push(movingLink);
-                            saveBookmarksToFirebase();
-                            renderBookmarks();
-                            if (typeof showToast === 'function') showToast(`📍 이동 완료`);
+                            window.saveBookmarksToFirebase();
+                            window.renderBookmarks();
+                            if (typeof window.showToast === 'function') window.showToast(`📍 이동 완료`);
                         }
                     }
                 }
@@ -185,7 +178,7 @@ function renderBookmarks() {
     const addFolderBtn = document.createElement('button');
     addFolderBtn.className = 'bm-btn-add-folder';
     addFolderBtn.textContent = "+ 새 폴더 추가";
-    addFolderBtn.onclick = addNewFolder;
+    addFolderBtn.onclick = window.addNewFolder;
     folderFragment.appendChild(addFolderBtn);
     fList.appendChild(folderFragment);
 
@@ -198,11 +191,11 @@ function renderBookmarks() {
             card.className = 'bm-link-card';
             card.draggable = true;
             card.onclick = () => window.open(l.url, '_blank');
-            const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
+            const deleteLinkBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); window.deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
             card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
-                             <div class="bm-link-info"><b>${escapeHTML(l.name)}</b><small>${escapeHTML(l.url)}</small></div>
+                             <div class="bm-link-info"><b>${window.escapeHTML(l.name)}</b><small>${window.escapeHTML(l.url)}</small></div>
                              <div class="bm-actions" onclick="event.stopPropagation()">
-                                <button class="bm-btn-icon" onclick="openEditForm('${l.id}')">✏️</button>
+                                <button class="bm-btn-icon" onclick="window.openEditForm('${l.id}')">✏️</button>
                                 ${deleteLinkBtn}
                              </div>`;
             card.ondragstart = (e) => { 
@@ -244,8 +237,8 @@ function renderBookmarks() {
                         const newToIdx = activeF.links.findIndex(bl => bl.id === l.id);
                         const insertIdx = isTop ? newToIdx : newToIdx + 1;
                         activeF.links.splice(insertIdx, 0, item);
-                        saveBookmarksToFirebase();
-                        renderBookmarks();
+                        window.saveBookmarksToFirebase();
+                        window.renderBookmarks();
                     }
                 }
             };
@@ -255,13 +248,13 @@ function renderBookmarks() {
     } else {
         titleText.textContent = `📂 폴더를 선택하세요`;
     }
-}
+};
 
 window.addNewFolder = () => {
     const name = prompt('새 폴더 이름:');
     if (name) { 
         bookmarks.push({ id: 'f_'+Date.now(), name: name.trim(), links: [] }); 
-        saveBookmarksToFirebase(); 
+        window.saveBookmarksToFirebase(); 
     }
 };
 
@@ -271,7 +264,7 @@ window.editFolder = (id) => {
     const n = prompt('폴더 이름 수정:', f.name);
     if (n) { 
         f.name = n.trim(); 
-        saveBookmarksToFirebase(); 
+        window.saveBookmarksToFirebase(); 
     }
 };
 
@@ -279,15 +272,21 @@ window.deleteFolder = (id) => {
     if (currentUserUid !== ADMIN_UID) return;
     if (confirm('폴더를 삭제하시겠습니까?\n(폴더 내부의 모든 링크가 함께 삭제됩니다)')) { 
         bookmarks = bookmarks.filter(x => x.id !== id); 
-        saveBookmarksToFirebase(); 
+        window.saveBookmarksToFirebase(); 
     }
 };
 
 window.toggleAddForm = (s) => { 
     const form = document.getElementById('bm_add_form');
     if (form) {
-        if (s) form.classList.add('active');
-        else form.classList.remove('active');
+        // [수정] active만 추가하는 게 아니라 d-none을 함께 제어해야 함
+        if (s) {
+            form.classList.remove('d-none');
+            form.classList.add('active');
+        } else {
+            form.classList.add('d-none');
+            form.classList.remove('active');
+        }
     }
     if (!s) editingLinkId = null;
 };
@@ -298,7 +297,7 @@ window.openAddForm = () => {
     if (title) title.textContent = "🔗 링크 추가"; 
     document.getElementById('bm_input_name').value = '';
     document.getElementById('bm_input_url').value = '';
-    toggleAddForm(true); 
+    window.toggleAddForm(true); 
     setTimeout(() => document.getElementById('bm_input_name').focus(), 50);
 };
 
@@ -312,7 +311,7 @@ window.openEditForm = (id) => {
     if (title) title.textContent = "✏️ 링크 수정";
     document.getElementById('bm_input_name').value = l.name;
     document.getElementById('bm_input_url').value = l.url;
-    toggleAddForm(true);
+    window.toggleAddForm(true);
     setTimeout(() => document.getElementById('bm_input_name').focus(), 50);
 };
 
@@ -334,8 +333,8 @@ window.saveNewLink = () => {
     } else {
         f.links.push({ id: 'l_'+Date.now(), name: rawN, url: rawU });
     }
-    saveBookmarksToFirebase(); 
-    toggleAddForm(false);
+    window.saveBookmarksToFirebase(); 
+    window.toggleAddForm(false);
 };
 
 window.deleteLink = (fid, lid) => {
@@ -344,7 +343,7 @@ window.deleteLink = (fid, lid) => {
         const f = bookmarks.find(x => x.id === fid);
         if (f) {
             f.links = f.links.filter(x => x.id !== lid);
-            saveBookmarksToFirebase();
+            window.saveBookmarksToFirebase();
         }
     }
 };
