@@ -318,8 +318,16 @@ window.goToday = () => { window.calCurrentDate = new Date(); window.renderCalend
 window.openScheduleModal = (id = null) => {
     if (typeof id !== 'string') id = null; 
 
-    const modal = document.getElementById('scheduleModal');
-    if (!modal) return;
+    let modal;
+    if (typeof window.requireElement === 'function') {
+        modal = window.requireElement('scheduleModal', '일정 등록/수정 모달 열기');
+    } else {
+        modal = document.getElementById('scheduleModal');
+        if (!modal) {
+            console.error("DOM Element Missing: scheduleModal");
+            return;
+        }
+    }
     
     const idField = document.getElementById('sch_id');
     if (idField) idField.value = id || '';
@@ -396,8 +404,13 @@ window.openScheduleDetail = (id) => {
     
     window.currentViewingScheduleId = id;
     
-    const modal = document.getElementById('scheduleDetailModal');
-    if (!modal) return;
+    let modal;
+    if (typeof window.requireElement === 'function') {
+        modal = window.requireElement('scheduleDetailModal', '일정 상세 모달 열기');
+    } else {
+        modal = document.getElementById('scheduleDetailModal');
+        if (!modal) return;
+    }
     
     const colorBar = document.getElementById('detail_color_bar');
     if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
