@@ -1,16 +1,16 @@
 <div class="panel">
-    <h2 class="panel-title">📝 이슈 내용 입력</h2>
-    
-    <div class="form-group preset-wrapper">
-        <div class="label-action-row mb-2">
-            <label class="form-label-accent">💾 자주 쓰는 양식 프리셋</label>
-            <div class="case-ctrl-row">
-                <input type="text" id="newPresetName" class="form-control-sm preset-name-input" placeholder="새 프리셋 이름">
+    <div class="panel-header-flex">
+        <h2 class="panel-title mb-0">📝 이슈 내용 입력</h2>
+        <div class="preset-controls-inline">
+            <select id="inputPresetSelect" class="form-control-sm preset-select" onchange="window.handlePresetDropdownChange()">
+                <option value="">💾 프리셋 선택...</option>
+            </select>
+            <input type="text" id="newPresetName" class="form-control-sm preset-name-input" placeholder="프리셋명 입력">
+            <div class="preset-btn-group">
                 <button class="btn-outline-sm" onclick="window.saveInputPreset()">저장</button>
+                <button id="btnEditPreset" class="btn-outline-sm d-none" onclick="window.editInputPreset()">수정</button>
                 <button class="btn-outline-sm btn-delete-preset" onclick="window.deleteInputPreset()">삭제</button>
             </div>
-        </div>
-        <div class="radio-tab-group preset-tab-group" id="inputPresetList">
         </div>
     </div>
 
