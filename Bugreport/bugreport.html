@@ -1,25 +1,36 @@
 <div id="bugReportModal" class="bug-modal-overlay d-none">
     <div class="bug-modal-container">
         <div class="bug-modal-header">
-            <h2>🐛 시스템 버그 제보</h2>
-            <button class="bug-close-btn" onclick="closeBugReportModal()">×</button>
+            <h2>🐛 시스템 버그 제보 보드</h2>
+            <button class="bug-close-btn" onclick="window.closeBugReportModal()">×</button>
         </div>
         
         <div class="bug-modal-body">
-            <div class="bug-form-group">
-                <label class="form-label-accent">발생 위치 및 상황</label>
-                <input type="text" id="bug_location" class="bug-form-control" placeholder="예: 캘린더 화면에서 일정 저장 시">
+            <div class="bug-write-section">
+                <div class="bug-form-group">
+                    <label class="form-label-accent">🛠️ 문제 상황 및 내용</label>
+                    <textarea id="bug_description" class="bug-form-control" placeholder="발생 위치와 현상을 자세히 적어주세요. (Enter로 줄바꿈 가능)"></textarea>
+                </div>
+                <div class="bug-write-footer">
+                    <small class="bug-tip">※ 제보 시 닉네임이 함께 기록됩니다.</small>
+                    <button class="bug-btn-primary" onclick="window.submitBugReport()">제보하기</button>
+                </div>
             </div>
-            
-            <div class="bug-form-group">
-                <label class="form-label-accent">상세 내용 *</label>
-                <textarea id="bug_description" class="bug-form-control" placeholder="어떤 문제가 발생했는지 최대한 자세히 설명해 주세요."></textarea>
+
+            <div class="bug-divider"></div>
+
+            <div class="bug-list-section">
+                <h3 class="bug-list-title">📋 최근 제보 목록</h3>
+                <div id="bug_list_container" class="bug-list-container">
+                    <p class="bug-empty-text">데이터를 불러오는 중...</p>
+                </div>
             </div>
         </div>
         
         <div class="bug-modal-footer">
-            <button class="bug-btn-secondary" onclick="closeBugReportModal()">취소</button>
-            <button class="bug-btn-primary" onclick="submitBugReport()">제보하기</button>
+            <div id="bug_pagination" class="bug-pagination">
+                </div>
+            <button class="bug-btn-secondary" onclick="window.closeBugReportModal()">닫기</button>
         </div>
     </div>
 </div>
