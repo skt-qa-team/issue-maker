@@ -3,7 +3,7 @@
         <div id="detail_color_bar" class="cal-detail-color-bar"></div>
         
         <div class="cal-detail-body">
-            <button class="close-btn cal-close-btn" onclick="closeScheduleDetail()">×</button>
+            <button class="close-btn cal-close-btn" onclick="window.closeScheduleDetail()">×</button>
             
             <div class="cal-detail-header-group">
                 <h2 id="detail_title" class="cal-detail-title">일정 제목</h2>
@@ -22,9 +22,9 @@
             </div>
 
             <div class="cal-detail-btn-group">
-                <button id="btn_start_epic" class="cal-btn-action-primary d-none" onclick="startScheduleWorkflow()">🚀 일정 시작 (Epic 연동)</button>
-                <button class="cal-btn-action-secondary" onclick="editSchedule()">수정</button>
-                <button class="cal-btn-action-danger" onclick="deleteSchedule()">삭제</button>
+                <button id="btn_start_epic" class="cal-btn-action-primary d-none" onclick="window.startScheduleWorkflow()">🚀 일정 시작 (Epic 연동)</button>
+                <button class="cal-btn-action-secondary" onclick="window.editSchedule()">수정</button>
+                <button class="cal-btn-action-danger" onclick="window.deleteSchedule()">삭제</button>
             </div>
         </div>
     </div>
