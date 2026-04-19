@@ -73,13 +73,14 @@ window.generateTemplate = () => {
     if (!isPureWeb) {
         let activeDeviceLists = [];
         const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
-        const iosMode = document.querySelector('input[name="ios_ver_type"]:checked')?.value;
+        const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
+        
         const osGroup = ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
         const showAnd = (osDropdownVal === "Android/iOS" || osDropdownVal === "Android" || osGroup.slice(3).includes(osDropdownVal));
         const showIos = (osDropdownVal === "Android/iOS" || osDropdownVal === "iOS" || osGroup.slice(3).includes(osDropdownVal));
 
         if (showAnd) activeDeviceLists.push(document.getElementById(`and${andMode === 'normal' ? 'Normal' : 'Special'}List`));
-        if (showIos) activeDeviceLists.push(document.getElementById(`iosNormalList`)); 
+        if (showIos) activeDeviceLists.push(document.getElementById(`ios${iosMode === 'normal' ? 'Normal' : 'Special'}List`));
 
         let checkedDeviceValues = [];
         activeDeviceLists.forEach(list => {
