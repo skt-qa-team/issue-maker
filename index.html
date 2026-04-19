@@ -38,9 +38,9 @@
 
     <main class="main-container">
         <div class="main-tab-nav">
-            <button class="main-tab-btn active" data-target="panel-issue">이슈 작성</button>
-            <button class="main-tab-btn" data-target="panel-calendar">일정 관리</button>
-            <button class="main-tab-btn" data-target="panel-completion">완료문</button>
+            <button class="main-tab-btn active" data-target="panel-issue" onclick="window.switchMainTab('issue')">이슈 작성</button>
+            <button class="main-tab-btn" data-target="panel-calendar" onclick="window.switchMainTab('calendar')">일정 관리</button>
+            <button class="main-tab-btn" data-target="panel-completion" onclick="window.switchMainTab('completion')">완료문</button>
         </div>
 
         <div id="panel-issue" class="main-panel-content active">
