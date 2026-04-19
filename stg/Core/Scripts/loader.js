@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const components = [
         { id: 'header-placeholder', url: 'Header/header.html' },
-        { id: 'input-form-placeholder', url: 'InputForm/input-form.html' },
-        { id: 'guide-panel-placeholder', url: 'GuidePanel/guide-panel.html' },
-        { id: 'result-panel-placeholder', url: 'ResultPanel/result-panel.html' },
+        { id: 'input-form-placeholder', url: 'InputForm/inputform.html' },
+        { id: 'guide-panel-placeholder', url: 'GuideForm/GuideForm.html' },
+        { id: 'result-panel-placeholder', url: 'ResultForm/resultform.html' },
         { id: 'calendar-placeholder', url: 'Calendar/calendar.html' },
         { id: 'completion-panel-placeholder', url: 'Completion/completion.html' },
         { id: 'condition-modal-placeholder', url: 'Condition/condition.html' },
