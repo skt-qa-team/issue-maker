@@ -1,13 +1,3 @@
-.modal-lg {
-    max-width: 850px;
-    width: 90%;
-}
-
-.modal-content {
-    padding: 30px 40px;
-    background: var(--panel-bg);
-}
-
 .setting-box {
     background: var(--bg-color);
     padding: 25px 30px;
