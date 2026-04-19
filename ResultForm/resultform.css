@@ -27,6 +27,14 @@
     overflow-y: auto;
 }
 
+/* [버그 수정] 포커스 시 배경색이 하얗게 변하는 현상 해결 */
+.output-field:focus {
+    background: #0f172a !important; 
+    color: #e2e8f0 !important;
+    border-color: var(--accent-blue) !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
 .result-body-section {
     flex: 1;
     display: flex;
@@ -36,11 +44,6 @@
 
 .result-textarea {
     flex: 1;
-}
-
-.output-field:focus {
-    border-color: var(--accent-blue) !important;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 #outputTitle {
