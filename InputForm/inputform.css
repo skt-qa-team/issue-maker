@@ -35,8 +35,8 @@ textarea {
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid var(--border-color);
-    flex-wrap: wrap;
-    gap: 15px;
+    flex-wrap: nowrap;
+    gap: 20px;
 }
 
 .mb-0 {
@@ -46,21 +46,27 @@ textarea {
 .preset-controls-inline {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: nowrap;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
 }
 
 .preset-select {
-    width: 160px !important;
+    flex: 0 1 200px;
+    min-width: 160px;
     padding: 8px 12px !important;
     font-size: 0.85rem !important;
     border-radius: var(--radius-sm);
     background: var(--panel-bg) !important;
     cursor: pointer;
+    width: auto !important;
 }
 
 .preset-name-input {
-    width: 130px;
+    flex: 0 1 180px;
+    min-width: 120px;
     padding: 8px 12px;
     font-size: 0.85rem;
     border: 1px solid var(--border-color);
@@ -79,6 +85,7 @@ textarea {
 .preset-btn-group {
     display: flex;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .btn-delete-preset:hover {
