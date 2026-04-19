@@ -56,6 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             document.dispatchEvent(new CustomEvent('componentsLoaded'));
-        }, 50); 
+        }, 100); 
     });
 });
