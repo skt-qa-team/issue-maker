@@ -1,27 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-
-    window.showToast = (message) => {
-        const toast = document.createElement('div');
-        toast.className = 'toast-msg';
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        
-        requestAnimationFrame(() => {
-            setTimeout(() => toast.classList.add('show'), 10);
-        });
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 400);
-        }, 2000);
-    };
-
     let saveTimer;
     document.addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
@@ -31,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof window.saveDraft === 'function') window.saveDraft();
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                window.showToast(`💾 ${timeStr} 자동 저장됨`);
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`💾 ${timeStr} 자동 저장됨`);
+                }
             }, 1500);
         }
     });
@@ -49,14 +28,9 @@ window.saveDraft = () => {
         if (el) data[id] = el.value;
     });
 
-    const devices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
-    data.selectedDevices = devices;
-
-    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
-    data.selectedServers = servers;
-
-    const verCbs = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.id);
-    data.selectedVerCbs = verCbs;
+    data.selectedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    data.selectedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    data.selectedVerCbs = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.id);
 
     localStorage.setItem('skm_draft', JSON.stringify(data));
 };
@@ -93,7 +67,7 @@ window.loadDraft = () => {
             });
         }
 
-        window.syncEnvironmentByOS();
+        if (typeof window.syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
 
         if (data.selectedDevices) {
             setTimeout(() => {
@@ -101,7 +75,7 @@ window.loadDraft = () => {
                     const cb = document.querySelector(`.issue-device-cb[value="${dev}"]`);
                     if (cb) cb.checked = true;
                 });
-                window.generateTemplate();
+                if (typeof window.generateTemplate === 'function') window.generateTemplate();
             }, 100);
         }
     } catch (e) {
@@ -117,13 +91,8 @@ window.toggleDeviceMode = (os) => {
     const normalList = document.getElementById(`${os}NormalList`);
     const specialList = document.getElementById(`${os}SpecialList`);
 
-    if (isNormal) {
-        if (normalList) normalList.classList.remove('d-none');
-        if (specialList) specialList.classList.add('d-none');
-    } else {
-        if (normalList) normalList.classList.add('d-none');
-        if (specialList) specialList.classList.remove('d-none');
-    }
+    if (normalList) normalList.classList.toggle('d-none', !isNormal);
+    if (specialList) specialList.classList.toggle('d-none', isNormal);
     
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
 };
@@ -136,19 +105,20 @@ window.handlePocChange = () => {
     const isWeb = (poc === 'PC Web' || poc === 'PC M.Web' || poc === 'Admin');
     const isAI = (poc === 'AI Layer');
 
-    const deviceGroup = document.getElementById('deviceGroup');
-    const appVersionGroup = document.getElementById('appVersionGroup');
-    const urlGroup = document.getElementById('urlGroup');
-    const aiModeGroup = document.getElementById('aiModeGroup');
+    const groups = {
+        deviceGroup: isWeb,
+        appVersionGroup: isWeb,
+        urlGroup: !isWeb,
+        aiModeGroup: !isAI
+    };
 
-    if (deviceGroup) deviceGroup.classList.toggle('d-none', isWeb);
-    if (appVersionGroup) appVersionGroup.classList.toggle('d-none', isWeb);
-    if (urlGroup) urlGroup.classList.toggle('d-none', !isWeb);
-    if (aiModeGroup) aiModeGroup.classList.toggle('d-none', !isAI);
+    Object.entries(groups).forEach(([id, shouldHide]) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('d-none', shouldHide);
+    });
 
     if (isWeb) {
-        const configStr = localStorage.getItem('qa_system_config_master');
-        const config = configStr ? JSON.parse(configStr) : {};
+        const config = JSON.parse(localStorage.getItem('qa_system_config_master') || '{}');
         const urlLabel = document.getElementById('urlLabel');
         const targetUrl = document.getElementById('targetUrl');
 
@@ -185,11 +155,11 @@ window.syncDeviceFromVersion = (os) => {
     const col = document.getElementById(`${os}DeviceCol`);
     if (!cb || !col) return;
 
-    if (cb.checked) col.classList.remove('d-none');
-    else {
+    if (cb.checked) {
+        col.classList.remove('d-none');
+    } else {
         col.classList.add('d-none');
-        const checkboxes = col.querySelectorAll('.issue-device-cb');
-        checkboxes.forEach(box => box.checked = false);
+        col.querySelectorAll('.issue-device-cb').forEach(box => box.checked = false);
     }
     
     if (typeof window.updateVersionTextbox === 'function') window.updateVersionTextbox();
@@ -197,8 +167,7 @@ window.syncDeviceFromVersion = (os) => {
 };
 
 window.updateVersionTextbox = () => {
-    const configStr = localStorage.getItem('qa_system_config_master');
-    const config = configStr ? JSON.parse(configStr) : {};
+    const config = JSON.parse(localStorage.getItem('qa_system_config_master') || '{}');
     let versions = [];
 
     const andCb = document.getElementById('ver_cb_android');
@@ -211,15 +180,15 @@ window.updateVersionTextbox = () => {
     }
 
     const browserMap = {
-        'samsung': { id: 'ver_cb_samsung', label: '삼성인터넷', key: 'samsungBrowser' },
-        'safari': { id: 'ver_cb_safari', label: 'Safari', key: 'safariBrowser' },
-        'chrome': { id: 'ver_cb_chrome', label: 'Chrome', key: 'chromeBrowser' },
-        'edge': { id: 'ver_cb_edge', label: 'Edge', key: 'edgeBrowser' }
+        'ver_cb_samsung': { label: '삼성인터넷', key: 'samsungBrowser' },
+        'ver_cb_safari': { label: 'Safari', key: 'safariBrowser' },
+        'ver_cb_chrome': { label: 'Chrome', key: 'chromeBrowser' },
+        'ver_cb_edge': { label: 'Edge', key: 'edgeBrowser' }
     };
 
-    Object.values(browserMap).forEach(b => {
-        const cb = document.getElementById(b.id);
-        if (cb && cb.checked) versions.push(`${b.label}_${config[b.key] || ''}`);
+    Object.entries(browserMap).forEach(([id, info]) => {
+        const cb = document.getElementById(id);
+        if (cb && cb.checked) versions.push(`${info.label}_${config[info.key] || ''}`);
     });
 
     const appVerEl = document.getElementById('appVersion');
@@ -259,10 +228,7 @@ window.resetPrefixOrder = () => {
 };
 
 window.loadPrefixOrder = () => {
-    const ordersStr = localStorage.getItem('skm_prefix_order');
-    if (!ordersStr) return;
-    const orders = JSON.parse(ordersStr);
-
+    const orders = JSON.parse(localStorage.getItem('skm_prefix_order') || '{}');
     const container = document.getElementById('prefixContainer');
     if (!container) return;
 
