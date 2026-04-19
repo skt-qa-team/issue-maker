@@ -210,7 +210,6 @@
     pointer-events: none;
 }
 
-/* 모달 레이아웃 요새화 (Apple Style) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -223,6 +222,14 @@
     justify-content: center;
     align-items: center;
     z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay:not(.d-none) {
+    pointer-events: auto;
+    opacity: 1;
 }
 
 .modal-overlay.d-none {
