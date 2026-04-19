@@ -1,6 +1,6 @@
-let calCurrentDate = new Date();
-let calSchedules = [];
-let currentViewingScheduleId = null;
+window.calCurrentDate = new Date();
+window.calSchedules = [];
+window.currentViewingScheduleId = null;
 
 const holidays = {
     "01-01": "신정",
@@ -25,75 +25,44 @@ const holidays = {
     "12-25": "성탄절"
 };
 
-function fetchSchedulesFromFirebase() {
+window.fetchSchedulesFromFirebase = () => {
     if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 firebase.database().ref('shared_schedules').on('value', (snapshot) => {
                     const data = snapshot.val();
-                    calSchedules = data ? Object.values(data) : [];
-                    renderCalendar();
+                    window.calSchedules = data ? Object.values(data) : [];
+                    window.renderCalendar();
                 });
             }
         });
     }
-}
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loadCalendarComponent = async () => {
-        try {
-            const response = await fetch('components/calendar.html');
-            const html = await response.text();
-            const placeholder = document.getElementById('comp-calendar');
-            if (placeholder) {
-                placeholder.innerHTML = html;
-                fetchSchedulesFromFirebase(); 
-                renderCalendar();
-            }
-        } catch (error) {
-            console.error('Calendar load failed:', error);
-        }
-    };
-    loadCalendarComponent();
-
-    document.addEventListener('change', (e) => {
-        if (e.target.name === 'sch_color') {
-            handleScheduleTypeChange();
-        }
-        
-        if (e.target.id === 'sch_start') {
-            const endInput = document.getElementById('sch_end');
-            const typeRadio = document.querySelector('input[name="sch_color"]:checked');
-            
-            if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
-                if (endInput) endInput.value = e.target.value;
-            } else if (endInput && (!endInput.value || endInput.value < e.target.value)) {
-                endInput.value = e.target.value;
-            }
-        }
-    });
-
-    const injectCalButton = setInterval(() => {
-        const topBarBtns = document.querySelector('.top-bar-btns');
-        if (topBarBtns && !document.querySelector('.cal-btn-wrapper')) {
-            clearInterval(injectCalButton);
-            const calWrapper = document.createElement('div');
-            calWrapper.className = 'menu-item-wrapper cal-btn-wrapper';
-            calWrapper.onclick = () => switchMainTab('calendar');
-            calWrapper.innerHTML = `<div class="setting-btn-float cal-icon">📅</div><span class="menu-label">일정 관리</span>`;
-            
-            const issueWrapper = document.createElement('div');
-            issueWrapper.className = 'menu-item-wrapper issue-btn-wrapper';
-            issueWrapper.onclick = () => switchMainTab('issue');
-            issueWrapper.innerHTML = `<div class="setting-btn-float main-icon">📝</div><span class="menu-label">이슈 작성</span>`;
-            
-            topBarBtns.prepend(calWrapper);
-            topBarBtns.prepend(issueWrapper);
-        }
-    }, 100);
+document.addEventListener('componentsLoaded', () => {
+    window.fetchSchedulesFromFirebase();
+    window.renderCalendar();
+    window.updateQuotaDisplay();
 });
 
-function handleScheduleTypeChange() {
+document.addEventListener('change', (e) => {
+    if (e.target.name === 'sch_color') {
+        window.handleScheduleTypeChange();
+    }
+    
+    if (e.target.id === 'sch_start') {
+        const endInput = document.getElementById('sch_end');
+        const typeRadio = document.querySelector('input[name="sch_color"]:checked');
+        
+        if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
+            if (endInput) endInput.value = e.target.value;
+        } else if (endInput && (!endInput.value || endInput.value < e.target.value)) {
+            endInput.value = e.target.value;
+        }
+    }
+});
+
+window.handleScheduleTypeChange = () => {
     const selectedRadio = document.querySelector('input[name="sch_color"]:checked');
     if (!selectedRadio) return;
     
@@ -110,9 +79,9 @@ function handleScheduleTypeChange() {
         else if (type === '회의') labelStart.textContent = '회의 날짜 *';
         else labelStart.textContent = '날짜 *';
     }
-}
+};
 
-function updateQuotaDisplay() {
+window.updateQuotaDisplay = () => {
     const quotaInfo = document.getElementById('ai_quota_info');
     if (quotaInfo) {
         const d = new Date();
@@ -128,7 +97,7 @@ function updateQuotaDisplay() {
         quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
         quotaInfo.classList.toggle('quota-exhausted', remaining === 0);
     }
-}
+};
 
 document.addEventListener('paste', async (e) => {
     const modal = document.getElementById('scheduleModal');
@@ -137,53 +106,17 @@ document.addEventListener('paste', async (e) => {
         for (let i = 0; i < items.length; i++) {
             if (items[i].type.indexOf('image') !== -1) {
                 const file = items[i].getAsFile();
-                await processScreenshot(file);
+                await window.processScreenshot(file);
                 break;
             }
         }
     }
 });
 
-document.addEventListener('change', async (e) => {
-    if (e.target.id === 'ai_image_input') {
-        const file = e.target.files[0];
-        if (file) await processScreenshot(file);
-        e.target.value = '';
-    }
-});
-
-document.addEventListener('dragover', (e) => {
-    const dropzone = e.target.closest('#ai_dropzone');
-    if (dropzone) { 
-        e.preventDefault(); 
-        dropzone.classList.add('dragover'); 
-    }
-});
-
-document.addEventListener('dragleave', (e) => {
-    const dropzone = e.target.closest('#ai_dropzone');
-    if (dropzone) { 
-        e.preventDefault(); 
-        dropzone.classList.remove('dragover'); 
-    }
-});
-
-document.addEventListener('drop', async (e) => {
-    const dropzone = e.target.closest('#ai_dropzone');
-    if (dropzone) {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            await processScreenshot(file);
-        }
-    }
-});
-
-async function processScreenshot(file) {
+window.processScreenshot = async (file) => {
     let savedKey = localStorage.getItem('GEMINI_API_KEY');
     if (!savedKey) {
-        savedKey = prompt("Gemini API 키가 필요합니다.\n(입력하신 키는 브라우저 내부에만 안전하게 보관됩니다.)");
+        savedKey = prompt("Gemini API 키가 필요합니다.");
         if (!savedKey) return;
         localStorage.setItem('GEMINI_API_KEY', savedKey.trim());
     }
@@ -214,7 +147,7 @@ async function processScreenshot(file) {
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 이미지는 일정표입니다. 1열 텍스트는 'title' 키에, 4열의 기간(예: 4/14~4/17)은 분석하여 시작일을 'start' 키, 종료일을 'end' 키에 매핑하세요. 날짜는 2026년 기준 'YYYY-MM-DD' 포맷이어야 합니다. 키 이름은 반드시 영어 소문자 'title', 'start', 'end'만 사용해야 합니다. 결과는 엄격한 JSON 배열 형식으로 출력하세요. 마크다운 기호 없이 순수 JSON만 반환하세요." },
+                                { text: "이 이미지는 일정표입니다. 1열 텍스트는 'title' 키에, 4열의 기간(예: 4/14~4/17)은 분석하여 시작일을 'start' 키, 종료일을 'end' 키에 매핑하세요. 날짜는 2026년 기준 'YYYY-MM-DD' 포맷이어야 합니다. 키 이름은 영어 소문자 'title', 'start', 'end'만 사용하세요. 순수 JSON 배열만 반환하세요." },
                                 { inline_data: { mime_type: file.type, data: base64Image } }
                             ]
                         }]
@@ -222,16 +155,7 @@ async function processScreenshot(file) {
                 });
 
                 const result = await response.json();
-                
-                if (result.error) {
-                    if (result.error.code === 400 || result.error.code === 403) {
-                        localStorage.removeItem('GEMINI_API_KEY');
-                        throw new Error("API 키 오류. 다시 시도하여 새로운 키를 입력해주세요.");
-                    }
-                    throw new Error(result.error.message);
-                }
-
-                if (!result.candidates || !result.candidates[0]) throw new Error("AI 분석 실패");
+                if (result.error) throw new Error(result.error.message);
 
                 let textResult = result.candidates[0].content.parts[0].text;
                 textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -240,39 +164,19 @@ async function processScreenshot(file) {
                 if (Array.isArray(parsedArray)) {
                     usageData.count++;
                     localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
-                    updateQuotaDisplay();
+                    window.updateQuotaDisplay();
 
                     let savePromises = [];
-                    let savedCount = 0;
-
                     parsedArray.forEach((item, index) => {
                         if (!item.title || !item.start) return; 
-
-                        const newSch = {
-                            id: Date.now().toString() + index,
-                            title: item.title,
-                            start: item.start,
-                            end: item.end || item.start,
-                            epic: '',
-                            desc: 'AI 자동 추출 (스크린샷)',
-                            color: '#3b82f6' 
-                        };
-
-                        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                            savePromises.push(firebase.database().ref('shared_schedules/' + newSch.id).set(newSch));
-                        } else {
-                            calSchedules.push(newSch);
-                        }
-                        savedCount++;
+                        const id = Date.now().toString() + index;
+                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, epic: '', desc: 'AI 추출', color: '#3b82f6' };
+                        savePromises.push(firebase.database().ref('shared_schedules/' + id).set(newSch));
                     });
 
-                    if (savePromises.length > 0) await Promise.all(savePromises);
-                    renderCalendar();
-                    
-                    if (typeof showToast === 'function' && savedCount > 0) {
-                        showToast(`✅ ${savedCount}개의 일정이 등록되었습니다.`);
-                    }
-                    closeScheduleModal();
+                    await Promise.all(savePromises);
+                    if (typeof window.showToast === 'function') window.showToast(`✅ ${savePromises.length}개의 일정이 등록되었습니다.`);
+                    window.closeScheduleModal();
                 }
             } catch (innerError) {
                 alert("처리 오류: " + innerError.message);
@@ -282,59 +186,23 @@ async function processScreenshot(file) {
             }
         };
     } catch (error) {
-        alert("파일 읽기 오류가 발생했습니다.");
-        dropzoneContent.classList.remove('d-none');
-        loadingContent.classList.add('d-none');
-    }
-}
-
-window.switchMainTab = (tabName) => {
-    const allTabs = document.querySelectorAll('.main-tab-content');
-    allTabs.forEach(tab => tab.classList.add('d-none'));
-    
-    document.body.classList.remove('no-scroll');
-
-    if (tabName === 'calendar') {
-        const calTab = document.getElementById('tab-calendar');
-        if (calTab) {
-            calTab.classList.remove('d-none');
-            renderCalendar();
-        }
-    } else {
-        const issueTab = document.getElementById('tab-issue-maker');
-        if (issueTab) {
-            issueTab.classList.remove('d-none');
-            window.scrollTo(0, 0);
-        }
+        alert("파일 읽기 오류");
     }
 };
 
-function escapeHTML(str) {
-    if (!str) return '';
-    return str.toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function renderCalendar() {
+window.renderCalendar = () => {
     const grid = document.getElementById('cal-grid');
     const title = document.getElementById('cal-month-year');
     if (!grid || !title) return;
 
-    const year = calCurrentDate.getFullYear();
-    const month = calCurrentDate.getMonth();
+    const year = window.calCurrentDate.getFullYear();
+    const month = window.calCurrentDate.getMonth();
     title.textContent = `${year}. ${String(month + 1).padStart(2, '0')}`;
 
     const firstDayIndex = new Date(year, month, 1).getDay();
     const lastDay = new Date(year, month + 1, 0).getDate();
     const prevLastDay = new Date(year, month, 0).getDate();
 
-    const today = new Date();
-    const isThisMonth = (today.getFullYear() === year && today.getMonth() === month);
-    
     grid.innerHTML = '';
     const allDays = [];
 
@@ -343,24 +211,14 @@ function renderCalendar() {
     const remain = 42 - allDays.length;
     for (let i = 1; i <= remain; i++) allDays.push({ day: i, month: month + 1, year, type: 'empty' });
 
-    const laneMap = new Map(); 
-
-    const colorOrder = { "#3b82f6": 1, "#10b981": 2, "#f59e0b": 3, "#ef4444": 4, "#8b5cf6": 5 };
-
-    const sortedSchedules = [...calSchedules].sort((a, b) => {
-        const weightA = colorOrder[a.color] || 99;
-        const weightB = colorOrder[b.color] || 99;
-        if (weightA !== weightB) return weightA - weightB;
-        if (a.start !== b.start) return new Date(a.start) - new Date(b.start);
-        return (new Date(b.end) - new Date(b.start)) - (new Date(a.end) - new Date(a.start));
-    });
+    const laneMap = new Map();
+    const sortedSchedules = [...window.calSchedules].sort((a, b) => new Date(a.start) - new Date(b.start));
 
     for (let w = 0; w < 6; w++) {
         const weekDays = allDays.slice(w * 7, (w + 1) * 7);
         const firstDayOfWeek = `${weekDays[0].year}-${String(weekDays[0].month + 1).padStart(2, '0')}-${String(weekDays[0].day).padStart(2, '0')}`;
         const lastDayOfWeek = `${weekDays[6].year}-${String(weekDays[6].month + 1).padStart(2, '0')}-${String(weekDays[6].day).padStart(2, '0')}`;
-
-        const weekSchedules = sortedSchedules.filter(s => s.start && s.end && s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
+        const weekSchedules = sortedSchedules.filter(s => s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
         const lanes = [];
 
         weekSchedules.forEach(sch => {
@@ -396,22 +254,17 @@ function renderCalendar() {
         cell.className = `cal-day ${wd.type}`;
         const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
         const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
-        const dayOfWeek = idx % 7;
         
-        if (dayOfWeek === 0 || (wd.type === 'current' && holidays[keyMMDD])) cell.classList.add('sun');
-        else if (dayOfWeek === 6) cell.classList.add('sat');
-        if (isThisMonth && wd.type === 'current' && wd.day === today.getDate()) cell.classList.add('today');
+        if (idx % 7 === 0 || (wd.type === 'current' && holidays[keyMMDD])) cell.classList.add('sun');
+        else if (idx % 7 === 6) cell.classList.add('sat');
 
-        let holidayHtml = (wd.type === 'current' && holidays[keyMMDD]) ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '';
-        
         const dayNumDiv = document.createElement('div');
         dayNumDiv.className = 'day-number';
-        dayNumDiv.innerHTML = `${wd.day}${holidayHtml}`;
+        dayNumDiv.innerHTML = `${wd.day}${ (wd.type === 'current' && holidays[keyMMDD]) ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
         cell.appendChild(dayNumDiv);
 
         const schContainer = document.createElement('div');
         schContainer.className = 'sch-container';
-
         const dayLanes = laneMap.get(dateStr) || [];
         for (let l = 0; l < dayLanes.length; l++) {
             const item = dayLanes[l];
@@ -421,7 +274,7 @@ function renderCalendar() {
                 schDiv.style.setProperty('--sch-bg', item.sch.color);
                 schDiv.style.setProperty('--sch-span', item.span);
                 schDiv.textContent = item.sch.title;
-                schDiv.onclick = (e) => { e.stopPropagation(); openScheduleDetail(item.sch.id); };
+                schDiv.onclick = (e) => { e.stopPropagation(); window.openScheduleDetail(item.sch.id); };
             } else {
                 schDiv.className = 'cal-schedule spacer';
             }
@@ -430,10 +283,10 @@ function renderCalendar() {
         cell.appendChild(schContainer);
         grid.appendChild(cell);
     });
-}
+};
 
-window.changeMonth = (offset) => { calCurrentDate.setMonth(calCurrentDate.getMonth() + offset); renderCalendar(); };
-window.goToday = () => { calCurrentDate = new Date(); renderCalendar(); };
+window.changeMonth = (offset) => { window.calCurrentDate.setMonth(window.calCurrentDate.getMonth() + offset); window.renderCalendar(); };
+window.goToday = () => { window.calCurrentDate = new Date(); window.renderCalendar(); };
 
 window.openScheduleModal = (id = null) => {
     const modal = document.getElementById('scheduleModal');
@@ -442,7 +295,7 @@ window.openScheduleModal = (id = null) => {
     if (idField) idField.value = id || '';
 
     if (id) {
-        const sch = calSchedules.find(s => s.id === id);
+        const sch = window.calSchedules.find(s => s.id === id);
         if (sch) {
             document.getElementById('sch_title').value = sch.title;
             document.getElementById('sch_start').value = sch.start;
@@ -461,12 +314,8 @@ window.openScheduleModal = (id = null) => {
         if (defaultRadio) defaultRadio.checked = true;
     }
     
-    const detailModal = document.getElementById('scheduleDetailModal');
-    if (detailModal) detailModal.classList.add('d-none');
-    currentViewingScheduleId = null;
-
-    handleScheduleTypeChange(); 
-    updateQuotaDisplay();
+    window.handleScheduleTypeChange(); 
+    window.updateQuotaDisplay();
     modal.classList.remove('d-none');
 };
 
@@ -477,34 +326,31 @@ window.saveSchedule = () => {
     const id = (idField && idField.value) ? idField.value : Date.now().toString();
     const title = document.getElementById('sch_title').value;
     const start = document.getElementById('sch_start').value;
-    const epic = document.getElementById('sch_epic').value;
-    const desc = document.getElementById('sch_desc').value;
     const colorRadio = document.querySelector('input[name="sch_color"]:checked');
     const color = colorRadio ? colorRadio.value : '#3b82f6';
-    
     let end = document.getElementById('sch_end').value;
     if (colorRadio && colorRadio.getAttribute('data-type') !== '검증') end = start;
 
     if (!title || !start || !end) return alert("필수 정보를 입력하세요.");
-    const newSch = { id, title, start, end, epic, desc, color };
+    const newSch = { id, title, start, end, epic: document.getElementById('sch_epic').value, desc: document.getElementById('sch_desc').value, color };
 
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
-            if(typeof showToast === 'function') showToast("✅ 저장되었습니다.");
-            closeScheduleModal();
+            if(typeof window.showToast === 'function') window.showToast("✅ 저장되었습니다.");
+            window.closeScheduleModal();
         });
     } else {
-        const idx = calSchedules.findIndex(s => s.id === id);
-        if(idx > -1) calSchedules[idx] = newSch; else calSchedules.push(newSch);
-        renderCalendar(); 
-        closeScheduleModal();
+        const idx = window.calSchedules.findIndex(s => s.id === id);
+        if(idx > -1) window.calSchedules[idx] = newSch; else window.calSchedules.push(newSch);
+        window.renderCalendar(); 
+        window.closeScheduleModal();
     }
 };
 
 window.openScheduleDetail = (id) => {
-    const sch = calSchedules.find(s => s.id === id);
+    const sch = window.calSchedules.find(s => s.id === id);
     if (!sch) return;
-    currentViewingScheduleId = id;
+    window.currentViewingScheduleId = id;
     const modal = document.getElementById('scheduleDetailModal');
     if (!modal) return;
     
@@ -533,31 +379,29 @@ window.openScheduleDetail = (id) => {
 window.closeScheduleDetail = () => { 
     const modal = document.getElementById('scheduleDetailModal');
     if (modal) modal.classList.add('d-none'); 
-    currentViewingScheduleId = null; 
+    window.currentViewingScheduleId = null; 
 };
 
 window.deleteSchedule = () => {
-    if (!currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
-    firebase.database().ref('shared_schedules/' + currentViewingScheduleId).remove().then(() => {
-        closeScheduleDetail();
+    if (!window.currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
+    firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
+        window.closeScheduleDetail();
     });
 };
 
-window.editSchedule = () => { if (currentViewingScheduleId) openScheduleModal(currentViewingScheduleId); };
+window.editSchedule = () => { if (window.currentViewingScheduleId) window.openScheduleModal(window.currentViewingScheduleId); };
 
 window.startScheduleWorkflow = () => {
-    if (!currentViewingScheduleId) return;
-    const sch = calSchedules.find(s => s.id === currentViewingScheduleId);
+    if (!window.currentViewingScheduleId) return;
+    const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
     if (!sch || !sch.epic) return alert("Epic Link가 등록되지 않은 일정입니다.");
 
-    closeScheduleDetail();
-    switchMainTab('issue');
+    window.closeScheduleDetail();
+    window.switchMainTab('issue');
     
     const epicInput = document.getElementById('epic_link');
     if (epicInput) {
         epicInput.value = sch.epic;
-        if (typeof generateTemplate === 'function') generateTemplate();
-        epicInput.classList.add('highlight-action');
-        setTimeout(() => { epicInput.classList.remove('highlight-action'); }, 1000);
+        if (typeof window.generateTemplate === 'function') window.generateTemplate();
     }
 };
