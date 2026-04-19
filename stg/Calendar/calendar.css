@@ -1,21 +1,21 @@
 #calendar-placeholder.main-tab-content {
     height: 100%;
     min-height: 700px;
-    display: flex; /* 레이아웃 안정화를 위해 추가 */
+    display: flex;
     flex-direction: column;
 }
 
 .cal-wrapper {
     display: flex;
     flex-direction: column;
-    flex: 1; /* 부모 높이를 꽉 채우도록 변경 */
+    flex: 1;
     height: 100%;
     background: var(--bg-color);
     border-radius: 24px; 
     box-shadow: var(--shadow-lg);
     padding: 30px;
     box-sizing: border-box;
-    min-height: 0; /* Flex 자식의 높이 붕괴 방지 */
+    min-height: 0;
 }
 
 .cal-header {
@@ -25,7 +25,7 @@
     padding-bottom: 25px;
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0; /* 헤더 영역 고정 */
+    flex-shrink: 0;
 }
 
 .cal-title-group {
@@ -105,7 +105,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* 핵심: 그리드 스크롤 방지 */
+    min-height: 0;
 }
 
 .cal-weekdays {
@@ -130,7 +130,7 @@
     gap: 1px;
     border-radius: 16px; 
     border: 1px solid var(--border-color);
-    overflow: hidden; /* 멀티 데이 바가 튀어나가는 것을 최종 차단 */
+    overflow: hidden;
 }
 
 .cal-day {
@@ -138,10 +138,10 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* fr 단위가 작동하도록 조정 */
+    min-height: 0;
     cursor: pointer;
     position: relative;
-    overflow: visible; /* 자식인 span-head가 옆 칸으로 가야 하므로 visible 유지 */
+    overflow: visible;
     transition: background 0.15s;
 }
 
@@ -191,7 +191,7 @@
     flex-direction: column;
     gap: 3px;
     padding: 2px 0;
-    overflow: visible; /* 중요: 일정이 옆 칸으로 넘어가야 함 */
+    overflow: visible;
 }
 
 .cal-schedule {
@@ -213,15 +213,14 @@
 .cal-schedule.span-head {
     position: relative;
     margin-left: 6px;
-    margin-right: -1000px; /* 옆 셀을 침범하기 위한 논리적 무시 */
+    margin-right: -1000px;
     border-radius: 6px;
     z-index: 10;
     background-color: var(--sch-bg);
-    /* 계산식: (셀 너비 * 기간) + (경계선 두께 * (기간-1)) - (양쪽 마진합) */
     width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 1px) - 12px); 
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     border: 1px solid rgba(0,0,0,0.1);
-    pointer-events: auto; /* 클릭 가능하도록 보장 */
+    pointer-events: auto;
 }
 
 .cal-schedule.spacer {
@@ -234,3 +233,44 @@
     filter: brightness(1.1);
     z-index: 100 !important;
 }
+
+/* [추가] 캘린더 전용 모달 강제 가시성 확보 로직 */
+#scheduleModal.modal-overlay:not(.d-none),
+#scheduleDetailModal.modal-overlay:not(.d-none) {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+#scheduleModal.modal-overlay:not(.d-none) .modal-content,
+#scheduleDetailModal.modal-overlay:not(.d-none) .modal-content {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+    display: flex !important;
+    width: 90% !important;
+    max-width: 600px !important;
+    background: var(--panel-bg) !important;
+    visibility: visible !important;
+    z-index: 9999 !important;
+}
+
+#scheduleModal .modal-header,
+#scheduleModal .modal-body,
+#scheduleModal .modal-footer {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.ai-dropzone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    text-align: center;
+    background: var(--bg-color);
+    margin-bottom: 20px;
+    transition: var(--transition-fast);
+}
+
+.ai-dropzone:hover { border-color: var(--accent-blue); }
