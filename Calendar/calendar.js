@@ -318,16 +318,8 @@ window.goToday = () => { window.calCurrentDate = new Date(); window.renderCalend
 window.openScheduleModal = (id = null) => {
     if (typeof id !== 'string') id = null; 
 
-    let modal;
-    if (typeof window.requireElement === 'function') {
-        modal = window.requireElement('scheduleModal', '일정 등록/수정 모달 열기');
-    } else {
-        modal = document.getElementById('scheduleModal');
-        if (!modal) {
-            console.error("DOM Element Missing: scheduleModal");
-            return;
-        }
-    }
+    const modal = document.getElementById('scheduleModal');
+    if (!modal) return console.error("DOM Element Missing: scheduleModal");
     
     const idField = document.getElementById('sch_id');
     if (idField) idField.value = id || '';
@@ -404,13 +396,8 @@ window.openScheduleDetail = (id) => {
     
     window.currentViewingScheduleId = id;
     
-    let modal;
-    if (typeof window.requireElement === 'function') {
-        modal = window.requireElement('scheduleDetailModal', '일정 상세 모달 열기');
-    } else {
-        modal = document.getElementById('scheduleDetailModal');
-        if (!modal) return;
-    }
+    const modal = document.getElementById('scheduleDetailModal');
+    if (!modal) return;
     
     const colorBar = document.getElementById('detail_color_bar');
     if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
@@ -472,7 +459,7 @@ window.startScheduleWorkflow = () => {
     window.closeScheduleDetail();
     if (typeof window.switchMainTab === 'function') window.switchMainTab('issue');
     
-    const epicInput = document.getElementById('epic_link');
+    const epicInput = document.getElementById('guide_epic'); // epic_link에서 guide_epic으로 정정
     if (epicInput) {
         epicInput.value = sch.epic;
         if (typeof window.generateTemplate === 'function') window.generateTemplate();
