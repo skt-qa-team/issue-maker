@@ -39,21 +39,23 @@ document.addEventListener('DOMContentLoaded', () => {
             })
     )).then(() => {
         setTimeout(() => {
-            try { if (typeof startClock === 'function') startClock(); } catch(e) { console.warn(e); }
-            try { if (typeof initPresenceSystem === 'function') initPresenceSystem(); } catch(e) { console.warn(e); }
-            try { if (typeof renderChangelog === 'function') renderChangelog(); } catch(e) { console.warn(e); }
-            try { if (typeof initCustomTheme === 'function') initCustomTheme(); } catch(e) { console.warn(e); }
+            try { if (typeof window.startClock === 'function') window.startClock(); } catch(e) { console.warn(e); }
+            try { if (typeof window.initPresenceSystem === 'function') window.initPresenceSystem(); } catch(e) { console.warn(e); }
+            try { if (typeof window.renderChangelog === 'function') window.renderChangelog(); } catch(e) { console.warn(e); }
+            try { if (typeof window.initCustomTheme === 'function') window.initCustomTheme(); } catch(e) { console.warn(e); }
             
             try {
                 const draftExists = localStorage.getItem('skm_draft');
-                if (draftExists && typeof loadDraft === 'function') {
-                    loadDraft();
-                } else if (typeof syncEnvironmentByOS === 'function') {
-                    syncEnvironmentByOS(); 
+                if (draftExists && typeof window.loadDraft === 'function') {
+                    window.loadDraft();
+                } else if (typeof window.syncEnvironmentByOS === 'function') {
+                    window.syncEnvironmentByOS(); 
                 }
             } catch(e) { 
                 console.error("Initialization Failure:", e); 
             }
-        }, 300); 
+
+            document.dispatchEvent(new CustomEvent('componentsLoaded'));
+        }, 50); 
     });
 });
