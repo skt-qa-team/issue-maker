@@ -21,8 +21,8 @@
 }
 
 .bug-modal-container {
-    width: 100%;
-    max-width: 700px;
+    width: 95%;
+    max-width: 1100px;
     max-height: 90vh;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
@@ -40,7 +40,7 @@
 }
 
 .bug-modal-header {
-    padding: 16px 20px;
+    padding: 16px 24px;
     background: var(--panel-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -51,7 +51,7 @@
 
 .bug-modal-header h2 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: var(--text-main);
 }
@@ -68,16 +68,33 @@
 .bug-modal-body {
     padding: 24px;
     overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.bug-list-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.bug-action-side {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    position: sticky;
+    top: 0;
 }
 
-.bug-score-section {
+.bug-score-section, .bug-write-section {
     background: var(--panel-bg);
-    padding: 18px;
+    padding: 20px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .score-rank-container {
@@ -118,13 +135,6 @@
     font-size: 0.9rem;
 }
 
-.bug-write-section {
-    background: var(--panel-bg);
-    padding: 18px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-}
-
 .bug-form-group {
     display: flex;
     flex-direction: column;
@@ -134,7 +144,7 @@
 .mt-15 { margin-top: 15px; }
 
 .form-label-accent {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 800;
     color: var(--text-main);
 }
@@ -149,12 +159,6 @@
 .bug-tip {
     font-size: 0.75rem;
     color: var(--text-sub);
-}
-
-.bug-divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--border-color), transparent);
-    margin: 10px 0;
 }
 
 .bug-list-title {
@@ -174,23 +178,24 @@
     background: var(--panel-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 16px;
+    padding: 18px;
     transition: var(--transition-fast);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
-/* Jira 상태별 왼쪽 보더 컬러링 */
 .bug-post-card.status-pending { border-left: 5px solid #f59e0b; }
-.bug-post-card.status-progress { border-left: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.02); }
-.bug-post-card.status-review { border-left: 5px solid #8b5cf6; background: rgba(139, 92, 246, 0.02); }
-.bug-post-card.status-done { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02); }
-.bug-post-card.status-rejected { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.02); }
-.bug-post-card.status-no-issue { border-left: 5px solid #6b7280; background: rgba(107, 114, 128, 0.02); }
+.bug-post-card.status-progress { border-left: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.01); }
+.bug-post-card.status-review { border-left: 5px solid #8b5cf6; background: rgba(139, 92, 246, 0.01); }
+.bug-post-card.status-done { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.01); }
+.bug-post-card.status-rejected { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.01); }
+.bug-post-card.status-no-issue { border-left: 5px solid #6b7280; background: rgba(107, 114, 128, 0.01); }
+.bug-post-card.status-approved { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.04); }
 
 .bug-post-card:hover {
     transform: translateX(4px);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-md);
 }
 
 .bug-post-header {
@@ -198,7 +203,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
-    font-size: 0.8rem;
 }
 
 .bug-post-meta {
@@ -207,13 +211,11 @@
     gap: 8px;
 }
 
-/* Jira 스타일 상태 배지 */
 .bug-status-label {
     padding: 2px 10px;
     border-radius: 4px;
     font-size: 0.68rem;
     font-weight: 900;
-    letter-spacing: -0.02em;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
 }
@@ -224,6 +226,7 @@
 .status-done .bug-status-label { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
 .status-rejected .bug-status-label { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
 .status-no-issue .bug-status-label { color: #6b7280; border-color: rgba(107, 114, 128, 0.3); }
+.status-approved .bug-status-label { color: #10b981; border-color: #10b981; background: #10b981; color: #fff; }
 
 .bug-type-badge {
     padding: 2px 8px;
@@ -237,10 +240,12 @@
 .bug-post-author {
     font-weight: 800;
     color: var(--text-main);
+    font-size: 0.8rem;
 }
 
 .bug-post-date {
     color: var(--text-sub);
+    font-size: 0.75rem;
 }
 
 .bug-post-actions {
@@ -248,7 +253,6 @@
     gap: 6px;
 }
 
-/* Jira 워크플로우 액션 버튼 */
 .bug-status-btn, .bug-edit-small-btn, .bug-delete-small-btn {
     all: unset;
     display: inline-flex;
@@ -264,42 +268,37 @@
 
 .bug-status-btn.progress { border: 1px solid #3b82f6; color: #3b82f6; }
 .bug-status-btn.progress:hover { background: #3b82f6; color: #fff; }
-
 .bug-status-btn.review { border: 1px solid #8b5cf6; color: #8b5cf6; }
 .bug-status-btn.review:hover { background: #8b5cf6; color: #fff; }
-
 .bug-status-btn.done { border: 1px solid #10b981; color: #10b981; }
 .bug-status-btn.done:hover { background: #10b981; color: #fff; }
-
 .bug-status-btn.reject { border: 1px solid #ef4444; color: #ef4444; }
 .bug-status-btn.reject:hover { background: #ef4444; color: #fff; }
-
 .bug-status-btn.no-issue { border: 1px solid #6b7280; color: #6b7280; }
 .bug-status-btn.no-issue:hover { background: #6b7280; color: #fff; }
+.bug-status-btn.approved { background: #10b981; color: #fff; }
+.bug-status-btn.approved:hover { filter: brightness(1.1); }
 
 .bug-edit-small-btn { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
 .bug-edit-small-btn:hover { background: var(--accent-blue); color: #fff; }
-
 .bug-delete-small-btn { border: 1px solid #6b7280; color: #6b7280; }
 .bug-delete-small-btn:hover { background: #6b7280; color: #fff; }
 
 .bug-post-content {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     line-height: 1.6;
     color: var(--text-main);
     word-break: break-all;
 }
 
-/* Admin 피드백 박스 고도화 */
 .bug-admin-comment {
     margin-top: 15px;
-    padding: 12px;
+    padding: 14px;
     background: var(--bg-color);
     border-radius: var(--radius-sm);
     border: 1px dashed var(--border-color);
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--text-sub);
-    line-height: 1.5;
 }
 
 .bug-admin-comment strong {
@@ -313,14 +312,14 @@
     color: #991b1b;
 }
 
-.status-done .bug-admin-comment {
+.status-approved .bug-admin-comment, .status-done .bug-admin-comment {
     border-color: #bbf7d0;
     background: #f0fdf4;
     color: #166534;
 }
 
 .bug-modal-footer {
-    padding: 16px 20px;
+    padding: 16px 24px;
     background: var(--panel-bg);
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -336,15 +335,12 @@
 .pg-btn {
     min-width: 32px;
     height: 32px;
-    padding: 0 8px;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-sub);
     font-weight: 700;
-    font-size: 0.85rem;
     cursor: pointer;
-    transition: var(--transition-fast);
 }
 
 .pg-btn.active {
@@ -360,33 +356,21 @@
     border-radius: var(--radius-md);
     padding: 12px;
     color: var(--text-main);
-    font-size: 0.9rem;
     outline: none;
     box-sizing: border-box;
-    transition: var(--transition-fast);
 }
 
 .bug-btn-primary, .bug-btn-update {
-    color: #ffffff;
+    background: var(--accent-blue);
+    color: #fff;
     border: none;
-    padding: 8px 20px;
+    padding: 10px 24px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 700;
 }
 
-.bug-btn-primary { background: var(--accent-blue); }
 .bug-btn-update { background: #f59e0b; }
-
-.bug-btn-secondary {
-    background: var(--text-sub);
-    color: #ffffff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 700;
-}
 
 .bug-empty-text {
     text-align: center;
