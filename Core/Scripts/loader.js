@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'kpi-modal-placeholder', url: 'Kpi/kpi.html' },
         { id: 'theme-modal-placeholder', url: 'Theme/theme.html' },
         { id: 'setting-modal-placeholder', url: 'Setting/setting.html' },
-        { id: 'changelog-modal-placeholder', url: 'Changelog/changelog.html' },
         { id: 'schedule-modal-placeholder', url: 'Calendar/schedule.html' },
         { id: 'schedule-detail-modal-placeholder', url: 'Calendar/schedule-detail.html' },
         { id: 'bugreport-modal-placeholder', url: 'Bugreport/bugreport.html' },
