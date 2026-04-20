@@ -1,3 +1,8 @@
+/* ==========================================
+   [Toast Notification 전용 스타일]
+   * 복사 애니메이션(flashSuccess) 등은 inputs.css 도메인으로 이관/삭제됨
+========================================== */
+
 #toast-container {
     position: fixed;
     bottom: 30px;
@@ -29,32 +34,4 @@
 .toast-msg.show {
     transform: translateY(0);
     opacity: 1;
-}
-
-.clickable-preview {
-    cursor: pointer !important;
-    transition: var(--transition-fast) !important;
-    pointer-events: auto;
-}
-
-.clickable-preview:hover {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
-    border-color: var(--accent-blue) !important;
-}
-
-.copy-feedback {
-    animation: flashSuccess 0.5s ease-out !important;
-}
-
-@keyframes flashSuccess {
-    0% {
-        background-color: rgba(16, 185, 129, 0.2) !important;
-        border-color: var(--accent-green) !important;
-        color: var(--accent-green) !important;
-    }
-    100% {
-        background-color: var(--panel-bg) !important;
-        border-color: var(--border-color) !important;
-        color: var(--text-main) !important;
-    }
 }
