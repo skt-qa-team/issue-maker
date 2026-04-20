@@ -9,6 +9,14 @@ const holidays = {
     "10-03": "개천절", "10-05": "대체공휴일", "10-09": "한글날", "12-25": "성탄절"
 };
 
+const getCalDateStr = (y, m, d) => {
+    const date = new Date(y, m, d);
+    const Y = date.getFullYear();
+    const M = String(date.getMonth() + 1).padStart(2, '0');
+    const D = String(date.getDate()).padStart(2, '0');
+    return `${Y}-${M}-${D}`;
+};
+
 window.fetchSchedulesFromFirebase = () => {
     if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
         firebase.auth().onAuthStateChanged((user) => {
@@ -32,14 +40,12 @@ document.addEventListener('componentsLoaded', () => {
 
     calContainer.addEventListener('click', (e) => {
         const target = e.target;
-
         if (target.id === 'btn-prev-month') window.changeMonth(-1);
         if (target.id === 'btn-next-month') window.changeMonth(1);
         if (target.id === 'btn-today') window.goToday();
         if (target.id === 'btn-add-schedule') {
             if (typeof window.openScheduleModal === 'function') window.openScheduleModal();
         }
-
         const scheduleEl = target.closest('.cal-schedule.span-head');
         if (scheduleEl) {
             const schId = scheduleEl.dataset.schId;
@@ -65,18 +71,24 @@ window.renderCalendar = () => {
 
     grid.innerHTML = '';
     const allDays = [];
-    for (let i = firstDayIndex; i > 0; i--) allDays.push({ day: prevLastDay - i + 1, month: month - 1, year, type: 'empty' });
-    for (let i = 1; i <= lastDay; i++) allDays.push({ day: i, month: month, year, type: 'current' });
+    for (let i = firstDayIndex; i > 0; i--) {
+        allDays.push({ year, month: month - 1, day: prevLastDay - i + 1, type: 'empty' });
+    }
+    for (let i = 1; i <= lastDay; i++) {
+        allDays.push({ year, month: month, day: i, type: 'current' });
+    }
     const remain = 42 - allDays.length;
-    for (let i = 1; i <= remain; i++) allDays.push({ day: i, month: month + 1, year, type: 'empty' });
+    for (let i = 1; i <= remain; i++) {
+        allDays.push({ year, month: month + 1, day: i, type: 'empty' });
+    }
 
     const laneMap = new Map();
     const sortedSchedules = [...window.calSchedules].sort((a, b) => new Date(a.start) - new Date(b.start));
 
     for (let w = 0; w < 6; w++) {
         const weekDays = allDays.slice(w * 7, (w + 1) * 7);
-        const firstDayOfWeek = `${weekDays[0].year}-${String(weekDays[0].month + 1).padStart(2, '0')}-${String(weekDays[0].day).padStart(2, '0')}`;
-        const lastDayOfWeek = `${weekDays[6].year}-${String(weekDays[6].month + 1).padStart(2, '0')}-${String(weekDays[6].day).padStart(2, '0')}`;
+        const firstDayOfWeek = getCalDateStr(weekDays[0].year, weekDays[0].month, weekDays[0].day);
+        const lastDayOfWeek = getCalDateStr(weekDays[6].year, weekDays[6].month, weekDays[6].day);
         const weekSchedules = sortedSchedules.filter(s => s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
         const lanes = [];
 
@@ -88,8 +100,11 @@ window.renderCalendar = () => {
             
             let isHeadAssigned = false;
             weekDays.forEach((wd, dayIdx) => {
-                const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
-                const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+                const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
+                const dateObj = new Date(wd.year, wd.month, wd.day);
+                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dd = String(dateObj.getDate()).padStart(2, '0');
+                const keyMMDD = `${mm}-${dd}`;
                 const isNonWorkDay = (dayIdx === 0 || dayIdx === 6 || holidays[keyMMDD]);
 
                 if (sch.start <= dateStr && sch.end >= dateStr) {
@@ -102,11 +117,11 @@ window.renderCalendar = () => {
                             isHead = true; 
                             isHeadAssigned = true;
                             for (let k = dayIdx; k < 7; k++) {
-                                const kDate = `${weekDays[k].year}-${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
-                                const kMMDD = `${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
+                                const kStr = getCalDateStr(weekDays[k].year, weekDays[k].month, weekDays[k].day);
+                                const kObj = new Date(weekDays[k].year, weekDays[k].month, weekDays[k].day);
+                                const kMMDD = `${String(kObj.getMonth() + 1).padStart(2, '0')}-${String(kObj.getDate()).padStart(2, '0')}`;
                                 const kNonWork = (k === 0 || k === 6 || holidays[kMMDD]);
-
-                                if (sch.start <= kDate && sch.end >= kDate && !kNonWork) span++;
+                                if (sch.start <= kStr && sch.end >= kStr && !kNonWork) span++;
                                 else break;
                             }
                         }
@@ -122,16 +137,19 @@ window.renderCalendar = () => {
     allDays.forEach((wd, idx) => {
         const cell = document.createElement('div');
         cell.className = `cal-day ${wd.type}`;
-        const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
-        const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+        const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
+        const dateObj = new Date(wd.year, wd.month, wd.day);
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const keyMMDD = `${mm}-${dd}`;
         const isNonWorkDay = (idx % 7 === 0 || idx % 7 === 6 || holidays[keyMMDD]);
 
-        if (idx % 7 === 0 || (wd.type === 'current' && holidays[keyMMDD])) cell.classList.add('sun');
+        if (idx % 7 === 0 || holidays[keyMMDD]) cell.classList.add('sun');
         else if (idx % 7 === 6) cell.classList.add('sat');
 
         const dayNumDiv = document.createElement('div');
         dayNumDiv.className = 'day-number';
-        dayNumDiv.innerHTML = `${wd.day}${ (wd.type === 'current' && holidays[keyMMDD]) ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
+        dayNumDiv.innerHTML = `${dateObj.getDate()}${ holidays[keyMMDD] ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
         cell.appendChild(dayNumDiv);
 
         const schContainer = document.createElement('div');
