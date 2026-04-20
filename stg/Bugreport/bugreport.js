@@ -1,25 +1,37 @@
-// 게시판 상태 관리 변수
 window.bugCurrentPage = 1;
 window.bugItemsPerPage = 5;
 window.bugDataCache = [];
 
 document.addEventListener('componentsLoaded', () => {
-    // 컴포넌트 로드 시 리스너 연결 (초기 1회)
     window.initBugBoard();
 });
 
+document.addEventListener('click', (e) => {
+    const target = e.target;
+
+    if (target.id === 'btn-open-bug-modal') window.openBugReportModal();
+    if (target.id === 'btn-close-bug-modal' || target.id === 'btn-close-bug-top') window.closeBugReportModal();
+    if (target.id === 'btn-submit-bug') window.submitBugReport();
+    
+    if (target.classList.contains('pg-btn')) {
+        const page = parseInt(target.dataset.page);
+        if (page) window.changeBugPage(page);
+    }
+});
+
 window.initBugBoard = () => {
+    if (typeof firebase === 'undefined') return;
+    
     const bugRef = firebase.database().ref('system_bugs');
     bugRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) {
             window.bugDataCache = [];
         } else {
-            // 객체를 배열로 변환하고 최신순(내림차순) 정렬
             window.bugDataCache = Object.keys(data).map(key => ({
                 id: key,
                 ...data[key]
-            })).reverse();
+            })).sort((a, b) => b.timestamp - a.timestamp);
         }
         window.renderBugBoard();
     });
@@ -29,7 +41,8 @@ window.openBugReportModal = () => {
     const modal = document.getElementById('bugReportModal');
     if (modal) {
         modal.classList.remove('d-none');
-        window.bugCurrentPage = 1; // 열 때마다 1페이지로 리셋
+        setTimeout(() => modal.classList.add('active'), 10);
+        window.bugCurrentPage = 1;
         window.renderBugBoard();
     }
 };
@@ -37,9 +50,12 @@ window.openBugReportModal = () => {
 window.closeBugReportModal = () => {
     const modal = document.getElementById('bugReportModal');
     if (modal) {
-        modal.classList.add('d-none');
-        const desc = document.getElementById('bug_description');
-        if (desc) desc.value = '';
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.classList.add('d-none');
+            const desc = document.getElementById('bug_description');
+            if (desc) desc.value = '';
+        }, 300);
     }
 };
 
@@ -59,14 +75,14 @@ window.submitBugReport = () => {
             name: user.displayName || user.email.split('@')[0] || '익명'
         } : { name: 'Anonymous' },
         description: descriptionStr,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+        timestamp: firebase.database().ServerValue.TIMESTAMP
     };
 
     firebase.database().ref('system_bugs').push(bugData)
         .then(() => {
             if (typeof window.showToast === 'function') window.showToast('✅ 제보가 등록되었습니다.');
             if (descEl) descEl.value = '';
-            window.bugCurrentPage = 1; // 등록 시 최신글 확인을 위해 1페이지로 이동
+            window.bugCurrentPage = 1;
         })
         .catch((error) => {
             console.error("Bug Report Error:", error);
@@ -74,7 +90,6 @@ window.submitBugReport = () => {
         });
 };
 
-// 게시판 렌더링 엔진
 window.renderBugBoard = () => {
     const container = document.getElementById('bug_list_container');
     const pagination = document.getElementById('bug_pagination');
@@ -86,12 +101,10 @@ window.renderBugBoard = () => {
         return;
     }
 
-    // 페이징 계산
     const startIndex = (window.bugCurrentPage - 1) * window.bugItemsPerPage;
     const endIndex = startIndex + window.bugItemsPerPage;
     const pagedData = window.bugDataCache.slice(startIndex, endIndex);
 
-    // 리스트 생성
     let html = '';
     pagedData.forEach(bug => {
         const date = new Date(bug.timestamp).toLocaleString();
@@ -106,8 +119,6 @@ window.renderBugBoard = () => {
         `;
     });
     container.innerHTML = html;
-
-    // 페이지네이션 생성
     window.renderBugPagination();
 };
 
@@ -125,7 +136,7 @@ window.renderBugPagination = () => {
     for (let i = 1; i <= totalPages; i++) {
         pgHtml += `
             <button class="pg-btn ${i === window.bugCurrentPage ? 'active' : ''}" 
-                    onclick="window.changeBugPage(${i})">${i}</button>
+                    data-page="${i}">${i}</button>
         `;
     }
     pagination.innerHTML = pgHtml;
@@ -136,7 +147,6 @@ window.changeBugPage = (page) => {
     window.renderBugBoard();
 };
 
-// 유틸리티: XSS 방지
 window.escapeHTML = (str) => {
     if (!str) return '';
     return str.toString()
