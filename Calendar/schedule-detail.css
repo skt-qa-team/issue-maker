@@ -1,0 +1,73 @@
+.cal-detail-color-bar {
+    height: 6px;
+    width: 100%;
+    background-color: var(--detail-bg, var(--accent-blue));
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+}
+
+.cal-detail-date-badge {
+    display: inline-block;
+    background: var(--bg-color);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+}
+
+#detail_date {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-sub);
+    letter-spacing: -0.2px;
+}
+
+.cal-detail-info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.cal-detail-value-epic {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-blue);
+    word-break: break-all;
+    padding: 12px;
+    background: var(--bg-color);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cal-detail-value-epic:hover {
+    background: var(--panel-bg);
+    border-color: var(--accent-blue);
+}
+
+.cal-detail-value-desc {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    min-height: 120px;
+    padding: 10px 0;
+}
+
+.modal-footer-left {
+    margin-right: auto;
+}
+
+.modal-footer-right {
+    display: flex;
+    gap: 10px;
+}
+
+#detail_title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+    line-height: 1.3;
+}
