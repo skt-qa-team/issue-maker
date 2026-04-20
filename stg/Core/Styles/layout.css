@@ -30,7 +30,7 @@ html, body {
     color: var(--text-sub);
     cursor: pointer;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast) ease-in-out;
     position: relative;
 }
 
@@ -66,6 +66,7 @@ html, body {
     display: flex !important;
 }
 
+/* 3단 분할 그리드 코어 */
 .split-layout {
     display: grid;
     grid-template-columns: 320px 1.2fr 1fr;
@@ -91,43 +92,13 @@ html, body {
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    transition: var(--transition-normal);
+    transition: all var(--transition-normal);
     box-sizing: border-box;
     height: 100%;
 }
 
 #input-form-placeholder .panel {
     height: auto;
-}
-
-.guide-panel {
-    background: transparent;
-    padding: 0;
-    border: none;
-}
-
-.result-panel {
-    background: #162135;
-    color: #f8fafc;
-    border: none;
-    box-shadow: var(--shadow-lg), inset 0 0 20px rgba(0, 0, 0, 0.2);
-    flex: 1;
-}
-
-.result-panel h2 {
-    color: #f8fafc;
-    border-left: 5px solid var(--accent-green);
-    padding-left: 12px;
-    margin-top: 0;
-}
-
-.result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 15px;
 }
 
 .component-loaded {
