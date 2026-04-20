@@ -1,13 +1,13 @@
 <div class="cal-wrapper">
     <div class="cal-header">
         <div class="cal-title-group">
-            <button class="cal-nav-btn" onclick="window.changeMonth(-1)">◀</button>
-            <h2 id="cal-month-year">2026. 04</h2>
-            <button class="cal-nav-btn" onclick="window.changeMonth(1)">▶</button>
-            <button class="cal-today-btn" onclick="window.goToday()">오늘</button>
+            <button id="btn-prev-month" class="cal-nav-btn">◀</button>
+            <h2 id="cal-month-year"></h2>
+            <button id="btn-next-month" class="cal-nav-btn">▶</button>
+            <button id="btn-today" class="btn-outline-sm">오늘</button>
         </div>
         <div class="cal-actions">
-            <button class="cal-add-btn" onclick="window.openScheduleModal()">+ 일정 추가</button>
+            <button id="btn-add-schedule" class="btn-primary">+ 일정 추가</button>
         </div>
     </div>
     
