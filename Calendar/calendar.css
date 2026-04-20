@@ -122,22 +122,18 @@
 .day-number {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     font-weight: 800;
     font-size: 1rem;
     color: var(--text-main);
-    width: 32px;
-    height: 32px;
-    margin: 5px auto;
-    border-radius: var(--radius-pill);
+    padding: 8px 12px;
     position: relative;
     z-index: 2;
+    gap: 8px;
 }
 
 .holiday-label {
-    position: absolute;
-    bottom: -12px;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: var(--accent-red);
     font-weight: 700;
     white-space: nowrap;
@@ -147,8 +143,19 @@
 .cal-day.sat .day-number { color: var(--accent-blue); }
 
 .cal-day.today .day-number {
-    background: var(--accent-blue);
-    color: #ffffff !important;
+    color: var(--accent-blue) !important;
+}
+
+.cal-day.today::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: var(--radius-pill);
+    z-index: 1;
 }
 
 .sch-container {
@@ -170,7 +177,7 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     box-sizing: border-box;
-    text-align: left;
+    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -186,6 +193,12 @@
     box-shadow: var(--shadow-sm);
     border: 1px solid rgba(0,0,0,0.1);
     pointer-events: auto;
+}
+
+.cal-schedule.is-past {
+    filter: grayscale(0.6) brightness(0.8);
+    opacity: 0.5;
+    box-shadow: none;
 }
 
 .cal-schedule.spacer {
