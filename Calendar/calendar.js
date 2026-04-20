@@ -61,6 +61,9 @@ window.renderCalendar = () => {
     const title = document.getElementById('cal-month-year');
     if (!grid || !title) return;
 
+    const now = new Date();
+    const todayStr = getCalDateStr(now.getFullYear(), now.getMonth(), now.getDate());
+
     const year = window.calCurrentDate.getFullYear();
     const month = window.calCurrentDate.getMonth();
     title.textContent = `${year}. ${String(month + 1).padStart(2, '0')}`;
@@ -159,7 +162,8 @@ window.renderCalendar = () => {
             const item = dayLanes[l];
             const schDiv = document.createElement('div');
             if (item && item.isHead && !isNonWorkDay) {
-                schDiv.className = 'cal-schedule span-head';
+                const isPast = item.sch.end < todayStr;
+                schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
                 schDiv.style.setProperty('--sch-bg', item.sch.color);
                 schDiv.style.setProperty('--sch-span', item.span);
                 schDiv.dataset.schId = item.sch.id;
