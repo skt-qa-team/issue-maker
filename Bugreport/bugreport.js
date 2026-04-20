@@ -14,15 +14,13 @@ document.addEventListener('componentsLoaded', () => {
 document.addEventListener('click', (e) => {
     const target = e.target;
     if (target.id === 'btn-open-bug-modal') window.openBugReportModal();
-    if (target.id === 'btn-close-bug-modal' || target.id === 'btn-close-bug-top') window.closeBugReportModal();
+    if (target.id === 'btn-close-bug-top') window.closeBugReportModal();
     if (target.id === 'btn-submit-bug') window.submitBugReport();
     if (target.classList.contains('bug-edit-small-btn')) window.startEditBug(target.dataset.id);
     if (target.classList.contains('bug-delete-small-btn')) window.deleteBugReport(target.dataset.id);
-    
     if (target.classList.contains('bug-status-btn')) {
         window.processBugWorkflow(target.dataset.id, target.dataset.status);
     }
-
     if (target.classList.contains('pg-btn')) {
         const page = parseInt(target.dataset.page);
         if (page) window.changeBugPage(page);
@@ -55,18 +53,17 @@ window.renderScoreDashboard = (usersData) => {
         .map(([uid, data]) => {
             let name = data.nickname || data.name;
             if (!name && data.email) name = data.email.split('@')[0];
-            if (!name) name = '익명';
-            return { name, score: data.qa_score || 0 };
+            return { name: name || '익명', score: data.qa_score || 0 };
         })
         .filter(u => u.score > 0)
         .sort((a, b) => b.score - a.score);
     if (sortedUsers.length === 0) {
-        rankContainer.innerHTML = '<p class="bug-empty-text">아직 획득한 점수가 없습니다. 🏁</p>';
+        rankContainer.innerHTML = '<p class="bug-empty-text">기여 데이터가 없습니다. 🏁</p>';
         return;
     }
     rankContainer.innerHTML = sortedUsers.map((u, i) => `
         <div class="rank-item">
-            <span class="rank-badge">${i + 1}위</span>
+            <span class="rank-badge">TOP ${i + 1}</span>
             <span class="rank-name">${window.escapeHTML(u.name)}</span>
             <span class="rank-score">${u.score.toFixed(1)}pt</span>
         </div>
@@ -79,12 +76,11 @@ window.submitBugReport = () => {
     const descriptionStr = descEl ? descEl.value.trim() : '';
     const bugType = typeEl ? typeEl.value : 'ui';
     if (!descriptionStr) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 내용을 입력해 주세요.');
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 내용을 입력하세요.');
         return;
     }
     const user = firebase.auth().currentUser;
     if (!user) return;
-
     if (window.editingBugId) {
         firebase.database().ref(`system_bugs/${window.editingBugId}`).update({
             description: descriptionStr,
@@ -94,15 +90,11 @@ window.submitBugReport = () => {
             lastUpdated: Date.now()
         }).then(() => {
             window.cancelBugEdit();
-            if (typeof window.showToast === 'function') window.showToast('✅ 제보가 수정되어 검수 대기 상태로 전환되었습니다.');
+            if (typeof window.showToast === 'function') window.showToast('✅ 이슈가 업데이트되었습니다.');
         });
     } else {
         const bugData = {
-            reporter: { 
-                uid: user.uid, 
-                name: user.displayName || user.email.split('@')[0] || '익명',
-                email: user.email
-            },
+            reporter: { uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email },
             description: descriptionStr,
             type: bugType,
             status: 'pending',
@@ -110,8 +102,7 @@ window.submitBugReport = () => {
         };
         firebase.database().ref('system_bugs').push(bugData).then(() => {
             descEl.value = '';
-            window.bugCurrentPage = 1;
-            if (typeof window.showToast === 'function') window.showToast('✅ 제보가 등록되었습니다.');
+            if (typeof window.showToast === 'function') window.showToast('✅ 제보가 성공적으로 접수되었습니다.');
         });
     }
 };
@@ -121,27 +112,20 @@ window.processBugWorkflow = (id, newStatus) => {
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
-
-    // 의견 입력이 필요한 상태들
     let comment = null;
     if (['done', 'rejected', 'no_issue', 'approved'].includes(newStatus)) {
         const promptMsg = newStatus === 'approved' ? '최종 승인 의견 (점수 부여)' : `[${newStatus.toUpperCase()}] 의견`;
         comment = prompt(`${promptMsg}을 남겨주세요:`, "");
         if (comment === null) return;
     }
-
     const updates = {};
     updates[`system_bugs/${id}/status`] = newStatus;
     if (comment !== null) updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
-
-    // [핵심] 오직 'approved' 상태가 될 때만 대장님 권한으로 점수 부여
     if (newStatus === 'approved' && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
-        const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
-        userScoreRef.transaction((current) => (current || 0) + points);
+        firebase.database().ref(`users/${bug.reporter.uid}/qa_score`).transaction((curr) => (curr || 0) + points);
     }
-
     firebase.database().ref().update(updates).then(() => {
         const finalMsg = newStatus === 'approved' ? '🎉 최종 승인 및 점수 부여 완료!' : `상태가 [${newStatus}]으로 변경되었습니다.`;
         if (typeof window.showToast === 'function') window.showToast(finalMsg);
@@ -153,13 +137,11 @@ window.deleteBugReport = (id) => {
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
-    if (!confirm('삭제하시겠습니까? 승인된 제보라면 점수도 회수됩니다.')) return;
-
+    if (!confirm('삭제하시겠습니까? 승인된 건은 점수도 회수됩니다.')) return;
     if (bug.status === 'approved' && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
-        const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
-        userScoreRef.transaction((current) => (current || 0) - points);
+        firebase.database().ref(`users/${bug.reporter.uid}/qa_score`).transaction((curr) => (curr || 0) - points);
     }
     firebase.database().ref(`system_bugs/${id}`).remove();
 };
@@ -169,12 +151,11 @@ window.renderBugBoard = () => {
     const currentUser = firebase.auth().currentUser;
     if (!container) return;
     if (window.bugDataCache.length === 0) {
-        container.innerHTML = '<p class="bug-empty-text">아직 제보된 버그가 없습니다. 🧹</p>';
+        container.innerHTML = '<p class="bug-empty-text">파이프라인이 깨끗합니다. 🧹</p>';
         return;
     }
     const startIndex = (window.bugCurrentPage - 1) * window.bugItemsPerPage;
     const pagedData = window.bugDataCache.slice(startIndex, startIndex + window.bugItemsPerPage);
-    
     container.innerHTML = pagedData.map(bug => {
         const date = new Date(bug.timestamp).toLocaleString();
         const isAdmin = currentUser && currentUser.uid === window.ADMIN_UID;
@@ -182,49 +163,36 @@ window.renderBugBoard = () => {
         const reporterName = bug.reporter ? bug.reporter.name : '익명';
         const isAuthor = currentUser && reporterUid === currentUser.uid;
         const status = bug.status || 'pending';
-        const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
-        
         const statusConfig = {
-            pending: { label: '⏳ 대기중', class: 'status-pending' },
-            in_progress: { label: '⚙️ 진행중', class: 'status-progress' },
-            no_issue: { label: '🚫 이슈아님', class: 'status-no-issue' },
-            review: { label: '🔍 검토중', class: 'status-review' },
-            done: { label: '🛠️ 수정완료', class: 'status-done' },
-            rejected: { label: '❌ 반려', class: 'status-rejected' },
-            approved: { label: '🎉 승인됨', class: 'status-approved' }
+            pending: { label: 'TODO', class: 'status-pending' },
+            in_progress: { label: 'IN PROGRESS', class: 'status-progress' },
+            no_issue: { label: 'NO ISSUE', class: 'status-no-issue' },
+            review: { label: 'REVIEW', class: 'status-review' },
+            done: { label: 'DONE', class: 'status-done' },
+            rejected: { label: 'REJECTED', class: 'status-rejected' },
+            approved: { label: 'APPROVED', class: 'status-approved' }
         };
-        const currentStatus = statusConfig[status] || statusConfig.pending;
-
+        const current = statusConfig[status] || statusConfig.pending;
         let workflowButtons = '';
         if (isAdmin) {
             if (status === 'pending') {
-                workflowButtons = `
-                    <button class="bug-status-btn progress" data-id="${bug.id}" data-status="in_progress">진행</button>
-                    <button class="bug-status-btn no-issue" data-id="${bug.id}" data-status="no_issue">X이슈</button>
-                `;
+                workflowButtons = `<button class="bug-status-btn" data-id="${bug.id}" data-status="in_progress">Start</button><button class="bug-status-btn" data-id="${bug.id}" data-status="no_issue">X</button>`;
             } else if (status === 'in_progress') {
-                workflowButtons = `<button class="bug-status-btn review" data-id="${bug.id}" data-status="review">검토요청</button>`;
+                workflowButtons = `<button class="bug-status-btn" data-id="${bug.id}" data-status="review">Request Review</button>`;
             } else if (status === 'review') {
-                workflowButtons = `
-                    <button class="bug-status-btn done" data-id="${bug.id}" data-status="done">수정완료</button>
-                    <button class="bug-status-btn reject" data-id="${bug.id}" data-status="rejected">수정반려</button>
-                `;
+                workflowButtons = `<button class="bug-status-btn" data-id="${bug.id}" data-status="done">Pass</button><button class="bug-status-btn" data-id="${bug.id}" data-status="rejected">Fail</button>`;
             } else if (status === 'done') {
-                // 대장님 전용 최종 승인 버튼
-                workflowButtons = `<button class="bug-status-btn approved" data-id="${bug.id}" data-status="approved">최종 승인</button>`;
+                workflowButtons = `<button class="bug-status-btn approved" data-id="${bug.id}" data-status="approved">Sign-off</button>`;
             }
         }
-
-        let commentHtml = bug.adminComment ? `<div class="bug-admin-comment"><strong>💬 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>` : '';
-
+        let commentHtml = bug.adminComment ? `<div class="bug-admin-comment"><strong>Feedback:</strong> ${window.escapeHTML(bug.adminComment)}</div>` : '';
         return `
-            <div class="bug-post-card ${currentStatus.class}">
+            <div class="bug-post-card ${current.class}">
                 <div class="bug-post-header">
                     <div class="bug-post-meta">
-                        <span class="bug-status-label">${currentStatus.label}</span>
-                        <span class="bug-type-badge">${typeLabel}</span>
+                        <span class="bug-status-label">${current.label}</span>
+                        <span class="bug-type-badge">${bug.type === 'ui' ? '🎨 UI' : '⚙️ Functional'}</span>
                         <span class="bug-post-author">👤 ${window.escapeHTML(reporterName)}</span>
-                        <span class="bug-post-date">${date}</span>
                     </div>
                     <div class="bug-post-actions">
                         ${workflowButtons}
@@ -233,6 +201,7 @@ window.renderBugBoard = () => {
                     </div>
                 </div>
                 <div class="bug-post-content">${window.escapeHTML(bug.description).replace(/\n/g, '<br>')}</div>
+                <div class="bug-post-date">${date}</div>
                 ${commentHtml}
             </div>
         `;
@@ -245,7 +214,6 @@ window.openBugReportModal = () => {
     if (modal) {
         modal.classList.remove('d-none');
         setTimeout(() => modal.classList.add('active'), 10);
-        window.bugCurrentPage = 1;
         window.renderBugBoard();
     }
 };
@@ -268,22 +236,15 @@ window.startEditBug = (id) => {
         window.editingBugId = id;
         descEl.value = bug.description;
         typeEl.value = bug.type || 'ui';
-        submitBtn.textContent = '재제출';
-        submitBtn.classList.replace('bug-btn-primary', 'bug-btn-update');
+        submitBtn.textContent = 'Issue Update';
         descEl.focus();
     }
 };
 
 window.cancelBugEdit = () => {
     window.editingBugId = null;
-    const descEl = document.getElementById('bug_description');
-    const submitBtn = document.getElementById('btn-submit-bug');
-    if (descEl) descEl.value = '';
-    if (submitBtn) {
-        submitBtn.textContent = '제보하기';
-        submitBtn.classList.add('bug-btn-primary');
-        submitBtn.classList.remove('bug-btn-update');
-    }
+    document.getElementById('bug_description').value = '';
+    document.getElementById('btn-submit-bug').textContent = '제보하기';
 };
 
 window.renderBugPagination = () => {
