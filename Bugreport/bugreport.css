@@ -73,6 +73,51 @@
     gap: 20px;
 }
 
+.bug-score-section {
+    background: var(--panel-bg);
+    padding: 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.score-rank-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rank-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--bg-color);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.rank-badge {
+    background: #f59e0b;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 900;
+    margin-right: 12px;
+}
+
+.rank-name {
+    flex: 1;
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 0.85rem;
+}
+
+.rank-score {
+    font-weight: 900;
+    color: var(--accent-blue);
+    font-size: 0.9rem;
+}
+
 .bug-write-section {
     background: var(--panel-bg);
     padding: 18px;
@@ -85,6 +130,8 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.mt-15 { margin-top: 15px; }
 
 .form-label-accent {
     font-size: 0.9rem;
@@ -131,10 +178,9 @@
     transition: var(--transition-fast);
 }
 
-.bug-post-card:hover {
-    border-color: var(--accent-blue);
-    transform: translateX(4px);
-}
+.bug-post-card.status-approved { border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.03); }
+.bug-post-card.status-rejected { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.03); }
+.bug-post-card.status-pending { border-left: 4px solid #f59e0b; }
 
 .bug-post-header {
     display: flex;
@@ -150,9 +196,18 @@
     gap: 10px;
 }
 
+.bug-type-badge {
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    font-size: 0.65rem;
+    font-weight: 800;
+}
+
 .bug-post-author {
     font-weight: 800;
-    color: var(--accent-blue);
+    color: var(--text-main);
 }
 
 .bug-post-date {
@@ -164,8 +219,7 @@
     gap: 6px;
 }
 
-.bug-edit-small-btn,
-.bug-delete-small-btn {
+.bug-approve-btn, .bug-reject-btn, .bug-edit-small-btn, .bug-delete-small-btn {
     all: unset;
     display: inline-flex;
     align-items: center;
@@ -176,30 +230,16 @@
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
-    line-height: 1;
 }
 
-.bug-edit-small-btn {
-    border: 1px solid var(--accent-blue);
-    color: var(--accent-blue);
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.bug-edit-small-btn:hover {
-    background: var(--accent-blue);
-    color: #ffffff;
-}
-
-.bug-delete-small-btn {
-    border: 1px solid #ef4444;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.bug-delete-small-btn:hover {
-    background: #ef4444;
-    color: #ffffff;
-}
+.bug-approve-btn { border: 1px solid #10b981; color: #10b981; }
+.bug-approve-btn:hover { background: #10b981; color: #fff; }
+.bug-reject-btn { border: 1px solid #ef4444; color: #ef4444; }
+.bug-reject-btn:hover { background: #ef4444; color: #fff; }
+.bug-edit-small-btn { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+.bug-edit-small-btn:hover { background: var(--accent-blue); color: #fff; }
+.bug-delete-small-btn { border: 1px solid #6b7280; color: #6b7280; }
+.bug-delete-small-btn:hover { background: #6b7280; color: #fff; }
 
 .bug-post-content {
     font-size: 0.9rem;
@@ -236,11 +276,6 @@
     transition: var(--transition-fast);
 }
 
-.pg-btn:hover {
-    border-color: var(--accent-blue);
-    color: var(--text-main);
-}
-
 .pg-btn.active {
     background: var(--accent-blue);
     color: #ffffff;
@@ -260,38 +295,17 @@
     transition: var(--transition-fast);
 }
 
-.bug-form-control:focus {
-    border-color: var(--accent-blue);
-}
-
-textarea.bug-form-control {
-    height: 100px;
-    resize: none;
-}
-
-.bug-btn-primary,
-.bug-btn-update {
+.bug-btn-primary, .bug-btn-update {
     color: #ffffff;
     border: none;
     padding: 8px 20px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 700;
-    transition: var(--transition-fast);
 }
 
-.bug-btn-primary {
-    background: var(--accent-blue);
-}
-
-.bug-btn-update {
-    background: #f59e0b;
-}
-
-.bug-btn-primary:hover,
-.bug-btn-update:hover {
-    filter: brightness(1.1);
-}
+.bug-btn-primary { background: var(--accent-blue); }
+.bug-btn-update { background: #f59e0b; }
 
 .bug-btn-secondary {
     background: var(--text-sub);
