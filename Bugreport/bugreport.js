@@ -20,7 +20,7 @@ document.addEventListener('click', (e) => {
 });
 
 window.initBugBoard = () => {
-    if (typeof firebase === 'undefined') return;
+    if (typeof firebase === 'undefined' || !firebase.database) return;
     
     const bugRef = firebase.database().ref('system_bugs');
     bugRef.on('value', (snapshot) => {
@@ -68,14 +68,19 @@ window.submitBugReport = () => {
         return;
     }
 
+    if (typeof firebase === 'undefined' || !firebase.auth().currentUser) {
+        if (typeof window.showToast === 'function') window.showToast('🔒 로그인이 필요합니다.');
+        return;
+    }
+
     const user = firebase.auth().currentUser;
     const bugData = {
-        reporter: user ? {
+        reporter: {
             uid: user.uid,
             name: user.displayName || user.email.split('@')[0] || '익명'
-        } : { name: 'Anonymous' },
+        },
         description: descriptionStr,
-        timestamp: firebase.database().ServerValue.TIMESTAMP
+        timestamp: Date.now()
     };
 
     firebase.database().ref('system_bugs').push(bugData)
