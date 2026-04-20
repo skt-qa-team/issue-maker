@@ -1,3 +1,27 @@
+.result-panel {
+    background: #162135;
+    color: #f8fafc;
+    border: none;
+    box-shadow: var(--shadow-lg), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.result-panel h2 {
+    color: #f8fafc;
+    border-left: 5px solid var(--accent-green);
+    padding-left: 12px;
+    margin-top: 0;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
 .output-label-group {
     display: flex;
     justify-content: space-between;
@@ -22,12 +46,11 @@
     font-size: 0.92rem;
     outline: none;
     box-sizing: border-box;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
     resize: none;
     overflow-y: auto;
 }
 
-/* [버그 수정] 포커스 시 배경색이 하얗게 변하는 현상 해결 */
 .output-field:focus {
     background: #0f172a !important; 
     color: #e2e8f0 !important;
