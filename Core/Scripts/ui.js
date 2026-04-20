@@ -109,7 +109,7 @@ window.fallbackCopyText = (text) => {
         document.execCommand("copy");
         window.showToast('복사 완료!');
     } catch (err) {
-        console.error('Copy fallback failed', err);
+        console.error(err);
     }
     document.body.removeChild(t);
 };
@@ -159,3 +159,16 @@ window.clearForm = () => {
         window.showToast('🔄 초기화되었습니다.');
     }
 };
+
+document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('.main-tab-btn');
+    if (tabBtn) {
+        const targetId = tabBtn.getAttribute('data-target');
+        if (targetId) {
+            const tabName = targetId.replace('panel-', '');
+            if (typeof window.switchMainTab === 'function') {
+                window.switchMainTab(tabName);
+            }
+        }
+    }
+});
