@@ -20,6 +20,76 @@ window.escapeHTMLTemplate = (str) => {
         .replace(/'/g, "&#039;");
 };
 
+// ==========================================
+// [추가] ux.js에서 이관된 임시 저장(Draft) 로직
+// ==========================================
+window.saveDraft = () => {
+    const fields = ['title', 'prefix_env', 'prefix_env_custom', 'osType', 'osType_custom', 'poc', 'poc_custom', 'prefix_critical', 'prefix_critical_custom', 'prefix_device_input', 'prefix_account', 'prefix_page', 'appVersion', 'targetUrl', 'aiMode', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
+    const data = {};
+    
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+    });
+
+    data.selectedDevices = Array.from(document.querySelectorAll('.issue-device-cb:checked')).map(cb => cb.value);
+    data.selectedServers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    data.selectedVerCbs = Array.from(document.querySelectorAll('.ver-type-cb:checked')).map(cb => cb.id);
+
+    localStorage.setItem('skm_draft', JSON.stringify(data));
+};
+
+window.loadDraft = () => {
+    const raw = localStorage.getItem('skm_draft');
+    if (!raw) return;
+    
+    try {
+        const data = JSON.parse(raw);
+        
+        Object.entries(data).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el && !['selectedDevices', 'selectedServers', 'selectedVerCbs'].includes(id)) {
+                el.value = val;
+                if (id.includes('_custom')) {
+                    const baseId = id.replace('_custom', '');
+                    const baseEl = document.getElementById(baseId);
+                    if (baseEl && baseEl.value === 'direct') el.classList.remove('d-none');
+                }
+            }
+        });
+
+        if (data.selectedVerCbs) {
+            data.selectedVerCbs.forEach(id => {
+                const cb = document.getElementById(id);
+                if (cb) cb.checked = true;
+            });
+        }
+
+        if (data.selectedServers) {
+            document.querySelectorAll('.issue-server-cb').forEach(cb => {
+                cb.checked = data.selectedServers.includes(cb.value);
+            });
+        }
+
+        if (typeof window.syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
+
+        if (data.selectedDevices) {
+            setTimeout(() => {
+                data.selectedDevices.forEach(dev => {
+                    const cb = document.querySelector(`.issue-device-cb[value="${dev}"]`);
+                    if (cb) cb.checked = true;
+                });
+                if (typeof window.generateTemplate === 'function') window.generateTemplate();
+            }, 100);
+        }
+    } catch (e) {
+        console.error("Draft Load Error:", e);
+    }
+};
+
+// ==========================================
+// 기존 InputForm 로직 (Prefix 제어)
+// ==========================================
 window.applyAndSavePrefixOrder = () => {
     const inputs = document.querySelectorAll('.prefix-order-input');
     let orderArray = [];
@@ -92,6 +162,9 @@ window.loadPrefixOrder = () => {
     }
 };
 
+// ==========================================
+// 기존 InputForm 로직 (프리셋 & 디바이스 동기화)
+// ==========================================
 window.getFormDataForPreset = () => {
     return {
         title: document.getElementById('title')?.value || '',
@@ -299,13 +372,6 @@ window.applyInputPreset = (name) => {
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
 };
 
-document.addEventListener('componentsLoaded', () => {
-    setTimeout(() => {
-        if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
-        if (typeof window.renderInputPresets === 'function') window.renderInputPresets();
-    }, 500);
-});
-
 window.updateVersionCheckboxesByOS = () => {
     const osEl = document.getElementById('osType');
     const pocEl = document.getElementById('poc');
@@ -505,3 +571,10 @@ window.updateVersionTextbox = () => {
     const verInput = document.getElementById('appVersion');
     if (verInput) verInput.value = versionParts.join(' / ');
 };
+
+document.addEventListener('componentsLoaded', () => {
+    setTimeout(() => {
+        if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
+        if (typeof window.renderInputPresets === 'function') window.renderInputPresets();
+    }, 500);
+});
