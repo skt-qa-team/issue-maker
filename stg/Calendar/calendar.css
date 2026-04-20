@@ -11,7 +11,7 @@
     flex: 1;
     height: 100%;
     background: var(--bg-color);
-    border-radius: 24px; 
+    border-radius: var(--radius-lg); 
     box-shadow: var(--shadow-lg);
     padding: 30px;
     box-sizing: border-box;
@@ -55,50 +55,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition-fast);
+    transition: all var(--transition-smooth);
     font-size: 1.2rem;
 }
 
 .cal-nav-btn:hover {
     background: var(--panel-bg);
     color: var(--accent-blue);
-}
-
-.cal-today-btn {
-    padding: 10px 20px;
-    background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    border-radius: var(--radius-pill);
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    margin-left: 10px;
-    font-size: 0.9rem;
-}
-
-.cal-today-btn:hover {
-    background: var(--bg-color);
-    border-color: var(--accent-blue);
-}
-
-.cal-add-btn {
-    padding: 12px 24px;
-    background: var(--accent-blue);
-    color: #ffffff;
-    border: none;
-    border-radius: var(--radius-pill);
-    font-weight: 800;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    box-shadow: var(--shadow-sm);
-    font-size: 0.9rem;
-}
-
-.cal-add-btn:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    transform: scale(1.1);
 }
 
 .cal-body {
@@ -126,31 +90,32 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-template-rows: repeat(6, 1fr);
-    background: var(--border-color);
+    background-color: var(--border-color);
     gap: 1px;
-    border-radius: 16px; 
+    border-radius: var(--radius-md); 
     border: 1px solid var(--border-color);
     overflow: hidden;
 }
 
 .cal-day {
-    background: var(--bg-color);
+    background-color: var(--bg-color);
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 80px;
+    height: 100%;
     cursor: pointer;
     position: relative;
     overflow: visible;
-    transition: background 0.15s;
+    transition: background-color var(--transition-fast);
 }
 
 .cal-day:hover {
-    background: var(--panel-bg);
+    background-color: var(--panel-bg);
 }
 
 .cal-day.empty {
-    background: var(--panel-bg);
+    background-color: var(--panel-bg);
     opacity: 0.5;
 }
 
@@ -203,7 +168,7 @@
     white-space: nowrap;
     color: #ffffff;
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
     box-sizing: border-box;
     text-align: left;
     overflow: hidden;
@@ -214,11 +179,11 @@
     position: relative;
     margin-left: 6px;
     margin-right: -1000px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     z-index: 10;
     background-color: var(--sch-bg);
     width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 1px) - 12px); 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-sm);
     border: 1px solid rgba(0,0,0,0.1);
     pointer-events: auto;
 }
@@ -231,100 +196,6 @@
 
 .cal-schedule:hover {
     filter: brightness(1.1);
+    transform: translateY(-1px);
     z-index: 100 !important;
-}
-
-/* [추가] 캘린더 전용 모달 강제 가시성 확보 로직 */
-#scheduleModal.modal-overlay:not(.d-none),
-#scheduleDetailModal.modal-overlay:not(.d-none) {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    background: rgba(15, 23, 42, 0.8) !important;
-    backdrop-filter: blur(8px) !important;
-}
-
-#scheduleModal.modal-overlay:not(.d-none) .modal-content,
-#scheduleDetailModal.modal-overlay:not(.d-none) .modal-content {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
-    display: flex !important;
-    width: 90% !important;
-    max-width: 600px !important;
-    background: var(--panel-bg) !important;
-    visibility: visible !important;
-    z-index: 9999 !important;
-}
-
-#scheduleModal .modal-header,
-#scheduleModal .modal-body,
-#scheduleModal .modal-footer {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-.ai-dropzone {
-    border: 2px dashed var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 30px;
-    text-align: center;
-    background: var(--bg-color);
-    margin-bottom: 20px;
-    transition: var(--transition-fast);
-}
-
-.ai-dropzone:hover { border-color: var(--accent-blue); }
-
-
-
-/* Calendar/calendar.css 맨 하단에 추가 (보완본) */
-
-/* 1. 오버레이 강제 활성화 (공통) */
-#scheduleModal.modal-overlay:not(.d-none),
-#scheduleDetailModal.modal-overlay:not(.d-none) {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    background: rgba(15, 23, 42, 0.8) !important;
-    backdrop-filter: blur(8px) !important;
-    z-index: 10000 !important; /* 최상단 보장 */
-}
-
-/* 2. 등록 모달 및 상세 모달 컨텐츠 강제 노출 */
-#scheduleModal.modal-overlay:not(.d-none) .modal-content,
-#scheduleDetailModal.modal-overlay:not(.d-none) .cal-detail-modal-content {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
-    display: flex !important;
-    visibility: visible !important;
-    z-index: 10001 !important;
-}
-
-/* 3. 상세 모달 전용 레이아웃 보정 */
-.cal-detail-modal-content {
-    background: var(--panel-bg);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 500px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
-}
-
-.cal-detail-color-bar {
-    height: 6px;
-    width: 100%;
-    background: var(--detail-bg, var(--accent-blue));
-}
-
-.cal-detail-body {
-    padding: 30px;
-    position: relative;
-}
-
-.cal-close-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
 }
