@@ -162,7 +162,7 @@ window.renderCalendar = () => {
             const item = dayLanes[l];
             const schDiv = document.createElement('div');
             if (item && item.isHead && !isNonWorkDay) {
-                const isPast = item.sch.end < todayStr;
+                const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
                 schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
                 schDiv.style.setProperty('--sch-bg', item.sch.color);
                 schDiv.style.setProperty('--sch-span', item.span);
