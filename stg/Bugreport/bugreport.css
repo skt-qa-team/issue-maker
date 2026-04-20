@@ -40,13 +40,13 @@
 }
 
 .bug-modal-header {
-    padding: 20px 30px;
+    padding: 30px 40px;
     background: var(--panel-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
-    justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    position: relative;
 }
 
 .header-title-group {
@@ -68,24 +68,29 @@
 }
 
 .bug-close-btn {
+    position: absolute;
+    top: 24px;
+    right: 30px;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     color: var(--text-sub);
     width: 36px;
     height: 36px;
-    border-radius: 10px;
-    font-size: 1.5rem;
+    border-radius: 50%;
+    font-size: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    z-index: 10;
+    transition: all var(--transition-smooth);
 }
 
 .bug-close-btn:hover {
     background: #ef4444;
     color: #fff;
     border-color: #ef4444;
+    transform: rotate(90deg) scale(1.1);
 }
 
 .bug-modal-body {
@@ -117,14 +122,28 @@
     flex-direction: column;
     gap: 25px;
     overflow-y: auto;
+    height: 100%;
 }
 
-.bug-score-section, .bug-write-section {
+.bug-score-section {
     background: var(--panel-bg);
     padding: 25px;
     border-radius: 16px;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.bug-write-section {
+    background: var(--panel-bg);
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .bug-list-title {
@@ -178,6 +197,13 @@
     gap: 10px;
 }
 
+.bug-form-group.flex-grow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+}
+
 .mt-15 {
     margin-top: 15px;
 }
@@ -192,7 +218,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 12px;
+    margin-top: 15px;
 }
 
 .bug-policy-tip {
@@ -382,6 +408,11 @@
     outline: none;
     box-sizing: border-box;
     transition: all 0.2s;
+}
+
+.bug-form-control.flex-textarea {
+    flex: 1;
+    resize: none;
 }
 
 .bug-form-control:focus {
