@@ -4,23 +4,23 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(15, 23, 42, 0.8);
     z-index: 999999;
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
 }
 
 .system-error-modal {
-    background: #ffffff;
-    border-radius: 12px;
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
     padding: 24px;
     width: 90%;
     max-width: 550px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    font-family: sans-serif;
-    border-left: 8px solid #ef4444;
+    box-shadow: var(--shadow-lg);
+    font-family: 'Pretendard', '-apple-system', sans-serif;
+    border-left: 8px solid var(--accent-red);
     box-sizing: border-box;
 }
 
@@ -33,7 +33,7 @@
 
 .system-error-header h3 {
     margin: 0;
-    color: #ef4444;
+    color: var(--accent-red);
     font-size: 1.25rem;
     font-weight: 900;
     letter-spacing: -0.5px;
@@ -42,22 +42,22 @@
 .system-error-title {
     margin: 0 0 12px 0;
     font-weight: 800;
-    color: #1f2937;
+    color: var(--text-main);
     font-size: 1rem;
 }
 
 .system-error-body {
-    background: #f3f4f6;
+    background: var(--bg-color);
     padding: 16px;
-    border-radius: 8px;
-    font-family: monospace;
+    border-radius: var(--radius-md);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--text-sub);
     white-space: pre-wrap;
     word-break: break-all;
     max-height: 250px;
     overflow-y: auto;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
 }
 
 .system-error-footer {
@@ -66,17 +66,18 @@
 }
 
 .system-error-footer button {
-    background: #ef4444;
+    background: var(--accent-red);
     color: #ffffff;
     border: none;
     padding: 10px 20px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 800;
     font-size: 0.9rem;
-    transition: background 0.2s;
+    transition: all var(--transition-fast);
 }
 
 .system-error-footer button:hover {
-    background: #dc2626;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
