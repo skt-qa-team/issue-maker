@@ -17,7 +17,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 window.login = () => {
     firebase.auth().signInWithPopup(provider).catch((error) => {
-        console.error("Auth Error:", error);
+        console.error(error);
         if (typeof window.showToast === 'function') window.showToast("❌ 로그인에 실패했습니다.");
     });
 };
@@ -92,6 +92,12 @@ window.showAuthOverlay = (mode) => {
         overlay = document.createElement('div');
         overlay.id = 'auth-overlay';
         overlay.className = 'auth-overlay-container';
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target.id === 'btn-do-login') window.login();
+            if (e.target.id === 'btn-do-logout') window.logout();
+        });
+        
         document.body.appendChild(overlay);
     }
 
@@ -104,21 +110,21 @@ window.showAuthOverlay = (mode) => {
             <div class="auth-box">
                 <h2>🔒 접근 제한</h2>
                 <p>승인된 인원만 사용할 수 있습니다.<br>로그인 후 승인을 요청해 주세요.</p>
-                <button onclick="window.login()" class="btn-login-google">Google 로그인</button>
+                <button id="btn-do-login" class="btn-login-google">Google 로그인</button>
             </div>`;
     } else if (mode === "pending") {
         contentHtml = `
             <div class="auth-box">
                 <h2>⏳ 승인 대기 중</h2>
                 <p>권한을 요청했습니다.<br>관리자의 승인을 기다려 주세요.</p>
-                <button onclick="window.logout()" class="btn-logout-sub">다른 계정으로 로그인</button>
+                <button id="btn-do-logout" class="btn-logout-sub">다른 계정으로 로그인</button>
             </div>`;
     } else if (mode === "rejected") {
         contentHtml = `
             <div class="auth-box">
                 <h2>🚫 접근 거부</h2>
                 <p>사용 권한이 거부된 계정입니다.</p>
-                <button onclick="window.logout()" class="btn-logout-sub">로그아웃</button>
+                <button id="btn-do-logout" class="btn-logout-sub">로그아웃</button>
             </div>`;
     }
     overlay.innerHTML = contentHtml;
