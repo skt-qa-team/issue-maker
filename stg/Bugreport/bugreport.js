@@ -98,7 +98,8 @@ window.submitBugReport = () => {
             description: descriptionStr,
             type: bugType,
             status: 'pending',
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            pointsAwarded: false
         };
         firebase.database().ref('system_bugs').push(bugData).then(() => {
             descEl.value = '';
@@ -121,10 +122,11 @@ window.processBugWorkflow = (id, newStatus) => {
     const updates = {};
     updates[`system_bugs/${id}/status`] = newStatus;
     if (comment !== null) updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
-    if (newStatus === 'approved' && bug.reporter && bug.reporter.uid) {
+    if (newStatus === 'approved' && bug.reporter && bug.reporter.uid && !bug.pointsAwarded) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
         firebase.database().ref(`users/${bug.reporter.uid}/qa_score`).transaction((curr) => (curr || 0) + points);
+        updates[`system_bugs/${id}/pointsAwarded`] = true;
     }
     firebase.database().ref().update(updates).then(() => {
         const finalMsg = newStatus === 'approved' ? '🎉 최종 승인 및 점수 부여 완료!' : `상태가 [${newStatus}]으로 변경되었습니다.`;
@@ -138,7 +140,7 @@ window.deleteBugReport = (id) => {
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
     if (!confirm('삭제하시겠습니까? 승인된 건은 점수도 회수됩니다.')) return;
-    if (bug.status === 'approved' && bug.reporter && bug.reporter.uid) {
+    if (bug.pointsAwarded && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
         firebase.database().ref(`users/${bug.reporter.uid}/qa_score`).transaction((curr) => (curr || 0) - points);
