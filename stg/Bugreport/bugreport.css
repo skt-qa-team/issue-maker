@@ -180,9 +180,13 @@
     overflow: hidden;
 }
 
-.bug-post-card.status-approved { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02); }
-.bug-post-card.status-rejected { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.02); }
+/* Jira 상태별 왼쪽 보더 컬러링 */
 .bug-post-card.status-pending { border-left: 5px solid #f59e0b; }
+.bug-post-card.status-progress { border-left: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.02); }
+.bug-post-card.status-review { border-left: 5px solid #8b5cf6; background: rgba(139, 92, 246, 0.02); }
+.bug-post-card.status-done { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02); }
+.bug-post-card.status-rejected { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.02); }
+.bug-post-card.status-no-issue { border-left: 5px solid #6b7280; background: rgba(107, 114, 128, 0.02); }
 
 .bug-post-card:hover {
     transform: translateX(4px);
@@ -200,8 +204,26 @@
 .bug-post-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
+
+/* Jira 스타일 상태 배지 */
+.bug-status-label {
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+}
+
+.status-pending .bug-status-label { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+.status-progress .bug-status-label { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+.status-review .bug-status-label { color: #8b5cf6; border-color: rgba(139, 92, 246, 0.3); }
+.status-done .bug-status-label { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+.status-rejected .bug-status-label { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+.status-no-issue .bug-status-label { color: #6b7280; border-color: rgba(107, 114, 128, 0.3); }
 
 .bug-type-badge {
     padding: 2px 8px;
@@ -226,7 +248,8 @@
     gap: 6px;
 }
 
-.bug-approve-btn, .bug-reject-btn, .bug-edit-small-btn, .bug-delete-small-btn {
+/* Jira 워크플로우 액션 버튼 */
+.bug-status-btn, .bug-edit-small-btn, .bug-delete-small-btn {
     all: unset;
     display: inline-flex;
     align-items: center;
@@ -239,12 +262,24 @@
     transition: all var(--transition-fast);
 }
 
-.bug-approve-btn { border: 1px solid #10b981; color: #10b981; }
-.bug-approve-btn:hover { background: #10b981; color: #fff; }
-.bug-reject-btn { border: 1px solid #ef4444; color: #ef4444; }
-.bug-reject-btn:hover { background: #ef4444; color: #fff; }
+.bug-status-btn.progress { border: 1px solid #3b82f6; color: #3b82f6; }
+.bug-status-btn.progress:hover { background: #3b82f6; color: #fff; }
+
+.bug-status-btn.review { border: 1px solid #8b5cf6; color: #8b5cf6; }
+.bug-status-btn.review:hover { background: #8b5cf6; color: #fff; }
+
+.bug-status-btn.done { border: 1px solid #10b981; color: #10b981; }
+.bug-status-btn.done:hover { background: #10b981; color: #fff; }
+
+.bug-status-btn.reject { border: 1px solid #ef4444; color: #ef4444; }
+.bug-status-btn.reject:hover { background: #ef4444; color: #fff; }
+
+.bug-status-btn.no-issue { border: 1px solid #6b7280; color: #6b7280; }
+.bug-status-btn.no-issue:hover { background: #6b7280; color: #fff; }
+
 .bug-edit-small-btn { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
 .bug-edit-small-btn:hover { background: var(--accent-blue); color: #fff; }
+
 .bug-delete-small-btn { border: 1px solid #6b7280; color: #6b7280; }
 .bug-delete-small-btn:hover { background: #6b7280; color: #fff; }
 
@@ -255,6 +290,7 @@
     word-break: break-all;
 }
 
+/* Admin 피드백 박스 고도화 */
 .bug-admin-comment {
     margin-top: 15px;
     padding: 12px;
@@ -264,7 +300,6 @@
     font-size: 0.82rem;
     color: var(--text-sub);
     line-height: 1.5;
-    position: relative;
 }
 
 .bug-admin-comment strong {
@@ -272,13 +307,13 @@
     margin-right: 5px;
 }
 
-.status-rejected .bug-admin-comment {
+.status-rejected .bug-admin-comment, .status-no-issue .bug-admin-comment {
     border-color: #fecaca;
     background: #fff1f2;
     color: #991b1b;
 }
 
-.status-approved .bug-admin-comment {
+.status-done .bug-admin-comment {
     border-color: #bbf7d0;
     background: #f0fdf4;
     color: #166534;
