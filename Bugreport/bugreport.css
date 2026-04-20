@@ -139,8 +139,15 @@
 .bug-post-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    align-items: center;
+    margin-bottom: 12px;
     font-size: 0.8rem;
+}
+
+.bug-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .bug-post-author {
@@ -150,6 +157,48 @@
 
 .bug-post-date {
     color: var(--text-sub);
+}
+
+.bug-post-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.bug-edit-small-btn,
+.bug-delete-small-btn {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    line-height: 1;
+}
+
+.bug-edit-small-btn {
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.bug-edit-small-btn:hover {
+    background: var(--accent-blue);
+    color: #ffffff;
+}
+
+.bug-delete-small-btn {
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.bug-delete-small-btn:hover {
+    background: #ef4444;
+    color: #ffffff;
 }
 
 .bug-post-content {
@@ -220,8 +269,8 @@ textarea.bug-form-control {
     resize: none;
 }
 
-.bug-btn-primary {
-    background: var(--accent-blue);
+.bug-btn-primary,
+.bug-btn-update {
     color: #ffffff;
     border: none;
     padding: 8px 20px;
@@ -231,7 +280,16 @@ textarea.bug-form-control {
     transition: var(--transition-fast);
 }
 
-.bug-btn-primary:hover {
+.bug-btn-primary {
+    background: var(--accent-blue);
+}
+
+.bug-btn-update {
+    background: #f59e0b;
+}
+
+.bug-btn-primary:hover,
+.bug-btn-update:hover {
     filter: brightness(1.1);
 }
 
