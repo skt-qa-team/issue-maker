@@ -1,5 +1,5 @@
 <div id="scheduleModal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content modal-schedule-fixed">
         <div class="modal-header">
             <h2 id="modal_title">📅 일정 등록/수정</h2>
             <button id="btn-close-sch-modal-top" class="close-btn">×</button>
@@ -8,17 +8,6 @@
         <div class="modal-body">
             <input type="hidden" id="sch_id">
             
-            <div id="ai_dropzone" class="ai-dropzone">
-                <div id="ai_dropzone_content">
-                    <span>📸 일정표 스크린샷 붙여넣기 (Ctrl+V)</span>
-                </div>
-                <div id="ai_loading_content" class="d-none">
-                    <div class="spinner"></div>
-                    <span>AI가 일정을 분석 중입니다...</span>
-                </div>
-            </div>
-            <div id="ai_quota_info" class="ai-quota-info">⚡ 오늘 AI 자동 등록 남은 횟수: 20 / 20</div>
-
             <div class="form-group">
                 <label>구분 *</label>
                 <div class="radio-tab-group">
@@ -37,7 +26,8 @@
                 </div>
             </div>
 
-            <div class="grid-2"> <div class="form-group">
+            <div class="grid-2">
+                <div class="form-group">
                     <label id="label_sch_start">시작일 *</label>
                     <input type="date" id="sch_start">
                 </div>
@@ -62,6 +52,19 @@
                 <label>상세 설명</label>
                 <textarea id="sch_desc" placeholder="추가적인 메모를 입력하세요"></textarea>
             </div>
+
+            <hr class="modal-divider">
+
+            <div id="ai_dropzone" class="ai-dropzone">
+                <div id="ai_dropzone_content">
+                    <span>📸 일정표 스크린샷 붙여넣기 (Ctrl+V)</span>
+                </div>
+                <div id="ai_loading_content" class="d-none">
+                    <div class="spinner"></div>
+                    <span>AI가 일정을 분석 중입니다...</span>
+                </div>
+            </div>
+            <div id="ai_quota_info" class="ai-quota-info">⚡ 오늘 AI 자동 등록 남은 횟수: 20 / 20</div>
         </div>
 
         <div class="modal-footer">
