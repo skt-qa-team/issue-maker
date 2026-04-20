@@ -19,7 +19,6 @@ document.addEventListener('click', (e) => {
     if (target.classList.contains('bug-edit-small-btn')) window.startEditBug(target.dataset.id);
     if (target.classList.contains('bug-delete-small-btn')) window.deleteBugReport(target.dataset.id);
     
-    // 워크플로우 상태 변경 버튼 통합 처리
     if (target.classList.contains('bug-status-btn')) {
         window.processBugWorkflow(target.dataset.id, target.dataset.status);
     }
@@ -87,7 +86,6 @@ window.submitBugReport = () => {
     if (!user) return;
 
     if (window.editingBugId) {
-        // 수정 시 상태를 'pending'으로 리셋하여 재검수 유도
         firebase.database().ref(`system_bugs/${window.editingBugId}`).update({
             description: descriptionStr,
             type: bugType,
@@ -124,10 +122,11 @@ window.processBugWorkflow = (id, newStatus) => {
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
 
-    // 완료(done) 또는 반려(rejected/no_issue) 시에만 의견 입력 유도
+    // 의견 입력이 필요한 상태들
     let comment = null;
-    if (['done', 'rejected', 'no_issue'].includes(newStatus)) {
-        comment = prompt(`[${newStatus.toUpperCase()}] 의견을 남겨주세요:`, "");
+    if (['done', 'rejected', 'no_issue', 'approved'].includes(newStatus)) {
+        const promptMsg = newStatus === 'approved' ? '최종 승인 의견 (점수 부여)' : `[${newStatus.toUpperCase()}] 의견`;
+        comment = prompt(`${promptMsg}을 남겨주세요:`, "");
         if (comment === null) return;
     }
 
@@ -135,8 +134,8 @@ window.processBugWorkflow = (id, newStatus) => {
     updates[`system_bugs/${id}/status`] = newStatus;
     if (comment !== null) updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
 
-    // 점수 로직: 'done' 상태가 될 때만 점수 부여
-    if (newStatus === 'done' && bug.reporter && bug.reporter.uid) {
+    // [핵심] 오직 'approved' 상태가 될 때만 대장님 권한으로 점수 부여
+    if (newStatus === 'approved' && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
         const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
@@ -144,7 +143,8 @@ window.processBugWorkflow = (id, newStatus) => {
     }
 
     firebase.database().ref().update(updates).then(() => {
-        if (typeof window.showToast === 'function') window.showToast(`✅ 상태가 [${newStatus}]으로 변경되었습니다.`);
+        const finalMsg = newStatus === 'approved' ? '🎉 최종 승인 및 점수 부여 완료!' : `상태가 [${newStatus}]으로 변경되었습니다.`;
+        if (typeof window.showToast === 'function') window.showToast(finalMsg);
     });
 };
 
@@ -153,9 +153,9 @@ window.deleteBugReport = (id) => {
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
-    if (!confirm('삭제하시겠습니까? 완료된 제보라면 점수도 회수됩니다.')) return;
+    if (!confirm('삭제하시겠습니까? 승인된 제보라면 점수도 회수됩니다.')) return;
 
-    if (bug.status === 'done' && bug.reporter && bug.reporter.uid) {
+    if (bug.status === 'approved' && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
         const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
@@ -184,36 +184,38 @@ window.renderBugBoard = () => {
         const status = bug.status || 'pending';
         const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
         
-        // 상태별 뱃지 및 카드 클래스 설정
         const statusConfig = {
             pending: { label: '⏳ 대기중', class: 'status-pending' },
             in_progress: { label: '⚙️ 진행중', class: 'status-progress' },
             no_issue: { label: '🚫 이슈아님', class: 'status-no-issue' },
             review: { label: '🔍 검토중', class: 'status-review' },
-            done: { label: '✅ 완료', class: 'status-done' },
-            rejected: { label: '❌ 반려', class: 'status-rejected' }
+            done: { label: '🛠️ 수정완료', class: 'status-done' },
+            rejected: { label: '❌ 반려', class: 'status-rejected' },
+            approved: { label: '🎉 승인됨', class: 'status-approved' }
         };
         const currentStatus = statusConfig[status] || statusConfig.pending;
 
-        // Jira 스타일 동적 버튼 생성
         let workflowButtons = '';
         if (isAdmin) {
             if (status === 'pending') {
                 workflowButtons = `
-                    <button class="bug-status-btn progress" data-id="${bug.id}" data-status="in_progress">진행중</button>
-                    <button class="bug-status-btn no-issue" data-id="${bug.id}" data-status="no_issue">이슈 아님</button>
+                    <button class="bug-status-btn progress" data-id="${bug.id}" data-status="in_progress">진행</button>
+                    <button class="bug-status-btn no-issue" data-id="${bug.id}" data-status="no_issue">X이슈</button>
                 `;
             } else if (status === 'in_progress') {
-                workflowButtons = `<button class="bug-status-btn review" data-id="${bug.id}" data-status="review">검토 요청</button>`;
+                workflowButtons = `<button class="bug-status-btn review" data-id="${bug.id}" data-status="review">검토요청</button>`;
             } else if (status === 'review') {
                 workflowButtons = `
-                    <button class="bug-status-btn done" data-id="${bug.id}" data-status="done">완료</button>
-                    <button class="bug-status-btn reject" data-id="${bug.id}" data-status="rejected">반려</button>
+                    <button class="bug-status-btn done" data-id="${bug.id}" data-status="done">수정완료</button>
+                    <button class="bug-status-btn reject" data-id="${bug.id}" data-status="rejected">수정반려</button>
                 `;
+            } else if (status === 'done') {
+                // 대장님 전용 최종 승인 버튼
+                workflowButtons = `<button class="bug-status-btn approved" data-id="${bug.id}" data-status="approved">최종 승인</button>`;
             }
         }
 
-        let commentHtml = bug.adminComment ? `<div class="bug-admin-comment"><strong>💬 Admin 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>` : '';
+        let commentHtml = bug.adminComment ? `<div class="bug-admin-comment"><strong>💬 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>` : '';
 
         return `
             <div class="bug-post-card ${currentStatus.class}">
