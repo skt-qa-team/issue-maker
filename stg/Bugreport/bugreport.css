@@ -10,11 +10,19 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-smooth);
+}
+
+.bug-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .bug-modal-container {
     width: 100%;
-    max-width: 700px; /* 게시판형을 위해 너비 확장 */
+    max-width: 700px;
     max-height: 90vh;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
@@ -23,6 +31,12 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transform: translateY(20px);
+    transition: transform var(--transition-smooth);
+}
+
+.bug-modal-overlay.active .bug-modal-container {
+    transform: translateY(0);
 }
 
 .bug-modal-header {
@@ -42,6 +56,15 @@
     color: var(--text-main);
 }
 
+.bug-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
 .bug-modal-body {
     padding: 24px;
     overflow-y: auto;
@@ -50,12 +73,23 @@
     gap: 20px;
 }
 
-/* 입력 섹션 스타일 */
 .bug-write-section {
     background: var(--panel-bg);
     padding: 18px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
+}
+
+.bug-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-label-accent {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-main);
 }
 
 .bug-write-footer {
@@ -76,7 +110,6 @@
     margin: 10px 0;
 }
 
-/* 리스트 섹션 스타일 */
 .bug-list-title {
     font-size: 0.95rem;
     font-weight: 800;
@@ -126,7 +159,6 @@
     word-break: break-all;
 }
 
-/* 페이징 및 푸터 */
 .bug-modal-footer {
     padding: 16px 20px;
     background: var(--panel-bg);
@@ -196,6 +228,11 @@ textarea.bug-form-control {
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.bug-btn-primary:hover {
+    filter: brightness(1.1);
 }
 
 .bug-btn-secondary {
