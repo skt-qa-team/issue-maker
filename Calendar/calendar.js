@@ -1,6 +1,5 @@
 window.calCurrentDate = new Date();
 window.calSchedules = [];
-window.currentViewingScheduleId = null;
 
 const holidays = {
     "01-01": "신정", "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
@@ -25,156 +24,31 @@ window.fetchSchedulesFromFirebase = () => {
 };
 
 document.addEventListener('componentsLoaded', () => {
+    const calContainer = document.getElementById('calendar-placeholder');
+    if (!calContainer) return;
+
     window.fetchSchedulesFromFirebase();
     window.renderCalendar();
-    window.updateQuotaDisplay();
-});
 
-document.addEventListener('change', (e) => {
-    if (e.target.name === 'sch_color') {
-        window.handleScheduleTypeChange();
-    }
-    
-    if (e.target.id === 'sch_start') {
-        const endInput = document.getElementById('sch_end');
-        const typeRadio = document.querySelector('input[name="sch_color"]:checked');
-        
-        if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
-            if (endInput) endInput.value = e.target.value;
-        } else if (endInput && (!endInput.value || endInput.value < e.target.value)) {
-            if (endInput) endInput.value = e.target.value;
-        }
-    }
-});
+    calContainer.addEventListener('click', (e) => {
+        const target = e.target;
 
-window.handleScheduleTypeChange = () => {
-    const selectedRadio = document.querySelector('input[name="sch_color"]:checked');
-    if (!selectedRadio) return;
-    
-    const type = selectedRadio.getAttribute('data-type');
-    const groupEnd = document.getElementById('group_sch_end');
-    const groupEpic = document.getElementById('group_sch_epic');
-    const labelStart = document.getElementById('label_sch_start');
-
-    if (groupEnd) groupEnd.classList.toggle('d-none', type !== '검증');
-    if (groupEpic) groupEpic.classList.toggle('d-none', type !== '검증');
-    
-    if (labelStart) {
-        if (type === '검증') labelStart.textContent = '시작일 *';
-        else if (type === '회의') labelStart.textContent = '회의 날짜 *';
-        else labelStart.textContent = '날짜 *';
-    }
-};
-
-window.updateQuotaDisplay = () => {
-    const quotaInfo = document.getElementById('ai_quota_info');
-    if (quotaInfo) {
-        const d = new Date();
-        const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-        let usageData;
-        try {
-            usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
-        } catch (e) { usageData = { date: todayStr, count: 0 }; }
-        
-        if (usageData.date !== todayStr) {
-            usageData = { date: todayStr, count: 0 };
-            localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
+        if (target.id === 'btn-prev-month') window.changeMonth(-1);
+        if (target.id === 'btn-next-month') window.changeMonth(1);
+        if (target.id === 'btn-today') window.goToday();
+        if (target.id === 'btn-add-schedule') {
+            if (typeof window.openScheduleModal === 'function') window.openScheduleModal();
         }
 
-        const remaining = Math.max(0, 20 - usageData.count);
-        quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
-    }
-};
-
-document.addEventListener('paste', async (e) => {
-    const modal = document.getElementById('scheduleModal');
-    if (modal && !modal.classList.contains('d-none')) {
-        const items = e.clipboardData?.items || [];
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) await window.processScreenshot(file);
-                break;
+        const scheduleEl = target.closest('.cal-schedule.span-head');
+        if (scheduleEl) {
+            const schId = scheduleEl.dataset.schId;
+            if (schId && typeof window.openScheduleDetail === 'function') {
+                window.openScheduleDetail(schId);
             }
         }
-    }
+    });
 });
-
-window.processScreenshot = async (file) => {
-    let savedKey = localStorage.getItem('GEMINI_API_KEY');
-    if (!savedKey) {
-        savedKey = prompt("Gemini API 키가 필요합니다.");
-        if (!savedKey) return;
-        localStorage.setItem('GEMINI_API_KEY', savedKey.trim());
-    }
-
-    const d = new Date();
-    const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-    let usageData;
-    try { usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 }; }
-    catch (e) { usageData = { date: todayStr, count: 0 }; }
-    
-    if (usageData.date !== todayStr) usageData = { date: todayStr, count: 0 };
-
-    if (usageData.count >= 20) return alert("오늘 무료 제공량(20회)을 모두 소진했습니다.");
-
-    const dropzoneContent = document.getElementById('ai_dropzone_content');
-    const loadingContent = document.getElementById('ai_loading_content');
-    if (!dropzoneContent || !loadingContent) return;
-
-    dropzoneContent.classList.add('d-none');
-    loadingContent.classList.remove('d-none');
-
-    try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-            try {
-                const base64Image = reader.result.split(',')[1];
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${savedKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: "이 이미지는 일정표입니다. JSON 배열만 반환하세요." },
-                                { inline_data: { mime_type: file.type, data: base64Image } }
-                            ]
-                        }]
-                    })
-                });
-
-                const result = await response.json();
-                let textResult = result.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-                textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
-                const parsedArray = JSON.parse(textResult);
-
-                if (Array.isArray(parsedArray)) {
-                    usageData.count++;
-                    localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
-                    window.updateQuotaDisplay();
-
-                    let savePromises = [];
-                    parsedArray.forEach((item, index) => {
-                        if (!item.title || !item.start) return; 
-                        const id = Date.now().toString() + index;
-                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, epic: '', desc: 'AI 추출', color: '#3b82f6' };
-                        if (typeof firebase !== 'undefined' && firebase.database) {
-                            savePromises.push(firebase.database().ref('shared_schedules/' + id).set(newSch));
-                        } else { window.calSchedules.push(newSch); }
-                    });
-                    if (savePromises.length > 0) await Promise.all(savePromises);
-                    else window.renderCalendar();
-                    window.closeScheduleModal();
-                }
-            } catch (innerError) { alert("처리 오류: " + innerError.message); }
-            finally {
-                dropzoneContent.classList.remove('d-none');
-                loadingContent.classList.add('d-none');
-            }
-        };
-    } catch (error) { alert("파일 읽기 오류"); }
-};
 
 window.renderCalendar = () => {
     const grid = document.getElementById('cal-grid');
@@ -255,9 +129,11 @@ window.renderCalendar = () => {
                 schDiv.className = 'cal-schedule span-head';
                 schDiv.style.setProperty('--sch-bg', item.sch.color);
                 schDiv.style.setProperty('--sch-span', item.span);
+                schDiv.dataset.schId = item.sch.id;
                 schDiv.textContent = item.sch.title;
-                schDiv.onclick = (e) => { e.stopPropagation(); window.openScheduleDetail(item.sch.id); };
-            } else { schDiv.className = 'cal-schedule spacer'; }
+            } else { 
+                schDiv.className = 'cal-schedule spacer'; 
+            }
             schContainer.appendChild(schDiv);
         }
         cell.appendChild(schContainer);
@@ -265,133 +141,12 @@ window.renderCalendar = () => {
     });
 };
 
-window.changeMonth = (offset) => { window.calCurrentDate.setMonth(window.calCurrentDate.getMonth() + offset); window.renderCalendar(); };
-window.goToday = () => { window.calCurrentDate = new Date(); window.renderCalendar(); };
-
-window.openScheduleModal = (id = null) => {
-    console.log("[Action] Open Modal ID:", id);
-    if (typeof id !== 'string') id = null; 
-    const modal = document.getElementById('scheduleModal');
-    if (!modal) return console.error("Element Missing: scheduleModal");
-    
-    const idField = document.getElementById('sch_id');
-    if (idField) idField.value = id || '';
-
-    if (id) {
-        const sch = window.calSchedules.find(s => s.id === id);
-        if (sch) {
-            const setVal = (eid, val) => { const e = document.getElementById(eid); if(e) e.value = val; };
-            setVal('sch_title', sch.title);
-            setVal('sch_start', sch.start);
-            setVal('sch_end', sch.end);
-            setVal('sch_epic', sch.epic);
-            setVal('sch_desc', sch.desc);
-            const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
-            if (radio) radio.checked = true;
-        }
-    } else {
-        ['sch_title', 'sch_start', 'sch_end', 'sch_epic', 'sch_desc'].forEach(eid => {
-            const el = document.getElementById(eid); if(el) el.value = '';
-        });
-        const defaultRadio = document.querySelector(`input[name="sch_color"][value="#3b82f6"]`);
-        if (defaultRadio) defaultRadio.checked = true;
-    }
-    
-    window.handleScheduleTypeChange(); 
-    window.updateQuotaDisplay();
-    modal.classList.remove('d-none');
-    setTimeout(() => modal.classList.add('active'), 10);
+window.changeMonth = (offset) => { 
+    window.calCurrentDate.setMonth(window.calCurrentDate.getMonth() + offset); 
+    window.renderCalendar(); 
 };
 
-window.closeScheduleModal = () => { 
-    const modal = document.getElementById('scheduleModal');
-    if (modal) {
-        modal.classList.remove('active');
-        setTimeout(() => modal.classList.add('d-none'), 300);
-    }
-};
-
-window.saveSchedule = () => {
-    const idField = document.getElementById('sch_id');
-    const id = (idField && idField.value) ? idField.value : Date.now().toString();
-    const title = document.getElementById('sch_title')?.value.trim();
-    const start = document.getElementById('sch_start')?.value;
-    let end = document.getElementById('sch_end')?.value;
-    const colorRadio = document.querySelector('input[name="sch_color"]:checked');
-    const color = colorRadio ? colorRadio.value : '#3b82f6';
-    if (colorRadio && colorRadio.getAttribute('data-type') !== '검증') end = start;
-
-    if (!title || !start || !end) return alert("필수 정보를 입력하세요.");
-    const newSch = { id, title, start, end, epic: document.getElementById('sch_epic')?.value || '', desc: document.getElementById('sch_desc')?.value || '', color };
-
-    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-        firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
-            window.closeScheduleModal();
-        }).catch(e => alert("저장 실패: " + e.message));
-    } else {
-        const idx = window.calSchedules.findIndex(s => s.id === id);
-        if(idx > -1) window.calSchedules[idx] = newSch; else window.calSchedules.push(newSch);
-        window.renderCalendar(); window.closeScheduleModal();
-    }
-};
-
-window.openScheduleDetail = (id) => {
-    console.log("[Action] Open Detail ID:", id);
-    const sch = window.calSchedules.find(s => s.id === id);
-    if (!sch) return;
-    window.currentViewingScheduleId = id;
-    const modal = document.getElementById('scheduleDetailModal');
-    if (!modal) return;
-    
-    const colorBar = document.getElementById('detail_color_bar');
-    if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
-    document.getElementById('detail_title').textContent = sch.title;
-    document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
-    document.getElementById('detail_desc').textContent = sch.desc || '-';
-    
-    const epicWrapper = document.getElementById('detail_epic_wrapper');
-    const startEpicBtn = document.getElementById('btn_start_epic');
-    const elEpic = document.getElementById('detail_epic');
-    if (sch.epic && sch.epic.trim() !== '') {
-        epicWrapper.classList.remove('d-none'); startEpicBtn.classList.remove('d-none');
-        elEpic.textContent = sch.epic;
-    } else { epicWrapper.classList.add('d-none'); startEpicBtn.classList.add('d-none'); }
-
-    modal.classList.remove('d-none');
-    setTimeout(() => modal.classList.add('active'), 10);
-};
-
-window.closeScheduleDetail = () => { 
-    const modal = document.getElementById('scheduleDetailModal');
-    if (modal) {
-        modal.classList.remove('active');
-        setTimeout(() => { modal.classList.add('d-none'); window.currentViewingScheduleId = null; }, 300);
-    }
-};
-
-window.deleteSchedule = () => {
-    if (!window.currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
-    if (typeof firebase !== 'undefined' && firebase.database) {
-        firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
-            window.closeScheduleDetail();
-        });
-    } else {
-        window.calSchedules = window.calSchedules.filter(s => s.id !== window.currentViewingScheduleId);
-        window.renderCalendar(); window.closeScheduleDetail();
-    }
-};
-
-window.editSchedule = () => { if (window.currentViewingScheduleId) window.openScheduleModal(window.currentViewingScheduleId); };
-
-window.startScheduleWorkflow = () => {
-    if (!window.currentViewingScheduleId) return;
-    const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
-    if (!sch || !sch.epic) return alert("Epic Link가 등록되지 않은 일정입니다.");
-    window.closeScheduleDetail();
-    if (typeof window.switchMainTab === 'function') window.switchMainTab('issue');
-    const epicInput = document.getElementById('guide_epic');
-    if (epicInput) {
-        epicInput.value = sch.epic;
-        if (typeof window.generateTemplate === 'function') window.generateTemplate();
-    }
+window.goToday = () => { 
+    window.calCurrentDate = new Date(); 
+    window.renderCalendar(); 
 };
