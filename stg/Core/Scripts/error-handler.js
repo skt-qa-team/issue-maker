@@ -1,9 +1,17 @@
+window.lastErrorState = { message: '', time: 0 };
+
 window.showSystemError = (title, details) => {
+    const now = Date.now();
+    if (window.lastErrorState.message === details && now - window.lastErrorState.time < 2000) {
+        return;
+    }
+    window.lastErrorState = { message: details, time: now };
+
     let overlay = document.getElementById('global-error-overlay');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'global-error-overlay';
-        overlay.className = 'system-error-overlay';
+        overlay.className = 'system-error-overlay active';
         document.body.appendChild(overlay);
     }
 
@@ -26,10 +34,29 @@ window.showSystemError = (title, details) => {
 
     const footer = document.createElement('div');
     footer.className = 'system-error-footer';
-    const btn = document.createElement('button');
-    btn.textContent = '인지했습니다 (닫기)';
-    btn.onclick = () => overlay.remove();
-    footer.appendChild(btn);
+
+    const btnCopy = document.createElement('button');
+    btnCopy.className = 'btn-secondary';
+    btnCopy.textContent = '로그 복사';
+    btnCopy.onclick = () => {
+        navigator.clipboard.writeText(`[${title}]\n${details}`).then(() => {
+            if (typeof window.showToast === 'function') window.showToast('에러 로그가 복사되었습니다.');
+        });
+    };
+
+    const btnReload = document.createElement('button');
+    btnReload.className = 'btn-secondary';
+    btnReload.textContent = '새로고침';
+    btnReload.onclick = () => window.location.reload();
+
+    const btnClose = document.createElement('button');
+    btnClose.className = 'btn-primary';
+    btnClose.textContent = '인지했습니다';
+    btnClose.onclick = () => overlay.remove();
+
+    footer.appendChild(btnCopy);
+    footer.appendChild(btnReload);
+    footer.appendChild(btnClose);
 
     modal.appendChild(header);
     modal.appendChild(titleP);
@@ -42,13 +69,19 @@ window.showSystemError = (title, details) => {
 
 window.addEventListener('error', (e) => {
     const title = "자바스크립트 런타임 에러";
-    const details = `에러 메시지: ${e.message}\n발생 파일: ${e.filename}\n위치: Line ${e.lineno}, Col ${e.colno}\n\n[Stack Trace]\n${e.error ? e.error.stack : 'No stack trace available'}`;
+    const details = `에러 메시지: ${e.message}\n발생 파일: ${e.filename}\n위치: Line ${e.lineno}, Col ${e.colno}\n\n[Stack Trace]\n${e.error ? e.error.stack : 'No trace'}`;
     window.showSystemError(title, details);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
-    const title = "비동기 작업(Promise) 처리 실패";
-    const details = `상세 이유: ${e.reason ? (e.reason.stack || e.reason) : 'No reason provided'}`;
+    let title = "비동기 작업(Promise) 처리 실패";
+    let reasonStr = e.reason ? (e.reason.stack || e.reason.message || String(e.reason)) : 'No reason provided';
+    
+    if (reasonStr.includes('Firebase') || reasonStr.includes('PERMISSION_DENIED')) {
+        title = "🔥 Firebase 데이터베이스/인증 에러";
+    }
+    
+    const details = `상세 이유: ${reasonStr}`;
     window.showSystemError(title, details);
 });
 
@@ -59,6 +92,8 @@ console.error = function(...args) {
     
     if (errStrings.includes('Component Load Failure')) {
         window.showSystemError("HTML 컴포넌트 로드 실패 (404)", errStrings + "\n\nloader.js의 경로명과 실제 파일명이 일치하는지 확인하십시오.");
+    } else if (errStrings.includes('Firebase')) {
+        window.showSystemError("🔥 Firebase 내부 시스템 에러", errStrings);
     }
 };
 
@@ -66,7 +101,7 @@ window.requireElement = (id, contextName = "알 수 없는 컨텍스트") => {
     const el = document.getElementById(id);
     if (!el) {
         const errTitle = `필수 DOM 요소 누락 (${contextName})`;
-        const errDetails = `ID가 '${id}'인 HTML 요소를 화면에서 찾을 수 없습니다.\n\n해당 파일이 로드되지 않았거나, 파일 내부에 해당 ID를 가진 요소가 존재하지 않습니다.\nloader.js와 HTML 구조를 점검하세요.`;
+        const errDetails = `ID가 '${id}'인 HTML 요소를 화면에서 찾을 수 없습니다.\n해당 파일이 로드되지 않았거나, 내부 ID가 다릅니다.`;
         window.showSystemError(errTitle, errDetails);
         throw new Error(`DOM Element Missing: ${id}`);
     }
