@@ -21,7 +21,58 @@ window.escapeHTMLTemplate = (str) => {
 };
 
 // ==========================================
-// [추가] ux.js에서 이관된 임시 저장(Draft) 로직
+// [추가] ui.js에서 이관된 폼 클리어 및 Case 추가 로직
+// ==========================================
+window.clearForm = () => {
+    if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
+        const fields = [
+            'title', 'prefix_env_custom', 'osType_custom', 'poc_custom', 
+            'prefix_critical_custom', 'prefix_browser_custom', 'prefix_device_input',
+            'prefix_account', 'prefix_page', 'targetUrl', 'preCondition', 
+            'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'
+        ];
+        
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        
+        if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        if (typeof window.showToast === 'function') window.showToast('🔄 초기화되었습니다.');
+    }
+};
+
+window.addCase = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const match = el.value.match(/CASE (\d+)/g);
+    let nextNum = 1;
+    if (match) {
+        const lastCase = match[match.length - 1];
+        nextNum = parseInt(lastCase.replace('CASE ', '')) + 1;
+    }
+    const prefix = el.value.trim() === '' ? '' : '\n\n';
+    el.value += `${prefix}CASE ${nextNum}.\n`;
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+    el.focus();
+};
+
+window.applyIndividualPreset = (id, count) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let text = '';
+    for (let i = 1; i <= count; i++) {
+        text += `CASE ${i}.\n${i < count ? '\n' : ''}`;
+    }
+    el.value = text;
+    if (typeof window.generateTemplate === 'function') window.generateTemplate();
+    el.focus();
+};
+
+// ==========================================
+// Draft (임시 저장) 로직
 // ==========================================
 window.saveDraft = () => {
     const fields = ['title', 'prefix_env', 'prefix_env_custom', 'osType', 'osType_custom', 'poc', 'poc_custom', 'prefix_critical', 'prefix_critical_custom', 'prefix_device_input', 'prefix_account', 'prefix_page', 'appVersion', 'targetUrl', 'aiMode', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
@@ -58,18 +109,8 @@ window.loadDraft = () => {
             }
         });
 
-        if (data.selectedVerCbs) {
-            data.selectedVerCbs.forEach(id => {
-                const cb = document.getElementById(id);
-                if (cb) cb.checked = true;
-            });
-        }
-
-        if (data.selectedServers) {
-            document.querySelectorAll('.issue-server-cb').forEach(cb => {
-                cb.checked = data.selectedServers.includes(cb.value);
-            });
-        }
+        if (data.selectedVerCbs) data.selectedVerCbs.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = true; });
+        if (data.selectedServers) document.querySelectorAll('.issue-server-cb').forEach(cb => cb.checked = data.selectedServers.includes(cb.value));
 
         if (typeof window.syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
 
@@ -88,7 +129,7 @@ window.loadDraft = () => {
 };
 
 // ==========================================
-// 기존 InputForm 로직 (Prefix 제어)
+// Prefix 제어 로직
 // ==========================================
 window.applyAndSavePrefixOrder = () => {
     const inputs = document.querySelectorAll('.prefix-order-input');
@@ -154,16 +195,12 @@ window.loadPrefixOrder = () => {
                 const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
                 if (el) container.appendChild(el);
             });
-        } catch (e) {
-            window.resetPrefixOrder();
-        }
-    } else {
-        window.resetPrefixOrder();
-    }
+        } catch (e) { window.resetPrefixOrder(); }
+    } else { window.resetPrefixOrder(); }
 };
 
 // ==========================================
-// 기존 InputForm 로직 (프리셋 & 디바이스 동기화)
+// 프리셋 관리 로직
 // ==========================================
 window.getFormDataForPreset = () => {
     return {
@@ -208,8 +245,7 @@ window.renderInputPresets = () => {
     let html = '<option value="">💾 프리셋 선택...</option>';
     
     Object.keys(presets).forEach(name => {
-        const safeName = window.escapeHTMLTemplate(name);
-        html += `<option value="${safeName}">${safeName}</option>`;
+        html += `<option value="${window.escapeHTMLTemplate(name)}">${window.escapeHTMLTemplate(name)}</option>`;
     });
     
     selectEl.innerHTML = html;
@@ -241,16 +277,10 @@ window.saveInputPreset = () => {
     const nameInput = document.getElementById('newPresetName');
     const name = nameInput ? nameInput.value.trim() : '';
     
-    if (!name) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
-        return;
-    }
+    if (!name) return window.showToast?.('⚠️ 프리셋 이름을 입력해주세요.');
     
     let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    if (Object.keys(presets).length >= 10 && !presets[name]) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
-        return;
-    }
+    if (Object.keys(presets).length >= 10 && !presets[name]) return window.showToast?.('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
 
     presets[name] = window.getFormDataForPreset();
     localStorage.setItem('qa_input_presets', JSON.stringify(presets));
@@ -264,31 +294,24 @@ window.saveInputPreset = () => {
         window.handlePresetDropdownChange();
     }
     
-    if (typeof window.showToast === 'function') window.showToast('✅ 프리셋이 저장되었습니다.');
+    window.showToast?.('✅ 프리셋이 저장되었습니다.');
 };
 
 window.editInputPreset = () => {
     const selectEl = document.getElementById('inputPresetSelect');
-    if (!selectEl || !selectEl.value) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 수정할 프리셋을 선택해주세요.');
-        return;
-    }
+    if (!selectEl || !selectEl.value) return window.showToast?.('⚠️ 수정할 프리셋을 선택해주세요.');
     
     const name = selectEl.value;
     let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    
     presets[name] = window.getFormDataForPreset();
     localStorage.setItem('qa_input_presets', JSON.stringify(presets));
     
-    if (typeof window.showToast === 'function') window.showToast(`✏️ '${name}' 프리셋이 수정되었습니다.`);
+    window.showToast?.(`✏️ '${name}' 프리셋이 수정되었습니다.`);
 };
 
 window.deleteInputPreset = () => {
     const selectEl = document.getElementById('inputPresetSelect');
-    if (!selectEl || !selectEl.value) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 삭제할 프리셋을 선택해주세요.');
-        return;
-    }
+    if (!selectEl || !selectEl.value) return window.showToast?.('⚠️ 삭제할 프리셋을 선택해주세요.');
     
     const name = selectEl.value;
     let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
@@ -299,7 +322,7 @@ window.deleteInputPreset = () => {
     window.handlePresetDropdownChange();
     window.renderInputPresets();
     
-    if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
+    window.showToast?.('🗑️ 프리셋이 삭제되었습니다.');
 };
 
 window.applyInputPreset = (name) => {
@@ -362,16 +385,16 @@ window.applyInputPreset = (name) => {
     window.handlePocChange();
     window.syncEnvironmentByOS();
 
-    document.querySelectorAll('.issue-device-cb').forEach(cb => {
-        cb.checked = data.devices?.includes(cb.value);
-    });
-
+    document.querySelectorAll('.issue-device-cb').forEach(cb => { cb.checked = data.devices?.includes(cb.value); });
     document.querySelectorAll('.ver-type-cb').forEach(cb => cb.checked = data.versions?.includes(cb.value));
 
     window.updateVersionTextbox();
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
 };
 
+// ==========================================
+// 디바이스 / OS 동기화 로직
+// ==========================================
 window.updateVersionCheckboxesByOS = () => {
     const osEl = document.getElementById('osType');
     const pocEl = document.getElementById('poc');
@@ -382,10 +405,7 @@ window.updateVersionCheckboxesByOS = () => {
     const isPureWeb = poc === 'Admin' || poc === 'PC Web';
 
     const cbList = ['ver_cb_android', 'ver_cb_ios', 'ver_cb_samsung', 'ver_cb_safari', 'ver_cb_chrome', 'ver_cb_edge'];
-    cbList.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = false;
-    });
+    cbList.forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
 
     if (!isPureWeb) {
         const multiOs = ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
@@ -444,7 +464,7 @@ window.syncEnvironmentByOS = () => {
             const safeDevName = window.escapeHTMLTemplate(dev);
             const domId = `${idPrefix}_${safeDevName.replace(/\s+/g, '_')}`;
             const isChecked = currentSelected.includes(dev) ? 'checked' : '';
-            html += `<input type="checkbox" id="${domId}" class="pill-cb issue-device-cb" value="${safeDevName}" ${isChecked} onchange="window.handleDeviceClick(this)"><label for="${domId}" class="pill-label">${safeDevName}</label>`;
+            html += `<input type="checkbox" id="${domId}" class="pill-cb issue-device-cb template-trigger" value="${safeDevName}" ${isChecked}><label for="${domId}" class="pill-label">${safeDevName}</label>`;
         });
         container.innerHTML = html;
     };
@@ -572,9 +592,93 @@ window.updateVersionTextbox = () => {
     if (verInput) verInput.value = versionParts.join(' / ');
 };
 
+// ==========================================
+// [추가] Event Delegation (인라인 이벤트 대체)
+// ==========================================
 document.addEventListener('componentsLoaded', () => {
     setTimeout(() => {
         if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
         if (typeof window.renderInputPresets === 'function') window.renderInputPresets();
     }, 500);
+
+    const inputFormContainer = document.getElementById('input-form-placeholder');
+    if (!inputFormContainer) return;
+
+    // Click Event Delegation
+    inputFormContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        if (target.id === 'btnSavePreset') window.saveInputPreset();
+        if (target.id === 'btnEditPreset') window.editInputPreset();
+        if (target.id === 'btnDeletePreset') window.deleteInputPreset();
+        if (target.id === 'btnSavePrefixOrder') window.applyAndSavePrefixOrder();
+        if (target.id === 'btnResetPrefixOrder') window.resetPrefixOrder();
+        
+        if (target.classList.contains('btn-add-case')) {
+            window.addCase(target.dataset.target);
+        }
+        
+        if (target.classList.contains('btn-apply-preset')) {
+            window.applyIndividualPreset(target.dataset.target, parseInt(target.dataset.preset));
+        }
+    });
+
+    // Change Event Delegation (Select, Checkbox, Radio)
+    inputFormContainer.addEventListener('change', (e) => {
+        const target = e.target;
+
+        if (target.id === 'inputPresetSelect') window.handlePresetDropdownChange();
+        if (target.id === 'prefix_env') document.getElementById('prefix_env_custom').classList.toggle('d-none', target.value !== 'direct');
+        if (target.id === 'osType') {
+            document.getElementById('osType_custom').classList.toggle('d-none', target.value !== 'direct');
+            window.syncEnvironmentByOS();
+        }
+        if (target.id === 'poc') {
+            document.getElementById('poc_custom').classList.toggle('d-none', target.value !== 'direct');
+            window.handlePocChange();
+        }
+        if (target.id === 'prefix_critical') document.getElementById('prefix_critical_custom').classList.toggle('d-none', target.value !== 'direct');
+        
+        if (target.id === 'prefix_browser_none') {
+            if (target.checked) {
+                document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false);
+                document.getElementById('prefix_browser_custom').classList.add('d-none');
+                document.getElementById('prefix_device_input').classList.remove('d-none');
+            }
+        }
+        
+        if (target.classList.contains('prefix-browser-cb')) {
+            if (target.id === 'prefix_browser_etc') {
+                document.getElementById('prefix_browser_none').checked = false;
+                document.getElementById('prefix_browser_custom').classList.toggle('d-none', !target.checked);
+                document.getElementById('prefix_device_input').classList.toggle('d-none', target.checked);
+            } else if (target.checked) {
+                document.getElementById('prefix_browser_none').checked = false;
+                document.getElementById('prefix_device_input').classList.add('d-none');
+            }
+        }
+
+        if (target.name === 'and_dev_mode') window.toggleDeviceMode('and');
+        if (target.name === 'ios_dev_mode') window.toggleDeviceMode('ios');
+        if (target.name === 'ios_ver_type') window.syncEnvironmentByOS();
+        
+        if (target.id === 'ver_cb_android') { window.syncDeviceFromVersion('and'); window.updateVersionTextbox(); }
+        if (target.id === 'ver_cb_ios') { window.syncDeviceFromVersion('ios'); window.updateVersionTextbox(); }
+        if (['ver_cb_samsung', 'ver_cb_safari', 'ver_cb_chrome', 'ver_cb_edge'].includes(target.id)) {
+            window.updateVersionTextbox();
+        }
+
+        if (target.classList.contains('issue-device-cb')) window.handleDeviceClick(target);
+
+        if (target.classList.contains('template-trigger')) {
+            if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        }
+    });
+
+    // Input Event Delegation (Text, Textarea)
+    inputFormContainer.addEventListener('input', (e) => {
+        if (e.target.classList.contains('template-trigger')) {
+            if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        }
+    });
 });
