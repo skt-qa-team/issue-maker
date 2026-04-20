@@ -33,20 +33,33 @@ document.addEventListener('click', (e) => {
 });
 
 window.initBugBoard = () => {
-    if (typeof firebase === 'undefined' || !firebase.database) return;
-    
-    const bugRef = firebase.database().ref('system_bugs');
-    bugRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-            window.bugDataCache = [];
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) return;
+
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            const bugRef = firebase.database().ref('system_bugs');
+            bugRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    window.bugDataCache = [];
+                } else {
+                    window.bugDataCache = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    })).sort((a, b) => b.timestamp - a.timestamp);
+                }
+                window.renderBugBoard();
+            }, (error) => {
+                console.error("Firebase Read Error:", error);
+                const container = document.getElementById('bug_list_container');
+                if (container) {
+                    container.innerHTML = '<p class="bug-empty-text">🔒 접근 권한이 없거나 승인 대기 중입니다.</p>';
+                }
+            });
         } else {
-            window.bugDataCache = Object.keys(data).map(key => ({
-                id: key,
-                ...data[key]
-            })).sort((a, b) => b.timestamp - a.timestamp);
+            window.bugDataCache = [];
+            window.renderBugBoard();
         }
-        window.renderBugBoard();
     });
 };
 
