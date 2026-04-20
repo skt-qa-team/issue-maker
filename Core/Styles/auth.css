@@ -30,7 +30,8 @@ body.auth-locked {
     text-align: center;
     max-width: 400px;
     width: 90%;
-    animation: authPopIn 0.5s var(--transition-normal) forwards;
+    /* [수정] 변수 충돌 버그 해결 및 부드러운 곡선(cubic-bezier) 직접 주입 */
+    animation: authPopIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
     will-change: transform, opacity;
 }
 
@@ -62,7 +63,7 @@ body.auth-locked {
     justify-content: center;
     gap: 12px;
     width: 100%;
-    transition: var(--transition-fast);
+    transition: all var(--transition-smooth); /* [수정] 전역 물리 엔진 적용 */
     box-shadow: var(--shadow-sm);
 }
 
@@ -78,12 +79,13 @@ body.auth-locked {
 .btn-login-google:hover {
     background: #f8fafc;
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* [수정] 자연스럽게 떠오르는 그림자 */
     border-color: var(--accent-blue);
 }
 
 .btn-login-google:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.98); /* [수정] 클릭 시 확실하게 눌리는 효과 */
+    box-shadow: none;
 }
 
 .btn-logout-sub {
@@ -96,13 +98,18 @@ body.auth-locked {
     font-weight: 700;
     cursor: pointer;
     width: 100%;
-    transition: var(--transition-fast);
+    transition: all var(--transition-smooth); /* [수정] 전역 물리 엔진 적용 */
 }
 
 .btn-logout-sub:hover {
     background: var(--bg-color);
     color: var(--text-main);
     border-color: var(--text-sub);
+    transform: translateY(-1px);
+}
+
+.btn-logout-sub:active {
+    transform: translateY(0) scale(0.98);
 }
 
 .legacy-status-online {
