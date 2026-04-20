@@ -118,7 +118,7 @@ window.processScreenshot = async (file) => {
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "이 일정표 이미지에서 일정 데이터를 추출하여 [{title, start, end}] 형태의 JSON 배열로만 반환해줘." },
+                                { text: "이 이미지에서 일정 데이터를 추출해. [{title, start, end}] JSON 배열만 반환해." },
                                 { inline_data: { mime_type: file.type, data: base64Image } }
                             ]
                         }]
@@ -165,18 +165,11 @@ window.openScheduleModal = (id = null) => {
     if (id) {
         const sch = window.calSchedules.find(s => s.id === id);
         if (sch) {
-            const titleEl = document.getElementById('sch_title');
-            const startEl = document.getElementById('sch_start');
-            const endEl = document.getElementById('sch_end');
-            const epicEl = document.getElementById('sch_epic');
-            const descEl = document.getElementById('sch_desc');
-
-            if (titleEl) titleEl.value = sch.title;
-            if (startEl) startEl.value = sch.start;
-            if (endEl) endEl.value = sch.end;
-            if (epicEl) epicEl.value = sch.epic;
-            if (descEl) descEl.value = sch.desc;
-
+            document.getElementById('sch_title').value = sch.title;
+            document.getElementById('sch_start').value = sch.start;
+            document.getElementById('sch_end').value = sch.end;
+            document.getElementById('sch_epic').value = sch.epic;
+            document.getElementById('sch_desc').value = sch.desc;
             const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
             if (radio) radio.checked = true;
         }
@@ -190,12 +183,16 @@ window.openScheduleModal = (id = null) => {
     }
     
     window.handleScheduleTypeChange(); 
-    modal.classList.add('active');
+    modal.classList.remove('d-none');
+    setTimeout(() => modal.classList.add('active'), 10);
 };
 
 window.closeScheduleModal = () => { 
     const modal = document.getElementById('scheduleModal');
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.classList.add('d-none'), 300);
+    }
 };
 
 window.saveSchedule = () => {
@@ -224,22 +221,14 @@ window.openScheduleDetail = (id) => {
     window.currentViewingScheduleId = id;
     
     const modal = document.getElementById('scheduleDetailModal');
-    if (!modal) {
-        console.error("Critical: scheduleDetailModal not found in DOM.");
-        return;
-    }
+    if (!modal) return;
     
     const colorBar = document.getElementById('detail_color_bar');
     if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
     
-    const titleEl = document.getElementById('detail_title');
-    if (titleEl) titleEl.textContent = sch.title;
-
-    const dateEl = document.getElementById('detail_date');
-    if (dateEl) dateEl.textContent = `${sch.start} ~ ${sch.end}`;
-
-    const descEl = document.getElementById('detail_desc');
-    if (descEl) descEl.textContent = sch.desc || '-';
+    document.getElementById('detail_title').textContent = sch.title;
+    document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
+    document.getElementById('detail_desc').textContent = sch.desc || '-';
     
     const epicWrapper = document.getElementById('detail_epic_wrapper');
     const startWorkflowBtn = document.getElementById('btn-start-workflow');
@@ -254,31 +243,33 @@ window.openScheduleDetail = (id) => {
         if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
     }
 
-    modal.classList.add('active');
+    modal.classList.remove('d-none');
+    setTimeout(() => modal.classList.add('active'), 10);
 };
 
 window.closeScheduleDetail = () => { 
     const modal = document.getElementById('scheduleDetailModal');
     if (modal) {
         modal.classList.remove('active');
-        window.currentViewingScheduleId = null;
+        setTimeout(() => {
+            modal.classList.add('d-none');
+            window.currentViewingScheduleId = null;
+        }, 300);
     }
 };
 
 window.deleteSchedule = () => {
     if (!window.currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
-    if (typeof firebase !== 'undefined') {
-        firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
-            window.closeScheduleDetail();
-        });
-    }
+    firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
+        window.closeScheduleDetail();
+    });
 };
 
 window.editSchedule = () => {
     if (window.currentViewingScheduleId) {
         const id = window.currentViewingScheduleId;
         window.closeScheduleDetail();
-        window.openScheduleModal(id);
+        setTimeout(() => window.openScheduleModal(id), 350);
     }
 };
 
