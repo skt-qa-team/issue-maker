@@ -28,6 +28,13 @@
     gap: 25px;
 }
 
+.cal-detail-value-author {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    padding: 2px 0;
+}
+
 .cal-detail-value-epic {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     font-size: 0.85rem;
@@ -51,17 +58,28 @@
     line-height: 1.7;
     color: var(--text-main);
     white-space: pre-wrap;
-    min-height: 120px;
-    padding: 10px 0;
+    min-height: 80px;
+    padding: 5px 0;
 }
 
-.modal-footer-left {
-    margin-right: auto;
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
 }
 
+.modal-footer-left,
 .modal-footer-right {
     display: flex;
     gap: 10px;
+}
+
+.modal-footer button {
+    min-width: 100px;
+    justify-content: center;
+    height: 42px;
+    font-weight: 700;
 }
 
 #detail_title {
