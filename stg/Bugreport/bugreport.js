@@ -55,7 +55,12 @@ window.renderScoreDashboard = (usersData) => {
     if (!rankContainer || !usersData) return;
 
     const sortedUsers = Object.entries(usersData)
-        .map(([uid, data]) => ({ name: data.nickname || data.name || '익명', score: data.qa_score || 0 }))
+        .map(([uid, data]) => {
+            let name = data.nickname || data.name;
+            if (!name && data.email) name = data.email.split('@')[0];
+            if (!name) name = '익명';
+            return { name, score: data.qa_score || 0 };
+        })
         .filter(u => u.score > 0)
         .sort((a, b) => b.score - a.score);
 
@@ -98,7 +103,11 @@ window.submitBugReport = () => {
         });
     } else {
         const bugData = {
-            reporter: { uid: user.uid, name: user.displayName || user.email.split('@')[0] || '익명' },
+            reporter: { 
+                uid: user.uid, 
+                name: user.displayName || user.email.split('@')[0] || '익명',
+                email: user.email
+            },
             description: descriptionStr,
             type: bugType,
             status: 'pending',
@@ -136,6 +145,27 @@ window.processBugStatus = (id, status) => {
     });
 };
 
+window.deleteBugReport = (id) => {
+    const user = firebase.auth().currentUser;
+    if (!user || user.uid !== window.ADMIN_UID) return;
+
+    const bug = window.bugDataCache.find(b => b.id === id);
+    if (!bug) return;
+
+    if (!confirm('해당 제보를 삭제하시겠습니까? 승인된 점수는 회수됩니다.')) return;
+
+    if (bug.status === 'approved' && bug.reporter.uid) {
+        const scoreMap = { ui: 0.5, functional: 1.0 };
+        const points = scoreMap[bug.type] || 0;
+        const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
+        userScoreRef.transaction((current) => (current || 0) - points);
+    }
+
+    firebase.database().ref(`system_bugs/${id}`).remove().then(() => {
+        if (typeof window.showToast === 'function') window.showToast('🗑️ 제보가 삭제 및 점수 회수 완료되었습니다.');
+    });
+};
+
 window.renderBugBoard = () => {
     const container = document.getElementById('bug_list_container');
     const currentUser = firebase.auth().currentUser;
@@ -157,8 +187,7 @@ window.renderBugBoard = () => {
         const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
 
         let adminButtons = '';
-        // [수정] 관리자이면서 '작성자가 아닐 때'만 승인/반려 버튼 노출
-        if (isAdmin && !isAuthor && bug.status === 'pending') {
+        if (isAdmin && bug.status === 'pending') {
             adminButtons = `
                 <button class="bug-approve-btn" data-id="${bug.id}">승인</button>
                 <button class="bug-reject-btn" data-id="${bug.id}">반려</button>
@@ -175,7 +204,7 @@ window.renderBugBoard = () => {
                     </div>
                     <div class="bug-post-actions">
                         ${adminButtons}
-                        ${isAuthor && bug.status === 'pending' ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
+                        ${(isAuthor || isAdmin) && bug.status === 'pending' ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
                         ${isAdmin ? `<button class="bug-delete-small-btn" data-id="${bug.id}">삭제</button>` : ''}
                     </div>
                 </div>
@@ -230,12 +259,6 @@ window.cancelBugEdit = () => {
         submitBtn.classList.add('bug-btn-primary');
         submitBtn.classList.remove('bug-btn-update');
     }
-};
-
-window.deleteBugReport = (id) => {
-    const user = firebase.auth().currentUser;
-    if (!user || user.uid !== window.ADMIN_UID) return;
-    if (confirm('삭제하시겠습니까?')) firebase.database().ref(`system_bugs/${id}`).remove();
 };
 
 window.renderBugPagination = () => {
