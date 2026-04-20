@@ -6,43 +6,41 @@
         </div>
         
         <div class="bug-modal-body">
-            <div id="bug_score_dashboard" class="bug-score-section">
-                <h3 class="bug-list-title">🏆 QA 기여도 랭킹</h3>
-                <div id="score_rank_list" class="score-rank-container">
-                    <p class="bug-empty-text">랭킹 데이터를 집계 중입니다...</p>
-                </div>
-            </div>
-
-            <div class="bug-divider"></div>
-
-            <div class="bug-write-section">
-                <div class="bug-form-group">
-                    <label class="form-label-accent">🛠️ 문제 상황 및 내용</label>
-                    <textarea id="bug_description" class="bug-form-control" placeholder="발생 위치와 현상을 자세히 적어주세요."></textarea>
-                </div>
-                
-                <div class="bug-form-group mt-15">
-                    <label class="form-label-accent">🎯 제보 유형 선택</label>
-                    <div class="bug-type-selector">
-                        <select id="bug_type" class="bug-form-control">
-                            <option value="ui">UI/UX 이슈 (0.5점)</option>
-                            <option value="functional">기능적 결함 (1.0점)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="bug-write-footer">
-                    <small class="bug-tip">※ Admin 승인 시 점수가 반영됩니다.</small>
-                    <button id="btn-submit-bug" class="bug-btn-primary">제보하기</button>
-                </div>
-            </div>
-
-            <div class="bug-divider"></div>
-
-            <div class="bug-list-section">
+            <div class="bug-list-side">
                 <h3 class="bug-list-title">📋 최근 제보 및 검수 현황</h3>
                 <div id="bug_list_container" class="bug-list-container">
                     <p class="bug-empty-text">데이터를 불러오는 중...</p>
+                </div>
+            </div>
+
+            <div class="bug-action-side">
+                <div id="bug_score_dashboard" class="bug-score-section">
+                    <h3 class="bug-list-title">🏆 QA 기여도 랭킹</h3>
+                    <div id="score_rank_list" class="score-rank-container">
+                        <p class="bug-empty-text">랭킹 데이터를 집계 중입니다...</p>
+                    </div>
+                </div>
+
+                <div class="bug-write-section">
+                    <div class="bug-form-group">
+                        <label class="form-label-accent">🛠️ 문제 상황 및 내용</label>
+                        <textarea id="bug_description" class="bug-form-control" rows="4" placeholder="발생 위치와 현상을 자세히 적어주세요."></textarea>
+                    </div>
+                    
+                    <div class="bug-form-group mt-15">
+                        <label class="form-label-accent">🎯 제보 유형 선택</label>
+                        <div class="bug-type-selector">
+                            <select id="bug_type" class="bug-form-control">
+                                <option value="ui">UI/UX 이슈 (0.5점)</option>
+                                <option value="functional">기능적 결함 (1.0점)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bug-write-footer">
+                        <small class="bug-tip">※ Admin 최종 승인 시 점수가 반영됩니다.</small>
+                        <button id="btn-submit-bug" class="bug-btn-primary">제보하기</button>
+                    </div>
                 </div>
             </div>
         </div>
