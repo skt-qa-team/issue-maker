@@ -89,16 +89,29 @@ window.renderCalendar = () => {
             let isHeadAssigned = false;
             weekDays.forEach((wd, dayIdx) => {
                 const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+                const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+                const isNonWorkDay = (dayIdx === 0 || dayIdx === 6 || holidays[keyMMDD]);
+
                 if (sch.start <= dateStr && sch.end >= dateStr) {
                     if (!laneMap.has(dateStr)) laneMap.set(dateStr, []);
-                    let isHead = false; let span = 0;
-                    if (!isHeadAssigned) {
-                        isHead = true; isHeadAssigned = true;
-                        for (let k = dayIdx; k < 7; k++) {
-                            const checkDate = `${weekDays[k].year}-${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
-                            if (sch.start <= checkDate && sch.end >= checkDate) span++;
-                            else break;
+                    let isHead = false; 
+                    let span = 0;
+
+                    if (!isNonWorkDay) {
+                        if (!isHeadAssigned) {
+                            isHead = true; 
+                            isHeadAssigned = true;
+                            for (let k = dayIdx; k < 7; k++) {
+                                const kDate = `${weekDays[k].year}-${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
+                                const kMMDD = `${String(weekDays[k].month + 1).padStart(2, '0')}-${String(weekDays[k].day).padStart(2, '0')}`;
+                                const kNonWork = (k === 0 || k === 6 || holidays[kMMDD]);
+
+                                if (sch.start <= kDate && sch.end >= kDate && !kNonWork) span++;
+                                else break;
+                            }
                         }
+                    } else {
+                        isHeadAssigned = false;
                     }
                     laneMap.get(dateStr)[laneIndex] = { sch, isHead, span };
                 }
@@ -111,6 +124,8 @@ window.renderCalendar = () => {
         cell.className = `cal-day ${wd.type}`;
         const dateStr = `${wd.year}-${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
         const keyMMDD = `${String(wd.month + 1).padStart(2, '0')}-${String(wd.day).padStart(2, '0')}`;
+        const isNonWorkDay = (idx % 7 === 0 || idx % 7 === 6 || holidays[keyMMDD]);
+
         if (idx % 7 === 0 || (wd.type === 'current' && holidays[keyMMDD])) cell.classList.add('sun');
         else if (idx % 7 === 6) cell.classList.add('sat');
 
@@ -125,7 +140,7 @@ window.renderCalendar = () => {
         for (let l = 0; l < dayLanes.length; l++) {
             const item = dayLanes[l];
             const schDiv = document.createElement('div');
-            if (item && item.isHead) {
+            if (item && item.isHead && !isNonWorkDay) {
                 schDiv.className = 'cal-schedule span-head';
                 schDiv.style.setProperty('--sch-bg', item.sch.color);
                 schDiv.style.setProperty('--sch-span', item.span);
