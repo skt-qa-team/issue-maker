@@ -6,18 +6,25 @@
     height: 100%;
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(6px);
-    display: none;
+    
+    /* [수정] 렌더링 버그 해결의 핵심: display 대신 visibility 사용 */
+    display: flex;
+    visibility: hidden;
+    pointer-events: none;
+    
     align-items: center;
     justify-content: center;
     z-index: 9000;
     padding: 20px;
     box-sizing: border-box;
     opacity: 0;
-    transition: opacity var(--transition-normal);
+    transition: opacity var(--transition-smooth), visibility var(--transition-smooth);
 }
 
 .modal-overlay.active {
-    display: flex;
+    /* [수정] 모달 활성화 시 보임 처리 및 클릭 허용 */
+    visibility: visible;
+    pointer-events: auto;
     opacity: 1;
 }
 
@@ -33,7 +40,9 @@
     flex-direction: column;
     transform: translateY(30px) scale(0.98);
     opacity: 0;
-    transition: transform var(--transition-normal), opacity var(--transition-normal);
+    
+    /* [추가] variables.css에서 만든 유려한 물리 엔진 적용 */
+    transition: transform var(--transition-smooth), opacity var(--transition-smooth);
     box-sizing: border-box;
 }
 
@@ -64,7 +73,7 @@
     font-size: 20px;
     color: var(--text-sub);
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: all var(--transition-smooth);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -78,7 +87,7 @@
     background: var(--accent-red);
     color: white;
     border-color: var(--accent-red);
-    transform: rotate(90deg);
+    transform: rotate(90deg) scale(1.1); /* [추가] 닫기 버튼 회전 시 살짝 커지는 디테일 */
 }
 
 .modal-body {
@@ -110,15 +119,7 @@
     flex-shrink: 0;
 }
 
-.btn-base {
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-weight: 800;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    border: 1px solid transparent;
-}
+/* [삭제] .btn-base는 철학 6번에 따라 buttons.css로 위임했으므로 도려냄 */
 
 .modal-lg { max-width: 900px; }
 .modal-md { max-width: 600px; }
@@ -131,6 +132,7 @@
 }
 
 .modal-error {
-    animation: shake 0.2s ease-in-out 0s 2;
+    animation: shake 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) 0s 2;
     border-color: var(--accent-red);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); /* [추가] 에러 발생 시 시각적 강조 효과 */
 }
