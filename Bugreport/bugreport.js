@@ -18,8 +18,12 @@ document.addEventListener('click', (e) => {
     if (target.id === 'btn-submit-bug') window.submitBugReport();
     if (target.classList.contains('bug-edit-small-btn')) window.startEditBug(target.dataset.id);
     if (target.classList.contains('bug-delete-small-btn')) window.deleteBugReport(target.dataset.id);
-    if (target.classList.contains('bug-approve-btn')) window.processBugStatus(target.dataset.id, 'approved');
-    if (target.classList.contains('bug-reject-btn')) window.processBugStatus(target.dataset.id, 'rejected');
+    
+    // 워크플로우 상태 변경 버튼 통합 처리
+    if (target.classList.contains('bug-status-btn')) {
+        window.processBugWorkflow(target.dataset.id, target.dataset.status);
+    }
+
     if (target.classList.contains('pg-btn')) {
         const page = parseInt(target.dataset.page);
         if (page) window.changeBugPage(page);
@@ -81,7 +85,9 @@ window.submitBugReport = () => {
     }
     const user = firebase.auth().currentUser;
     if (!user) return;
+
     if (window.editingBugId) {
+        // 수정 시 상태를 'pending'으로 리셋하여 재검수 유도
         firebase.database().ref(`system_bugs/${window.editingBugId}`).update({
             description: descriptionStr,
             type: bugType,
@@ -112,28 +118,33 @@ window.submitBugReport = () => {
     }
 };
 
-window.processBugStatus = (id, status) => {
+window.processBugWorkflow = (id, newStatus) => {
     const user = firebase.auth().currentUser;
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
-    if (!bug || bug.status !== 'pending') return;
+    if (!bug) return;
 
-    const comment = prompt(`${status === 'approved' ? '[승인]' : '[반려]'} 한 줄 의견을 남겨주세요:`, "");
-    if (comment === null) return;
+    // 완료(done) 또는 반려(rejected/no_issue) 시에만 의견 입력 유도
+    let comment = null;
+    if (['done', 'rejected', 'no_issue'].includes(newStatus)) {
+        comment = prompt(`[${newStatus.toUpperCase()}] 의견을 남겨주세요:`, "");
+        if (comment === null) return;
+    }
 
-    const scoreMap = { ui: 0.5, functional: 1.0 };
-    const points = status === 'approved' ? scoreMap[bug.type] : 0;
     const updates = {};
-    updates[`system_bugs/${id}/status`] = status;
-    updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
+    updates[`system_bugs/${id}/status`] = newStatus;
+    if (comment !== null) updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
 
-    if (status === 'approved' && bug.reporter && bug.reporter.uid) {
+    // 점수 로직: 'done' 상태가 될 때만 점수 부여
+    if (newStatus === 'done' && bug.reporter && bug.reporter.uid) {
+        const scoreMap = { ui: 0.5, functional: 1.0 };
+        const points = scoreMap[bug.type] || 0;
         const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
         userScoreRef.transaction((current) => (current || 0) + points);
     }
+
     firebase.database().ref().update(updates).then(() => {
-        const msg = status === 'approved' ? `✅ 승인 완료 (+${points}pt)` : '❌ 반려 처리되었습니다.';
-        if (typeof window.showToast === 'function') window.showToast(msg);
+        if (typeof window.showToast === 'function') window.showToast(`✅ 상태가 [${newStatus}]으로 변경되었습니다.`);
     });
 };
 
@@ -142,16 +153,15 @@ window.deleteBugReport = (id) => {
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug) return;
-    if (!confirm('해당 제보를 삭제하시겠습니까? 승인된 점수는 회수됩니다.')) return;
-    if (bug.status === 'approved' && bug.reporter && bug.reporter.uid) {
+    if (!confirm('삭제하시겠습니까? 완료된 제보라면 점수도 회수됩니다.')) return;
+
+    if (bug.status === 'done' && bug.reporter && bug.reporter.uid) {
         const scoreMap = { ui: 0.5, functional: 1.0 };
         const points = scoreMap[bug.type] || 0;
         const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
         userScoreRef.transaction((current) => (current || 0) - points);
     }
-    firebase.database().ref(`system_bugs/${id}`).remove().then(() => {
-        if (typeof window.showToast === 'function') window.showToast('🗑️ 삭제 및 점수 회수 완료');
-    });
+    firebase.database().ref(`system_bugs/${id}`).remove();
 };
 
 window.renderBugBoard = () => {
@@ -164,36 +174,59 @@ window.renderBugBoard = () => {
     }
     const startIndex = (window.bugCurrentPage - 1) * window.bugItemsPerPage;
     const pagedData = window.bugDataCache.slice(startIndex, startIndex + window.bugItemsPerPage);
+    
     container.innerHTML = pagedData.map(bug => {
         const date = new Date(bug.timestamp).toLocaleString();
         const isAdmin = currentUser && currentUser.uid === window.ADMIN_UID;
         const reporterUid = bug.reporter ? bug.reporter.uid : null;
         const reporterName = bug.reporter ? bug.reporter.name : '익명';
         const isAuthor = currentUser && reporterUid === currentUser.uid;
-        const statusClass = `status-${bug.status || 'legacy'}`;
+        const status = bug.status || 'pending';
         const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
         
-        let adminButtons = '';
-        if (isAdmin && bug.status === 'pending') {
-            adminButtons = `<button class="bug-approve-btn" data-id="${bug.id}">승인</button><button class="bug-reject-btn" data-id="${bug.id}">반려</button>`;
+        // 상태별 뱃지 및 카드 클래스 설정
+        const statusConfig = {
+            pending: { label: '⏳ 대기중', class: 'status-pending' },
+            in_progress: { label: '⚙️ 진행중', class: 'status-progress' },
+            no_issue: { label: '🚫 이슈아님', class: 'status-no-issue' },
+            review: { label: '🔍 검토중', class: 'status-review' },
+            done: { label: '✅ 완료', class: 'status-done' },
+            rejected: { label: '❌ 반려', class: 'status-rejected' }
+        };
+        const currentStatus = statusConfig[status] || statusConfig.pending;
+
+        // Jira 스타일 동적 버튼 생성
+        let workflowButtons = '';
+        if (isAdmin) {
+            if (status === 'pending') {
+                workflowButtons = `
+                    <button class="bug-status-btn progress" data-id="${bug.id}" data-status="in_progress">진행중</button>
+                    <button class="bug-status-btn no-issue" data-id="${bug.id}" data-status="no_issue">이슈 아님</button>
+                `;
+            } else if (status === 'in_progress') {
+                workflowButtons = `<button class="bug-status-btn review" data-id="${bug.id}" data-status="review">검토 요청</button>`;
+            } else if (status === 'review') {
+                workflowButtons = `
+                    <button class="bug-status-btn done" data-id="${bug.id}" data-status="done">완료</button>
+                    <button class="bug-status-btn reject" data-id="${bug.id}" data-status="rejected">반려</button>
+                `;
+            }
         }
 
-        let commentHtml = '';
-        if (bug.adminComment) {
-            commentHtml = `<div class="bug-admin-comment"><strong>💬 Admin 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>`;
-        }
+        let commentHtml = bug.adminComment ? `<div class="bug-admin-comment"><strong>💬 Admin 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>` : '';
 
         return `
-            <div class="bug-post-card ${statusClass}">
+            <div class="bug-post-card ${currentStatus.class}">
                 <div class="bug-post-header">
                     <div class="bug-post-meta">
+                        <span class="bug-status-label">${currentStatus.label}</span>
                         <span class="bug-type-badge">${typeLabel}</span>
                         <span class="bug-post-author">👤 ${window.escapeHTML(reporterName)}</span>
                         <span class="bug-post-date">${date}</span>
                     </div>
                     <div class="bug-post-actions">
-                        ${adminButtons}
-                        ${(isAdmin || (isAuthor && (bug.status === 'pending' || bug.status === 'rejected' || !bug.status))) ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
+                        ${workflowButtons}
+                        ${(isAdmin || (isAuthor && ['pending', 'rejected', 'no_issue'].includes(status))) ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
                         ${isAdmin ? `<button class="bug-delete-small-btn" data-id="${bug.id}">삭제</button>` : ''}
                     </div>
                 </div>
@@ -233,7 +266,7 @@ window.startEditBug = (id) => {
         window.editingBugId = id;
         descEl.value = bug.description;
         typeEl.value = bug.type || 'ui';
-        submitBtn.textContent = '수정완료';
+        submitBtn.textContent = '재제출';
         submitBtn.classList.replace('bug-btn-primary', 'bug-btn-update');
         descEl.focus();
     }
