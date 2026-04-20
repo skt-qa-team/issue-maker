@@ -85,10 +85,12 @@ window.submitBugReport = () => {
         firebase.database().ref(`system_bugs/${window.editingBugId}`).update({
             description: descriptionStr,
             type: bugType,
+            status: 'pending',
+            adminComment: null,
             lastUpdated: Date.now()
         }).then(() => {
             window.cancelBugEdit();
-            if (typeof window.showToast === 'function') window.showToast('✅ 제보가 수정되었습니다.');
+            if (typeof window.showToast === 'function') window.showToast('✅ 제보가 수정되어 검수 대기 상태로 전환되었습니다.');
         });
     } else {
         const bugData = {
@@ -115,10 +117,16 @@ window.processBugStatus = (id, status) => {
     if (!user || user.uid !== window.ADMIN_UID) return;
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug || bug.status !== 'pending') return;
+
+    const comment = prompt(`${status === 'approved' ? '[승인]' : '[반려]'} 한 줄 의견을 남겨주세요:`, "");
+    if (comment === null) return;
+
     const scoreMap = { ui: 0.5, functional: 1.0 };
     const points = status === 'approved' ? scoreMap[bug.type] : 0;
     const updates = {};
     updates[`system_bugs/${id}/status`] = status;
+    updates[`system_bugs/${id}/adminComment`] = comment.trim() || null;
+
     if (status === 'approved' && bug.reporter && bug.reporter.uid) {
         const userScoreRef = firebase.database().ref(`users/${bug.reporter.uid}/qa_score`);
         userScoreRef.transaction((current) => (current || 0) + points);
@@ -164,10 +172,17 @@ window.renderBugBoard = () => {
         const isAuthor = currentUser && reporterUid === currentUser.uid;
         const statusClass = `status-${bug.status || 'legacy'}`;
         const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
+        
         let adminButtons = '';
         if (isAdmin && bug.status === 'pending') {
             adminButtons = `<button class="bug-approve-btn" data-id="${bug.id}">승인</button><button class="bug-reject-btn" data-id="${bug.id}">반려</button>`;
         }
+
+        let commentHtml = '';
+        if (bug.adminComment) {
+            commentHtml = `<div class="bug-admin-comment"><strong>💬 Admin 피드백:</strong> ${window.escapeHTML(bug.adminComment)}</div>`;
+        }
+
         return `
             <div class="bug-post-card ${statusClass}">
                 <div class="bug-post-header">
@@ -178,11 +193,12 @@ window.renderBugBoard = () => {
                     </div>
                     <div class="bug-post-actions">
                         ${adminButtons}
-                        ${(isAuthor || isAdmin) && (bug.status === 'pending' || !bug.status) ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
+                        ${(isAdmin || (isAuthor && (bug.status === 'pending' || bug.status === 'rejected' || !bug.status))) ? `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>` : ''}
                         ${isAdmin ? `<button class="bug-delete-small-btn" data-id="${bug.id}">삭제</button>` : ''}
                     </div>
                 </div>
                 <div class="bug-post-content">${window.escapeHTML(bug.description).replace(/\n/g, '<br>')}</div>
+                ${commentHtml}
             </div>
         `;
     }).join('');
