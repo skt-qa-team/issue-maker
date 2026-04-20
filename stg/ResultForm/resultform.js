@@ -9,7 +9,7 @@ window.generateTemplate = () => {
         return el.value.trim();
     };
 
-    let prefixMap = { 'env': '', 'os': '', 'poc': '', 'critical': '', 'device': '', 'account': '', 'page': '' };
+    const prefixMap = { 'env': '', 'os': '', 'poc': '', 'critical': '', 'device': '', 'account': '', 'page': '' };
 
     const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
     if (envVal) prefixMap['env'] = `[${envVal}]`;
@@ -35,7 +35,9 @@ window.generateTemplate = () => {
             } else browserVals.push(cb.value);
         });
         if (browserVals.length > 0) deviceVal = browserVals.join('/');
-    } else deviceVal = document.getElementById('prefix_device_input')?.value.trim() || '';
+    } else {
+        deviceVal = document.getElementById('prefix_device_input')?.value.trim() || '';
+    }
     if (deviceVal) prefixMap['device'] = `[${deviceVal}]`;
 
     const accVal = document.getElementById('prefix_account')?.value.trim() || '';
@@ -67,7 +69,7 @@ window.generateTemplate = () => {
     const pocDropdownVal = document.getElementById('poc')?.value || '';
     const osDropdownVal = document.getElementById('osType')?.value || '';
     const isPureWeb = pocDropdownVal === 'Admin' || pocDropdownVal === 'PC Web';
-    let servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
+    const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
     let devices = "";
     
     if (!isPureWeb) {
@@ -92,7 +94,7 @@ window.generateTemplate = () => {
         devices = checkedDeviceValues.join(' / ');
     }
 
-    let ver = document.getElementById('appVersion')?.value || '';
+    const ver = document.getElementById('appVersion')?.value || '';
     const searchEngines = Array.from(document.querySelectorAll('.ver-type-cb:checked'))
         .map(cb => cb.value)
         .filter(val => ['삼성인터넷', 'Safari', 'Chrome', 'Edge'].includes(val))
@@ -131,3 +133,23 @@ window.generateTemplate = () => {
 
     if (typeof window.saveDraft === 'function') window.saveDraft();
 };
+
+document.addEventListener('componentsLoaded', () => {
+    const resultContainer = document.getElementById('result-panel-placeholder');
+    if (!resultContainer) return;
+
+    resultContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        if (target.id === 'btnResultClear') {
+            if (typeof window.clearForm === 'function') window.clearForm();
+        }
+        
+        if (target.classList.contains('btn-copy-target')) {
+            const targetId = target.dataset.target;
+            if (targetId && typeof window.copySpecific === 'function') {
+                window.copySpecific(targetId);
+            }
+        }
+    });
+});
