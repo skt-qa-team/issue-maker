@@ -20,9 +20,6 @@ window.escapeHTMLTemplate = (str) => {
         .replace(/'/g, "&#039;");
 };
 
-// ==========================================
-// [추가] ui.js에서 이관된 폼 클리어 및 Case 추가 로직
-// ==========================================
 window.clearForm = () => {
     if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
         const fields = [
@@ -62,18 +59,21 @@ window.addCase = (id) => {
 window.applyIndividualPreset = (id, count) => {
     const el = document.getElementById(id);
     if (!el) return;
-    let text = '';
-    for (let i = 1; i <= count; i++) {
-        text += `CASE ${i}.\n${i < count ? '\n' : ''}`;
+    
+    if (count === 1) {
+        el.value = '';
+    } else {
+        let text = '';
+        for (let i = 1; i <= count; i++) {
+            text += `CASE ${i}.\n${i < count ? '\n' : ''}`;
+        }
+        el.value = text;
     }
-    el.value = text;
+    
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
     el.focus();
 };
 
-// ==========================================
-// Draft (임시 저장) 로직
-// ==========================================
 window.saveDraft = () => {
     const fields = ['title', 'prefix_env', 'prefix_env_custom', 'osType', 'osType_custom', 'poc', 'poc_custom', 'prefix_critical', 'prefix_critical_custom', 'prefix_device_input', 'prefix_account', 'prefix_page', 'appVersion', 'targetUrl', 'aiMode', 'preCondition', 'steps', 'actualResult', 'expectedResult', 'ref_prd', 'ref_notes'];
     const data = {};
@@ -128,9 +128,6 @@ window.loadDraft = () => {
     }
 };
 
-// ==========================================
-// Prefix 제어 로직
-// ==========================================
 window.applyAndSavePrefixOrder = () => {
     const inputs = document.querySelectorAll('.prefix-order-input');
     let orderArray = [];
@@ -199,9 +196,6 @@ window.loadPrefixOrder = () => {
     } else { window.resetPrefixOrder(); }
 };
 
-// ==========================================
-// 프리셋 관리 로직
-// ==========================================
 window.getFormDataForPreset = () => {
     return {
         title: document.getElementById('title')?.value || '',
@@ -392,9 +386,6 @@ window.applyInputPreset = (name) => {
     if (typeof window.generateTemplate === 'function') window.generateTemplate();
 };
 
-// ==========================================
-// 디바이스 / OS 동기화 로직
-// ==========================================
 window.updateVersionCheckboxesByOS = () => {
     const osEl = document.getElementById('osType');
     const pocEl = document.getElementById('poc');
@@ -592,9 +583,6 @@ window.updateVersionTextbox = () => {
     if (verInput) verInput.value = versionParts.join(' / ');
 };
 
-// ==========================================
-// [추가] Event Delegation (인라인 이벤트 대체)
-// ==========================================
 document.addEventListener('componentsLoaded', () => {
     setTimeout(() => {
         if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
@@ -604,7 +592,6 @@ document.addEventListener('componentsLoaded', () => {
     const inputFormContainer = document.getElementById('input-form-placeholder');
     if (!inputFormContainer) return;
 
-    // Click Event Delegation
     inputFormContainer.addEventListener('click', (e) => {
         const target = e.target;
         
@@ -623,7 +610,6 @@ document.addEventListener('componentsLoaded', () => {
         }
     });
 
-    // Change Event Delegation (Select, Checkbox, Radio)
     inputFormContainer.addEventListener('change', (e) => {
         const target = e.target;
 
@@ -675,7 +661,6 @@ document.addEventListener('componentsLoaded', () => {
         }
     });
 
-    // Input Event Delegation (Text, Textarea)
     inputFormContainer.addEventListener('input', (e) => {
         if (e.target.classList.contains('template-trigger')) {
             if (typeof window.generateTemplate === 'function') window.generateTemplate();
