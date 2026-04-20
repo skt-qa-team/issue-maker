@@ -12,8 +12,9 @@ document.addEventListener('change', (e) => {
     if (e.target.id === 'sch_start') {
         const endInput = document.getElementById('sch_end');
         const typeRadio = document.querySelector('input[name="sch_color"]:checked');
+        const type = typeRadio ? typeRadio.getAttribute('data-type') : '';
         
-        if (typeRadio && typeRadio.getAttribute('data-type') !== '검증') {
+        if (type !== '검증' && type !== '할 일') {
             if (endInput) endInput.value = e.target.value;
         } else if (endInput && (!endInput.value || endInput.value < e.target.value)) {
             if (endInput) endInput.value = e.target.value;
@@ -53,13 +54,16 @@ window.handleScheduleTypeChange = () => {
     const type = selectedRadio.getAttribute('data-type');
     const groupEnd = document.getElementById('group_sch_end');
     const groupEpic = document.getElementById('group_sch_epic');
+    const groupAuthor = document.getElementById('group_sch_author');
     const labelStart = document.getElementById('label_sch_start');
 
-    if (groupEnd) groupEnd.classList.toggle('d-none', type !== '검증');
+    if (groupEnd) groupEnd.classList.toggle('d-none', type === '회의');
     if (groupEpic) groupEpic.classList.toggle('d-none', type !== '검증');
+    if (groupAuthor) groupAuthor.classList.toggle('d-none', type !== '회의');
     
     if (labelStart) {
         if (type === '검증') labelStart.textContent = '시작일 *';
+        else if (type === '할 일') labelStart.textContent = '시작일 *';
         else if (type === '회의') labelStart.textContent = '회의 날짜 *';
         else labelStart.textContent = '날짜 *';
     }
@@ -138,7 +142,7 @@ window.processScreenshot = async (file) => {
                     for (const [index, item] of parsedArray.entries()) {
                         if (!item.title || !item.start) continue;
                         const id = Date.now().toString() + index;
-                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, epic: '', desc: 'AI 추출', color: '#3b82f6' };
+                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, epic: '', desc: 'AI 추출', color: '#3b82f6', author: '' };
                         await firebase.database().ref('shared_schedules/' + id).set(newSch);
                     }
                     window.closeScheduleModal();
@@ -168,13 +172,14 @@ window.openScheduleModal = (id = null) => {
             document.getElementById('sch_title').value = sch.title;
             document.getElementById('sch_start').value = sch.start;
             document.getElementById('sch_end').value = sch.end;
-            document.getElementById('sch_epic').value = sch.epic;
-            document.getElementById('sch_desc').value = sch.desc;
+            document.getElementById('sch_epic').value = sch.epic || '';
+            document.getElementById('sch_desc').value = sch.desc || '';
+            document.getElementById('sch_author').value = sch.author || '';
             const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
             if (radio) radio.checked = true;
         }
     } else {
-        ['sch_title', 'sch_start', 'sch_end', 'sch_epic', 'sch_desc'].forEach(eid => {
+        ['sch_title', 'sch_start', 'sch_end', 'sch_epic', 'sch_desc', 'sch_author'].forEach(eid => {
             const el = document.getElementById(eid);
             if (el) el.value = '';
         });
@@ -201,12 +206,20 @@ window.saveSchedule = () => {
     const title = document.getElementById('sch_title')?.value.trim();
     const start = document.getElementById('sch_start')?.value;
     let end = document.getElementById('sch_end')?.value;
+    const author = document.getElementById('sch_author')?.value.trim() || '';
     const colorRadio = document.querySelector('input[name="sch_color"]:checked');
     const color = colorRadio ? colorRadio.value : '#3b82f6';
-    if (colorRadio && colorRadio.getAttribute('data-type') !== '검증') end = start;
+    const type = colorRadio ? colorRadio.getAttribute('data-type') : '';
+
+    if (type !== '검증' && type !== '할 일') end = start;
 
     if (!title || !start || !end) return alert("필수 정보를 입력하세요.");
-    const newSch = { id, title, start, end, epic: document.getElementById('sch_epic')?.value || '', desc: document.getElementById('sch_desc')?.value || '', color };
+    const newSch = { 
+        id, title, start, end, author,
+        epic: document.getElementById('sch_epic')?.value || '', 
+        desc: document.getElementById('sch_desc')?.value || '', 
+        color 
+    };
 
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
