@@ -2,7 +2,10 @@ window.bugCurrentPage = 1;
 window.bugItemsPerPage = 5;
 window.bugDataCache = [];
 window.editingBugId = null;
-const ADMIN_UID = '4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2';
+
+if (!window.ADMIN_UID) {
+    window.ADMIN_UID = '4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2';
+}
 
 document.addEventListener('componentsLoaded', () => {
     window.initBugBoard();
@@ -172,7 +175,7 @@ window.renderBugBoard = () => {
     pagedData.forEach(bug => {
         const date = new Date(bug.timestamp).toLocaleString();
         const isAuthor = currentUser && bug.reporter && bug.reporter.uid === currentUser.uid;
-        const isAdmin = currentUser && currentUser.uid === ADMIN_UID;
+        const isAdmin = currentUser && currentUser.uid === window.ADMIN_UID;
 
         let actionButtons = '';
         if (isAuthor) actionButtons += `<button class="bug-edit-small-btn" data-id="${bug.id}">수정</button>`;
