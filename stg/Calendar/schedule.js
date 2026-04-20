@@ -62,8 +62,7 @@ window.handleScheduleTypeChange = () => {
     if (groupAuthor) groupAuthor.classList.toggle('d-none', type !== '회의');
     
     if (labelStart) {
-        if (type === '검증') labelStart.textContent = '시작일 *';
-        else if (type === '할 일') labelStart.textContent = '시작일 *';
+        if (type === '검증' || type === '할 일') labelStart.textContent = '시작일 *';
         else if (type === '회의') labelStart.textContent = '회의 날짜 *';
         else labelStart.textContent = '날짜 *';
     }
@@ -243,6 +242,15 @@ window.openScheduleDetail = (id) => {
     document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
     document.getElementById('detail_desc').textContent = sch.desc || '-';
     
+    const authorWrapper = document.getElementById('detail_author_wrapper');
+    const elAuthor = document.getElementById('detail_author');
+    if (sch.author && sch.author.trim() !== '') {
+        if (authorWrapper) authorWrapper.classList.remove('d-none');
+        if (elAuthor) elAuthor.textContent = sch.author;
+    } else {
+        if (authorWrapper) authorWrapper.classList.add('d-none');
+    }
+
     const epicWrapper = document.getElementById('detail_epic_wrapper');
     const startWorkflowBtn = document.getElementById('btn-start-workflow');
     const elEpic = document.getElementById('detail_epic');
@@ -292,9 +300,13 @@ window.startScheduleWorkflow = () => {
     if (!sch || !sch.epic) return;
     window.closeScheduleDetail();
     if (typeof window.switchMainTab === 'function') window.switchMainTab('issue');
-    const epicInput = document.getElementById('targetUrl');
+    
+    const epicInput = document.getElementById('guide_epic') || document.getElementById('targetUrl');
     if (epicInput) {
         epicInput.value = sch.epic;
-        if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        epicInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (typeof window.generateTemplate === 'function') {
+            setTimeout(() => window.generateTemplate(), 100);
+        }
     }
 };
