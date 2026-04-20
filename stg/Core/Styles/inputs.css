@@ -65,3 +65,22 @@ input[type="number"]::-webkit-outer-spin-button {
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
+
+.copy-feedback {
+    animation: flashSuccess 0.5s ease-out !important;
+}
+
+@keyframes flashSuccess {
+    0% {
+        background-color: rgba(16, 185, 129, 0.2) !important;
+        border-color: var(--accent-green) !important;
+        color: var(--accent-green) !important;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
+    }
+    100% {
+        background-color: var(--bg-color);
+        border-color: var(--border-color);
+        color: var(--text-main);
+        box-shadow: none;
+    }
+}
