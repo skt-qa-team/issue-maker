@@ -1,30 +1,37 @@
-<div class="modal-overlay d-none" id="scheduleDetailModal">
-    <div class="cal-detail-modal-content">
+<div id="scheduleDetailModal" class="modal-overlay">
+    <div class="modal-content modal-schedule-fixed">
         <div id="detail_color_bar" class="cal-detail-color-bar"></div>
         
-        <div class="cal-detail-body">
-            <button class="close-btn cal-close-btn" onclick="window.closeScheduleDetail()">×</button>
-            
-            <div class="cal-detail-header-group">
-                <h2 id="detail_title" class="cal-detail-title">일정 제목</h2>
-                <p id="detail_date" class="cal-detail-date">2026-04-14 ~ 2026-04-17</p>
+        <div class="modal-header">
+            <h2 id="detail_title">일정 제목</h2>
+            <button id="btn-close-detail" class="close-btn">×</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="cal-detail-date-badge">
+                <span id="detail_date">2026-04-14 ~ 2026-04-17</span>
             </div>
 
             <div class="cal-detail-info-box">
-                <div class="cal-detail-info-item d-none" id="detail_epic_wrapper">
-                    <label class="cal-detail-label">EPIC LINK</label>
+                <div class="form-group d-none" id="detail_epic_wrapper">
+                    <label>EPIC LINK</label>
                     <div id="detail_epic" class="cal-detail-value-epic"></div>
                 </div>
-                <div class="cal-detail-info-item">
-                    <label class="cal-detail-label">상세 내용</label>
+                
+                <div class="form-group">
+                    <label>상세 내용</label>
                     <div id="detail_desc" class="cal-detail-value-desc"></div>
                 </div>
             </div>
+        </div>
 
-            <div class="cal-detail-btn-group">
-                <button id="btn_start_epic" class="cal-btn-action-primary d-none" onclick="window.startScheduleWorkflow()">🚀 일정 시작 (Epic 연동)</button>
-                <button class="cal-btn-action-secondary" onclick="window.editSchedule()">수정</button>
-                <button class="cal-btn-action-danger" onclick="window.deleteSchedule()">삭제</button>
+        <div class="modal-footer">
+            <div class="modal-footer-left">
+                <button id="btn-delete-sch" class="btn-remove">삭제</button>
+            </div>
+            <div class="modal-footer-right">
+                <button id="btn-edit-sch" class="btn-secondary">수정</button>
+                <button id="btn-start-workflow" class="btn-primary d-none">🚀 일정 시작</button>
             </div>
         </div>
     </div>
