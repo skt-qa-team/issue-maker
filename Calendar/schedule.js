@@ -67,22 +67,22 @@ window.handleScheduleTypeChange = () => {
 
 window.updateQuotaDisplay = () => {
     const quotaInfo = document.getElementById('ai_quota_info');
-    if (quotaInfo) {
-        const d = new Date();
-        const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-        let usageData;
-        try {
-            usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
-        } catch (e) { usageData = { date: todayStr, count: 0 }; }
-        
-        if (usageData.date !== todayStr) {
-            usageData = { date: todayStr, count: 0 };
-            localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
-        }
+    if (!quotaInfo) return;
 
-        const remaining = Math.max(0, 20 - usageData.count);
-        quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    let usageData;
+    try {
+        usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
+    } catch (e) { usageData = { date: todayStr, count: 0 }; }
+    
+    if (usageData.date !== todayStr) {
+        usageData = { date: todayStr, count: 0 };
+        localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
     }
+
+    const remaining = Math.max(0, 20 - usageData.count);
+    quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
 };
 
 window.processScreenshot = async (file) => {
@@ -165,11 +165,18 @@ window.openScheduleModal = (id = null) => {
     if (id) {
         const sch = window.calSchedules.find(s => s.id === id);
         if (sch) {
-            document.getElementById('sch_title').value = sch.title;
-            document.getElementById('sch_start').value = sch.start;
-            document.getElementById('sch_end').value = sch.end;
-            document.getElementById('sch_epic').value = sch.epic;
-            document.getElementById('sch_desc').value = sch.desc;
+            const titleEl = document.getElementById('sch_title');
+            const startEl = document.getElementById('sch_start');
+            const endEl = document.getElementById('sch_end');
+            const epicEl = document.getElementById('sch_epic');
+            const descEl = document.getElementById('sch_desc');
+
+            if (titleEl) titleEl.value = sch.title;
+            if (startEl) startEl.value = sch.start;
+            if (endEl) endEl.value = sch.end;
+            if (epicEl) epicEl.value = sch.epic;
+            if (descEl) descEl.value = sch.desc;
+
             const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
             if (radio) radio.checked = true;
         }
@@ -215,25 +222,36 @@ window.openScheduleDetail = (id) => {
     const sch = window.calSchedules.find(s => s.id === id);
     if (!sch) return;
     window.currentViewingScheduleId = id;
+    
     const modal = document.getElementById('scheduleDetailModal');
-    if (!modal) return;
+    if (!modal) {
+        console.error("Critical: scheduleDetailModal not found in DOM.");
+        return;
+    }
     
     const colorBar = document.getElementById('detail_color_bar');
     if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
-    document.getElementById('detail_title').textContent = sch.title;
-    document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
-    document.getElementById('detail_desc').textContent = sch.desc || '-';
+    
+    const titleEl = document.getElementById('detail_title');
+    if (titleEl) titleEl.textContent = sch.title;
+
+    const dateEl = document.getElementById('detail_date');
+    if (dateEl) dateEl.textContent = `${sch.start} ~ ${sch.end}`;
+
+    const descEl = document.getElementById('detail_desc');
+    if (descEl) descEl.textContent = sch.desc || '-';
     
     const epicWrapper = document.getElementById('detail_epic_wrapper');
     const startWorkflowBtn = document.getElementById('btn-start-workflow');
     const elEpic = document.getElementById('detail_epic');
+    
     if (sch.epic && sch.epic.trim() !== '') {
-        epicWrapper.classList.remove('d-none');
-        startWorkflowBtn.classList.remove('d-none');
-        elEpic.textContent = sch.epic;
+        if (epicWrapper) epicWrapper.classList.remove('d-none');
+        if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
+        if (elEpic) elEpic.textContent = sch.epic;
     } else {
-        epicWrapper.classList.add('d-none');
-        startWorkflowBtn.classList.add('d-none');
+        if (epicWrapper) epicWrapper.classList.add('d-none');
+        if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
     }
 
     modal.classList.add('active');
@@ -249,9 +267,11 @@ window.closeScheduleDetail = () => {
 
 window.deleteSchedule = () => {
     if (!window.currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
-    firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
-        window.closeScheduleDetail();
-    });
+    if (typeof firebase !== 'undefined') {
+        firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
+            window.closeScheduleDetail();
+        });
+    }
 };
 
 window.editSchedule = () => {
