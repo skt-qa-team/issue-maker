@@ -113,6 +113,9 @@ window.submitBugReport = () => {
 };
 
 window.processBugStatus = (id, status) => {
+    const user = firebase.auth().currentUser;
+    if (!user || user.uid !== window.ADMIN_UID) return;
+
     const bug = window.bugDataCache.find(b => b.id === id);
     if (!bug || bug.status !== 'pending') return;
 
@@ -154,7 +157,8 @@ window.renderBugBoard = () => {
         const typeLabel = bug.type === 'ui' ? '🎨 UI' : '⚙️ 기능';
 
         let adminButtons = '';
-        if (isAdmin && bug.status === 'pending') {
+        // [수정] 관리자이면서 '작성자가 아닐 때'만 승인/반려 버튼 노출
+        if (isAdmin && !isAuthor && bug.status === 'pending') {
             adminButtons = `
                 <button class="bug-approve-btn" data-id="${bug.id}">승인</button>
                 <button class="bug-reject-btn" data-id="${bug.id}">반려</button>
@@ -229,6 +233,8 @@ window.cancelBugEdit = () => {
 };
 
 window.deleteBugReport = (id) => {
+    const user = firebase.auth().currentUser;
+    if (!user || user.uid !== window.ADMIN_UID) return;
     if (confirm('삭제하시겠습니까?')) firebase.database().ref(`system_bugs/${id}`).remove();
 };
 
