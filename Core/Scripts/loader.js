@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Promise.all(components.map(comp => 
         fetch(`${comp.url}?v=${versionTag}`) 
             .then(response => {
-                if (!response.ok) throw new Error(`[${response.status}] ${comp.url}`);
+                if (!response.ok) throw new Error(`[HTTP ${response.status}] ${comp.url}`);
                 return response.text();
             })
             .then(html => {
@@ -32,37 +32,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (placeholder) {
                     placeholder.innerHTML = html;
                     placeholder.classList.add('component-loaded'); 
+                } else {
+                    console.warn(`Missing Placeholder: #${comp.id}`);
                 }
             })
             .catch(err => {
-                console.error("Component Load Failure:", err);
+                console.error(`Component Load Failure: ${comp.id} -> ${err.message}`);
             })
     )).then(() => {
         setTimeout(() => {
-            try { if (typeof window.startClock === 'function') window.startClock(); } catch(e) { console.warn(e); }
-            try { if (typeof window.renderPresence === 'function') window.renderPresence(); } catch(e) { console.warn(e); }
-            try { if (typeof window.renderChangelog === 'function') window.renderChangelog(); } catch(e) { console.warn(e); }
-            try { if (typeof window.initCustomTheme === 'function') window.initCustomTheme(); } catch(e) { console.warn(e); }
-            
-            try {
-                const draftExists = localStorage.getItem('skm_draft');
-                if (draftExists && typeof window.loadDraft === 'function') {
-                    window.loadDraft();
-                } else if (typeof window.syncEnvironmentByOS === 'function') {
-                    window.syncEnvironmentByOS(); 
-                }
-            } catch(e) { 
-                console.error("Initialization Failure:", e); 
-            }
+            const initFunctions = [
+                () => window.startClock?.(),
+                () => window.renderPresence?.(),
+                () => window.renderChangelog?.(),
+                () => window.initCustomTheme?.(),
+                () => {
+                    if (localStorage.getItem('skm_draft') && window.loadDraft) window.loadDraft();
+                    else if (window.syncEnvironmentByOS) window.syncEnvironmentByOS();
+                },
+                () => window.switchMainTab?.('issue')
+            ];
 
-            // [추가] 탭 전환 버튼들을 위한 초기화 강제 실행
-            try {
-                if (typeof window.switchMainTab === 'function') {
-                    window.switchMainTab('issue'); // 초기 화면 강제 설정
+            initFunctions.forEach(fn => {
+                try { 
+                    fn(); 
+                } catch(e) { 
+                    console.error("Initialization Routine Failure:", e); 
                 }
-            } catch(e) { console.warn("Tab Initialization Failed", e); }
+            });
 
             document.dispatchEvent(new CustomEvent('componentsLoaded'));
-        }, 150); // 로딩 안정성을 위해 시간을 약간 늘림
+        }, 150); 
     });
 });
