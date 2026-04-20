@@ -2,7 +2,7 @@
     <div class="bug-modal-container">
         <div class="bug-modal-header">
             <h2>🐛 시스템 버그 제보 보드</h2>
-            <button class="bug-close-btn" onclick="window.closeBugReportModal()">×</button>
+            <button id="btn-close-bug-top" class="bug-close-btn">×</button>
         </div>
         
         <div class="bug-modal-body">
@@ -13,7 +13,7 @@
                 </div>
                 <div class="bug-write-footer">
                     <small class="bug-tip">※ 제보 시 닉네임이 함께 기록됩니다.</small>
-                    <button class="bug-btn-primary" onclick="window.submitBugReport()">제보하기</button>
+                    <button id="btn-submit-bug" class="bug-btn-primary">제보하기</button>
                 </div>
             </div>
 
@@ -28,9 +28,8 @@
         </div>
         
         <div class="bug-modal-footer">
-            <div id="bug_pagination" class="bug-pagination">
-                </div>
-            <button class="bug-btn-secondary" onclick="window.closeBugReportModal()">닫기</button>
+            <div id="bug_pagination" class="bug-pagination"></div>
+            <button id="btn-close-bug-modal" class="bug-btn-secondary">닫기</button>
         </div>
     </div>
 </div>
