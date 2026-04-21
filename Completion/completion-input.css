@@ -6,15 +6,16 @@
     background: rgba(0, 0, 0, 0.7);
 }
 
+/* 전체 컨테이너는 화면을 꽉 채우도록 크기 확장 */
 .completion-container {
-    width: 95%;
-    max-width: 1400px;
+    width: 98%;
+    max-width: 1800px;
     background: var(--bg-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
-    max-height: 90vh;
+    height: 90vh; /* max-height 대신 고정 높이로 스크롤 관리 최적화 */
     overflow: hidden;
 }
 
@@ -74,6 +75,7 @@
     flex-shrink: 0;
 }
 
+/* 입력(좌) / 결과(우) 50:50 분할 유지 */
 .completion-panel-body {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -82,13 +84,54 @@
     background: var(--bg-color);
 }
 
+/* 폼 영역 패딩 조정 */
 .completion-form-side {
     display: flex;
     flex-direction: column;
     padding: 30px;
     overflow-y: auto;
-    gap: 25px;
+    gap: 20px; /* 각 폼 그룹 사이 간격 */
     border-right: 1px solid var(--border-color);
+}
+
+/* [수정] 폼 그룹의 가로형(Horizontal) 배치 핵심 클래스 */
+.form-group-horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* 라벨과 입력 요소의 상단 맞춤 */
+    gap: 20px;
+    width: 100%;
+}
+
+/* 가로형 배치 시 라벨 영역 (고정 너비) */
+.form-group-horizontal > .form-label-sm,
+.form-group-horizontal > .form-label-accent,
+.form-group-horizontal > .label-action-row {
+    flex: 0 0 160px; /* 라벨 영역 너비 고정 */
+    margin-bottom: 0; /* 기존 세로형 마진 제거 */
+    display: flex;
+    align-items: center;
+    padding-top: 8px; /* 입력 필드와 높이 맞춤 */
+}
+
+/* 가로형 배치 시 입력/컨텐츠 영역 (나머지 공간 다 쓰기) */
+.form-group-horizontal > .form-control,
+.form-group-horizontal > .checkbox-group,
+.form-group-horizontal > .comp-device-scroll,
+.form-group-horizontal > .input-group,
+.form-group-horizontal > .grid-2 {
+    flex: 1;
+    min-width: 0; /* 플렉스 버그 방지 */
+}
+
+/* [수정] 내부 체크박스/라디오 값들을 가로로 나열 */
+.checkbox-group.horizontal-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; /* 넘치면 다음 줄로 */
+    gap: 15px;
+    align-items: center;
+    padding-top: 6px;
 }
 
 .comp-section {
@@ -141,8 +184,9 @@
     width: 100%;
 }
 
+/* 디바이스 영역 스크롤 및 배치 최적화 */
 .comp-device-scroll {
-    height: 300px;
+    height: 250px;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
@@ -150,7 +194,14 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 15px;
+}
+
+/* [추가] 디바이스 OS 섹션별 내부 가로 정렬 */
+#comp_and_section, #comp_ios_section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .comp-device-item {
