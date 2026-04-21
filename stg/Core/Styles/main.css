@@ -13,7 +13,8 @@
 @import url('../../InputForm/inputform.css');
 @import url('../../ResultForm/resultform.css');
 @import url('../../Setting/setting.css');
-@import url('../../Completion/completion.css');
+@import url('../../Completion/completion-input.css');
+@import url('../../Completion/completion-result.css');
 @import url('../../Kpi/kpi.css');
 @import url('../../Condition/condition.css');
 @import url('../../Bookmark/bookmark.css');
