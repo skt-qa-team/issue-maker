@@ -1,7 +1,7 @@
 .completion-form-side {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: clamp(10px, 1.5vh, 20px);
     overflow-y: auto;
     padding-right: 15px;
     height: 100%;
@@ -16,7 +16,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     flex-shrink: 0;
 }
 
@@ -26,19 +26,20 @@
     align-items: flex-start;
     gap: 20px;
     width: 100%;
-    min-height: 45px;
+    min-height: 40px;
 }
 
 .form-group-horizontal > .form-label-sm,
 .form-group-horizontal > .form-label-accent {
-    flex: 0 0 160px; /* 라벨 너비 고정으로 엑셀 같은 수직 정렬 구현 */
+    flex: 0 0 150px;
     margin-bottom: 0;
-    padding-top: 12px;
+    padding-top: 10px;
     font-weight: 800;
     color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
 }
 
 .form-group-horizontal > .form-control,
@@ -50,11 +51,10 @@
     min-width: 0;
 }
 
-/* [추가] 버전/서버, Admin/PC URL 등 한 행에 2개 요소 배치 */
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    gap: 20px;
     width: 100%;
 }
 
@@ -62,8 +62,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 15px;
-    padding-top: 8px;
+    gap: 12px;
+    padding-top: 6px;
     align-items: center;
 }
 
@@ -81,12 +81,12 @@
 }
 
 .checkbox-label:hover {
-    background: rgba(var(--accent-blue-rgb), 0.1);
+    background: rgba(59, 130, 246, 0.1);
 }
 
 .comp-check-textarea {
     width: 100%;
-    height: 120px;
+    height: clamp(80px, 15vh, 150px);
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
@@ -104,7 +104,9 @@
 }
 
 .comp-device-scroll {
-    height: 250px;
+    flex: 1;
+    min-height: 150px;
+    max-height: 300px;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
@@ -115,13 +117,11 @@
     gap: 15px;
 }
 
-/* 입력창 숫자 필드 스타일 */
 .num-input {
     max-width: 80px;
     text-align: center;
 }
 
-/* 스크롤바 디자인 (적응형 UI 핵심) */
 .completion-form-side::-webkit-scrollbar,
 .comp-device-scroll::-webkit-scrollbar {
     width: 6px;
