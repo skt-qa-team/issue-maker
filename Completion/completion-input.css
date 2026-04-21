@@ -65,7 +65,6 @@
     min-width: 200px;
 }
 
-/* [추가] 단말 선택용 필(Pill) 스타일 */
 .pill-group {
     display: flex;
     flex-wrap: wrap;
@@ -75,33 +74,32 @@
 .pill-label {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    background: #2d3748;
-    border: 1px solid #4a5568;
+    padding: 6px 14px;
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
     border-radius: 20px;
-    color: #cbd5e0;
+    color: #1e293b;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
 }
 
 .pill-label:hover {
-    background: #4a5568;
-    border-color: #718096;
+    background: #f8fafc;
+    border-color: #94a3b8;
 }
 
-/* [추가] 단말 선택 시 피드백 색상 (Active) */
 .pill-label.active {
-    background: var(--accent-blue, #3b82f6) !important;
-    border-color: #60a5fa !important;
+    background: #10b981 !important;
+    border-color: #059669 !important;
     color: #ffffff !important;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 }
 
 .pill-cb {
-    display: none; /* 체크박스 본체는 숨김 */
+    display: none;
 }
 
 .input-group {
@@ -177,13 +175,14 @@
 
 .comp-device-scroll {
     flex: 1;
-    min-height: 200px;
-    max-height: 400px;
+    min-height: 150px;
+    max-height: 280px;
+    overflow-x: hidden;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    padding: 20px;
+    padding: 15px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: start;
