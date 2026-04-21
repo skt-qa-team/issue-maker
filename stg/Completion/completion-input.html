@@ -1,14 +1,31 @@
 <div class="panel">
     <div class="panel-header mb-2">
-        <h2 class="panel-title">✅ 완료문 작성</h2>
-        <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+        <div class="header-title-group">
+            <h2 class="panel-title">✅ 완료문 작성</h2>
+            <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+        </div>
+        <div class="preset-controls-inline ml-auto">
+            <select id="compPresetSelect" class="form-control-sm preset-select">
+                <option value="">💾 프리셋 선택...</option>
+            </select>
+            <input type="text" id="newCompPresetName" class="form-control-sm preset-name-input" placeholder="프리셋명">
+            <div class="preset-btn-group">
+                <button id="btnSaveCompPreset" class="btn-outline-sm">저장</button>
+                <button id="btnDeleteCompPreset" class="btn-outline-sm btn-delete-preset">삭제</button>
+            </div>
+        </div>
     </div>
     
     <div class="completion-panel-body">
         <div class="setting-box completion-form-side">
-            <div class="form-group mb-2">
-                <label class="form-label-sm">■ POC</label>
-                <select id="comp_poc" class="form-control text-md font-bold" onchange="handleCompPocChange()">
+            <div class="form-group mb-4">
+                <label class="form-label-accent">■ 현상 check</label>
+                <textarea id="comp_check" class="form-control comp-check-textarea template-trigger" placeholder="확인 내용을 상세히 입력하세요"></textarea>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label-sm">■ PoC</label>
+                <select id="comp_poc" class="form-control font-bold template-trigger">
                     <option value="T 멤버십">T 멤버십</option>
                     <option value="에이닷">에이닷</option>
                     <option value="PC Web">PC Web</option>
@@ -16,9 +33,9 @@
                     <option value="Admin">Admin</option>
                 </select>
             </div>
-            
-            <div class="form-group mb-2" id="comp_device_group">
-                <label class="form-label-sm">■ Device(OS Ver.)</label>
+
+            <div class="form-group mb-4" id="comp_device_group">
+                <label class="form-label-sm">■ Device (OS Ver.)</label>
                 <div id="comp_device_area" class="comp-device-scroll border-box radius-md p-2">
                     <div id="comp_and_section">
                         <div class="text-accent-green mb-1 text-sm font-bold">Android</div>
@@ -31,34 +48,48 @@
                 </div>
             </div>
 
-            <div class="grid-2 mb-2">
+            <div class="grid-2 mb-4">
                 <div class="form-group">
                     <label class="form-label-sm">■ 버전</label>
-                    <div id="comp_version_list" class="checkbox-group vertical"></div>
+                    <div id="comp_version_list" class="checkbox-group vertical template-trigger"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label-sm">■ 서버</label>
-                    <div id="comp_server_list" class="checkbox-group vertical"></div>
+                    <div id="comp_server_list" class="checkbox-group vertical template-trigger"></div>
                 </div>
             </div>
-            
-            <div class="form-group d-none mb-2" id="comp_url_group">
-                <label class="form-label-sm">■ URL</label>
-                <input type="text" id="comp_url" class="form-control" placeholder="URL을 입력하세요">
+
+            <div class="form-group mb-4">
+                <label class="form-label-sm">■ 재현율 (N / 10)</label>
+                <div class="input-group">
+                    <input type="number" id="comp_rate_num" class="form-control template-trigger" min="0" max="10" value="10">
+                    <span class="input-group-text">/ 10</span>
+                </div>
+            </div>
+
+            <div class="grid-2 mb-4">
+                <div class="form-group">
+                    <label class="form-label-sm">■ Admin URL</label>
+                    <input type="text" id="comp_admin_url" class="form-control template-trigger" placeholder="Admin 접속 주소">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-sm">■ PC URL</label>
+                    <input type="text" id="comp_pc_url" class="form-control template-trigger" placeholder="PC Web 접속 주소">
+                </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label-sm">■ 현상 check</label>
-                <textarea id="comp_check" class="form-control comp-check-textarea" placeholder="확인 내용을 입력하세요"></textarea>
+                <label class="form-label-sm">■ 모드</label>
+                <select id="comp_mode" class="form-control template-trigger">
+                    <option value="일반 모드">일반 모드</option>
+                    <option value="QA 모드">QA 모드</option>
+                    <option value="테스트 모드">테스트 모드</option>
+                    <option value="A Bucket">A Bucket</option>
+                    <option value="B Bucket">B Bucket</option>
+                </select>
             </div>
         </div>
         
-        <div class="completion-preview-side">
-            <div class="setting-box preview-box h-100 flex-col">
-                <label class="form-label-sm text-white mb-2">📊 미리보기</label>
-                <textarea id="comp_preview" class="output-field preview-area flex-1" readonly></textarea>
-            </div>
-            <button class="btn-save mt-2" onclick="copyCompletionReport()">📋 완료문 복사하기</button>
-        </div>
+        <div id="completion-result-placeholder"></div>
     </div>
 </div>
