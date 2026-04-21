@@ -15,7 +15,7 @@ document.addEventListener('click', (e) => {
     const target = e.target;
     if (target.id === 'btn-open-bug-modal') window.openBugReportModal();
     if (target.id === 'btn-close-bug-top') window.closeBugReportModal();
-    if (target.id === 'btn-submit-bug') window.submitBugReport();
+    if (target.id === 'btn-submit-bug') window.handleBugSubmissionFlow();
     if (target.classList.contains('bug-edit-small-btn')) window.startEditBug(target.dataset.id);
     if (target.classList.contains('bug-delete-small-btn')) window.deleteBugReport(target.dataset.id);
     if (target.classList.contains('bug-status-btn')) {
@@ -70,23 +70,35 @@ window.renderScoreDashboard = (usersData) => {
     `).join('');
 };
 
-window.submitBugReport = () => {
+window.handleBugSubmissionFlow = () => {
     const descEl = document.getElementById('bug_description');
     const typeEl = document.getElementById('bug_type');
+
     const descriptionStr = descEl ? descEl.value.trim() : '';
     const bugType = typeEl ? typeEl.value : 'ui';
+
+    // 필수 검증: 버그 내용만 확인
     if (!descriptionStr) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ 내용을 입력하세요.');
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 버그 내용을 상세히 입력해주세요.');
         return;
     }
+
+    const bugPayload = {
+        description: descriptionStr,
+        type: bugType
+    };
+
+    window.submitBugReport(bugPayload);
+};
+
+window.submitBugReport = (payload) => {
     const user = firebase.auth().currentUser;
     if (!user) return;
+
     if (window.editingBugId) {
         firebase.database().ref(`system_bugs/${window.editingBugId}`).update({
-            description: descriptionStr,
-            type: bugType,
-            status: 'pending',
-            adminComment: null,
+            description: payload.description,
+            type: payload.type,
             lastUpdated: Date.now()
         }).then(() => {
             window.cancelBugEdit();
@@ -95,17 +107,22 @@ window.submitBugReport = () => {
     } else {
         const bugData = {
             reporter: { uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email },
-            description: descriptionStr,
-            type: bugType,
+            description: payload.description,
+            type: payload.type,
             status: 'pending',
             timestamp: Date.now(),
             pointsAwarded: false
         };
         firebase.database().ref('system_bugs').push(bugData).then(() => {
-            descEl.value = '';
+            window.clearBugForm();
             if (typeof window.showToast === 'function') window.showToast('✅ 제보가 성공적으로 접수되었습니다.');
         });
     }
+};
+
+window.clearBugForm = () => {
+    const descEl = document.getElementById('bug_description');
+    if (descEl) descEl.value = '';
 };
 
 window.processBugWorkflow = (id, newStatus) => {
@@ -234,10 +251,11 @@ window.startEditBug = (id) => {
     const descEl = document.getElementById('bug_description');
     const typeEl = document.getElementById('bug_type');
     const submitBtn = document.getElementById('btn-submit-bug');
-    if (descEl && typeEl && submitBtn) {
+
+    if (descEl && submitBtn) {
         window.editingBugId = id;
-        descEl.value = bug.description;
-        typeEl.value = bug.type || 'ui';
+        descEl.value = bug.description || '';
+        if (typeEl) typeEl.value = bug.type || 'ui';
         submitBtn.textContent = 'Issue Update';
         descEl.focus();
     }
@@ -245,8 +263,9 @@ window.startEditBug = (id) => {
 
 window.cancelBugEdit = () => {
     window.editingBugId = null;
-    document.getElementById('bug_description').value = '';
-    document.getElementById('btn-submit-bug').textContent = '제보하기';
+    window.clearBugForm();
+    const submitBtn = document.getElementById('btn-submit-bug');
+    if (submitBtn) submitBtn.textContent = '제보하기';
 };
 
 window.renderBugPagination = () => {
