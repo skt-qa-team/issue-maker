@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'guide-panel-placeholder', url: 'GuideForm/GuideForm.html' },
         { id: 'result-panel-placeholder', url: 'ResultForm/resultform.html' },
         { id: 'calendar-placeholder', url: 'Calendar/calendar.html' },
-        { id: 'completion-panel-placeholder', url: 'Completion/completion.html' },
+        { id: 'completion-panel-placeholder', url: 'Completion/completion-input.html' },
         { id: 'condition-modal-placeholder', url: 'Condition/condition.html' },
         { id: 'history-modal-placeholder', url: 'History/history.html' },
         { id: 'kpi-modal-placeholder', url: 'Kpi/kpi.html' },
@@ -31,14 +31,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (placeholder) {
                     placeholder.innerHTML = html;
                     placeholder.classList.add('component-loaded'); 
-                } else {
-                    console.warn(`Missing Placeholder: #${comp.id}`);
                 }
             })
-            .catch(err => {
-                console.error(`Component Load Failure: ${comp.id} -> ${err.message}`);
-            })
+            .catch(err => console.error(`Load Failure: ${comp.id} -> ${err.message}`))
     )).then(() => {
+        return fetch(`Completion/completion-result.html?v=${versionTag}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`[HTTP ${response.status}] Completion Result`);
+                return response.text();
+            })
+            .then(html => {
+                const innerPlaceholder = document.getElementById('completion-result-placeholder');
+                if (innerPlaceholder) {
+                    innerPlaceholder.innerHTML = html;
+                    innerPlaceholder.classList.add('component-loaded');
+                }
+            })
+            .catch(err => console.error(`Nested Load Failure: ${err.message}`));
+    }).then(() => {
         setTimeout(() => {
             const initFunctions = [
                 () => window.startClock?.(),
@@ -49,15 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (localStorage.getItem('skm_draft') && window.loadDraft) window.loadDraft();
                     else if (window.syncEnvironmentByOS) window.syncEnvironmentByOS();
                 },
-                () => window.switchMainTab?.('issue')
+                () => window.switchMainTab?.('issue'),
+                () => window.initCompletionInput?.(),
+                () => window.initCompletionResult?.()
             ];
 
             initFunctions.forEach(fn => {
-                try { 
-                    fn(); 
-                } catch(e) { 
-                    console.error("Initialization Routine Failure:", e); 
-                }
+                try { fn(); } catch(e) { console.error("Initialization Failure:", e); }
             });
 
             document.dispatchEvent(new CustomEvent('componentsLoaded'));
