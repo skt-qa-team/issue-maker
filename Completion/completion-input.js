@@ -101,12 +101,16 @@ window.renderCompDevices = () => {
         const iosList = document.getElementById('comp_ios_list');
         const andDevices = window.compDataCache.andDevices || [];
         const iosDevices = window.compDataCache.iosDevices || [];
-        const defaultDevices = window.compDataCache.defaultDevices || []; // [추가] 환경설정 기본 선택 단말 추출
+        
+        // [수정] 환경설정 데이터 구조에 맞게 Android/iOS 기본 단말 각각 추출 후 병합
+        const andDefault = window.compDataCache.andDefaultDevices || [];
+        const iosDefault = window.compDataCache.iosDefaultDevices || [];
+        const defaultDevices = [...andDefault, ...iosDefault];
 
         const render = (container, list, platform) => {
             if (!container) return;
             container.innerHTML = list.map(dev => {
-                const isChecked = defaultDevices.includes(dev) ? 'checked' : ''; // [추가] 기본 단말일 경우 자동 체크
+                const isChecked = defaultDevices.includes(dev) ? 'checked' : ''; // 기본 단말 자동 체크
                 return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${isChecked}> ${dev}</label>`;
             }).join('');
         };
