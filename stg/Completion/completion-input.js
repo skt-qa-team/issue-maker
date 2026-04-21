@@ -1,9 +1,5 @@
 window.compDataCache = {};
 
-document.addEventListener('componentsLoaded', () => {
-    window.initCompletionInput();
-});
-
 window.initCompletionInput = () => {
     window.compDataCache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
     
@@ -27,28 +23,35 @@ window.initCompletionInput = () => {
     window.renderCompDevices();
     window.renderCompPresets();
     window.initCompletionInputEvents();
+
+    if (typeof window.updateCompletionPreview === 'function') {
+        window.updateCompletionPreview();
+    }
 };
 
 window.initCompletionInputEvents = () => {
-    // [수정] 절대 변하지 않는 메인 패널 ID에 직접 이벤트를 위임하여 센서 유실 방지
     const container = document.getElementById('panel-completion');
     if (!container) return;
 
-    // [수정] oninput, onchange 속성을 사용하여 중복 바인딩 방지 및 즉각 반응 확보
-    container.oninput = (e) => {
+    if (container.dataset.eventsBound) return;
+    container.dataset.eventsBound = 'true';
+
+    container.addEventListener('input', (e) => {
         if (e.target.classList.contains('template-trigger')) {
             if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
         }
-    };
+    });
 
-    container.onchange = (e) => {
+    container.addEventListener('change', (e) => {
         if (e.target.classList.contains('template-trigger')) {
             if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
         }
-        if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
-    };
+        if (e.target.id === 'compPresetSelect') {
+            if (typeof window.applyCompPreset === 'function') window.applyCompPreset(e.target.value);
+        }
+    });
 
-    container.onclick = (e) => {
+    container.addEventListener('click', (e) => {
         const target = e.target;
         
         if (target.id === 'btnSaveCompPreset') window.saveCompPreset();
@@ -67,7 +70,7 @@ window.initCompletionInputEvents = () => {
                 if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
             }
         }
-    };
+    });
 };
 
 window.renderCompDevices = () => {
@@ -90,7 +93,7 @@ window.renderCompDevices = () => {
 window.getCompFormData = () => {
     const isChecked = (id) => {
         const el = document.getElementById(id);
-        return el ? el.checked : false;
+        return el ? el.checked : true;
     };
 
     return {
