@@ -67,27 +67,30 @@
 
 .pill-group {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
 }
 
 .pill-label {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    padding: 6px 14px;
+    padding: 10px 16px;
     background: #ffffff;
     border: 1px solid #cbd5e0;
-    border-radius: 20px;
+    border-radius: var(--radius-sm);
     color: #1e293b;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .pill-label:hover {
-    background: #f8fafc;
+    background: #f1f5f9;
     border-color: #94a3b8;
 }
 
@@ -95,7 +98,7 @@
     background: #10b981 !important;
     border-color: #059669 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .pill-cb {
@@ -175,18 +178,17 @@
 
 .comp-device-scroll {
     flex: 1;
-    min-height: 150px;
-    max-height: 280px;
+    min-height: 100px;
+    max-height: 380px;
     overflow-x: hidden;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    padding: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 20px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .completion-form-side::-webkit-scrollbar,
