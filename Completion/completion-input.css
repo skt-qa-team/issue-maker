@@ -6,7 +6,6 @@
     background: rgba(0, 0, 0, 0.7);
 }
 
-/* 전체 컨테이너는 화면을 꽉 채우도록 크기 확장 */
 .completion-container {
     width: 98%;
     max-width: 1800px;
@@ -15,7 +14,7 @@
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
-    height: 90vh; /* max-height 대신 고정 높이로 스크롤 관리 최적화 */
+    height: 92vh;
     overflow: hidden;
 }
 
@@ -24,8 +23,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    padding: 20px 30px;
+    padding: 15px 25px;
     border-bottom: 1px solid var(--border-color);
     background: var(--panel-bg);
 }
@@ -34,31 +32,23 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-shrink: 0;
 }
 
 .panel-title-group h2 {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 900;
     color: var(--text-main);
     margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .fix-owner-alert {
-    flex: 1;
     background: rgba(244, 63, 94, 0.08);
     border: 1px solid rgba(244, 63, 94, 0.2);
-    padding: 10px 20px;
+    padding: 8px 15px;
     border-radius: var(--radius-md);
     color: #e11d48;
     font-weight: 800;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 0.85rem;
     animation: pulse 2s infinite;
 }
 
@@ -68,220 +58,140 @@
     100% { opacity: 1; }
 }
 
-.header-action-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-/* 입력(좌) / 결과(우) 50:50 분할 유지 */
 .completion-panel-body {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 30px;
     flex: 1;
     min-height: 0;
+    padding: 25px;
     background: var(--bg-color);
 }
 
-/* 폼 영역 패딩 조정 */
 .completion-form-side {
     display: flex;
     flex-direction: column;
-    padding: 30px;
+    gap: 20px;
     overflow-y: auto;
-    gap: 20px; /* 각 폼 그룹 사이 간격 */
-    border-right: 1px solid var(--border-color);
+    padding-right: 10px;
 }
 
-/* [수정] 폼 그룹의 가로형(Horizontal) 배치 핵심 클래스 */
+.preset-wrapper-top {
+    width: 100%;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
 .form-group-horizontal {
     display: flex;
     flex-direction: row;
-    align-items: flex-start; /* 라벨과 입력 요소의 상단 맞춤 */
-    gap: 20px;
+    align-items: flex-start;
+    gap: 15px;
     width: 100%;
 }
 
-/* 가로형 배치 시 라벨 영역 (고정 너비) */
 .form-group-horizontal > .form-label-sm,
 .form-group-horizontal > .form-label-accent,
 .form-group-horizontal > .label-action-row {
-    flex: 0 0 160px; /* 라벨 영역 너비 고정 */
-    margin-bottom: 0; /* 기존 세로형 마진 제거 */
-    display: flex;
-    align-items: center;
-    padding-top: 8px; /* 입력 필드와 높이 맞춤 */
+    flex: 0 0 140px;
+    margin-bottom: 0;
+    padding-top: 10px;
+    font-weight: 800;
 }
 
-/* 가로형 배치 시 입력/컨텐츠 영역 (나머지 공간 다 쓰기) */
 .form-group-horizontal > .form-control,
 .form-group-horizontal > .checkbox-group,
 .form-group-horizontal > .comp-device-scroll,
 .form-group-horizontal > .input-group,
 .form-group-horizontal > .grid-2 {
     flex: 1;
-    min-width: 0; /* 플렉스 버그 방지 */
+    min-width: 0;
 }
 
-/* [수정] 내부 체크박스/라디오 값들을 가로로 나열 */
 .checkbox-group.horizontal-list {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap; /* 넘치면 다음 줄로 */
-    gap: 15px;
-    align-items: center;
-    padding-top: 6px;
-}
-
-.comp-section {
-    display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 12px;
-    width: 100%;
-}
-
-.comp-label {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.comp-content {
-    width: 100%;
-    background: var(--panel-bg);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    box-sizing: border-box;
+    padding-top: 8px;
 }
 
 .comp-textarea {
     width: 100%;
-    height: 120px;
+    height: 100px;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    padding: 15px;
+    padding: 12px;
     color: var(--text-main);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     resize: none;
     outline: none;
-    transition: border-color var(--transition-fast);
 }
 
-.comp-textarea:focus {
-    border-color: var(--accent-blue);
-}
-
-.comp-device-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    width: 100%;
-}
-
-/* 디바이스 영역 스크롤 및 배치 최적화 */
 .comp-device-scroll {
-    height: 250px;
+    height: 220px;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    padding: 15px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-}
-
-/* [추가] 디바이스 OS 섹션별 내부 가로 정렬 */
-#comp_and_section, #comp_ios_section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.comp-device-item {
-    padding: 10px 15px;
-    background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all var(--transition-fast);
-    cursor: pointer;
-}
-
-.comp-device-item:hover {
-    border-color: var(--accent-blue);
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.comp-device-item.active {
-    background: var(--accent-blue);
-    color: #ffffff;
-    border-color: var(--accent-blue);
-}
-
-.comp-option-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    width: 100%;
-}
-
-.comp-check-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.comp-check-card:hover {
-    border-color: var(--accent-blue);
-}
-
-.comp-check-card input[type="checkbox"],
-.comp-check-card input[type="radio"] {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--accent-blue);
-}
-
-.comp-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-}
-
-.comp-control-text {
-    flex: 1;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 12px 15px;
-    color: var(--text-main);
-    font-size: 1rem;
-    font-weight: 700;
-    outline: none;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
     gap: 12px;
-    padding: 20px 30px;
+}
+
+.completion-preview-side {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.preview-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     background: var(--panel-bg);
-    border-top: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.preview-area {
+    flex: 1;
+    width: 100%;
+    background: #1e293b;
+    color: #f8fafc;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    resize: none;
+}
+
+.btn-copy-action {
+    width: 100%;
+    padding: 15px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 1rem;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-copy-action:hover {
+    background: #059669;
 }
