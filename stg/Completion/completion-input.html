@@ -1,4 +1,4 @@
-<div class="panel">
+<div class="panel completion-container">
     <div class="panel-header mb-2">
         <div class="header-title-group">
             <h2 class="panel-title">✅ 완료문 작성</h2>
@@ -20,7 +20,9 @@
         <div class="setting-box completion-form-side">
             <div class="form-group mb-4">
                 <div class="label-action-row">
-                    <label class="form-label-accent">■ 현상 check</label>
+                    <label class="form-label-accent">
+                        <input type="checkbox" id="toggle_check" class="template-trigger" checked> ■ 현상 check
+                    </label>
                     <div class="case-ctrl-row">
                         <button class="btn-case-main btn-add-case" data-target="comp_check">CASE +</button>
                         <div class="case-num-group">
@@ -36,17 +38,23 @@
 
             <div class="grid-2 mb-4">
                 <div class="form-group">
-                    <label class="form-label-sm">■ 버전</label>
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_version" class="template-trigger" checked> ■ 버전
+                    </label>
                     <div id="comp_version_list" class="checkbox-group vertical template-trigger"></div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label-sm">■ 서버</label>
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_server" class="template-trigger" checked> ■ 서버
+                    </label>
                     <div id="comp_server_list" class="checkbox-group vertical template-trigger"></div>
                 </div>
             </div>
 
             <div class="form-group mb-4">
-                <label class="form-label-sm">■ 재현율 (N / 10)</label>
+                <label class="form-label-sm">
+                    <input type="checkbox" id="toggle_rate" class="template-trigger" checked> ■ 재현율 (N / 10)
+                </label>
                 <div class="input-group">
                     <input type="number" id="comp_rate_num" class="form-control template-trigger" min="0" max="10" value="10">
                     <span class="input-group-text">/ 10</span>
@@ -55,17 +63,23 @@
 
             <div class="grid-2 mb-4">
                 <div class="form-group">
-                    <label class="form-label-sm">■ Admin URL</label>
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_admin_url" class="template-trigger" checked> ■ Admin URL
+                    </label>
                     <input type="text" id="comp_admin_url" class="form-control template-trigger" placeholder="Admin 접속 주소">
                 </div>
                 <div class="form-group">
-                    <label class="form-label-sm">■ PC URL</label>
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_pc_url" class="template-trigger" checked> ■ PC URL
+                    </label>
                     <input type="text" id="comp_pc_url" class="form-control template-trigger" placeholder="PC Web 접속 주소">
                 </div>
             </div>
 
             <div class="form-group mb-4">
-                <label class="form-label-sm">■ 모드</label>
+                <label class="form-label-sm">
+                    <input type="checkbox" id="toggle_mode" class="template-trigger" checked> ■ 모드
+                </label>
                 <select id="comp_mode" class="form-control template-trigger">
                     <option value="일반 모드">일반 모드</option>
                     <option value="QA 모드">QA 모드</option>
@@ -76,7 +90,9 @@
             </div>
 
             <div class="form-group" id="comp_device_group">
-                <label class="form-label-sm">■ Device (OS Ver.)</label>
+                <label class="form-label-sm">
+                    <input type="checkbox" id="toggle_device" class="template-trigger" checked> ■ Device (OS Ver.)
+                </label>
                 <div id="comp_device_area" class="comp-device-scroll border-box radius-md p-2">
                     <div id="comp_and_section">
                         <div class="text-accent-green mb-1 text-sm font-bold">Android</div>
