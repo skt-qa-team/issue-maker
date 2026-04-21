@@ -1,10 +1,7 @@
 window.compDataCache = {};
 
-document.addEventListener('componentsLoaded', () => {
-    window.initCompletionInput();
-});
-
 window.initCompletionInput = () => {
+    console.log("[Input] initCompletionInput started");
     window.compDataCache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
     
     const sList = document.getElementById('comp_server_list');
@@ -27,19 +24,42 @@ window.initCompletionInput = () => {
     window.renderCompDevices();
     window.renderCompPresets();
     window.initCompletionInputEvents();
+    
+    if (typeof window.updateCompletionPreview === 'function') {
+        console.log("[Input] Initial preview update called");
+        window.updateCompletionPreview();
+    }
 };
 
 window.initCompletionInputEvents = () => {
-    const container = document.querySelector('.completion-container');
-    if (!container) return;
+    const container = document.getElementById('panel-completion');
+    if (!container) {
+        console.error("[Input] panel-completion NOT found. Events failed.");
+        return;
+    }
+
+    if (container.dataset.eventsBound) {
+        console.warn("[Input] Events already bound. Preventing duplicates.");
+        return;
+    }
+    
+    container.dataset.eventsBound = 'true';
+    console.log("[Input] Events successfully bound to panel-completion");
 
     container.addEventListener('click', (e) => {
         const target = e.target;
         
-        if (target.id === 'btnSaveCompPreset') window.saveCompPreset();
-        if (target.id === 'btnDeleteCompPreset') window.deleteCompPreset();
+        if (target.id === 'btnSaveCompPreset') {
+            console.log("[Input] btnSaveCompPreset clicked");
+            window.saveCompPreset();
+        }
+        if (target.id === 'btnDeleteCompPreset') {
+            console.log("[Input] btnDeleteCompPreset clicked");
+            window.deleteCompPreset();
+        }
         
         if (target.classList.contains('btn-add-case')) {
+            console.log("[Input] CASE+ clicked");
             if (typeof window.addCase === 'function') {
                 window.addCase(target.dataset.target);
                 if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
@@ -47,6 +67,7 @@ window.initCompletionInputEvents = () => {
         }
         
         if (target.classList.contains('btn-apply-preset')) {
+            console.log(`[Input] Preset ${target.dataset.preset} clicked`);
             if (typeof window.applyIndividualPreset === 'function') {
                 window.applyIndividualPreset(target.dataset.target, parseInt(target.dataset.preset));
                 if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
@@ -56,15 +77,20 @@ window.initCompletionInputEvents = () => {
 
     container.addEventListener('input', (e) => {
         if (e.target.classList.contains('template-trigger')) {
+            console.log(`[Input] Typing detected: ${e.target.id} -> ${e.target.value}`);
             if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
         }
     });
 
     container.addEventListener('change', (e) => {
         if (e.target.classList.contains('template-trigger')) {
+            console.log(`[Input] Change detected: ${e.target.id} -> Checked: ${e.target.checked}`);
             if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
         }
-        if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
+        if (e.target.id === 'compPresetSelect') {
+            console.log(`[Input] Preset selected: ${e.target.value}`);
+            window.applyCompPreset(e.target.value);
+        }
     });
 };
 
@@ -88,10 +114,11 @@ window.renderCompDevices = () => {
 window.getCompFormData = () => {
     const isChecked = (id) => {
         const el = document.getElementById(id);
+        if (!el) console.warn(`[Input] Toggle ${id} missing. Defaulting to true.`);
         return el ? el.checked : true;
     };
 
-    return {
+    const data = {
         check: isChecked('toggle_check') ? (document.getElementById('comp_check')?.value || '') : '',
         rate: isChecked('toggle_rate') ? (document.getElementById('comp_rate_num')?.value || '') : '',
         adminUrl: isChecked('toggle_admin_url') ? (document.getElementById('comp_admin_url')?.value || '') : '',
@@ -101,6 +128,9 @@ window.getCompFormData = () => {
         versions: isChecked('toggle_version') ? Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value) : [],
         devices: isChecked('toggle_device') ? Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value) : []
     };
+    
+    console.log("[Input] Extracted FormData:", data);
+    return data;
 };
 
 window.saveCompPreset = () => {
