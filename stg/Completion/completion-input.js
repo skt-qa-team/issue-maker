@@ -30,17 +30,30 @@ window.initCompletionInput = () => {
 };
 
 window.initCompletionInputEvents = () => {
-    const container = document.querySelector('.completion-container');
+    // [수정] 절대 변하지 않는 메인 패널 ID에 직접 이벤트를 위임하여 센서 유실 방지
+    const container = document.getElementById('panel-completion');
     if (!container) return;
 
-    // 통합 이벤트 위임 (클릭)
-    container.addEventListener('click', (e) => {
+    // [수정] oninput, onchange 속성을 사용하여 중복 바인딩 방지 및 즉각 반응 확보
+    container.oninput = (e) => {
+        if (e.target.classList.contains('template-trigger')) {
+            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+        }
+    };
+
+    container.onchange = (e) => {
+        if (e.target.classList.contains('template-trigger')) {
+            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+        }
+        if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
+    };
+
+    container.onclick = (e) => {
         const target = e.target;
         
         if (target.id === 'btnSaveCompPreset') window.saveCompPreset();
         if (target.id === 'btnDeleteCompPreset') window.deleteCompPreset();
         
-        // CASE 추가 버튼
         if (target.classList.contains('btn-add-case')) {
             if (typeof window.addCase === 'function') {
                 window.addCase(target.dataset.target);
@@ -48,28 +61,13 @@ window.initCompletionInputEvents = () => {
             }
         }
         
-        // CASE 프리셋 (1~4) 버튼
         if (target.classList.contains('btn-apply-preset')) {
             if (typeof window.applyIndividualPreset === 'function') {
                 window.applyIndividualPreset(target.dataset.target, parseInt(target.dataset.preset));
                 if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
             }
         }
-    });
-
-    // 통합 이벤트 위임 (입력 및 변경)
-    container.addEventListener('input', (e) => {
-        if (e.target.classList.contains('template-trigger')) {
-            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
-        }
-    });
-
-    container.addEventListener('change', (e) => {
-        if (e.target.classList.contains('template-trigger')) {
-            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
-        }
-        if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
-    });
+    };
 };
 
 window.renderCompDevices = () => {
@@ -77,8 +75,6 @@ window.renderCompDevices = () => {
     const iosList = document.getElementById('comp_ios_list');
     const andDevices = window.compDataCache.andDevices || [];
     const iosDevices = window.compDataCache.iosDevices || [];
-    
-    // 강제 기본 선택 로직 제거 (ON/OFF 기능을 위해 빈 상태로 시작)
 
     const render = (container, list, platform) => {
         if (!container) return;
@@ -92,15 +88,20 @@ window.renderCompDevices = () => {
 };
 
 window.getCompFormData = () => {
+    const isChecked = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.checked : false;
+    };
+
     return {
-        check: document.getElementById('comp_check')?.value || '',
-        rate: document.getElementById('comp_rate_num')?.value || '',
-        adminUrl: document.getElementById('comp_admin_url')?.value || '',
-        pcUrl: document.getElementById('comp_pc_url')?.value || '',
-        mode: document.getElementById('comp_mode')?.value || '',
-        servers: Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value),
-        versions: Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value),
-        devices: Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value)
+        check: isChecked('toggle_check') ? (document.getElementById('comp_check')?.value || '') : '',
+        rate: isChecked('toggle_rate') ? (document.getElementById('comp_rate_num')?.value || '') : '',
+        adminUrl: isChecked('toggle_admin_url') ? (document.getElementById('comp_admin_url')?.value || '') : '',
+        pcUrl: isChecked('toggle_pc_url') ? (document.getElementById('comp_pc_url')?.value || '') : '',
+        mode: isChecked('toggle_mode') ? (document.getElementById('comp_mode')?.value || '') : '',
+        servers: isChecked('toggle_server') ? Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value) : [],
+        versions: isChecked('toggle_version') ? Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value) : [],
+        devices: isChecked('toggle_device') ? Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value) : []
     };
 };
 
@@ -137,7 +138,6 @@ window.deleteCompPreset = () => {
     selectEl.value = '';
     window.renderCompPresets();
     
-    // 삭제 후 폼 초기화 유도 (선택적)
     if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
     if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
 };
@@ -174,10 +174,7 @@ window.applyCompPreset = (name) => {
 
     document.querySelectorAll('.comp-srv-cb').forEach(cb => cb.checked = data.servers.includes(cb.value));
     document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = data.versions.includes(cb.value));
-    
-    // 디바이스 체크박스 동기화 
     document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = data.devices.includes(cb.value));
     
-    // 즉시 프리뷰 업데이트
     if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
 };
