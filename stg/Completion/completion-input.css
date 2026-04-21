@@ -1,7 +1,7 @@
 .completion-form-side {
     display: flex;
     flex-direction: column;
-    gap: clamp(25px, 3vh, 40px);
+    gap: 20px;
     overflow-y: auto;
     padding-right: 15px;
     height: 100%;
@@ -9,17 +9,22 @@
     min-height: 0;
 }
 
-.preset-wrapper-top {
+/* [추가] 독립된 방(Card Box) 스타일 */
+.comp-item-box {
     width: 100%;
-    background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    background: var(--panel-bg, #1e293b);
+    border: 1px solid #000000; /* 진한 검정색 테두리로 명확한 구분 */
+    border-radius: var(--radius-lg);
     padding: clamp(15px, 2vh, 25px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+}
+
+.preset-wrapper-top {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    margin-bottom: 15px;
     flex-shrink: 0;
 }
 
@@ -30,8 +35,7 @@
     align-items: center;
     gap: clamp(15px, 2vw, 25px);
     width: 100%;
-    min-height: 45px;
-    padding: 5px 0;
+    min-height: 40px;
 }
 
 .form-group-horizontal:has(textarea) {
