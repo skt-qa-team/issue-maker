@@ -8,6 +8,7 @@
     
     <div class="completion-panel-body">
         <div class="setting-box completion-form-side">
+            
             <div class="preset-wrapper-top">
                 <select id="compPresetSelect" class="form-control-sm preset-select">
                     <option value="">💾 프리셋 선택...</option>
@@ -20,20 +21,9 @@
             </div>
 
             <div class="form-group-horizontal mb-4">
-                <div class="label-action-row">
-                    <label class="form-label-accent">
-                        <input type="checkbox" id="toggle_check" class="template-trigger" checked> ■ 현상 check
-                    </label>
-                    <div class="case-ctrl-row">
-                        <button class="btn-case-main btn-add-case" data-target="comp_check">CASE +</button>
-                        <div class="case-num-group">
-                            <span class="btn-apply-preset" data-target="comp_check" data-preset="1">1</span>
-                            <span class="btn-apply-preset" data-target="comp_check" data-preset="2">2</span>
-                            <span class="btn-apply-preset" data-target="comp_check" data-preset="3">3</span>
-                            <span class="btn-apply-preset" data-target="comp_check" data-preset="4">4</span>
-                        </div>
-                    </div>
-                </div>
+                <label class="form-label-accent">
+                    <input type="checkbox" id="toggle_check" class="template-trigger" checked> ■ 현상 check
+                </label>
                 <textarea id="comp_check" class="form-control comp-check-textarea template-trigger" placeholder="확인 내용을 상세히 입력하세요"></textarea>
             </div>
 
@@ -81,13 +71,13 @@
                 <label class="form-label-sm">
                     <input type="checkbox" id="toggle_mode" class="template-trigger" checked> ■ 모드
                 </label>
-                <select id="comp_mode" class="form-control template-trigger">
-                    <option value="일반 모드">일반 모드</option>
-                    <option value="QA 모드">QA 모드</option>
-                    <option value="테스트 모드">테스트 모드</option>
-                    <option value="A Bucket">A Bucket</option>
-                    <option value="B Bucket">B Bucket</option>
-                </select>
+                <div id="comp_mode_list" class="checkbox-group horizontal-list template-trigger">
+                    <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="일반 모드"> 일반 모드</label>
+                    <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="QA 모드"> QA 모드</label>
+                    <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="테스트 모드"> 테스트 모드</label>
+                    <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="A Bucket"> A Bucket</label>
+                    <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="B Bucket"> B Bucket</label>
+                </div>
             </div>
 
             <div class="form-group-horizontal" id="comp_device_group">
