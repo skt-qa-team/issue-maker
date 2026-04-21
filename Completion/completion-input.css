@@ -1,10 +1,12 @@
 .completion-form-side {
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, 1.5vh, 20px);
+    gap: clamp(15px, 2vh, 25px);
     overflow-y: auto;
     padding-right: 15px;
     height: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .preset-wrapper-top {
@@ -12,11 +14,11 @@
     background: var(--panel-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 15px 20px;
+    padding: clamp(12px, 1.5vh, 20px);
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
@@ -24,16 +26,16 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 20px;
+    gap: 25px;
     width: 100%;
-    min-height: 40px;
+    min-height: 45px;
 }
 
 .form-group-horizontal > .form-label-sm,
 .form-group-horizontal > .form-label-accent {
-    flex: 0 0 150px;
+    flex: 0 0 160px;
     margin-bottom: 0;
-    padding-top: 10px;
+    padding-top: 12px;
     font-weight: 800;
     color: var(--text-main);
     display: flex;
@@ -54,7 +56,7 @@
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: clamp(20px, 3vw, 40px);
     width: 100%;
 }
 
@@ -62,38 +64,41 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 12px;
-    padding-top: 6px;
+    gap: 15px;
+    padding-top: 8px;
     align-items: center;
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.9rem;
+    gap: 8px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     color: var(--text-main);
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: var(--radius-sm);
-    transition: background var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .checkbox-label:hover {
     background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-blue);
 }
 
 .comp-check-textarea {
     width: 100%;
-    height: clamp(80px, 15vh, 150px);
+    flex: 1;
+    min-height: 120px;
+    max-height: 300px;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    padding: 15px;
+    padding: 18px;
     color: var(--text-main);
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.7;
     resize: none;
     transition: border-color var(--transition-fast);
 }
@@ -101,12 +106,13 @@
 .comp-check-textarea:focus {
     border-color: var(--accent-blue);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .comp-device-scroll {
     flex: 1;
-    min-height: 150px;
-    max-height: 300px;
+    min-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
     background: var(--bg-color);
     border-radius: var(--radius-md);
@@ -118,8 +124,10 @@
 }
 
 .num-input {
-    max-width: 80px;
+    max-width: 100px;
+    padding: 10px;
     text-align: center;
+    font-weight: 700;
 }
 
 .completion-form-side::-webkit-scrollbar,
