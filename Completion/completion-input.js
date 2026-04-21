@@ -1,7 +1,11 @@
-let currentCompConfig = {};
+window.compDataCache = {};
 
-function initCompletionPanel() {
-    currentCompConfig = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
+document.addEventListener('componentsLoaded', () => {
+    window.initCompletionInput();
+});
+
+window.initCompletionInput = () => {
+    window.compDataCache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
     
     const sList = document.getElementById('comp_server_list');
     if (sList) {
@@ -9,7 +13,7 @@ function initCompletionPanel() {
         ['STG', 'GRN', 'PRD'].forEach(s => {
             const chk = s === 'STG' ? 'checked' : '';
             const label = s === 'PRD' ? '상용(PRD)' : s;
-            sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb" value="${label}" ${chk} onchange="updateCompletionPreview()"> ${label}</label>`;
+            sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb template-trigger" value="${label}" ${chk}> ${label}</label>`;
         });
     }
 
@@ -17,160 +21,153 @@ function initCompletionPanel() {
     if (vList) {
         vList.innerHTML = '';
         ['Android', 'iOS', '삼성인터넷', 'Safari', 'Chrome', 'Edge'].forEach(v => {
-            vList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-ver-cb" value="${v}" onchange="updateCompletionPreview()"> ${v}</label>`;
+            vList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-ver-cb template-trigger" value="${v}"> ${v}</label>`;
         });
-    }
-
-    const compCheck = document.getElementById('comp_check');
-    if (compCheck) {
-        compCheck.value = '';
-        compCheck.oninput = updateCompletionPreview;
-    }
-
-    const compUrl = document.getElementById('comp_url');
-    if (compUrl) {
-        compUrl.value = '';
-        compUrl.oninput = updateCompletionPreview;
     }
 
     const pocEl = document.getElementById('comp_poc');
     if (pocEl) {
         pocEl.value = 'T 멤버십';
+        pocEl.addEventListener('change', window.handleCompPocChange);
     }
 
-    handleCompPocChange();
-}
+    window.renderCompPresets();
+    window.handleCompPocChange();
+    window.initCompletionInputEvents();
+};
 
-function handleCompPocChange() {
-    const compPocEl = document.getElementById('comp_poc');
-    const poc = compPocEl ? compPocEl.value : 'T 멤버십';
+window.initCompletionInputEvents = () => {
+    const container = document.getElementById('completionModal');
+    if (!container) return;
+
+    container.addEventListener('input', (e) => {
+        if (e.target.classList.contains('template-trigger')) {
+            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+        }
+    });
+
+    container.addEventListener('change', (e) => {
+        if (e.target.classList.contains('template-trigger')) {
+            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+        }
+        if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
+    });
+
+    const btnSave = document.getElementById('btnSaveCompPreset');
+    if (btnSave) btnSave.onclick = window.saveCompPreset;
+
+    const btnDelete = document.getElementById('btnDeleteCompPreset');
+    if (btnDelete) btnDelete.onclick = window.deleteCompPreset;
+};
+
+window.handleCompPocChange = () => {
+    const pocEl = document.getElementById('comp_poc');
+    const poc = pocEl ? pocEl.value : 'T 멤버십';
     const isWeb = (poc === 'Admin' || poc === 'PC Web');
 
     const deviceGroup = document.getElementById('comp_device_group');
-    const urlGroup = document.getElementById('comp_url_group');
+    if (deviceGroup) deviceGroup.classList.toggle('d-none', isWeb);
+
+    if (!isWeb) window.renderCompDevices();
     
-    if (deviceGroup) {
-        if (isWeb) deviceGroup.classList.add('d-none');
-        else deviceGroup.classList.remove('d-none');
-    }
-    
-    if (urlGroup) {
-        if (isWeb) urlGroup.classList.remove('d-none');
-        else urlGroup.classList.add('d-none');
-    }
+    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+};
 
-    if (isWeb) {
-        const urlInput = document.getElementById('comp_url');
-        if (urlInput) {
-            urlInput.value = poc === 'Admin' ? (currentCompConfig.adminUrl || '') : (currentCompConfig.pcUrl || '');
-        }
-    } else {
-        renderCompDevices();
-    }
-
-    updateCompletionPreview();
-}
-
-function renderCompDevices() {
+window.renderCompDevices = () => {
     const andList = document.getElementById('comp_and_list');
     const iosList = document.getElementById('comp_ios_list');
+    const andDevices = window.compDataCache.andDevices || [];
+    const iosDevices = window.compDataCache.iosDevices || [];
+    const defaultSelected = [...(window.compDataCache.andDefaultDevices || []), ...(window.compDataCache.iosDefaultDevices || [])];
 
-    const andDevices = currentCompConfig.andDevices || [];
-    const iosDevices = currentCompConfig.iosDevices || [];
-    const defaultSelected = [...(currentCompConfig.andDefaultDevices || []), ...(currentCompConfig.iosDefaultDevices || [])];
-
-    const renderItems = (container, list, platform) => {
+    const render = (container, list, platform) => {
         if (!container) return;
-        container.innerHTML = '';
-        list.forEach(dev => {
+        container.innerHTML = list.map(dev => {
             const chk = defaultSelected.includes(dev) ? 'checked' : '';
-            container.innerHTML += `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb" data-platform="${platform}" value="${dev}" ${chk} onchange="updateCompletionPreview()"> ${dev}</label>`;
-        });
+            return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${chk}> ${dev}</label>`;
+        }).join('');
     };
 
-    renderItems(andList, andDevices, 'android');
-    renderItems(iosList, iosDevices, 'ios');
-}
+    render(andList, andDevices, 'android');
+    render(iosList, iosDevices, 'ios');
+};
 
-function updateCompletionPreview() {
-    const compPocEl = document.getElementById('comp_poc');
-    const poc = compPocEl ? compPocEl.value : '';
-    const isWeb = (poc === 'Admin' || poc === 'PC Web');
+window.getCompFormData = () => {
+    return {
+        check: document.getElementById('comp_check')?.value || '',
+        poc: document.getElementById('comp_poc')?.value || '',
+        rate: document.getElementById('comp_rate_num')?.value || '10',
+        adminUrl: document.getElementById('comp_admin_url')?.value || '',
+        pcUrl: document.getElementById('comp_pc_url')?.value || '',
+        mode: document.getElementById('comp_mode')?.value || '',
+        servers: Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value),
+        versions: Array.from(document.querySelectorAll('.comp-ver-cb:checked')).map(cb => cb.value),
+        devices: Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value)
+    };
+};
 
-    const srvs = Array.from(document.querySelectorAll('.comp-srv-cb:checked')).map(cb => cb.value).join(' / ') || '-';
-    const compCheckNode = document.getElementById('comp_check');
-    const compCheckVal = compCheckNode ? compCheckNode.value : '';
-    const previewNode = document.getElementById('comp_preview');
+window.saveCompPreset = () => {
+    const nameEl = document.getElementById('newCompPresetName');
+    const name = nameEl ? nameEl.value.trim() : '';
+    if (!name) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
+        return;
+    }
+
+    let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+    presets[name] = window.getCompFormData();
+    localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
     
-    if (!previewNode) return;
+    nameEl.value = '';
+    window.renderCompPresets();
+    if (typeof window.showToast === 'function') window.showToast('✅ 완료문 프리셋이 저장되었습니다.');
+};
 
-    let versions = [];
-    if (isWeb) {
-        const urlInput = document.getElementById('comp_url');
-        const urlString = urlInput ? urlInput.value : '-';
-        
-        document.querySelectorAll('.comp-ver-cb:checked').forEach(cb => {
-            const type = cb.value;
-            if (type === 'Android') versions.push(`App Tester_${currentCompConfig.andAppTester || ''}`);
-            else if (type === 'iOS') versions.push(`TestFlight_${currentCompConfig.iosTestFlight || ''}`);
-            else if (type === '삼성인터넷') versions.push(`삼성인터넷_${currentCompConfig.samsungBrowser || ''}`);
-            else if (type === 'Safari') versions.push(`Safari_${currentCompConfig.safariBrowser || ''}`);
-            else if (type === 'Chrome') versions.push(`Chrome_${currentCompConfig.chromeBrowser || ''}`);
-            else if (type === 'Edge') versions.push(`Edge_${currentCompConfig.edgeBrowser || ''}`);
-        });
-        const verString = versions.join(' / ') || '-';
-        previewNode.value = `■ 버전 : ${verString}\n■ 서버 : ${srvs}\n■ URL : ${urlString}\n■ 현상 check : ${compCheckVal}`;
-    } else {
-        const devs = Array.from(document.querySelectorAll('.comp-dev-cb:checked')).map(cb => cb.value).join(' / ') || '-';
-        const checkedDevs = Array.from(document.querySelectorAll('.comp-dev-cb:checked'));
-        const hasAndroid = checkedDevs.some(cb => cb.dataset.platform === 'android');
-        const hasIos = checkedDevs.some(cb => cb.dataset.platform === 'ios');
+window.deleteCompPreset = () => {
+    const selectEl = document.getElementById('compPresetSelect');
+    const name = selectEl ? selectEl.value : '';
+    if (!name) return;
 
-        if (hasAndroid) versions.push(`App Tester_${currentCompConfig.andAppTester || ''}`);
-        if (hasIos) versions.push(`TestFlight_${currentCompConfig.iosTestFlight || ''}`);
+    let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+    delete presets[name];
+    localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+    
+    window.renderCompPresets();
+    if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
+};
 
-        document.querySelectorAll('.comp-ver-cb:checked').forEach(cb => {
-            const type = cb.value;
-            if (type !== 'Android' && type !== 'iOS') {
-                if (type === '삼성인터넷') versions.push(`삼성인터넷_${currentCompConfig.samsungBrowser || ''}`);
-                else if (type === 'Safari') versions.push(`Safari_${currentCompConfig.safariBrowser || ''}`);
-                else if (type === 'Chrome') versions.push(`Chrome_${currentCompConfig.chromeBrowser || ''}`);
-                else if (type === 'Edge') versions.push(`Edge_${currentCompConfig.edgeBrowser || ''}`);
-            }
-        });
-        const verString = versions.join(' / ') || '-';
-        previewNode.value = `■ Device(OS Ver.) : ${devs}\n■ 버젼 : ${verString}\n■ 서버 : ${srvs}\n■ 현상 check : ${compCheckVal}`;
-    }
-}
+window.renderCompPresets = () => {
+    const selectEl = document.getElementById('compPresetSelect');
+    if (!selectEl) return;
+    const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+    let html = '<option value="">💾 프리셋 선택...</option>';
+    Object.keys(presets).forEach(name => {
+        html += `<option value="${name}">${name}</option>`;
+    });
+    selectEl.innerHTML = html;
+};
 
-async function copyCompletionReport() {
-    const el = document.getElementById('comp_preview');
-    if (!el) return;
-    const textToCopy = el.value;
+window.applyCompPreset = (name) => {
+    if (!name) return;
+    const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+    const data = presets[name];
+    if (!data) return;
 
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            if (typeof showToast === 'function') showToast('완료문 복사 완료!');
-        } catch (err) {
-            fallbackCopy(textToCopy);
-        }
-    } else {
-        fallbackCopy(textToCopy);
-    }
-}
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    setVal('comp_check', data.check);
+    setVal('comp_poc', data.poc);
+    setVal('comp_rate_num', data.rate);
+    setVal('comp_admin_url', data.adminUrl);
+    setVal('comp_pc_url', data.pcUrl);
+    setVal('comp_mode', data.mode);
 
-function fallbackCopy(text) {
-    const t = document.createElement("textarea");
-    t.className = "sr-only";
-    document.body.appendChild(t);
-    t.value = text;
-    t.select();
-    try {
-        document.execCommand('copy');
-        if (typeof showToast === 'function') showToast('완료문 복사 완료!');
-    } catch (err) {
-        console.error('Copy failed', err);
-    }
-    document.body.removeChild(t);
-}
+    document.querySelectorAll('.comp-srv-cb').forEach(cb => cb.checked = data.servers.includes(cb.value));
+    document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = data.versions.includes(cb.value));
+    
+    window.handleCompPocChange();
+
+    setTimeout(() => {
+        document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = data.devices.includes(cb.value));
+        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+    }, 50);
+};
