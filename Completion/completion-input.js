@@ -11,9 +11,8 @@ window.initCompletionInput = () => {
     if (sList) {
         sList.innerHTML = '';
         ['STG', 'GRN', 'PRD'].forEach(s => {
-            const chk = s === 'STG' ? 'checked' : '';
             const label = s === 'PRD' ? '상용(PRD)' : s;
-            sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb template-trigger" value="${label}" ${chk}> ${label}</label>`;
+            sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb template-trigger" value="${label}"> ${label}</label>`;
         });
     }
 
@@ -25,21 +24,40 @@ window.initCompletionInput = () => {
         });
     }
 
-    const pocEl = document.getElementById('comp_poc');
-    if (pocEl) {
-        pocEl.value = 'T 멤버십';
-        pocEl.addEventListener('change', window.handleCompPocChange);
-    }
-
+    window.renderCompDevices();
     window.renderCompPresets();
-    window.handleCompPocChange();
     window.initCompletionInputEvents();
 };
 
 window.initCompletionInputEvents = () => {
-    const container = document.getElementById('completionModal');
+    const container = document.querySelector('.completion-container');
     if (!container) return;
 
+    // 통합 이벤트 위임 (클릭)
+    container.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        if (target.id === 'btnSaveCompPreset') window.saveCompPreset();
+        if (target.id === 'btnDeleteCompPreset') window.deleteCompPreset();
+        
+        // CASE 추가 버튼
+        if (target.classList.contains('btn-add-case')) {
+            if (typeof window.addCase === 'function') {
+                window.addCase(target.dataset.target);
+                if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+            }
+        }
+        
+        // CASE 프리셋 (1~4) 버튼
+        if (target.classList.contains('btn-apply-preset')) {
+            if (typeof window.applyIndividualPreset === 'function') {
+                window.applyIndividualPreset(target.dataset.target, parseInt(target.dataset.preset));
+                if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+            }
+        }
+    });
+
+    // 통합 이벤트 위임 (입력 및 변경)
     container.addEventListener('input', (e) => {
         if (e.target.classList.contains('template-trigger')) {
             if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
@@ -52,25 +70,6 @@ window.initCompletionInputEvents = () => {
         }
         if (e.target.id === 'compPresetSelect') window.applyCompPreset(e.target.value);
     });
-
-    const btnSave = document.getElementById('btnSaveCompPreset');
-    if (btnSave) btnSave.onclick = window.saveCompPreset;
-
-    const btnDelete = document.getElementById('btnDeleteCompPreset');
-    if (btnDelete) btnDelete.onclick = window.deleteCompPreset;
-};
-
-window.handleCompPocChange = () => {
-    const pocEl = document.getElementById('comp_poc');
-    const poc = pocEl ? pocEl.value : 'T 멤버십';
-    const isWeb = (poc === 'Admin' || poc === 'PC Web');
-
-    const deviceGroup = document.getElementById('comp_device_group');
-    if (deviceGroup) deviceGroup.classList.toggle('d-none', isWeb);
-
-    if (!isWeb) window.renderCompDevices();
-    
-    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
 };
 
 window.renderCompDevices = () => {
@@ -78,13 +77,13 @@ window.renderCompDevices = () => {
     const iosList = document.getElementById('comp_ios_list');
     const andDevices = window.compDataCache.andDevices || [];
     const iosDevices = window.compDataCache.iosDevices || [];
-    const defaultSelected = [...(window.compDataCache.andDefaultDevices || []), ...(window.compDataCache.iosDefaultDevices || [])];
+    
+    // 강제 기본 선택 로직 제거 (ON/OFF 기능을 위해 빈 상태로 시작)
 
     const render = (container, list, platform) => {
         if (!container) return;
         container.innerHTML = list.map(dev => {
-            const chk = defaultSelected.includes(dev) ? 'checked' : '';
-            return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${chk}> ${dev}</label>`;
+            return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}"> ${dev}</label>`;
         }).join('');
     };
 
@@ -95,8 +94,7 @@ window.renderCompDevices = () => {
 window.getCompFormData = () => {
     return {
         check: document.getElementById('comp_check')?.value || '',
-        poc: document.getElementById('comp_poc')?.value || '',
-        rate: document.getElementById('comp_rate_num')?.value || '10',
+        rate: document.getElementById('comp_rate_num')?.value || '',
         adminUrl: document.getElementById('comp_admin_url')?.value || '',
         pcUrl: document.getElementById('comp_pc_url')?.value || '',
         mode: document.getElementById('comp_mode')?.value || '',
@@ -120,6 +118,10 @@ window.saveCompPreset = () => {
     
     nameEl.value = '';
     window.renderCompPresets();
+    
+    const selectEl = document.getElementById('compPresetSelect');
+    if (selectEl) selectEl.value = name;
+    
     if (typeof window.showToast === 'function') window.showToast('✅ 완료문 프리셋이 저장되었습니다.');
 };
 
@@ -132,7 +134,11 @@ window.deleteCompPreset = () => {
     delete presets[name];
     localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
     
+    selectEl.value = '';
     window.renderCompPresets();
+    
+    // 삭제 후 폼 초기화 유도 (선택적)
+    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
     if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
 };
 
@@ -140,11 +146,17 @@ window.renderCompPresets = () => {
     const selectEl = document.getElementById('compPresetSelect');
     if (!selectEl) return;
     const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+    
+    const currentVal = selectEl.value;
     let html = '<option value="">💾 프리셋 선택...</option>';
     Object.keys(presets).forEach(name => {
         html += `<option value="${name}">${name}</option>`;
     });
     selectEl.innerHTML = html;
+    
+    if (presets[currentVal]) {
+        selectEl.value = currentVal;
+    }
 };
 
 window.applyCompPreset = (name) => {
@@ -155,7 +167,6 @@ window.applyCompPreset = (name) => {
 
     const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
     setVal('comp_check', data.check);
-    setVal('comp_poc', data.poc);
     setVal('comp_rate_num', data.rate);
     setVal('comp_admin_url', data.adminUrl);
     setVal('comp_pc_url', data.pcUrl);
@@ -164,10 +175,9 @@ window.applyCompPreset = (name) => {
     document.querySelectorAll('.comp-srv-cb').forEach(cb => cb.checked = data.servers.includes(cb.value));
     document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = data.versions.includes(cb.value));
     
-    window.handleCompPocChange();
-
-    setTimeout(() => {
-        document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = data.devices.includes(cb.value));
-        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
-    }, 50);
+    // 디바이스 체크박스 동기화 
+    document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = data.devices.includes(cb.value));
+    
+    // 즉시 프리뷰 업데이트
+    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
 };
