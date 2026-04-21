@@ -65,6 +65,30 @@
     min-width: 200px;
 }
 
+/* [수정] 단말기 영역 2열 구조 및 독립 스크롤 로직 */
+.comp-device-scroll {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2열 구조 유지 */
+    gap: 20px;
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    align-items: start;
+    overflow: hidden; /* 부모 스크롤 제거 */
+}
+
+/* 안드로이드, iOS 각 섹션에 개별 스크롤 적용 */
+#comp_and_section, 
+#comp_ios_section {
+    display: flex;
+    flex-direction: column;
+    max-height: 450px; /* 10개 기준 높이 제한 */
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
 .pill-group {
     display: flex;
     flex-direction: column;
@@ -75,8 +99,8 @@
 .pill-label {
     display: flex;
     align-items: center;
-    padding: 10px 16px;
-    background: #ffffff;
+    padding: 8px 14px;
+    background: #ffffff; /* 흰색 배경 */
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
     color: #1e293b;
@@ -94,8 +118,9 @@
     border-color: #94a3b8;
 }
 
+/* 선택된 단말 초록색 피드백 */
 .pill-label.active {
-    background: #10b981 !important;
+    background: #10b981 !important; /* 초록색 배경 */
     border-color: #059669 !important;
     color: #ffffff !important;
     box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
@@ -176,28 +201,16 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.comp-device-scroll {
-    flex: 1;
-    min-height: 100px;
-    max-height: 380px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: var(--bg-color);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
+/* 스크롤바 디자인 통일 */
 .completion-form-side::-webkit-scrollbar,
-.comp-device-scroll::-webkit-scrollbar {
+#comp_and_section::-webkit-scrollbar,
+#comp_ios_section::-webkit-scrollbar {
     width: 6px;
 }
 
 .completion-form-side::-webkit-scrollbar-thumb,
-.comp-device-scroll::-webkit-scrollbar-thumb {
+#comp_and_section::-webkit-scrollbar-thumb,
+#comp_ios_section::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 10px;
 }
