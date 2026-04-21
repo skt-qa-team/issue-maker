@@ -9,7 +9,7 @@
     background: #0f172a;
     border: 1px solid #334155;
     border-radius: var(--radius-lg);
-    padding: 30px;
+    padding: clamp(15px, 2.5vh, 30px);
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
@@ -27,7 +27,7 @@
     color: #f8fafc;
     border: 1px solid #475569;
     border-radius: var(--radius-md);
-    padding: 20px;
+    padding: clamp(10px, 2vh, 20px);
     box-sizing: border-box;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     outline: none;
@@ -45,20 +45,34 @@
 
 .btn-copy-action {
     width: 100%;
-    padding: 18px;
+    padding: clamp(12px, 1.8vh, 18px);
     background: #10b981;
     color: white;
     border: none;
     border-radius: var(--radius-md);
     font-weight: 900;
     font-size: 1.1rem;
-    margin-top: 20px;
+    margin-top: clamp(10px, 1.5vh, 20px);
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .btn-copy-action:hover {
     background: #059669;
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+}
+
+.preview-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preview-area::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 10px;
+}
+
+.preview-area::-webkit-scrollbar-track {
+    background: #1e293b;
 }
