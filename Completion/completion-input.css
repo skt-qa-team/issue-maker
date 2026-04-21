@@ -9,11 +9,10 @@
     min-height: 0;
 }
 
-/* [추가] 독립된 방(Card Box) 스타일 */
 .comp-item-box {
     width: 100%;
     background: var(--panel-bg, #1e293b);
-    border: 1px solid #000000; /* 진한 검정색 테두리로 명확한 구분 */
+    border: 1px solid #000000;
     border-radius: var(--radius-lg);
     padding: clamp(15px, 2vh, 25px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
@@ -64,6 +63,45 @@
 .form-group-horizontal > .input-group {
     flex: 1;
     min-width: 200px;
+}
+
+/* [추가] 단말 선택용 필(Pill) 스타일 */
+.pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pill-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 20px;
+    color: #cbd5e0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.pill-label:hover {
+    background: #4a5568;
+    border-color: #718096;
+}
+
+/* [추가] 단말 선택 시 피드백 색상 (Active) */
+.pill-label.active {
+    background: var(--accent-blue, #3b82f6) !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.pill-cb {
+    display: none; /* 체크박스 본체는 숨김 */
 }
 
 .input-group {
