@@ -1,10 +1,14 @@
 #completionModal.modal-overlay {
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 .completion-container {
     width: 95%;
-    max-width: 1200px;
+    max-width: 1400px;
     background: var(--bg-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -71,12 +75,20 @@
 }
 
 .completion-panel-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+    background: var(--bg-color);
+}
+
+.completion-form-side {
     display: flex;
     flex-direction: column;
     padding: 30px;
     overflow-y: auto;
-    gap: 30px;
-    background: var(--bg-color);
+    gap: 25px;
+    border-right: 1px solid var(--border-color);
 }
 
 .comp-section {
