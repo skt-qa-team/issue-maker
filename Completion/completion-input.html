@@ -19,33 +19,19 @@
     <div class="completion-panel-body">
         <div class="setting-box completion-form-side">
             <div class="form-group mb-4">
-                <label class="form-label-accent">■ 현상 check</label>
-                <textarea id="comp_check" class="form-control comp-check-textarea template-trigger" placeholder="확인 내용을 상세히 입력하세요"></textarea>
-            </div>
-
-            <div class="form-group mb-4">
-                <label class="form-label-sm">■ PoC</label>
-                <select id="comp_poc" class="form-control font-bold template-trigger">
-                    <option value="T 멤버십">T 멤버십</option>
-                    <option value="에이닷">에이닷</option>
-                    <option value="PC Web">PC Web</option>
-                    <option value="AI Layer">AI Layer</option>
-                    <option value="Admin">Admin</option>
-                </select>
-            </div>
-
-            <div class="form-group mb-4" id="comp_device_group">
-                <label class="form-label-sm">■ Device (OS Ver.)</label>
-                <div id="comp_device_area" class="comp-device-scroll border-box radius-md p-2">
-                    <div id="comp_and_section">
-                        <div class="text-accent-green mb-1 text-sm font-bold">Android</div>
-                        <div id="comp_and_list" class="pill-group mb-2"></div>
-                    </div>
-                    <div id="comp_ios_section">
-                        <div class="text-accent-blue mb-1 text-sm font-bold">iOS</div>
-                        <div id="comp_ios_list" class="pill-group"></div>
+                <div class="label-action-row">
+                    <label class="form-label-accent">■ 현상 check</label>
+                    <div class="case-ctrl-row">
+                        <button class="btn-case-main btn-add-case" data-target="comp_check">CASE +</button>
+                        <div class="case-num-group">
+                            <span class="btn-apply-preset" data-target="comp_check" data-preset="1">1</span>
+                            <span class="btn-apply-preset" data-target="comp_check" data-preset="2">2</span>
+                            <span class="btn-apply-preset" data-target="comp_check" data-preset="3">3</span>
+                            <span class="btn-apply-preset" data-target="comp_check" data-preset="4">4</span>
+                        </div>
                     </div>
                 </div>
+                <textarea id="comp_check" class="form-control comp-check-textarea template-trigger" placeholder="확인 내용을 상세히 입력하세요"></textarea>
             </div>
 
             <div class="grid-2 mb-4">
@@ -78,7 +64,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-4">
                 <label class="form-label-sm">■ 모드</label>
                 <select id="comp_mode" class="form-control template-trigger">
                     <option value="일반 모드">일반 모드</option>
@@ -87,6 +73,20 @@
                     <option value="A Bucket">A Bucket</option>
                     <option value="B Bucket">B Bucket</option>
                 </select>
+            </div>
+
+            <div class="form-group" id="comp_device_group">
+                <label class="form-label-sm">■ Device (OS Ver.)</label>
+                <div id="comp_device_area" class="comp-device-scroll border-box radius-md p-2">
+                    <div id="comp_and_section">
+                        <div class="text-accent-green mb-1 text-sm font-bold">Android</div>
+                        <div id="comp_and_list" class="pill-group mb-2"></div>
+                    </div>
+                    <div id="comp_ios_section">
+                        <div class="text-accent-blue mb-1 text-sm font-bold">iOS</div>
+                        <div id="comp_ios_list" class="pill-group"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
