@@ -66,7 +66,7 @@ window.updateCompletionPreview = () => {
         }
 
         if (data.check && String(data.check).trim() !== '') {
-            result.push(`■ 현상 check :\n${data.check}`);
+            result.push(`■ 현상 check : ${data.check}`);
         }
 
         previewNode.value = result.join('\n');
