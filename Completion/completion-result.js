@@ -22,31 +22,47 @@ window.updateCompletionPreview = () => {
     
     let result = [];
 
-    const deviceString = data.devices.length > 0 ? data.devices.join(' / ') : '-';
-    result.push(`■ Device : ${deviceString}`);
+    if (data.devices && data.devices.length > 0) {
+        result.push(`■ Device : ${data.devices.join(' / ')}`);
+    }
 
-    let versions = [];
-    data.versions.forEach(v => {
+    if (data.versions && data.versions.length > 0) {
+        let versions = [];
         const cfg = window.compDataCache || {};
-        if (v === 'Android') versions.push(`App Tester_${cfg.andAppTester || ''}`);
-        else if (v === 'iOS') versions.push(`TestFlight_${cfg.iosTestFlight || ''}`);
-        else if (v === '삼성인터넷') versions.push(`삼성인터넷_${cfg.samsungBrowser || ''}`);
-        else if (v === 'Safari') versions.push(`Safari_${cfg.safariBrowser || ''}`);
-        else if (v === 'Chrome') versions.push(`Chrome_${cfg.chromeBrowser || ''}`);
-        else if (v === 'Edge') versions.push(`Edge_${cfg.edgeBrowser || ''}`);
-    });
-    result.push(`■ 버전 : ${versions.join(' / ') || '-'}`);
+        data.versions.forEach(v => {
+            if (v === 'Android') versions.push(`App Tester_${cfg.andAppTester || ''}`);
+            else if (v === 'iOS') versions.push(`TestFlight_${cfg.iosTestFlight || ''}`);
+            else if (v === '삼성인터넷') versions.push(`삼성인터넷_${cfg.samsungBrowser || ''}`);
+            else if (v === 'Safari') versions.push(`Safari_${cfg.safariBrowser || ''}`);
+            else if (v === 'Chrome') versions.push(`Chrome_${cfg.chromeBrowser || ''}`);
+            else if (v === 'Edge') versions.push(`Edge_${cfg.edgeBrowser || ''}`);
+        });
+        result.push(`■ 버전 : ${versions.join(' / ')}`);
+    }
 
-    result.push(`■ 서버 : ${data.servers.join(' / ') || '-'}`);
+    if (data.servers && data.servers.length > 0) {
+        result.push(`■ 서버 : ${data.servers.join(' / ')}`);
+    }
 
-    result.push(`■ 재현율 : ${data.rate || 0} / 10`);
+    if (data.rate && data.rate.toString().trim() !== '') {
+        result.push(`■ 재현율 : ${data.rate} / 10`);
+    }
 
-    result.push(`■ Admin URL : ${data.adminUrl || '-'}`);
-    result.push(`■ PC URL : ${data.pcUrl || '-'}`);
+    if (data.adminUrl && data.adminUrl.trim() !== '') {
+        result.push(`■ Admin URL : ${data.adminUrl}`);
+    }
 
-    result.push(`■ 모드 : ${data.mode || '-'}`);
+    if (data.pcUrl && data.pcUrl.trim() !== '') {
+        result.push(`■ PC URL : ${data.pcUrl}`);
+    }
 
-    result.push(`■ 현상 check : ${data.check}`);
+    if (data.mode && data.mode.trim() !== '') {
+        result.push(`■ 모드 : ${data.mode}`);
+    }
+
+    if (data.check && data.check.trim() !== '') {
+        result.push(`■ 현상 check :\n${data.check}`);
+    }
 
     previewNode.value = result.join('\n');
 };
