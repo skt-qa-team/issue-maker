@@ -38,6 +38,15 @@ document.addEventListener('componentsLoaded', () => {
     window.fetchSchedulesFromFirebase();
     window.renderCalendar();
 
+    // 창 크기 조절 시 일정 바 너비 재계산 (디바운스 적용)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            window.updateScheduleWidths();
+        }, 100);
+    });
+
     calContainer.addEventListener('click', (e) => {
         const target = e.target;
         if (target.id === 'btn-prev-month') window.changeMonth(-1);
@@ -93,6 +102,32 @@ document.addEventListener('componentsLoaded', () => {
         });
     }
 });
+
+// 일정 바 너비를 동적으로 계산하고 적용하는 함수
+window.updateScheduleWidths = () => {
+    const grid = document.getElementById('cal-grid');
+    if (!grid) return;
+
+    // 기준이 될 첫 번째 칸의 너비를 측정
+    const sampleDay = grid.querySelector('.cal-day');
+    if (!sampleDay) return;
+    
+    // getBoundingClientRect()를 사용하여 소수점까지 정확한 너비 확보
+    const cellWidth = sampleDay.getBoundingClientRect().width;
+    const gapWidth = 2; // cal-grid의 gap 속성값
+    
+    const spanHeads = document.querySelectorAll('.cal-schedule.span-head');
+    spanHeads.forEach(head => {
+        const span = parseInt(head.dataset.span || 1);
+        if (span > 1) {
+            // (칸 너비 * 걸치는 칸 수) + (간격 너비 * (걸치는 칸 수 - 1)) - (좌우 여백)
+            const totalWidth = (cellWidth * span) + (gapWidth * (span - 1)) - 16;
+            head.style.width = `${totalWidth}px`;
+        } else {
+            head.style.width = 'calc(100% - 16px)'; // 단일 일정은 CSS 100% 사용
+        }
+    });
+};
 
 window.renderCalendar = () => {
     const grid = document.getElementById('cal-grid');
@@ -179,8 +214,6 @@ window.renderCalendar = () => {
         const cell = document.createElement('div');
         cell.className = `cal-day ${wd.type}`;
         cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
-        
-        // 날짜가 앞설수록 무조건 더 높은 z-index를 부여하여 뒷 날짜가 앞 날짜의 일정을 덮지 못하게 함
         cell.style.zIndex = 100 - idx; 
 
         const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
@@ -211,7 +244,10 @@ window.renderCalendar = () => {
                         const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
                         schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
                         schDiv.style.setProperty('--sch-bg', item.sch.color);
-                        schDiv.style.setProperty('--sch-span', item.span);
+                        
+                        // CSS의 calc() 대신 JS에서 데이터로 저장 후 연산
+                        schDiv.dataset.span = item.span; 
+                        
                         schDiv.textContent = item.sch.title;
                     } else { 
                         schDiv.className = 'cal-schedule spacer'; 
@@ -225,6 +261,12 @@ window.renderCalendar = () => {
         cell.appendChild(schContainer);
         grid.appendChild(cell);
     });
+
+    // 캘린더 렌더링 직후 너비 강제 동기화
+    // setTimeout을 사용하여 DOM 그리기 완료 후 계산되도록 보장
+    setTimeout(() => {
+        window.updateScheduleWidths();
+    }, 0);
 };
 
 window.changeMonth = (offset) => { 
