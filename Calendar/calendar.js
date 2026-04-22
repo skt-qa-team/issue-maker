@@ -123,15 +123,19 @@ window.renderCalendar = () => {
         allDays.push({ year, month: month + 1, day: i, type: 'dimmed' });
     }
 
-    const laneMap = new Map();
     const sortedSchedules = [...window.calSchedules].sort((a, b) => new Date(a.start) - new Date(b.start));
 
     for (let w = 0; w < 6; w++) {
+        const weekRow = document.createElement('div');
+        weekRow.className = 'cal-week';
+        
         const weekDays = allDays.slice(w * 7, (w + 1) * 7);
         const firstDayOfWeek = getCalDateStr(weekDays[0].year, weekDays[0].month, weekDays[0].day);
         const lastDayOfWeek = getCalDateStr(weekDays[6].year, weekDays[6].month, weekDays[6].day);
         const weekSchedules = sortedSchedules.filter(s => s.start <= lastDayOfWeek && s.end >= firstDayOfWeek);
+        
         const lanes = [];
+        const weekLaneMap = new Map();
 
         weekSchedules.forEach(sch => {
             let laneIndex = 0;
@@ -149,7 +153,7 @@ window.renderCalendar = () => {
                 const isNonWorkDay = (dayIdx === 0 || dayIdx === 6 || holidays[keyMMDD]);
 
                 if (sch.start <= dateStr && sch.end >= dateStr) {
-                    if (!laneMap.has(dateStr)) laneMap.set(dateStr, []);
+                    if (!weekLaneMap.has(dateStr)) weekLaneMap.set(dateStr, []);
                     let isHead = false; 
                     let span = 0;
 
@@ -169,62 +173,60 @@ window.renderCalendar = () => {
                     } else {
                         isHeadAssigned = false;
                     }
-                    laneMap.get(dateStr)[laneIndex] = { sch, isHead, span };
+                    weekLaneMap.get(dateStr)[laneIndex] = { sch, isHead, span };
                 }
             });
         });
-    }
 
-    allDays.forEach((wd, idx) => {
-        const cell = document.createElement('div');
-        cell.className = `cal-day ${wd.type}`;
-        cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
-        
-        // 날짜가 앞설수록 무조건 더 높은 z-index를 부여하여 뒷 날짜가 앞 날짜의 일정을 덮지 못하게 함
-        cell.style.zIndex = 100 - idx; 
+        weekDays.forEach((wd, dayIdx) => {
+            const cell = document.createElement('div');
+            cell.className = `cal-day ${wd.type}`;
+            cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
+            
+            const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
+            const dateObj = new Date(wd.year, wd.month, wd.day);
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            const keyMMDD = `${mm}-${dd}`;
 
-        const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
-        const dateObj = new Date(wd.year, wd.month, wd.day);
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        const keyMMDD = `${mm}-${dd}`;
+            if (dayIdx === 0 || holidays[keyMMDD]) cell.classList.add('sun');
+            else if (dayIdx === 6) cell.classList.add('sat');
 
-        if (idx % 7 === 0 || holidays[keyMMDD]) cell.classList.add('sun');
-        else if (idx % 7 === 6) cell.classList.add('sat');
+            const dayNumDiv = document.createElement('div');
+            dayNumDiv.className = 'day-number';
+            dayNumDiv.innerHTML = `${dateObj.getDate()}${ holidays[keyMMDD] ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
+            cell.appendChild(dayNumDiv);
 
-        const dayNumDiv = document.createElement('div');
-        dayNumDiv.className = 'day-number';
-        dayNumDiv.innerHTML = `${dateObj.getDate()}${ holidays[keyMMDD] ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
-        cell.appendChild(dayNumDiv);
-
-        const schContainer = document.createElement('div');
-        schContainer.className = 'sch-container';
-        
-        if (wd.type !== 'dimmed') {
-            const dayLanes = laneMap.get(dateStr) || [];
-            for (let l = 0; l < dayLanes.length; l++) {
-                const item = dayLanes[l];
-                const schDiv = document.createElement('div');
-                if (item) {
-                    schDiv.dataset.schId = item.sch.id;
-                    if (item.isHead) {
-                        const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
-                        schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
-                        schDiv.style.setProperty('--sch-bg', item.sch.color);
-                        schDiv.style.setProperty('--sch-span', item.span);
-                        schDiv.textContent = item.sch.title;
-                    } else { 
-                        schDiv.className = 'cal-schedule spacer'; 
+            const schContainer = document.createElement('div');
+            schContainer.className = 'sch-container';
+            
+            if (wd.type !== 'dimmed') {
+                const dayLanes = weekLaneMap.get(dateStr) || [];
+                for (let l = 0; l < dayLanes.length; l++) {
+                    const item = dayLanes[l];
+                    const schDiv = document.createElement('div');
+                    if (item) {
+                        schDiv.dataset.schId = item.sch.id;
+                        if (item.isHead) {
+                            const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
+                            schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
+                            schDiv.style.setProperty('--sch-bg', item.sch.color);
+                            schDiv.style.setProperty('--sch-span', item.span);
+                            schDiv.textContent = item.sch.title;
+                        } else { 
+                            schDiv.className = 'cal-schedule spacer'; 
+                        }
+                    } else {
+                        schDiv.className = 'cal-schedule spacer none';
                     }
-                } else {
-                    schDiv.className = 'cal-schedule spacer none';
+                    schContainer.appendChild(schDiv);
                 }
-                schContainer.appendChild(schDiv);
             }
-        }
-        cell.appendChild(schContainer);
-        grid.appendChild(cell);
-    });
+            cell.appendChild(schContainer);
+            weekRow.appendChild(cell);
+        });
+        grid.appendChild(weekRow);
+    }
 };
 
 window.changeMonth = (offset) => { 
