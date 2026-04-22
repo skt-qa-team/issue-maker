@@ -21,8 +21,8 @@
 }
 
 .modal-kpi {
-    max-width: 1600px;
-    width: 98vw;
+    max-width: 2400px;
+    width: 96vw;
     height: 90vh;
     background: var(--panel-bg);
     border-radius: var(--radius-lg);
@@ -53,11 +53,11 @@
     display: flex;
     flex: 1;
     overflow: hidden;
-    gap: 24px;
+    gap: 30px;
 }
 
 .kpi-main-box {
-    flex: 1.2;
+    flex: 1.5;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -250,6 +250,8 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     margin-bottom: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tc-input-item {
@@ -277,7 +279,7 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 0 0 170px;
+    flex: 0 0 140px;
 }
 
 .tc-poc:focus {
@@ -295,8 +297,8 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 1;
-    min-width: 250px;
+    flex: 1.5;
+    min-width: 150px;
 }
 
 .tc-name:focus {
@@ -314,7 +316,8 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 0 0 200px;
+    flex: 1;
+    min-width: 120px;
 }
 
 .tc-ticket:focus {
@@ -332,7 +335,7 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 0 0 120px;
+    flex: 0 0 100px;
 }
 
 .tc-total:focus {
@@ -367,6 +370,7 @@
     resize: vertical;
     outline: none;
     transition: var(--transition-fast);
+    box-sizing: border-box;
 }
 
 .kpi-textarea-md:focus {
@@ -386,6 +390,7 @@
     resize: none;
     outline: none;
     font-family: 'JetBrains Mono', monospace;
+    box-sizing: border-box;
 }
 
 .kpi-preview-side {
