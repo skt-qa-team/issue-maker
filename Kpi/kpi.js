@@ -71,16 +71,28 @@ function addTcRow(data = {}) {
     const isChecked = data.isTwoDev ? 'checked' : '';
 
     row.innerHTML = `
-        <select class="tc-poc kpi-input" onchange="generateKPI()">
-            ${pocOptions}
-        </select>
-        <input type="text" class="tc-name kpi-input" placeholder="티켓 이름" value="${data.name || ''}" oninput="generateKPI()">
-        <input type="text" class="tc-ticket kpi-input" placeholder="티켓 번호" value="${data.ticket || ''}" oninput="generateKPI()">
-        <input type="number" class="tc-total kpi-input" placeholder="건수" value="${data.total || ''}" min="0" oninput="generateKPI()">
-        <label class="tc-devices-label">
-            <input type="checkbox" class="tc-devices" onchange="generateKPI()" ${isChecked}> 단말 2대
-        </label>
-        <button class="btn-remove" onclick="removeTcRow(this)">삭제</button>
+        <div class="tc-input-item">
+            <select class="tc-poc" onchange="generateKPI()">
+                ${pocOptions}
+            </select>
+        </div>
+        <div class="tc-input-item" style="flex:1;">
+            <input type="text" class="tc-name" placeholder="티켓 이름" value="${data.name || ''}" oninput="generateKPI()">
+        </div>
+        <div class="tc-input-item">
+            <input type="text" class="tc-ticket" placeholder="티켓 번호" value="${data.ticket || ''}" oninput="generateKPI()">
+        </div>
+        <div class="tc-input-item">
+            <input type="number" class="tc-total" placeholder="건수" value="${data.total || ''}" min="0" oninput="generateKPI()">
+        </div>
+        <div class="tc-input-item tc-devices-label" style="min-width: 80px;">
+            <label style="display:flex; align-items:center; gap:5px; font-weight:normal; width:auto; text-align:left;">
+                <input type="checkbox" class="tc-devices" onchange="generateKPI()" ${isChecked}> 단말 2대
+            </label>
+        </div>
+        <div class="tc-actions">
+            <button class="btn-tc-del" onclick="removeTcRow(this)">🗑️</button>
+        </div>
     `;
     container.appendChild(row);
     generateKPI();
