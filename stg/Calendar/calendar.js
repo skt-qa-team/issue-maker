@@ -75,14 +75,14 @@ window.renderCalendar = () => {
     grid.innerHTML = '';
     const allDays = [];
     for (let i = firstDayIndex; i > 0; i--) {
-        allDays.push({ year, month: month - 1, day: prevLastDay - i + 1, type: 'empty' });
+        allDays.push({ year, month: month - 1, day: prevLastDay - i + 1, type: 'dimmed' });
     }
     for (let i = 1; i <= lastDay; i++) {
         allDays.push({ year, month: month, day: i, type: 'current' });
     }
     const remain = 42 - allDays.length;
     for (let i = 1; i <= remain; i++) {
-        allDays.push({ year, month: month + 1, day: i, type: 'empty' });
+        allDays.push({ year, month: month + 1, day: i, type: 'dimmed' });
     }
 
     const laneMap = new Map();
@@ -145,7 +145,6 @@ window.renderCalendar = () => {
         const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
         const dd = String(dateObj.getDate()).padStart(2, '0');
         const keyMMDD = `${mm}-${dd}`;
-        const isNonWorkDay = (idx % 7 === 0 || idx % 7 === 6 || holidays[keyMMDD]);
 
         if (idx % 7 === 0 || holidays[keyMMDD]) cell.classList.add('sun');
         else if (idx % 7 === 6) cell.classList.add('sat');
@@ -155,25 +154,28 @@ window.renderCalendar = () => {
         dayNumDiv.innerHTML = `${dateObj.getDate()}${ holidays[keyMMDD] ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
         cell.appendChild(dayNumDiv);
 
-        const schContainer = document.createElement('div');
-        schContainer.className = 'sch-container';
-        const dayLanes = laneMap.get(dateStr) || [];
-        for (let l = 0; l < dayLanes.length; l++) {
-            const item = dayLanes[l];
-            const schDiv = document.createElement('div');
-            if (item && item.isHead && !isNonWorkDay) {
-                const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
-                schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
-                schDiv.style.setProperty('--sch-bg', item.sch.color);
-                schDiv.style.setProperty('--sch-span', item.span);
-                schDiv.dataset.schId = item.sch.id;
-                schDiv.textContent = item.sch.title;
-            } else { 
-                schDiv.className = 'cal-schedule spacer'; 
+        if (wd.type !== 'dimmed') {
+            const schContainer = document.createElement('div');
+            schContainer.className = 'sch-container';
+            const dayLanes = laneMap.get(dateStr) || [];
+            for (let l = 0; l < dayLanes.length; l++) {
+                const item = dayLanes[l];
+                const schDiv = document.createElement('div');
+                if (item && item.isHead) {
+                    const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
+                    schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
+                    schDiv.style.setProperty('--sch-bg', item.sch.color);
+                    schDiv.style.setProperty('--sch-span', item.span);
+                    schDiv.dataset.schId = item.sch.id;
+                    schDiv.textContent = item.sch.title;
+                } else { 
+                    schDiv.className = 'cal-schedule spacer'; 
+                }
+                schContainer.appendChild(schDiv);
             }
-            schContainer.appendChild(schDiv);
+            cell.appendChild(schContainer);
         }
-        cell.appendChild(schContainer);
+        
         grid.appendChild(cell);
     });
 };
