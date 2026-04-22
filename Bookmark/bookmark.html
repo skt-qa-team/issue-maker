@@ -8,7 +8,13 @@
             <button class="close-btn bm-close-btn" onclick="closeBookmarkModal()">×</button>
         </div>
         <div class="bm-body">
-            <div class="bm-sidebar" id="bm_folder_list"></div>
+            <div class="bm-sidebar">
+                <div class="bm-sidebar-actions">
+                    <button class="bm-sidebar-btn" onclick="addNewFolder()">+ 폴더 추가</button>
+                    <button class="bm-sidebar-btn" onclick="openAddForm()">+ 링크 추가</button>
+                </div>
+                <div id="bm_folder_list" class="bm-folder-tree"></div>
+            </div>
             <div class="bm-main">
                 <div class="bm-add-link-form d-none" id="bm_add_form">
                     <h4 id="bm_form_title" class="bm-form-title">🔗 링크 추가</h4>
@@ -21,7 +27,6 @@
                 </div>
                 <div class="bm-folder-header">
                     <h3 id="bm_current_folder_title" class="bm-current-folder-title">📂 폴더를 선택하세요</h3>
-                    <button class="bm-btn-add-inline" onclick="openAddForm()">+ 링크 추가</button>
                 </div>
                 <div id="bm_link_list" class="bm-link-list"></div>
             </div>
