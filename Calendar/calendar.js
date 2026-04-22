@@ -154,9 +154,10 @@ window.renderCalendar = () => {
         dayNumDiv.innerHTML = `${dateObj.getDate()}${ holidays[keyMMDD] ? `<span class="holiday-label">${holidays[keyMMDD]}</span>` : '' }`;
         cell.appendChild(dayNumDiv);
 
+        const schContainer = document.createElement('div');
+        schContainer.className = 'sch-container';
+        
         if (wd.type !== 'dimmed') {
-            const schContainer = document.createElement('div');
-            schContainer.className = 'sch-container';
             const dayLanes = laneMap.get(dateStr) || [];
             for (let l = 0; l < dayLanes.length; l++) {
                 const item = dayLanes[l];
@@ -173,9 +174,8 @@ window.renderCalendar = () => {
                 }
                 schContainer.appendChild(schDiv);
             }
-            cell.appendChild(schContainer);
         }
-        
+        cell.appendChild(schContainer);
         grid.appendChild(cell);
     });
 };
