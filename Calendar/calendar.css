@@ -121,15 +121,12 @@
     position: relative;
     overflow: visible;
     transition: background-color 0.15s ease, border-color 0.15s ease;
-    z-index: 1;
 }
 
-/* 입체 효과 제거, 평면적인 색상 변화만 유지 */
 .cal-day:hover,
 .cal-day.highlight-range {
     background-color: #ffffff;
     border-color: #0071e3;
-    z-index: 5;
 }
 
 .cal-day.dimmed {
@@ -223,7 +220,6 @@
     z-index: 20;
     background-color: var(--sch-bg);
     width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 2px) - 16px); 
-    border: 1px solid rgba(0,0,0,0.1);
 }
 
 .cal-schedule.is-past {
@@ -237,9 +233,7 @@
     visibility: hidden;
 }
 
-/* 일정 바 호버 시 입체 효과 제거, 밝기만 조절 */
 .cal-schedule:hover,
 .cal-schedule.sch-active {
     filter: brightness(1.15) !important;
-    z-index: 30 !important;
 }
