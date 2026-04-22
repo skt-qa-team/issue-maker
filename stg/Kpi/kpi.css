@@ -21,8 +21,8 @@
 }
 
 .modal-kpi {
-    max-width: 1500px;
-    width: 96vw;
+    max-width: 1600px;
+    width: 98vw;
     height: 90vh;
     background: var(--panel-bg);
     border-radius: var(--radius-lg);
@@ -137,8 +137,8 @@
 }
 
 .kpi-input-style {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -159,29 +159,32 @@
     gap: 12px;
     margin-bottom: 15px;
     background: var(--bg-color);
-    padding: 20px;
+    padding: 20px 25px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
+    max-width: 100% !important;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kpi-form-input-group {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     align-items: center;
 }
 
 .kpi-defect-label {
     flex-shrink: 0;
-    width: 100px;
+    width: 120px;
     text-align: right;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--text-main);
 }
 
 .kpi-defect-input {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -239,14 +242,14 @@
 
 .tc-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
+    gap: 15px;
     align-items: center;
     background: var(--bg-color);
-    padding: 12px 15px;
+    padding: 15px 20px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .tc-input-item {
@@ -261,11 +264,12 @@
     text-align: right;
     font-weight: 600;
     color: var(--text-main);
+    font-size: 1.05rem;
 }
 
 .tc-poc {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -273,7 +277,7 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 0 0 150px;
+    flex: 0 0 170px;
 }
 
 .tc-poc:focus {
@@ -282,8 +286,8 @@
 }
 
 .tc-name {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -301,8 +305,8 @@
 }
 
 .tc-ticket {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -310,7 +314,7 @@
     background: var(--panel-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    flex: 0 0 180px;
+    flex: 0 0 200px;
 }
 
 .tc-ticket:focus {
@@ -319,8 +323,8 @@
 }
 
 .tc-total {
-    padding: 12px;
-    font-size: 1rem;
+    padding: 14px;
+    font-size: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     outline: none;
@@ -341,9 +345,10 @@
     border: none;
     cursor: pointer;
     color: var(--text-sub);
-    padding: 6px;
+    padding: 8px;
     border-radius: var(--radius-sm);
     transition: var(--transition-fast);
+    font-size: 1.2rem;
 }
 
 .tc-actions .btn-tc-del:hover {
