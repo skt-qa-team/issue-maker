@@ -57,69 +57,62 @@ document.addEventListener('componentsLoaded', () => {
 
     const grid = document.getElementById('cal-grid');
     if (grid) {
-        let hoverTimeout = null;
         let activeSchId = null;
 
-        grid.addEventListener('mouseover', (e) => {
-            try {
-                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                if (schItem) {
-                    const schId = schItem.dataset.schId;
-                    if (activeSchId !== schId) {
-                        grid.querySelectorAll('.cal-day').forEach(el => {
-                            el.classList.remove('highlight-range');
-                            el.style.zIndex = '';
-                        });
-                        
-                        const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
-                        let zIndexCounter = 50;
-                        
-                        relatedSchedules.forEach(el => {
-                            const parentDay = el.closest('.cal-day');
-                            if (parentDay) {
-                                parentDay.style.zIndex = zIndexCounter;
-                                if (!parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
-                                    parentDay.classList.add('highlight-range');
-                                }
+        // Pointer events for more stable state tracking
+        grid.addEventListener('pointerover', (e) => {
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            
+            if (schItem) {
+                const schId = schItem.dataset.schId;
+                
+                // Only process if entering a NEW schedule ID
+                if (activeSchId !== schId) {
+                    activeSchId = schId;
+                    
+                    // Add a class to prevent normal cell hover while hovering a schedule
+                    grid.querySelectorAll('.cal-day').forEach(d => d.classList.add('is-schedule-hovered'));
+                    
+                    const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
+                    let zIndexCounter = 50;
+                    
+                    relatedSchedules.forEach(el => {
+                        el.classList.add('sch-active');
+                        const parentDay = el.closest('.cal-day');
+                        if (parentDay) {
+                            parentDay.style.zIndex = zIndexCounter;
+                            if (!parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
+                                parentDay.classList.add('highlight-range');
                             }
-                            zIndexCounter--;
-                        });
-                        activeSchId = schId;
-                    }
-                    if (hoverTimeout) {
-                        clearTimeout(hoverTimeout);
-                        hoverTimeout = null;
-                    }
+                        }
+                        zIndexCounter--;
+                    });
                 }
-            } catch (error) {
-                console.error("[Calendar Error] mouseover 이벤트 처리 중 에러:", error);
             }
         });
 
-        grid.addEventListener('mouseout', (e) => {
-            try {
-                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                if (schItem) {
-                    const schId = schItem.dataset.schId;
-                    const relatedTarget = e.relatedTarget;
-                    
-                    if (relatedTarget) {
-                        const nextSchItem = relatedTarget.closest('.cal-schedule[data-sch-id]');
-                        if (nextSchItem && nextSchItem.dataset.schId === schId) {
-                            return;
-                        }
-                    }
+        grid.addEventListener('pointerout', (e) => {
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            
+            if (schItem) {
+                const relatedTarget = e.relatedTarget;
+                const isStillSameSchedule = relatedTarget && 
+                                            relatedTarget.closest('.cal-schedule') && 
+                                            relatedTarget.closest('.cal-schedule').dataset.schId === activeSchId;
 
-                    hoverTimeout = setTimeout(() => {
-                        grid.querySelectorAll('.cal-day').forEach(el => {
-                            el.classList.remove('highlight-range');
-                            el.style.zIndex = '';
-                        });
-                        activeSchId = null;
-                    }, 10);
+                // If moving outside the current schedule entirely
+                if (!isStillSameSchedule) {
+                    activeSchId = null;
+                    
+                    // Clean up all hover states
+                    grid.querySelectorAll('.cal-day').forEach(el => {
+                        el.classList.remove('is-schedule-hovered', 'highlight-range');
+                        el.style.zIndex = '';
+                    });
+                    grid.querySelectorAll('.cal-schedule.sch-active').forEach(el => {
+                        el.classList.remove('sch-active');
+                    });
                 }
-            } catch (error) {
-                console.error("[Calendar Error] mouseout 이벤트 처리 중 에러:", error);
             }
         });
     }
