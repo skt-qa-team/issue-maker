@@ -120,17 +120,16 @@
     cursor: pointer;
     position: relative;
     overflow: visible;
-    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-    z-index: auto;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    z-index: 1;
 }
 
-.cal-day:not(.is-schedule-hovered):hover,
+/* 입체 효과 제거, 평면적인 색상 변화만 유지 */
+.cal-day:hover,
 .cal-day.highlight-range {
     background-color: #ffffff;
-    transform: translateY(-4px);
     border-color: #0071e3;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    z-index: 5;
 }
 
 .cal-day.dimmed {
@@ -194,7 +193,7 @@
     margin-top: -2px;
     overflow: visible;
     position: relative;
-    z-index: 100;
+    z-index: 10;
     pointer-events: none;
 }
 
@@ -207,7 +206,7 @@
     white-space: nowrap;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: filter 0.15s ease;
     box-sizing: border-box;
     text-align: center;
     overflow: hidden;
@@ -221,17 +220,15 @@
     margin-left: 8px;
     margin-right: -1000px;
     border-radius: 8px;
-    z-index: 100;
+    z-index: 20;
     background-color: var(--sch-bg);
     width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 2px) - 16px); 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     border: 1px solid rgba(0,0,0,0.1);
 }
 
 .cal-schedule.is-past {
     filter: grayscale(0.6) brightness(0.8);
     opacity: 0.5;
-    box-shadow: none;
 }
 
 .cal-schedule.spacer {
@@ -240,8 +237,9 @@
     visibility: hidden;
 }
 
+/* 일정 바 호버 시 입체 효과 제거, 밝기만 조절 */
+.cal-schedule:hover,
 .cal-schedule.sch-active {
     filter: brightness(1.15) !important;
-    transform: translateY(-1px);
-    z-index: 200 !important;
+    z-index: 30 !important;
 }
