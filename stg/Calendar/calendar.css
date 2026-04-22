@@ -3,6 +3,7 @@
     min-height: 700px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .cal-wrapper {
@@ -16,6 +17,7 @@
     padding: 30px;
     box-sizing: border-box;
     min-height: 0;
+    min-width: 0;
 }
 
 .cal-header {
@@ -70,6 +72,7 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+    min-width: 0;
 }
 
 .cal-weekdays {
@@ -83,6 +86,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     flex-shrink: 0;
+    min-width: 0;
 }
 
 .cal-grid {
@@ -97,6 +101,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 5px;
+    min-width: 0;
 }
 
 .cal-grid::-webkit-scrollbar {
@@ -121,6 +126,8 @@
     position: relative;
     overflow: visible;
     transition: background-color 0.15s ease, border-color 0.15s ease;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .cal-day:hover,
@@ -149,6 +156,7 @@
     z-index: 2;
     gap: 8px;
     pointer-events: none;
+    min-width: 0;
 }
 
 .holiday-label {
@@ -156,6 +164,8 @@
     color: #ff3b30;
     font-weight: 700;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cal-day.sun .day-number { color: #ff3b30; }
@@ -192,6 +202,7 @@
     position: relative;
     z-index: 10;
     pointer-events: none;
+    min-width: 0;
 }
 
 .cal-schedule {
@@ -210,6 +221,7 @@
     text-overflow: ellipsis;
     border-radius: 6px;
     pointer-events: auto;
+    min-width: 0;
 }
 
 .cal-schedule.span-head {
