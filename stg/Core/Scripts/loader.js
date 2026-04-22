@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'calendar-placeholder', url: 'Calendar/calendar.html' },
         { id: 'completion-panel-placeholder', url: 'Completion/completion-input.html' },
         { id: 'condition-modal-placeholder', url: 'Condition/condition.html' },
-        { id: 'history-modal-placeholder', url: 'History/history.html' },
         { id: 'kpi-modal-placeholder', url: 'Kpi/kpi.html' },
         { id: 'theme-modal-placeholder', url: 'Theme/theme.html' },
         { id: 'setting-modal-placeholder', url: 'Setting/setting.html' },
