@@ -99,7 +99,6 @@
     min-width: 0;
 }
 
-/* [추가] 주 단위 행 컨테이너 */
 .cal-week {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -137,7 +136,7 @@
 .cal-day.highlight-range {
     background-color: #ffffff;
     border-color: #0071e3;
-    z-index: 5;
+    /* [수정] JS에서 부여한 역순 z-index(100-idx)를 방해하지 않도록 명시적 z-index 설정 삭제 */
 }
 
 .cal-day.dimmed {
@@ -231,7 +230,6 @@
     border-radius: 8px;
     z-index: 20;
     background-color: var(--sch-bg);
-    /* 100% 기준으로 span만큼 확장되는 calc 수식 */
     width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 2px) - 16px); 
 }
 
