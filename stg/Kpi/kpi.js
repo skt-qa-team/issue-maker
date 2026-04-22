@@ -136,9 +136,9 @@ function generateKPI() {
         if (prevAvgStr !== '') {
             const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
-            const absDiff = Math.abs(diff).toFixed(1);
+            const absDiff = parseFloat(Math.abs(diff).toFixed(1));
             let diffText = diff > 0 ? `${absDiff}개 상승` : (diff < 0 ? `${absDiff}개 하락` : '동일');
-            report += `\n전월 팀 평균 Defect 검출 갯수 : ${prevAvg.toFixed(1)}개 (${diffText})\n`;
+            report += `\n전월 팀 평균 Defect 검출 갯수 : ${parseFloat(prevAvg.toFixed(1))}개 (${diffText})\n`;
         }
 
         report += `\nTC 수행 업무\n`;
@@ -212,7 +212,7 @@ function generateNarrativeReport() {
         if (prevAvgStr !== '') {
             const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
-            const absDiff = Math.abs(diff).toFixed(1);
+            const absDiff = parseFloat(Math.abs(diff).toFixed(1));
             if (diff > 0) defectText += `하며 전월 팀 평균 대비 ${absDiff}개 높은 성과를 달성했습니다. `;
             else if (diff < 0) defectText += `하여 전월 팀 평균 대비 ${absDiff}개 낮은 수치를 기록했습니다. `;
             else defectText += `하여 전월 팀 평균과 동일한 성과를 달성했습니다. `;
