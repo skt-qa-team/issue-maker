@@ -62,9 +62,17 @@ document.addEventListener('componentsLoaded', () => {
             if (schItem) {
                 const schId = schItem.dataset.schId;
                 const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
+                let zIndexCounter = 50;
+                
                 relatedSchedules.forEach(el => {
                     const parentDay = el.closest('.cal-day');
-                    if (parentDay) parentDay.classList.add('highlight-range');
+                    if (parentDay) {
+                        parentDay.style.zIndex = zIndexCounter;
+                        if (!parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
+                            parentDay.classList.add('highlight-range');
+                        }
+                    }
+                    zIndexCounter--;
                 });
             }
         });
@@ -72,7 +80,10 @@ document.addEventListener('componentsLoaded', () => {
         grid.addEventListener('mouseout', (e) => {
             const schItem = e.target.closest('.cal-schedule[data-sch-id]');
             if (schItem) {
-                grid.querySelectorAll('.cal-day.highlight-range').forEach(el => el.classList.remove('highlight-range'));
+                grid.querySelectorAll('.cal-day').forEach(el => {
+                    el.classList.remove('highlight-range');
+                    el.style.zIndex = '';
+                });
             }
         });
     }
