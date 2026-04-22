@@ -46,7 +46,7 @@ document.addEventListener('componentsLoaded', () => {
         if (target.id === 'btn-add-schedule') {
             if (typeof window.openScheduleModal === 'function') window.openScheduleModal();
         }
-        const scheduleEl = target.closest('.cal-schedule.span-head');
+        const scheduleEl = target.closest('.cal-schedule[data-sch-id]');
         if (scheduleEl) {
             const schId = scheduleEl.dataset.schId;
             if (schId && typeof window.openScheduleDetail === 'function') {
@@ -54,6 +54,28 @@ document.addEventListener('componentsLoaded', () => {
             }
         }
     });
+
+    const grid = document.getElementById('cal-grid');
+    if (grid) {
+        grid.addEventListener('mouseover', (e) => {
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            if (schItem) {
+                const schId = schItem.dataset.schId;
+                const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
+                relatedSchedules.forEach(el => {
+                    const parentDay = el.closest('.cal-day');
+                    if (parentDay) parentDay.classList.add('highlight-range');
+                });
+            }
+        });
+
+        grid.addEventListener('mouseout', (e) => {
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            if (schItem) {
+                grid.querySelectorAll('.cal-day.highlight-range').forEach(el => el.classList.remove('highlight-range'));
+            }
+        });
+    }
 });
 
 window.renderCalendar = () => {
@@ -140,6 +162,7 @@ window.renderCalendar = () => {
     allDays.forEach((wd, idx) => {
         const cell = document.createElement('div');
         cell.className = `cal-day ${wd.type}`;
+        cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
         const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
         const dateObj = new Date(wd.year, wd.month, wd.day);
         const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -162,15 +185,19 @@ window.renderCalendar = () => {
             for (let l = 0; l < dayLanes.length; l++) {
                 const item = dayLanes[l];
                 const schDiv = document.createElement('div');
-                if (item && item.isHead) {
-                    const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
-                    schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
-                    schDiv.style.setProperty('--sch-bg', item.sch.color);
-                    schDiv.style.setProperty('--sch-span', item.span);
+                if (item) {
                     schDiv.dataset.schId = item.sch.id;
-                    schDiv.textContent = item.sch.title;
-                } else { 
-                    schDiv.className = 'cal-schedule spacer'; 
+                    if (item.isHead) {
+                        const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
+                        schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
+                        schDiv.style.setProperty('--sch-bg', item.sch.color);
+                        schDiv.style.setProperty('--sch-span', item.span);
+                        schDiv.textContent = item.sch.title;
+                    } else { 
+                        schDiv.className = 'cal-schedule spacer'; 
+                    }
+                } else {
+                    schDiv.className = 'cal-schedule spacer none';
                 }
                 schContainer.appendChild(schDiv);
             }
