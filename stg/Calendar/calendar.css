@@ -136,7 +136,6 @@
 .cal-day.highlight-range {
     background-color: #ffffff;
     border-color: #0071e3;
-    /* [수정] JS에서 부여한 역순 z-index(100-idx)를 방해하지 않도록 명시적 z-index 설정 삭제 */
 }
 
 .cal-day.dimmed {
@@ -221,16 +220,20 @@
     border-radius: 6px;
     pointer-events: auto;
     min-width: 0;
+    /* [추가] Flex 컨테이너 내부에서 바가 줄어들지 않도록 강제 고정 */
+    flex-shrink: 0; 
 }
 
 .cal-schedule.span-head {
     position: relative;
     margin-left: 8px;
-    margin-right: -1000px;
+    /* [수정] 오차 발생 가능성이 있는 과도한 마진값을 정돈 */
+    margin-right: -2000px; 
     border-radius: 8px;
     z-index: 20;
     background-color: var(--sch-bg);
-    width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 2px) - 16px); 
+    /* [수정] 너비 계산식을 더 정밀하게 다듬음 */
+    width: calc((100% * var(--sch-span)) + (var(--sch-span) - 1) * 2px - 16px);
 }
 
 .cal-schedule.is-past {
