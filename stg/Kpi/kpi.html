@@ -22,34 +22,32 @@
 
                         <div class="form-group">
                             <label class="kpi-section-heading">1. Defect 검출 갯수</label>
-                            <div class="kpi-defect-box">
-                                <div class="kpi-defect-row">
+                            <div class="kpi-defect-box" style="max-width: 450px;">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Blocker</label>
                                     <input type="number" id="def_blocker" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div class="kpi-defect-row">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Critical</label>
                                     <input type="number" id="def_critical" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div class="kpi-defect-row">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Major</label>
                                     <input type="number" id="def_major" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div class="kpi-defect-row">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Minor</label>
                                     <input type="number" id="def_minor" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
-                                <div class="kpi-defect-row">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Trivial</label>
                                     <input type="number" id="def_trivial" min="0" oninput="generateKPI()" class="kpi-defect-input">
                                 </div>
                                 <hr class="kpi-divider">
-                                <div class="kpi-defect-row">
+                                <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">전월 팀 평균</label>
-                                    <div class="kpi-avg-group">
-                                        <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" class="kpi-defect-input">
-                                        <button class="btn-avg-reset" onclick="resetTeamAverage()">초기화</button>
-                                    </div>
+                                    <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" class="kpi-defect-input">
+                                    <button class="btn-avg-reset" onclick="resetTeamAverage()">초기화</button>
                                 </div>
                             </div>
                         </div>
