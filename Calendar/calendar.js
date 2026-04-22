@@ -57,33 +57,69 @@ document.addEventListener('componentsLoaded', () => {
 
     const grid = document.getElementById('cal-grid');
     if (grid) {
+        let hoverTimeout = null;
+        let activeSchId = null;
+
         grid.addEventListener('mouseover', (e) => {
-            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-            if (schItem) {
-                const schId = schItem.dataset.schId;
-                const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
-                let zIndexCounter = 50;
-                
-                relatedSchedules.forEach(el => {
-                    const parentDay = el.closest('.cal-day');
-                    if (parentDay) {
-                        parentDay.style.zIndex = zIndexCounter;
-                        if (!parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
-                            parentDay.classList.add('highlight-range');
-                        }
+            try {
+                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+                if (schItem) {
+                    const schId = schItem.dataset.schId;
+                    if (activeSchId !== schId) {
+                        grid.querySelectorAll('.cal-day').forEach(el => {
+                            el.classList.remove('highlight-range');
+                            el.style.zIndex = '';
+                        });
+                        
+                        const relatedSchedules = grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`);
+                        let zIndexCounter = 50;
+                        
+                        relatedSchedules.forEach(el => {
+                            const parentDay = el.closest('.cal-day');
+                            if (parentDay) {
+                                parentDay.style.zIndex = zIndexCounter;
+                                if (!parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
+                                    parentDay.classList.add('highlight-range');
+                                }
+                            }
+                            zIndexCounter--;
+                        });
+                        activeSchId = schId;
                     }
-                    zIndexCounter--;
-                });
+                    if (hoverTimeout) {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = null;
+                    }
+                }
+            } catch (error) {
+                console.error("[Calendar Error] mouseover 이벤트 처리 중 에러:", error);
             }
         });
 
         grid.addEventListener('mouseout', (e) => {
-            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-            if (schItem) {
-                grid.querySelectorAll('.cal-day').forEach(el => {
-                    el.classList.remove('highlight-range');
-                    el.style.zIndex = '';
-                });
+            try {
+                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+                if (schItem) {
+                    const schId = schItem.dataset.schId;
+                    const relatedTarget = e.relatedTarget;
+                    
+                    if (relatedTarget) {
+                        const nextSchItem = relatedTarget.closest('.cal-schedule[data-sch-id]');
+                        if (nextSchItem && nextSchItem.dataset.schId === schId) {
+                            return;
+                        }
+                    }
+
+                    hoverTimeout = setTimeout(() => {
+                        grid.querySelectorAll('.cal-day').forEach(el => {
+                            el.classList.remove('highlight-range');
+                            el.style.zIndex = '';
+                        });
+                        activeSchId = null;
+                    }, 10);
+                }
+            } catch (error) {
+                console.error("[Calendar Error] mouseout 이벤트 처리 중 에러:", error);
             }
         });
     }
