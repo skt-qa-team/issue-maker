@@ -89,12 +89,23 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(6, minmax(100px, auto));
     gap: 2px;
     background-color: transparent;
     border-radius: 0; 
     border: none;
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+}
+
+.cal-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cal-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
 }
 
 .cal-day {
@@ -104,7 +115,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 80px;
+    min-height: 100px;
     height: 100%;
     cursor: pointer;
     position: relative;
@@ -137,7 +148,7 @@
     font-weight: 800;
     font-size: 1rem;
     color: #1d1d1f;
-    padding: 12px 15px;
+    padding: 8px 15px 4px 15px;
     position: relative;
     z-index: 2;
     gap: 8px;
@@ -165,10 +176,10 @@
 .cal-day.today::before {
     content: '';
     position: absolute;
-    top: 10px;
+    top: 6px;
     left: 10px;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: rgba(0, 113, 227, 0.1);
     border-radius: 10px;
     z-index: 1;
@@ -178,7 +189,8 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    padding: 2px 0;
+    padding: 0;
+    margin-top: -2px;
     overflow: visible;
     position: relative;
     z-index: 100;
