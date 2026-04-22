@@ -60,49 +60,35 @@ document.addEventListener('componentsLoaded', () => {
         let activeSchId = null;
 
         grid.addEventListener('mouseover', (e) => {
-            try {
-                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                if (schItem) {
-                    const schId = schItem.dataset.schId;
-                    
-                    if (activeSchId !== schId) {
-                        activeSchId = schId;
-                        
-                        grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
-                            el.classList.add('sch-active');
-                            const parentDay = el.closest('.cal-day');
-                            if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
-                                parentDay.classList.add('highlight-range');
-                            }
-                        });
-                    }
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            if (schItem) {
+                const schId = schItem.dataset.schId;
+                if (activeSchId !== schId) {
+                    activeSchId = schId;
+                    grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
+                        el.classList.add('sch-active');
+                        const parentDay = el.closest('.cal-day');
+                        if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
+                            parentDay.classList.add('highlight-range');
+                        }
+                    });
                 }
-            } catch (error) {
-                console.error("[Calendar Error] mouseover 이벤트 처리 에러:", error);
             }
         });
 
         grid.addEventListener('mouseout', (e) => {
-            try {
-                const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                if (schItem) {
-                    const relatedTarget = e.relatedTarget;
-                    const isStillSameSchedule = relatedTarget && 
-                                                relatedTarget.closest('.cal-schedule') && 
-                                                relatedTarget.closest('.cal-schedule').dataset.schId === activeSchId;
+            const schItem = e.target.closest('.cal-schedule[data-sch-id]');
+            if (schItem) {
+                const relatedTarget = e.relatedTarget;
+                const isStillSameSchedule = relatedTarget && 
+                                            relatedTarget.closest('.cal-schedule') && 
+                                            relatedTarget.closest('.cal-schedule').dataset.schId === activeSchId;
 
-                    if (!isStillSameSchedule) {
-                        activeSchId = null;
-                        grid.querySelectorAll('.cal-day.highlight-range').forEach(el => {
-                            el.classList.remove('highlight-range');
-                        });
-                        grid.querySelectorAll('.cal-schedule.sch-active').forEach(el => {
-                            el.classList.remove('sch-active');
-                        });
-                    }
+                if (!isStillSameSchedule) {
+                    activeSchId = null;
+                    grid.querySelectorAll('.cal-day.highlight-range').forEach(el => el.classList.remove('highlight-range'));
+                    grid.querySelectorAll('.cal-schedule.sch-active').forEach(el => el.classList.remove('sch-active'));
                 }
-            } catch (error) {
-                console.error("[Calendar Error] mouseout 이벤트 처리 에러:", error);
             }
         });
     }
@@ -193,6 +179,10 @@ window.renderCalendar = () => {
         const cell = document.createElement('div');
         cell.className = `cal-day ${wd.type}`;
         cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
+        
+        // 날짜가 앞설수록 무조건 더 높은 z-index를 부여하여 뒷 날짜가 앞 날짜의 일정을 덮지 못하게 함
+        cell.style.zIndex = 100 - idx; 
+
         const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
         const dateObj = new Date(wd.year, wd.month, wd.day);
         const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
