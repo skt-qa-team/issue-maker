@@ -68,8 +68,8 @@ document.addEventListener('componentsLoaded', () => {
                     grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
                         el.classList.add('sch-active');
                         const parentDay = el.closest('.cal-day');
-                        // [수정] 주말 조건 삭제: 일정이 걸친 모든 날짜가 하이라이트 되도록 변경
-                        if (parentDay) {
+                        // [수정] 기획 의도에 맞게 토요일(sat) 및 일요일/공휴일(sun)은 하이라이트 제외
+                        if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
                             parentDay.classList.add('highlight-range');
                         }
                     });
@@ -184,7 +184,6 @@ window.renderCalendar = () => {
             cell.className = `cal-day ${wd.type}`;
             cell.dataset.date = getCalDateStr(wd.year, wd.month, wd.day);
             
-            // [복구 완료] 같은 주(Week) 안에서 앞 날짜가 무조건 더 높은 z-index를 갖도록 역순 배정!
             cell.style.zIndex = 100 - dayIdx;
             
             const dateStr = getCalDateStr(wd.year, wd.month, wd.day);
