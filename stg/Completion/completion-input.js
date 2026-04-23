@@ -4,7 +4,6 @@ window.initCompletionInput = () => {
     try {
         window.compDataCache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
         
-        // [추가] 1. 환경설정 값(Admin/PC URL) 자동 바인딩
         const adminInput = document.getElementById('comp_admin_url');
         const pcInput = document.getElementById('comp_pc_url');
         if (adminInput && window.compDataCache.adminUrl) adminInput.value = window.compDataCache.adminUrl;
@@ -15,7 +14,6 @@ window.initCompletionInput = () => {
             sList.innerHTML = '';
             ['STG', 'GRN', 'PRD'].forEach(s => {
                 const label = s === 'PRD' ? '상용(PRD)' : s;
-                // [수정] 3. STG를 기본값으로 체크
                 const isChecked = s === 'STG' ? 'checked' : '';
                 sList.innerHTML += `<label class="checkbox-label"><input type="checkbox" class="comp-srv-cb template-trigger" value="${label}" ${isChecked}> ${label}</label>`;
             });
@@ -57,7 +55,6 @@ window.initCompletionInputEvents = () => {
 
         container.addEventListener('change', (e) => {
             if (e.target.classList.contains('template-trigger')) {
-                // [추가] 2. 단말 체크박스 변경 시 UI 피드백 동기화
                 if (e.target.classList.contains('comp-dev-cb')) {
                     window.syncCompDeviceHighlight();
                 }
@@ -71,16 +68,15 @@ window.initCompletionInputEvents = () => {
         container.addEventListener('click', (e) => {
             const target = e.target;
             if (target.id === 'btnSaveCompPreset') window.saveCompPreset();
-            // [추가] 4. 프리셋 수정 버튼 이벤트 바인딩
             if (target.id === 'btnEditCompPreset') window.editCompPreset();
             if (target.id === 'btnDeleteCompPreset') window.deleteCompPreset();
+            if (target.id === 'btnResetCompForm') window.resetCompForm();
         });
     } catch (e) {
         console.error("initCompletionInputEvents Error:", e);
     }
 };
 
-// [추가] 2. 단말 UI 피드백(Active 클래스 토글) 함수
 window.syncCompDeviceHighlight = () => {
     try {
         document.querySelectorAll('.comp-dev-cb').forEach(cb => {
@@ -102,7 +98,6 @@ window.renderCompDevices = () => {
         const andDevices = window.compDataCache.andDevices || [];
         const iosDevices = window.compDataCache.iosDevices || [];
         
-        // [수정] 환경설정 데이터 구조에 맞게 Android/iOS 기본 단말 각각 추출 후 병합
         const andDefault = window.compDataCache.andDefaultDevices || [];
         const iosDefault = window.compDataCache.iosDefaultDevices || [];
         const defaultDevices = [...andDefault, ...iosDefault];
@@ -110,7 +105,7 @@ window.renderCompDevices = () => {
         const render = (container, list, platform) => {
             if (!container) return;
             container.innerHTML = list.map(dev => {
-                const isChecked = defaultDevices.includes(dev) ? 'checked' : ''; // 기본 단말 자동 체크
+                const isChecked = defaultDevices.includes(dev) ? 'checked' : '';
                 return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${isChecked}> ${dev}</label>`;
             }).join('');
         };
@@ -118,7 +113,6 @@ window.renderCompDevices = () => {
         render(andList, andDevices, 'android');
         render(iosList, iosDevices, 'ios');
         
-        // [추가] 2. 렌더링 직후 UI 피드백 동기화
         window.syncCompDeviceHighlight();
     } catch (e) {
         console.error("renderCompDevices Error:", e);
@@ -173,21 +167,39 @@ window.saveCompPreset = () => {
     }
 };
 
-// [추가] 4. 기존 프리셋을 현재 폼 데이터로 덮어씌우는 수정 함수
 window.editCompPreset = () => {
     try {
         const selectEl = document.getElementById('compPresetSelect');
-        const name = selectEl ? selectEl.value : '';
-        if (!name) {
+        const originalName = selectEl ? selectEl.value : '';
+        if (!originalName) {
             if (typeof window.showToast === 'function') window.showToast('⚠️ 수정할 프리셋을 먼저 선택해주세요.');
             return;
         }
 
+        const nameInput = document.getElementById('newCompPresetName');
+        const newName = nameInput ? nameInput.value.trim() : originalName;
+
+        if (!newName) {
+            if (typeof window.showToast === 'function') window.showToast('⚠️ 프리셋 이름을 입력해주세요.');
+            return;
+        }
+
         let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
-        presets[name] = window.getCompFormData();
-        localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+        const newData = window.getCompFormData();
+
+        if (newName !== originalName) {
+            delete presets[originalName];
+            presets[newName] = newData;
+            localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+            window.renderCompPresets();
+            if (selectEl) selectEl.value = newName;
+        } else {
+            presets[originalName] = newData;
+            localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+        }
         
-        if (typeof window.showToast === 'function') window.showToast(`✅ [${name}] 프리셋이 수정되었습니다.`);
+        if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 수정되었습니다.`);
+        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
     } catch (e) {
         console.error("editCompPreset Error:", e);
     }
@@ -204,6 +216,9 @@ window.deleteCompPreset = () => {
         localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
         
         selectEl.value = '';
+        const nameInput = document.getElementById('newCompPresetName');
+        if (nameInput) nameInput.value = '';
+
         window.renderCompPresets();
         
         if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
@@ -236,6 +251,9 @@ window.renderCompPresets = () => {
 
 window.applyCompPreset = (name) => {
     try {
+        const nameInput = document.getElementById('newCompPresetName');
+        if (nameInput) nameInput.value = name || '';
+
         if (!name) return;
         const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
         const data = presets[name];
@@ -255,11 +273,47 @@ window.applyCompPreset = (name) => {
         document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = (data.versions || []).includes(cb.value));
         document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = (data.devices || []).includes(cb.value));
         
-        // [추가] 2. 프리셋 적용 후 단말 UI 피드백 동기화
         window.syncCompDeviceHighlight();
         
         if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
     } catch (e) {
         console.error("applyCompPreset Error:", e);
+    }
+};
+
+window.resetCompForm = () => {
+    try {
+        ['comp_check', 'comp_rate_num'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        const adminInput = document.getElementById('comp_admin_url');
+        const pcInput = document.getElementById('comp_pc_url');
+        if (adminInput) adminInput.value = window.compDataCache.adminUrl || '';
+        if (pcInput) pcInput.value = window.compDataCache.pcUrl || '';
+
+        document.querySelectorAll('.comp-mode-cb').forEach(cb => cb.checked = false);
+        
+        document.querySelectorAll('.comp-srv-cb').forEach(cb => cb.checked = (cb.value === 'STG'));
+        
+        document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = false);
+
+        const andDefault = window.compDataCache.andDefaultDevices || [];
+        const iosDefault = window.compDataCache.iosDefaultDevices || [];
+        const defaultDevices = [...andDefault, ...iosDefault];
+        document.querySelectorAll('.comp-dev-cb').forEach(cb => cb.checked = defaultDevices.includes(cb.value));
+        
+        window.syncCompDeviceHighlight();
+
+        const selectEl = document.getElementById('compPresetSelect');
+        if (selectEl) selectEl.value = '';
+        const nameInput = document.getElementById('newCompPresetName');
+        if (nameInput) nameInput.value = '';
+
+        if (typeof window.showToast === 'function') window.showToast('🔄 모든 값이 초기화되었습니다.');
+        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+    } catch (e) {
+        console.error("resetCompForm Error:", e);
     }
 };
