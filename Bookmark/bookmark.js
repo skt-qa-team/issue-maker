@@ -38,7 +38,7 @@ window.initSharedBookmarks = () => {
         bookmarks = Array.isArray(data) ? data : Object.values(data);
         bookmarks = bookmarks.map(f => ({
             ...f,
-            parentId: f.parentId || null, // [추가] 하위 폴더 구분을 위한 parentId 속성 기본값 보장
+            parentId: f.parentId || null,
             links: f.links ? (Array.isArray(f.links) ? f.links : Object.values(f.links)) : []
         }));
 
@@ -54,22 +54,9 @@ window.initSharedBookmarks = () => {
 
 window.saveBookmarksToFirebase = () => {
     firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
-        console.error("Firebase 저장 실패:", err);
+        console.error(err);
         if (typeof window.showToast === 'function') window.showToast("❌ 데이터 저장에 실패했습니다.");
     });
-};
-
-window.openBookmarkModal = () => {
-    const modal = document.getElementById('bookmarkModal');
-    if (modal) {
-        modal.classList.add('active');
-        window.renderBookmarks();
-    }
-};
-
-window.closeBookmarkModal = () => {
-    const modal = document.getElementById('bookmarkModal');
-    if (modal) modal.classList.remove('active');
 };
 
 window.escapeHTML = (str) => {
@@ -82,16 +69,14 @@ window.escapeHTML = (str) => {
         .replace(/'/g, "&#039;");
 };
 
-// [추가] 폴더 DOM을 생성하는 단일 함수 (재귀 호출을 위해 분리)
 const buildFolderDOM = (folder, level) => {
     const div = document.createElement('div');
     div.className = `bm-folder ${folder.id === currentFolderId ? 'active' : ''}`;
     div.draggable = true;
-    div.style.paddingLeft = `${level * 15}px`; // [추가] 하위 폴더 깊이에 따른 들여쓰기
+    div.style.paddingLeft = `${level * 15}px`;
 
     const deleteFolderBtn = currentUserUid === ADMIN_UID ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); window.deleteFolder('${folder.id}')">🗑️</button>` : '';
     
-    // [수정] 하위 폴더일 경우 ┗ 기호를 붙여 직관성 강화
     const prefix = level > 0 ? `<span style="color:#a1a1a6; margin-right:5px;">┗</span>` : '';
     
     div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> 
@@ -102,7 +87,7 @@ const buildFolderDOM = (folder, level) => {
                      </div>`;
     
     div.onclick = (e) => { 
-        e.stopPropagation(); // [추가] 상위 폴더 클릭 이벤트 방지
+        e.stopPropagation();
         currentFolderId = folder.id; 
         window.renderBookmarks(); 
     };
@@ -121,7 +106,7 @@ const buildFolderDOM = (folder, level) => {
     
     div.ondragover = (e) => { 
         e.preventDefault(); 
-        e.stopPropagation(); // [추가] 중첩 폴더 드래그 시 이벤트 버블링 차단
+        e.stopPropagation();
         if (!bmDragState) return;
         div.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
         
@@ -135,7 +120,7 @@ const buildFolderDOM = (folder, level) => {
             } else if (y > bounding.height * 0.75) {
                 div.classList.add('drag-over-bottom');
             } else {
-                div.classList.add('drag-over'); // [수정] 중앙에 놓으면 하위 폴더로 진입
+                div.classList.add('drag-over');
             }
         }
     };
@@ -157,7 +142,6 @@ const buildFolderDOM = (folder, level) => {
             const targetFolderId = folder.id;
             if (draggedFolderId === targetFolderId) return;
 
-            // [추가] 자기 자신의 하위 폴더로 들어가는 무한 루프(순환 참조) 방지 로직
             let isDescendant = false;
             let curr = targetFolderId;
             while(curr) {
@@ -176,10 +160,10 @@ const buildFolderDOM = (folder, level) => {
                 const item = bookmarks.splice(fromIdx, 1)[0];
                 
                 if (isCenter) {
-                    item.parentId = targetFolderId; // 하위 폴더로 삽입
+                    item.parentId = targetFolderId;
                     bookmarks.push(item);
                 } else {
-                    item.parentId = folder.parentId || null; // 형제 폴더로 정렬 삽입
+                    item.parentId = folder.parentId || null;
                     const newToIdx = bookmarks.findIndex(bf => bf.id === targetFolderId);
                     const insertIdx = isTop ? newToIdx : newToIdx + 1;
                     bookmarks.splice(insertIdx, 0, item);
@@ -210,26 +194,24 @@ window.renderBookmarks = () => {
     const fList = document.getElementById('bm_folder_list');
     const lList = document.getElementById('bm_link_list');
     const titleText = document.getElementById('bm_current_folder_title');
-    const modal = document.getElementById('bookmarkModal');
     
-    if (!fList || !lList || !modal || !modal.classList.contains('active')) return;
+    if (!fList || !lList) return;
 
     fList.innerHTML = '';
     lList.innerHTML = '';
 
     const folderFragment = document.createDocumentFragment();
 
-    // [수정] 트리를 그리기 위한 재귀 함수 
     const renderFolderTree = (parentId, level) => {
         const children = bookmarks.filter(f => (f.parentId || null) === parentId);
         children.forEach(child => {
             const folderEl = buildFolderDOM(child, level);
             folderFragment.appendChild(folderEl);
-            renderFolderTree(child.id, level + 1); // 하위 폴더 탐색
+            renderFolderTree(child.id, level + 1);
         });
     };
 
-    renderFolderTree(null, 0); // 최상위(Root)부터 렌더링 시작
+    renderFolderTree(null, 0);
     fList.appendChild(folderFragment);
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
@@ -305,7 +287,6 @@ window.addNewFolder = () => {
     if (!name) return;
 
     let parentId = null;
-    // [수정] 폴더가 선택되어 있을 경우, 하위 폴더로 생성할지 묻는 로직
     if (currentFolderId) {
         const currentFolder = bookmarks.find(f => f.id === currentFolderId);
         if (currentFolder) {
@@ -330,7 +311,6 @@ window.editFolder = (id) => {
 
 window.deleteFolder = (id) => {
     if (currentUserUid !== ADMIN_UID) return;
-    // [수정] 폴더 삭제 시 내부의 모든 하위 폴더까지 연쇄 삭제 처리
     if (confirm('폴더를 삭제하시겠습니까?\n(폴더 내부의 모든 링크와 하위 폴더가 함께 삭제됩니다)')) { 
         const idsToDelete = [id];
         let i = 0;
