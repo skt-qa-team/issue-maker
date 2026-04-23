@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'result-panel-placeholder', url: 'ResultForm/resultform.html' },
         { id: 'calendar-placeholder', url: 'Calendar/calendar.html' },
         { id: 'completion-panel-placeholder', url: 'Completion/completion-input.html' },
+        { id: 'bookmark-panel-placeholder', url: 'Bookmark/bookmark.html' },
         { id: 'condition-modal-placeholder', url: 'Condition/condition.html' },
         { id: 'kpi-modal-placeholder', url: 'Kpi/kpi.html' },
         { id: 'theme-modal-placeholder', url: 'Theme/theme.html' },
@@ -13,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'schedule-modal-placeholder', url: 'Calendar/schedule.html' },
         { id: 'schedule-detail-modal-placeholder', url: 'Calendar/schedule-detail.html' },
         { id: 'bugreport-modal-placeholder', url: 'Bugreport/bugreport.html' },
-        { id: 'bookmark-modal-placeholder', url: 'Bookmark/bookmark.html' },
         { id: 'admin-modal-placeholder', url: 'Admin/admin.html' }
     ];
 
