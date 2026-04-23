@@ -107,7 +107,7 @@ window.renderCompDevices = () => {
             container.innerHTML = list.map(dev => {
                 const isChecked = defaultDevices.includes(dev) ? 'checked' : '';
                 return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${isChecked}> ${dev}</label>`;
-            }).join('');
+            });
         };
 
         render(andList, andDevices, 'android');
@@ -152,6 +152,13 @@ window.saveCompPreset = () => {
         }
 
         let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+        
+        if (presets[name]) {
+            if (!confirm(`[${name}] 프리셋이 이미 존재합니다. 덮어쓰시겠습니까?`)) return;
+        } else {
+            if (!confirm(`새로운 프리셋 [${name}]을(를) 저장하시겠습니까?`)) return;
+        }
+
         presets[name] = window.getCompFormData();
         localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
         
@@ -184,6 +191,12 @@ window.editCompPreset = () => {
             return;
         }
 
+        const confirmMsg = newName !== originalName 
+            ? `프리셋 [${originalName}]의 내용을 변경하고, 이름을 [${newName}](으)로 수정하시겠습니까?`
+            : `프리셋 [${originalName}]의 내용을 현재 폼의 데이터로 수정하시겠습니까?`;
+
+        if (!confirm(confirmMsg)) return;
+
         let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
         const newData = window.getCompFormData();
 
@@ -209,7 +222,12 @@ window.deleteCompPreset = () => {
     try {
         const selectEl = document.getElementById('compPresetSelect');
         const name = selectEl ? selectEl.value : '';
-        if (!name) return;
+        if (!name) {
+            if (typeof window.showToast === 'function') window.showToast('⚠️ 삭제할 프리셋을 선택해주세요.');
+            return;
+        }
+
+        if (!confirm(`정말 프리셋 [${name}]을(를) 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) return;
 
         let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
         delete presets[name];
@@ -283,6 +301,8 @@ window.applyCompPreset = (name) => {
 
 window.resetCompForm = () => {
     try {
+        if (!confirm('현재 작성 중인 완료문 내용을 모두 초기화하시겠습니까?')) return;
+
         ['comp_check', 'comp_rate_num'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
