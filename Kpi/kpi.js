@@ -62,7 +62,7 @@ function addTcRow(data = {}) {
     const row = document.createElement('div');
     row.className = 'tc-row';
     
-    const pocList = ['T 멤버십', '에이닷', 'PC Web', 'AI Layer', 'Admin', '기타'];
+    const pocList = ['T 멤버십', 'PC Web', 'AI Layer', '기타'];
     let pocOptions = pocList.map(p => {
         const selected = (data.poc === p) ? 'selected' : '';
         return `<option value="${p}" ${selected}>${p}</option>`;
