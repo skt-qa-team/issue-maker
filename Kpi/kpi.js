@@ -76,10 +76,10 @@ function addTcRow(data = {}) {
                 ${pocOptions}
             </select>
         </div>
-        <div class="tc-input-item" style="flex:1;">
+        <div class="tc-input-item" style="flex:1.5;">
             <input type="text" class="tc-name" placeholder="티켓 이름" value="${data.name || ''}" oninput="generateKPI()">
         </div>
-        <div class="tc-input-item">
+        <div class="tc-input-item" style="flex:1;">
             <input type="text" class="tc-ticket" placeholder="티켓 번호" value="${data.ticket || ''}" oninput="generateKPI()">
         </div>
         <div class="tc-input-item">
@@ -208,21 +208,23 @@ function generateNarrativeReport() {
     
     let defectText = "";
     if (totalDefect > 0) {
-        defectText = `이번 달은 총 ${totalDefect}개의 Defect를 검출`;
+        defectText = `금월 서비스 품질 분석 결과, 총 ${totalDefect}건의 결함을 식별하여 잠재적 리스크를 사전에 차단하였습니다. `;
         if (prevAvgStr !== '') {
             const prevAvg = parseFloat(prevAvgStr) || 0;
             const diff = totalDefect - prevAvg;
             const absDiff = parseFloat(Math.abs(diff).toFixed(1));
-            if (diff > 0) defectText += `하며 전월 팀 평균 대비 ${absDiff}개 높은 성과를 달성했습니다. `;
-            else if (diff < 0) defectText += `하여 전월 팀 평균 대비 ${absDiff}개 낮은 수치를 기록했습니다. `;
-            else defectText += `하여 전월 팀 평균과 동일한 성과를 달성했습니다. `;
-        } else defectText += `하는 성과를 달성했습니다. `;
+            if (diff > 0) defectText += `이는 전월 팀 평균 대비 ${absDiff}건 상회하는 수치로, 보다 심도 있는 검증을 통해 품질 지표 향상에 기여했습니다. `;
+            else if (diff < 0) defectText += `전월 대비 결함 식별 건수는 ${absDiff}건 감소하였으나, 안정화 단계에 진입한 서비스 품질 유지에 집중하였습니다. `;
+            else defectText += `전월 팀 평균과 동일한 수준의 결함 식별력을 유지하며 일관된 검증 품질을 확보했습니다. `;
+        }
         
         if (blocker > 0 || critical > 0) {
-            defectText += `특히 서비스에 치명적일 수 있는 고위험 결함을 사전에 식별하여 앱 안정성에 크게 기여했습니다.\n\n`;
-        } else defectText += `꼼꼼한 검증을 통해 서비스 품질 향상에 기여했습니다.\n\n`;
+            defectText += `특히 서비스 불능 및 치명적 오류(Blocker/Critical)를 집중적으로 식별하여 앱 안정성 확보에 결정적인 역할을 수행했습니다.\n\n`;
+        } else {
+            defectText += `꼼꼼한 리그레션 테스트를 통해 서비스 전반의 완성도를 높이는 데 주력하였습니다.\n\n`;
+        }
     } else {
-        defectText = `이번 달은 안정적인 서비스 품질을 유지하는 데 집중하며 검증 업무를 수행했습니다.\n\n`;
+        defectText = `금월은 서비스 안정화 및 리스크 최소화에 집중하며, 가용 리소스를 활용한 고도화된 검증 업무를 수행하였습니다.\n\n`;
     }
 
     let totalTc = 0;
@@ -237,16 +239,16 @@ function generateNarrativeReport() {
     let tcText = "";
     if (totalTc > 0) {
         const pocListStr = Array.from(pocSet).join(', ');
-        tcText = `검증 업무로는 ${pocListStr ? pocListStr + ' 등의 ' : ''}프로젝트를 중심으로 총 ${totalTc}건의 TC를 수행했습니다. 교차 확인을 위해 단말기 2대로 꼼꼼하게 테스트를 진행하여 누락을 최소화했습니다.\n\n`;
+        tcText = `검증 수행 측면에서는 ${pocListStr ? pocListStr + ' 등 주요 프로젝트' : '담당 업무'}를 중심으로 총 ${totalTc}건의 테스트 케이스를 성공적으로 완수하였습니다. 특히 다양한 사용자 환경을 고려한 교차 검증(단말 2대 이상 사용)을 적극 도입하여 검증의 신뢰도를 대폭 강화하였습니다.\n\n`;
     }
 
     const tcUpdate = getVal('tc_update_text');
     let updateText = "";
     if (tcUpdate.trim().length > 0) {
         const lines = tcUpdate.split('\n').map(line => line.trim()).filter(l => l);
-        updateText = `또한, 본인 영역의 TC 최신화 작업에도 매진하여 총 ${lines.length}가지 주요 항목에 대한 현행화를 완료했습니다. 앞으로도 지속적인 TC 관리로 프로젝트 품질 향상에 노력하겠습니다.`;
+        updateText = `테스트 자산 관리 측면에서도 본인 영역의 TC 최신화 업무를 병행하여, 총 ${lines.length}건의 주요 항목에 대한 현행화를 완료함으로써 검증 프로세스의 효율성을 제고하였습니다. 향후에도 지속적인 고도화를 통해 무결점 서비스 구현에 최선을 다하겠습니다.`;
     } else {
-        updateText = `앞으로도 적극적인 이슈 검출과 꼼꼼한 TC 관리로 팀 프로젝트의 전반적인 품질 향상에 지속적으로 기여하겠습니다.`;
+        updateText = `적극적인 이슈 발굴과 체계적인 테스트 관리를 통해 팀 전체의 검증 역량을 강화하고 프로젝트 성공에 기여할 수 있도록 지속 노력하겠습니다.`;
     }
 
     const contribEl = document.getElementById('kpi_contrib_text');
