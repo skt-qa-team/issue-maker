@@ -46,6 +46,10 @@ document.addEventListener('componentsLoaded', () => {
         if (target.id === 'btn-add-schedule') {
             if (typeof window.openScheduleModal === 'function') window.openScheduleModal();
         }
+        if (target.id === 'btn-sync-month-kpi') {
+            window.syncMonthToKpi();
+        }
+        
         const scheduleEl = target.closest('.cal-schedule[data-sch-id]');
         if (scheduleEl) {
             const schId = scheduleEl.dataset.schId;
@@ -68,7 +72,6 @@ document.addEventListener('componentsLoaded', () => {
                     grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
                         el.classList.add('sch-active');
                         const parentDay = el.closest('.cal-day');
-                        // [수정] 기획 의도에 맞게 토요일(sat) 및 일요일/공휴일(sun)은 하이라이트 제외
                         if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
                             parentDay.classList.add('highlight-range');
                         }
@@ -240,4 +243,61 @@ window.changeMonth = (offset) => {
 window.goToday = () => { 
     window.calCurrentDate = new Date(); 
     window.renderCalendar(); 
+};
+
+window.syncMonthToKpi = () => {
+    if (!window.calSchedules || window.calSchedules.length === 0) return;
+
+    const y = window.calCurrentDate.getFullYear();
+    const m = window.calCurrentDate.getMonth();
+    
+    const firstDayOfMonth = getCalDateStr(y, m, 1);
+    const lastDayOfMonth = getCalDateStr(y, m + 1, 0);
+
+    const targetSchedules = window.calSchedules.filter(sch => {
+        const isValidation = sch.color === '#3b82f6';
+        const isOverlapping = sch.start <= lastDayOfMonth && sch.end >= firstDayOfMonth;
+        return isValidation && isOverlapping;
+    });
+
+    if (targetSchedules.length === 0) {
+        if (typeof window.showToast === 'function') window.showToast("📊 현재 월에 연동할 검증 일정이 없습니다.");
+        else alert("📊 현재 월에 연동할 검증 일정이 없습니다.");
+        return;
+    }
+
+    if (!confirm(`현재 월의 검증 일정 ${targetSchedules.length}건을 KPI 리포트에 일괄 연동하시겠습니까?`)) return;
+
+    let kpiData;
+    try {
+        kpiData = JSON.parse(localStorage.getItem('skm_kpi_data')) || { tcRows: [] };
+    } catch (e) {
+        kpiData = { tcRows: [] };
+    }
+
+    targetSchedules.forEach(sch => {
+        const newTcRow = {
+            poc: sch.poc || '기타',
+            name: sch.title,
+            ticket: sch.opTicket || '',
+            total: 1,
+            isTwoDev: false
+        };
+        kpiData.tcRows.push(newTcRow);
+    });
+
+    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
+        }
+    }
+
+    if (typeof window.showToast === 'function') {
+        window.showToast(`📊 ${targetSchedules.length}건의 일정이 KPI 리포트에 성공적으로 연동되었습니다.`);
+    } else {
+        alert(`📊 ${targetSchedules.length}건의 일정이 KPI 리포트에 성공적으로 연동되었습니다.`);
+    }
 };
