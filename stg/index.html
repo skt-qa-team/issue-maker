@@ -42,6 +42,7 @@
             <button class="main-tab-btn active" data-target="panel-issue">이슈 작성</button>
             <button class="main-tab-btn" data-target="panel-calendar">일정 관리</button>
             <button class="main-tab-btn" data-target="panel-completion">완료문</button>
+            <button class="main-tab-btn" data-target="panel-bookmark">북마크</button>
         </div>
 
         <div id="panel-issue" class="main-panel-content active">
@@ -65,12 +66,15 @@
         <div id="panel-completion" class="main-panel-content d-none">
             <div id="completion-panel-placeholder"></div>
         </div>
+
+        <div id="panel-bookmark" class="main-panel-content d-none">
+            <div id="bookmark-panel-placeholder"></div>
+        </div>
     </main>
 
     <div id="toast-container" class="toast-container"></div>
 
     <div id="modal-container">
-        <div id="bookmark-modal-placeholder"></div>
         <div id="bugreport-modal-placeholder"></div>
         <div id="changelog-modal-placeholder"></div>
         <div id="condition-modal-placeholder"></div>
