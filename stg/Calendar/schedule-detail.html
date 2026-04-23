@@ -18,9 +18,19 @@
                     <div id="detail_author" class="cal-detail-value-author"></div>
                 </div>
 
-                <div class="form-group d-none" id="detail_epic_wrapper">
-                    <label>EPIC LINK</label>
-                    <div id="detail_epic" class="cal-detail-value-epic"></div>
+                <div class="form-group d-none" id="detail_poc_wrapper">
+                    <label>POC</label>
+                    <div id="detail_poc" class="cal-detail-value-text"></div>
+                </div>
+
+                <div class="form-group d-none" id="detail_op_ticket_wrapper">
+                    <label>운영티켓</label>
+                    <div id="detail_op_ticket" class="cal-detail-value-text"></div>
+                </div>
+
+                <div class="form-group d-none" id="detail_ticket_wrapper">
+                    <label>검증티켓</label>
+                    <div id="detail_ticket" class="cal-detail-value-text"></div>
                 </div>
                 
                 <div class="form-group">
@@ -35,6 +45,7 @@
                 <button id="btn-delete-sch" class="btn-remove">삭제</button>
             </div>
             <div class="modal-footer-right">
+                <button id="btn-sync-kpi" class="btn-secondary d-none">📊 KPI와 연동</button>
                 <button id="btn-edit-sch" class="btn-secondary">수정</button>
                 <button id="btn-start-workflow" class="btn-primary d-none">🚀 일정 시작</button>
             </div>
