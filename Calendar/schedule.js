@@ -295,6 +295,7 @@ window.openScheduleDetail = (id) => {
         if (elPoc) elPoc.textContent = sch.poc || '';
     }
 
+    // 🚨 보안 패치: XSS 방어를 위해 innerHTML 대신 createElement 사용
     const opTicketWrapper = document.getElementById('detail_op_ticket_wrapper');
     const syncKpiBtn = document.getElementById('btn-sync-kpi');
     
@@ -302,7 +303,18 @@ window.openScheduleDetail = (id) => {
         if (opTicketWrapper) opTicketWrapper.classList.remove('d-none');
         if (syncKpiBtn) syncKpiBtn.classList.remove('d-none');
         const elOp = document.getElementById('detail_op_ticket');
-        if (elOp) elOp.textContent = sch.opTicket;
+        if (elOp) {
+            const val = sch.opTicket.trim();
+            const link = val.startsWith('http') ? val : `https://jira.com/browse/${val}`;
+            
+            elOp.innerHTML = ''; 
+            const aTag = document.createElement('a');
+            aTag.href = link;
+            aTag.target = '_blank';
+            aTag.style.cssText = 'color: var(--accent-blue); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--accent-blue); padding-bottom: 1px;';
+            aTag.textContent = `${val} 🔗`;
+            elOp.appendChild(aTag);
+        }
     } else {
         if (opTicketWrapper) opTicketWrapper.classList.add('d-none');
         if (syncKpiBtn) syncKpiBtn.classList.add('d-none');
@@ -315,7 +327,18 @@ window.openScheduleDetail = (id) => {
     if (sch.ticket && sch.ticket.trim() !== '') {
         if (ticketWrapper) ticketWrapper.classList.remove('d-none');
         if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
-        if (elTicket) elTicket.textContent = sch.ticket;
+        if (elTicket) {
+            const val = sch.ticket.trim();
+            const link = val.startsWith('http') ? val : `https://jira.com/browse/${val}`;
+            
+            elTicket.innerHTML = '';
+            const aTag = document.createElement('a');
+            aTag.href = link;
+            aTag.target = '_blank';
+            aTag.style.cssText = 'color: var(--accent-blue); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--accent-blue); padding-bottom: 1px;';
+            aTag.textContent = `${val} 🔗`;
+            elTicket.appendChild(aTag);
+        }
     } else {
         if (ticketWrapper) ticketWrapper.classList.add('d-none');
         if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
