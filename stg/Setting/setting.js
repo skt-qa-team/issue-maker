@@ -6,6 +6,7 @@ const defaultConfig = {
     samsungBrowser: '', safariBrowser: '', chromeBrowser: '', edgeBrowser: ''
 };
 const STORAGE_KEY = 'qa_system_config_master';
+const ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
 
 window.openModal = (modalId) => {
     const modal = document.getElementById(modalId);
@@ -61,6 +62,42 @@ window.saveSettings = () => {
 
     if (typeof window.syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
     window.closeSettingModal();
+};
+
+window.copyAdminSettings = () => {
+    if (!confirm("관리자(Admin)의 환경설정 데이터를 가져와 내 계정에 덮어쓰시겠습니까?\n기존 설정은 삭제됩니다.")) return;
+
+    if (typeof firebase === 'undefined' || !firebase.auth().currentUser) {
+        if (typeof window.showToast === 'function') window.showToast('⚠️ 로그인이 필요한 기능입니다.');
+        return;
+    }
+
+    const currentUser = firebase.auth().currentUser;
+
+    firebase.database().ref('users/' + ADMIN_UID + '/settings').once('value').then(snapshot => {
+        const adminSettings = snapshot.val();
+        
+        if (!adminSettings) {
+            if (typeof window.showToast === 'function') window.showToast('⚠️ 관리자 설정 데이터를 찾을 수 없습니다.');
+            return;
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(adminSettings));
+
+        if (!currentUser.isAnonymous) {
+            firebase.database().ref('users/' + currentUser.uid + '/settings').set(adminSettings).catch(err => {
+                console.error("Firebase save error:", err);
+            });
+        }
+
+        window.openSettingModal();
+        if (typeof window.syncEnvironmentByOS === 'function') window.syncEnvironmentByOS();
+        if (typeof window.showToast === 'function') window.showToast('👑 관리자 설정이 성공적으로 복사되었습니다.');
+        
+    }).catch(err => {
+        console.error("Admin Settings Fetch Error:", err);
+        if (typeof window.showToast === 'function') window.showToast('❌ 설정 복사 중 오류가 발생했습니다.');
+    });
 };
 
 window.openSettingModal = () => {
