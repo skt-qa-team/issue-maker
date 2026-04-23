@@ -256,9 +256,12 @@ window.renderInputPresets = () => {
 window.handlePresetDropdownChange = () => {
     const selectEl = document.getElementById('inputPresetSelect');
     const editBtn = document.getElementById('btnEditPreset');
+    const nameInput = document.getElementById('newPresetName');
     if (!selectEl) return;
     
     const name = selectEl.value;
+    if (nameInput) nameInput.value = name;
+
     if (name) {
         if (editBtn) editBtn.classList.remove('d-none');
         window.applyInputPreset(name);
@@ -293,14 +296,30 @@ window.saveInputPreset = () => {
 
 window.editInputPreset = () => {
     const selectEl = document.getElementById('inputPresetSelect');
-    if (!selectEl || !selectEl.value) return window.showToast?.('⚠️ 수정할 프리셋을 선택해주세요.');
+    const originalName = selectEl ? selectEl.value : '';
     
-    const name = selectEl.value;
+    if (!originalName) return window.showToast?.('⚠️ 수정할 프리셋을 선택해주세요.');
+
+    const nameInput = document.getElementById('newPresetName');
+    const newName = nameInput ? nameInput.value.trim() : originalName;
+
+    if (!newName) return window.showToast?.('⚠️ 프리셋 이름을 입력해주세요.');
+
     let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    presets[name] = window.getFormDataForPreset();
-    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    const newData = window.getFormDataForPreset();
+
+    if (newName !== originalName) {
+        delete presets[originalName];
+        presets[newName] = newData;
+        localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+        window.renderInputPresets();
+        if (selectEl) selectEl.value = newName;
+    } else {
+        presets[originalName] = newData;
+        localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    }
     
-    window.showToast?.(`✏️ '${name}' 프리셋이 수정되었습니다.`);
+    window.showToast?.(`✏️ '${newName}' 프리셋이 수정되었습니다.`);
 };
 
 window.deleteInputPreset = () => {
@@ -313,6 +332,9 @@ window.deleteInputPreset = () => {
     localStorage.setItem('qa_input_presets', JSON.stringify(presets));
     
     selectEl.value = '';
+    const nameInput = document.getElementById('newPresetName');
+    if (nameInput) nameInput.value = '';
+
     window.handlePresetDropdownChange();
     window.renderInputPresets();
     
@@ -320,6 +342,9 @@ window.deleteInputPreset = () => {
 };
 
 window.applyInputPreset = (name) => {
+    const nameInput = document.getElementById('newPresetName');
+    if (nameInput) nameInput.value = name || '';
+
     const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
     const data = presets[name];
     if (!data) return;
