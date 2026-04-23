@@ -6,7 +6,9 @@ const defaultConfig = {
     samsungBrowser: '', safariBrowser: '', chromeBrowser: '', edgeBrowser: ''
 };
 const STORAGE_KEY = 'qa_system_config_master';
-const ADMIN_UID = "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
+
+// 전역 객체(window)를 활용하여 중복 선언(SyntaxError) 원천 차단
+window.ADMIN_UID = window.ADMIN_UID || "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
 
 window.openModal = (modalId) => {
     const modal = document.getElementById(modalId);
@@ -74,7 +76,8 @@ window.copyAdminSettings = () => {
 
     const currentUser = firebase.auth().currentUser;
 
-    firebase.database().ref('users/' + ADMIN_UID + '/settings').once('value').then(snapshot => {
+    // 안전하게 선언된 window.ADMIN_UID 호출
+    firebase.database().ref('users/' + window.ADMIN_UID + '/settings').once('value').then(snapshot => {
         const adminSettings = snapshot.val();
         
         if (!adminSettings) {
