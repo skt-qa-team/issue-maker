@@ -75,6 +75,7 @@ document.addEventListener('click', (e) => {
     if (target.id === 'btn-delete-sch') window.deleteSchedule();
     if (target.id === 'btn-edit-sch') window.editSchedule();
     if (target.id === 'btn-start-workflow') window.startScheduleWorkflow();
+    if (target.id === 'btn-sync-kpi') window.syncScheduleToKpi();
 });
 
 window.handleScheduleTypeChange = () => {
@@ -82,24 +83,32 @@ window.handleScheduleTypeChange = () => {
     if (!selectedRadio) return;
     
     const type = selectedRadio.getAttribute('data-type');
+    const isValidation = type === '검증';
+
     const groupEnd = document.getElementById('group_sch_end');
-    const groupEpic = document.getElementById('group_sch_epic');
+    const groupPoc = document.getElementById('group_sch_poc');
+    const groupProject = document.getElementById('group_sch_project');
+    const groupOpTicket = document.getElementById('group_sch_op_ticket');
+    const groupTicket = document.getElementById('group_sch_ticket');
     const groupAuthor = document.getElementById('group_sch_author');
     const labelStart = document.getElementById('label_sch_start');
     const startInput = document.getElementById('sch_start');
     const endInput = document.getElementById('sch_end');
 
     if (groupEnd) groupEnd.classList.toggle('d-none', type === '회의');
-    if (groupEpic) groupEpic.classList.toggle('d-none', type !== '검증');
+    if (groupPoc) groupPoc.classList.toggle('d-none', !isValidation);
+    if (groupProject) groupProject.classList.toggle('d-none', !isValidation);
+    if (groupOpTicket) groupOpTicket.classList.toggle('d-none', !isValidation);
+    if (groupTicket) groupTicket.classList.toggle('d-none', !isValidation);
     if (groupAuthor) groupAuthor.classList.toggle('d-none', type !== '회의');
     
     if (labelStart) {
-        if (type === '검증' || type === '할 일') labelStart.textContent = '시작일 *';
+        if (isValidation || type === '할 일') labelStart.textContent = '시작일 *';
         else if (type === '회의') labelStart.textContent = '회의 날짜 *';
         else labelStart.textContent = '날짜 *';
     }
 
-    if (type !== '검증' && type !== '할 일' && startInput && endInput) {
+    if (!isValidation && type !== '할 일' && startInput && endInput) {
         endInput.value = startInput.value;
     }
 };
@@ -169,7 +178,7 @@ window.processScreenshot = async (file) => {
                     for (const [index, item] of parsedArray.entries()) {
                         if (!item.title || !item.start) continue;
                         const id = Date.now().toString() + index;
-                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, epic: '', desc: 'AI 추출', color: '#3b82f6', author: '' };
+                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, project: '', opTicket: '', ticket: '', desc: 'AI 추출', color: '#3b82f6', author: '', poc: '기타' };
                         await firebase.database().ref('shared_schedules/' + id).set(newSch);
                     }
                     window.closeScheduleModal();
@@ -196,17 +205,27 @@ window.openScheduleModal = (id = null) => {
             document.getElementById('sch_title').value = sch.title;
             document.getElementById('sch_start').value = sch.start;
             document.getElementById('sch_end').value = sch.end;
-            document.getElementById('sch_epic').value = sch.epic || '';
+            document.getElementById('sch_project').value = sch.project || '';
+            document.getElementById('sch_op_ticket').value = sch.opTicket || '';
+            document.getElementById('sch_ticket').value = sch.ticket || '';
             document.getElementById('sch_desc').value = sch.desc || '';
             document.getElementById('sch_author').value = sch.author || '';
+            
+            const pocRadio = document.querySelector(`input[name="sch_poc"][value="${sch.poc || '기타'}"]`);
+            if (pocRadio) pocRadio.checked = true;
+
             const radio = document.querySelector(`input[name="sch_color"][value="${sch.color}"]`);
             if (radio) radio.checked = true;
         }
     } else {
-        ['sch_title', 'sch_start', 'sch_end', 'sch_epic', 'sch_desc', 'sch_author'].forEach(eid => {
+        ['sch_title', 'sch_start', 'sch_end', 'sch_project', 'sch_op_ticket', 'sch_ticket', 'sch_desc', 'sch_author'].forEach(eid => {
             const el = document.getElementById(eid);
             if (el) el.value = '';
         });
+        
+        const defaultPoc = document.querySelector(`input[name="sch_poc"][value="기타"]`);
+        if (defaultPoc) defaultPoc.checked = true;
+        
         const defaultRadio = document.querySelector(`input[name="sch_color"][value="#3b82f6"]`);
         if (defaultRadio) defaultRadio.checked = true;
     }
@@ -230,18 +249,28 @@ window.saveSchedule = () => {
     const start = document.getElementById('sch_start')?.value;
     let end = document.getElementById('sch_end')?.value;
     const author = document.getElementById('sch_author')?.value.trim() || '';
+    
     const colorRadio = document.querySelector('input[name="sch_color"]:checked');
     const color = colorRadio ? colorRadio.value : '#3b82f6';
     const type = colorRadio ? colorRadio.getAttribute('data-type') : '';
+    
+    const pocRadio = document.querySelector('input[name="sch_poc"]:checked');
+    const poc = pocRadio ? pocRadio.value : '기타';
+    
+    const project = document.getElementById('sch_project')?.value.trim() || '';
+    const opTicket = document.getElementById('sch_op_ticket')?.value.trim() || '';
+    const ticket = document.getElementById('sch_ticket')?.value.trim() || '';
+
     if (type !== '검증' && type !== '할 일') end = start;
     if (!title || !start || !end) return alert("필수 정보를 입력하세요.");
     if (start.split('-')[0].length > 4 || end.split('-')[0].length > 4) return alert("연도는 4자리까지만 가능합니다.");
+    
     const newSch = { 
-        id, title, start, end, author,
-        epic: document.getElementById('sch_epic')?.value || '', 
+        id, title, start, end, author, poc, project, opTicket, ticket,
         desc: document.getElementById('sch_desc')?.value || '', 
         color 
     };
+    
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
             window.closeScheduleModal();
@@ -255,11 +284,44 @@ window.openScheduleDetail = (id) => {
     window.currentViewingScheduleId = id;
     const modal = document.getElementById('scheduleDetailModal');
     if (!modal) return;
+    
     const colorBar = document.getElementById('detail_color_bar');
     if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
+    
     document.getElementById('detail_title').textContent = sch.title;
     document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
     document.getElementById('detail_desc').textContent = sch.desc || '-';
+
+    const pocWrapper = document.getElementById('detail_poc_wrapper');
+    if (pocWrapper) {
+        pocWrapper.classList.toggle('d-none', !sch.poc);
+        const elPoc = document.getElementById('detail_poc');
+        if (elPoc) elPoc.textContent = sch.poc || '';
+    }
+
+    const opTicketWrapper = document.getElementById('detail_op_ticket_wrapper');
+    if (opTicketWrapper) {
+        opTicketWrapper.classList.toggle('d-none', !sch.opTicket);
+        const elOp = document.getElementById('detail_op_ticket');
+        if (elOp) elOp.textContent = sch.opTicket || '';
+    }
+
+    const ticketWrapper = document.getElementById('detail_ticket_wrapper');
+    const startWorkflowBtn = document.getElementById('btn-start-workflow');
+    const syncKpiBtn = document.getElementById('btn-sync-kpi');
+    const elTicket = document.getElementById('detail_ticket');
+    
+    if (sch.ticket && sch.ticket.trim() !== '') {
+        if (ticketWrapper) ticketWrapper.classList.remove('d-none');
+        if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
+        if (syncKpiBtn) syncKpiBtn.classList.remove('d-none');
+        if (elTicket) elTicket.textContent = sch.ticket;
+    } else {
+        if (ticketWrapper) ticketWrapper.classList.add('d-none');
+        if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
+        if (syncKpiBtn) syncKpiBtn.classList.add('d-none');
+    }
+
     const authorWrapper = document.getElementById('detail_author_wrapper');
     const elAuthor = document.getElementById('detail_author');
     if (sch.author && sch.author.trim() !== '') {
@@ -268,17 +330,7 @@ window.openScheduleDetail = (id) => {
     } else {
         if (authorWrapper) authorWrapper.classList.add('d-none');
     }
-    const epicWrapper = document.getElementById('detail_epic_wrapper');
-    const startWorkflowBtn = document.getElementById('btn-start-workflow');
-    const elEpic = document.getElementById('detail_epic');
-    if (sch.epic && sch.epic.trim() !== '') {
-        if (epicWrapper) epicWrapper.classList.remove('d-none');
-        if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
-        if (elEpic) elEpic.textContent = sch.epic;
-    } else {
-        if (epicWrapper) epicWrapper.classList.add('d-none');
-        if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
-    }
+
     modal.classList.remove('d-none');
     setTimeout(() => modal.classList.add('active'), 10);
 };
@@ -312,15 +364,53 @@ window.editSchedule = () => {
 window.startScheduleWorkflow = () => {
     if (!window.currentViewingScheduleId) return;
     const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
-    if (!sch || !sch.epic) return;
+    if (!sch || !sch.ticket) return;
     window.closeScheduleDetail();
     if (typeof window.switchMainTab === 'function') window.switchMainTab('issue');
     const epicInput = document.getElementById('guide_epic') || document.getElementById('targetUrl');
     if (epicInput) {
-        epicInput.value = sch.epic;
+        epicInput.value = sch.ticket;
         epicInput.dispatchEvent(new Event('input', { bubbles: true }));
         if (typeof window.generateTemplate === 'function') {
             setTimeout(() => window.generateTemplate(), 100);
         }
+    }
+};
+
+window.syncScheduleToKpi = () => {
+    if (!window.currentViewingScheduleId) return;
+    const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
+    if (!sch) return;
+
+    let kpiData;
+    try {
+        kpiData = JSON.parse(localStorage.getItem('skm_kpi_data')) || { tcRows: [] };
+    } catch (e) {
+        kpiData = { tcRows: [] };
+    }
+
+    const ticketName = sch.project && sch.project.trim() !== '' ? `[${sch.project}] ${sch.title}` : sch.title;
+    const newTcRow = {
+        poc: sch.poc || '기타',
+        name: ticketName,
+        ticket: sch.ticket || '',
+        total: 1,
+        isTwoDev: false
+    };
+
+    kpiData.tcRows.push(newTcRow);
+    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        const user = firebase.auth().currentUser;
+        if (user && !user.isAnonymous) {
+            firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
+        }
+    }
+
+    if (typeof window.showToast === 'function') {
+        window.showToast("📊 KPI 리포트에 검증 내역이 추가되었습니다.");
+    } else {
+        alert("📊 KPI 리포트에 검증 내역이 추가되었습니다.");
     }
 };
