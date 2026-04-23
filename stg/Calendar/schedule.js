@@ -286,7 +286,16 @@ window.openScheduleDetail = (id) => {
     
     document.getElementById('detail_title').textContent = sch.title;
     document.getElementById('detail_date').textContent = `${sch.start} ~ ${sch.end}`;
-    document.getElementById('detail_desc').textContent = sch.desc || '-';
+
+    const descEl = document.getElementById('detail_desc');
+    if (descEl) {
+        let rawDesc = sch.desc || '-';
+        rawDesc = rawDesc.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        rawDesc = rawDesc.replace(urlRegex, '<a href="$1" target="_blank" style="color: var(--accent-blue); text-decoration: underline; word-break: break-all;">$1</a>');
+        rawDesc = rawDesc.replace(/\n/g, '<br>');
+        descEl.innerHTML = rawDesc;
+    }
 
     const pocWrapper = document.getElementById('detail_poc_wrapper');
     if (pocWrapper) {
@@ -295,7 +304,6 @@ window.openScheduleDetail = (id) => {
         if (elPoc) elPoc.textContent = sch.poc || '';
     }
 
-    // 🚨 보안 패치: XSS 방어를 위해 innerHTML 대신 createElement 사용
     const opTicketWrapper = document.getElementById('detail_op_ticket_wrapper');
     const syncKpiBtn = document.getElementById('btn-sync-kpi');
     
@@ -305,7 +313,7 @@ window.openScheduleDetail = (id) => {
         const elOp = document.getElementById('detail_op_ticket');
         if (elOp) {
             const val = sch.opTicket.trim();
-            const link = val.startsWith('http') ? val : `https://jira.com/browse/${val}`;
+            const link = val.startsWith('http') ? val : `https://jira.tde.sktelecom.com/browse/${val}`;
             
             elOp.innerHTML = ''; 
             const aTag = document.createElement('a');
@@ -329,7 +337,7 @@ window.openScheduleDetail = (id) => {
         if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
         if (elTicket) {
             const val = sch.ticket.trim();
-            const link = val.startsWith('http') ? val : `https://jira.com/browse/${val}`;
+            const link = val.startsWith('http') ? val : `https://jira.tde.sktelecom.com/browse/${val}`;
             
             elTicket.innerHTML = '';
             const aTag = document.createElement('a');
