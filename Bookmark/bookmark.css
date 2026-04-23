@@ -1,12 +1,8 @@
 #bookmark-panel {
-    display: none;
+    display: flex;
     flex-direction: column;
     height: 100%;
     background: var(--bg-color);
-}
-
-#bookmark-panel.active {
-    display: flex;
 }
 
 .bm-header {
