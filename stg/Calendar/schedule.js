@@ -300,26 +300,29 @@ window.openScheduleDetail = (id) => {
     }
 
     const opTicketWrapper = document.getElementById('detail_op_ticket_wrapper');
-    if (opTicketWrapper) {
-        opTicketWrapper.classList.toggle('d-none', !sch.opTicket);
+    const syncKpiBtn = document.getElementById('btn-sync-kpi');
+    
+    if (sch.opTicket && sch.opTicket.trim() !== '') {
+        if (opTicketWrapper) opTicketWrapper.classList.remove('d-none');
+        if (syncKpiBtn) syncKpiBtn.classList.remove('d-none');
         const elOp = document.getElementById('detail_op_ticket');
-        if (elOp) elOp.textContent = sch.opTicket || '';
+        if (elOp) elOp.textContent = sch.opTicket;
+    } else {
+        if (opTicketWrapper) opTicketWrapper.classList.add('d-none');
+        if (syncKpiBtn) syncKpiBtn.classList.add('d-none');
     }
 
     const ticketWrapper = document.getElementById('detail_ticket_wrapper');
     const startWorkflowBtn = document.getElementById('btn-start-workflow');
-    const syncKpiBtn = document.getElementById('btn-sync-kpi');
     const elTicket = document.getElementById('detail_ticket');
     
     if (sch.ticket && sch.ticket.trim() !== '') {
         if (ticketWrapper) ticketWrapper.classList.remove('d-none');
         if (startWorkflowBtn) startWorkflowBtn.classList.remove('d-none');
-        if (syncKpiBtn) syncKpiBtn.classList.remove('d-none');
         if (elTicket) elTicket.textContent = sch.ticket;
     } else {
         if (ticketWrapper) ticketWrapper.classList.add('d-none');
         if (startWorkflowBtn) startWorkflowBtn.classList.add('d-none');
-        if (syncKpiBtn) syncKpiBtn.classList.add('d-none');
     }
 
     const authorWrapper = document.getElementById('detail_author_wrapper');
@@ -393,7 +396,7 @@ window.syncScheduleToKpi = () => {
     const newTcRow = {
         poc: sch.poc || '기타',
         name: ticketName,
-        ticket: sch.ticket || '',
+        ticket: sch.opTicket || '',
         total: 1,
         isTwoDev: false
     };
