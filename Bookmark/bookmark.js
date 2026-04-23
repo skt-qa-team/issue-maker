@@ -6,12 +6,15 @@ let editingLinkId = null;
 let bmDragState = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("🔍 [Bookmark] DOMContentLoaded 발생");
     firebase.auth().onAuthStateChanged((user) => {
         currentUserUid = user ? user.uid : null;
+        console.log("🔍 [Bookmark] Auth 상태 변경:", currentUserUid);
     });
 });
 
 document.addEventListener('componentsLoaded', () => {
+    console.log("🔍 [Bookmark] componentsLoaded 이벤트 수신");
     const nameInput = document.getElementById('bm_input_name');
     const urlInput = document.getElementById('bm_input_url');
     
@@ -26,13 +29,18 @@ document.addEventListener('componentsLoaded', () => {
 });
 
 window.initSharedBookmarks = () => {
+    console.log("🔍 [Bookmark] Firebase 데이터 구독 시작");
     const bmRef = firebase.database().ref('shared_bookmarks');
     bmRef.on('value', (snapshot) => {
         let data = snapshot.val();
+        console.log("🔍 [Bookmark] Firebase 원본 데이터 수신:", data);
         if (!data) data = [];
 
         const newDataStr = JSON.stringify(data);
-        if (window._prevBmStr === newDataStr) return;
+        if (window._prevBmStr === newDataStr) {
+            console.log("🔍 [Bookmark] 데이터 변경 없음 (렌더링 스킵)");
+            return;
+        }
         window._prevBmStr = newDataStr;
 
         bookmarks = Array.isArray(data) ? data : Object.values(data);
@@ -44,6 +52,7 @@ window.initSharedBookmarks = () => {
 
         if (!currentFolderId && bookmarks.length > 0) {
             currentFolderId = bookmarks[0].id;
+            console.log("🔍 [Bookmark] 기본 폴더 설정:", currentFolderId);
         } else if (bookmarks.length === 0) {
             currentFolderId = null;
         }
@@ -54,7 +63,7 @@ window.initSharedBookmarks = () => {
 
 window.saveBookmarksToFirebase = () => {
     firebase.database().ref('shared_bookmarks').set(bookmarks).catch(err => {
-        console.error(err);
+        console.error("❌ [Bookmark] Firebase 저장 실패:", err);
         if (typeof window.showToast === 'function') window.showToast("❌ 데이터 저장에 실패했습니다.");
     });
 };
@@ -191,11 +200,15 @@ const buildFolderDOM = (folder, level) => {
 };
 
 window.renderBookmarks = () => {
+    console.log("🔍 [Bookmark] 렌더링 시작");
     const fList = document.getElementById('bm_folder_list');
     const lList = document.getElementById('bm_link_list');
     const titleText = document.getElementById('bm_current_folder_title');
     
-    if (!fList || !lList) return;
+    if (!fList || !lList) {
+        console.warn("⚠️ [Bookmark] 렌더링 실패: DOM 요소를 찾을 수 없음 (fList 또는 lList)");
+        return;
+    }
 
     fList.innerHTML = '';
     lList.innerHTML = '';
@@ -216,6 +229,7 @@ window.renderBookmarks = () => {
 
     const activeF = bookmarks.find(f => f.id === currentFolderId);
     if (activeF) {
+        console.log("🔍 [Bookmark] 선택된 폴더 렌더링:", activeF.name);
         titleText.textContent = `📂 ${activeF.name}`;
         const linkFragment = document.createDocumentFragment();
         activeF.links.forEach((l) => {
@@ -278,6 +292,7 @@ window.renderBookmarks = () => {
         });
         lList.appendChild(linkFragment);
     } else {
+        console.log("🔍 [Bookmark] 선택된 폴더 없음");
         titleText.textContent = `📂 폴더를 선택하세요`;
     }
 };
