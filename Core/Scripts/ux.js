@@ -18,7 +18,27 @@ document.addEventListener('componentsLoaded', () => {
     });
 });
 
-window.copySpecific = (targetId) => {
+window.fallbackCopyText = (text, el = null) => {
+    const t = document.createElement("textarea");
+    t.className = 'sr-only';
+    document.body.appendChild(t);
+    t.value = text;
+    t.select();
+    try {
+        document.execCommand("copy");
+        if (typeof window.showToast === 'function') window.showToast('📋 복사 완료!');
+        if (el) {
+            el.classList.add('copy-feedback');
+            setTimeout(() => el.classList.remove('copy-feedback'), 500);
+        }
+    } catch (err) {
+        console.error(err);
+        if (typeof window.showToast === 'function') window.showToast('❌ 복사에 실패했습니다.');
+    }
+    document.body.removeChild(t);
+};
+
+window.copySpecific = async (targetId) => {
     const el = document.getElementById(targetId);
     if (!el) return;
 
@@ -29,29 +49,38 @@ window.copySpecific = (targetId) => {
         return;
     }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
+    const triggerFeedback = () => {
         if (typeof window.showToast === 'function') window.showToast('📋 복사되었습니다.');
-        
         el.classList.add('copy-feedback');
-        setTimeout(() => {
-            el.classList.remove('copy-feedback');
-        }, 500);
-    }).catch(err => {
-        console.error(err);
-        if (typeof window.showToast === 'function') window.showToast('❌ 복사에 실패했습니다.');
-    });
+        setTimeout(() => el.classList.remove('copy-feedback'), 500);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            triggerFeedback();
+        } catch (err) {
+            window.fallbackCopyText(textToCopy, el);
+        }
+    } else {
+        window.fallbackCopyText(textToCopy, el);
+    }
 };
 
-window.copyToClipboard = (text) => {
+window.copyToClipboard = async (text) => {
     if (!text || !text.trim()) {
         if (typeof window.showToast === 'function') window.showToast('⚠️ 복사할 내용이 없습니다.');
         return;
     }
     
-    navigator.clipboard.writeText(text).then(() => {
-        if (typeof window.showToast === 'function') window.showToast('📋 전체 복사되었습니다.');
-    }).catch(err => {
-        console.error(err);
-        if (typeof window.showToast === 'function') window.showToast('❌ 복사에 실패했습니다.');
-    });
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            if (typeof window.showToast === 'function') window.showToast('📋 전체 복사되었습니다.');
+        } catch (err) {
+            window.fallbackCopyText(text);
+        }
+    } else {
+        window.fallbackCopyText(text);
+    }
 };
