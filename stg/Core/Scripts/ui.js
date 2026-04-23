@@ -31,7 +31,8 @@ window.switchMainTab = (tabName) => {
     const tabs = {
         'issue': 'panel-issue',
         'calendar': 'panel-calendar',
-        'completion': 'panel-completion'
+        'completion': 'panel-completion',
+        'bookmark': 'panel-bookmark'
     };
 
     const targetId = tabs[tabName];
@@ -63,6 +64,10 @@ window.switchMainTab = (tabName) => {
     
     if (tabName === 'completion' && typeof window.initCompletionPanel === 'function') {
         window.initCompletionPanel();
+    }
+
+    if (tabName === 'bookmark' && typeof window.renderBookmarks === 'function') {
+        window.renderBookmarks();
     }
 };
 
