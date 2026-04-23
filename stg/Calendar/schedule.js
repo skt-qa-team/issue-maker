@@ -87,7 +87,6 @@ window.handleScheduleTypeChange = () => {
 
     const groupEnd = document.getElementById('group_sch_end');
     const groupPoc = document.getElementById('group_sch_poc');
-    const groupProject = document.getElementById('group_sch_project');
     const groupOpTicket = document.getElementById('group_sch_op_ticket');
     const groupTicket = document.getElementById('group_sch_ticket');
     const groupAuthor = document.getElementById('group_sch_author');
@@ -97,7 +96,6 @@ window.handleScheduleTypeChange = () => {
 
     if (groupEnd) groupEnd.classList.toggle('d-none', type === '회의');
     if (groupPoc) groupPoc.classList.toggle('d-none', !isValidation);
-    if (groupProject) groupProject.classList.toggle('d-none', !isValidation);
     if (groupOpTicket) groupOpTicket.classList.toggle('d-none', !isValidation);
     if (groupTicket) groupTicket.classList.toggle('d-none', !isValidation);
     if (groupAuthor) groupAuthor.classList.toggle('d-none', type !== '회의');
@@ -178,7 +176,7 @@ window.processScreenshot = async (file) => {
                     for (const [index, item] of parsedArray.entries()) {
                         if (!item.title || !item.start) continue;
                         const id = Date.now().toString() + index;
-                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, project: '', opTicket: '', ticket: '', desc: 'AI 추출', color: '#3b82f6', author: '', poc: '기타' };
+                        const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, opTicket: '', ticket: '', desc: 'AI 추출', color: '#3b82f6', author: '', poc: '기타' };
                         await firebase.database().ref('shared_schedules/' + id).set(newSch);
                     }
                     window.closeScheduleModal();
@@ -205,7 +203,6 @@ window.openScheduleModal = (id = null) => {
             document.getElementById('sch_title').value = sch.title;
             document.getElementById('sch_start').value = sch.start;
             document.getElementById('sch_end').value = sch.end;
-            document.getElementById('sch_project').value = sch.project || '';
             document.getElementById('sch_op_ticket').value = sch.opTicket || '';
             document.getElementById('sch_ticket').value = sch.ticket || '';
             document.getElementById('sch_desc').value = sch.desc || '';
@@ -218,7 +215,7 @@ window.openScheduleModal = (id = null) => {
             if (radio) radio.checked = true;
         }
     } else {
-        ['sch_title', 'sch_start', 'sch_end', 'sch_project', 'sch_op_ticket', 'sch_ticket', 'sch_desc', 'sch_author'].forEach(eid => {
+        ['sch_title', 'sch_start', 'sch_end', 'sch_op_ticket', 'sch_ticket', 'sch_desc', 'sch_author'].forEach(eid => {
             const el = document.getElementById(eid);
             if (el) el.value = '';
         });
@@ -257,7 +254,6 @@ window.saveSchedule = () => {
     const pocRadio = document.querySelector('input[name="sch_poc"]:checked');
     const poc = pocRadio ? pocRadio.value : '기타';
     
-    const project = document.getElementById('sch_project')?.value.trim() || '';
     const opTicket = document.getElementById('sch_op_ticket')?.value.trim() || '';
     const ticket = document.getElementById('sch_ticket')?.value.trim() || '';
 
@@ -266,7 +262,7 @@ window.saveSchedule = () => {
     if (start.split('-')[0].length > 4 || end.split('-')[0].length > 4) return alert("연도는 4자리까지만 가능합니다.");
     
     const newSch = { 
-        id, title, start, end, author, poc, project, opTicket, ticket,
+        id, title, start, end, author, poc, opTicket, ticket,
         desc: document.getElementById('sch_desc')?.value || '', 
         color 
     };
@@ -392,7 +388,7 @@ window.syncScheduleToKpi = () => {
         kpiData = { tcRows: [] };
     }
 
-    const ticketName = sch.project && sch.project.trim() !== '' ? `[${sch.project}] ${sch.title}` : sch.title;
+    const ticketName = sch.title;
     const newTcRow = {
         poc: sch.poc || '기타',
         name: ticketName,
