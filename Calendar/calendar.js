@@ -280,6 +280,7 @@ window.goToday = () => {
 };
 
 window.syncMonthToKpi = async () => {
+    let progressOverlay = null;
     try {
         if (!window.calSchedules || window.calSchedules.length === 0) return;
 
@@ -303,6 +304,32 @@ window.syncMonthToKpi = async () => {
 
         if (!confirm(`현재 월의 검증 일정 ${targetSchedules.length}건을 KPI 리포트에 일괄 연동하시겠습니까?`)) return;
 
+        progressOverlay = document.createElement('div');
+        progressOverlay.id = 'sync-progress-overlay';
+        progressOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;';
+        
+        const spinner = document.createElement('div');
+        spinner.innerHTML = '⏳';
+        spinner.style.cssText = 'font-size: 3rem; margin-bottom: 20px;';
+        
+        const statusText = document.createElement('h3');
+        statusText.id = 'sync-progress-text';
+        statusText.style.cssText = 'margin: 0 0 15px 0; font-size: 1.2rem; font-weight: bold; text-align: center; max-width: 80%; line-height: 1.5;';
+        statusText.textContent = `데이터 수집 준비 중...`;
+
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.style.cssText = 'width: 300px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);';
+        
+        const progressBar = document.createElement('div');
+        progressBar.id = 'sync-progress-bar';
+        progressBar.style.cssText = 'width: 0%; height: 100%; background: #3b82f6; transition: width 0.3s ease;';
+
+        progressBarContainer.appendChild(progressBar);
+        progressOverlay.appendChild(spinner);
+        progressOverlay.appendChild(statusText);
+        progressOverlay.appendChild(progressBarContainer);
+        document.body.appendChild(progressOverlay);
+
         const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
         const defaultDevices = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
         const targetDevice = defaultDevices.length > 0 ? defaultDevices[0] : null;
@@ -315,9 +342,16 @@ window.syncMonthToKpi = async () => {
         }
 
         const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
-        const SECRET_KEY = "Qpalzm123";
+        const SECRET_KEY = "Qpalzm123!@#";
+
+        let currentCount = 0;
+        const totalCount = targetSchedules.length;
 
         for (const sch of targetSchedules) {
+            currentCount++;
+            statusText.textContent = `[${sch.title}]\n데이터 연동 중... (${currentCount} / ${totalCount})`;
+            progressBar.style.width = `${(currentCount / totalCount) * 100}%`;
+
             let totalItems = 1;
             const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
@@ -338,16 +372,21 @@ window.syncMonthToKpi = async () => {
                     }
                 } catch (e) {
                     console.warn(`[Calendar] GAS Proxy Failed for [${sch.title}].`, e);
+                    
+                    progressOverlay.style.display = 'none';
                     const manualInput = prompt(`[보안/권한 정책] [${sch.title}]의 데이터 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
                     if (manualInput !== null) {
                         totalItems = parseInt(manualInput, 10) || 1;
                     }
+                    progressOverlay.style.display = 'flex';
                 }
             } else {
+                progressOverlay.style.display = 'none';
                 const manualInput = prompt(`[${sch.title}]\nURL이 없습니다. 검증에 수행된 총항목(TC) 개수를 입력해주세요:`, "1");
                 if (manualInput !== null) {
                     totalItems = parseInt(manualInput, 10) || 1;
                 }
+                progressOverlay.style.display = 'flex';
             }
 
             const newTcRow = {
@@ -371,12 +410,15 @@ window.syncMonthToKpi = async () => {
             }
         }
 
+        if (progressOverlay) progressOverlay.remove();
+
         if (typeof window.showToast === 'function') {
             window.showToast(`📊 ${targetSchedules.length}건의 일정이 KPI 리포트에 성공적으로 연동되었습니다.`);
         } else {
             alert(`📊 ${targetSchedules.length}건의 일정이 KPI 리포트에 성공적으로 연동되었습니다.`);
         }
     } catch (err) {
+        if (progressOverlay) progressOverlay.remove();
         if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Sync Month To KPI');
     }
 };
