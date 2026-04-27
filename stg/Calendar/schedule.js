@@ -444,7 +444,7 @@ window.syncScheduleToKpi = async () => {
         targetName = nameInput.trim();
         localStorage.setItem('qa_system_tester_name', targetName);
 
-        let totalItems = 1; 
+        let totalItems = 0; 
         const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
         if (urlMatch) {
@@ -460,29 +460,38 @@ window.syncScheduleToKpi = async () => {
                     const result = await response.json();
                     if (result.error) {
                         console.error("💡 GAS 디버깅 정보:", result);
-                        throw new Error(`GAS Server Error: ${result.error} (사유: ${result.reason || '알수없음'})`);
+                        throw new Error(`GAS Server Error: ${result.error}`);
                     }
-                    totalItems = result.total || 1;
+                    totalItems = result.total || 0;
                 } else {
                     throw new Error("Proxy Server Network Error");
                 }
 
             } catch (e) {
                 console.warn("[Schedule] GAS Proxy Failed, falling back to prompt.", e);
-                const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요 (0 입력 시 추가 안 함):`, "0");
                 if (manualInput !== null) {
-                    totalItems = parseInt(manualInput, 10) || 1;
+                    totalItems = parseInt(manualInput, 10) || 0;
                 } else {
                     return; 
                 }
             }
         } else {
-            const manualInput = prompt(`[${sch.title}]\nURL이 없습니다. 본인이 검증한 총항목(TC) 개수를 입력해주세요:`, "1");
+            const manualInput = prompt(`[${sch.title}]\nURL이 없습니다. 본인이 검증한 총항목(TC) 개수를 입력해주세요 (0 입력 시 추가 안 함):`, "0");
             if (manualInput !== null) {
-                totalItems = parseInt(manualInput, 10) || 1;
+                totalItems = parseInt(manualInput, 10) || 0;
             } else {
                 return;
             }
+        }
+
+        if (totalItems === 0) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(`⚠️ [${targetName}] 님의 내역을 찾을 수 없어 KPI 추가를 취소했습니다.`);
+            } else {
+                alert(`⚠️ [${targetName}] 님의 내역을 찾을 수 없어 KPI 추가를 취소했습니다.`);
+            }
+            return;
         }
 
         let kpiData;
