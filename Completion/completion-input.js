@@ -1,14 +1,19 @@
 window.compDataCache = {};
 window.qa_comp_presets = {};
 
+// 특수문자 방어 로직 (inputform.js가 늦게 로드될 경우를 대비해 여기서도 선언)
+window.encodeSafeKey = window.encodeSafeKey || ((str) => encodeURIComponent(str).replace(/\./g, '%2E'));
+window.decodeSafeKey = window.decodeSafeKey || ((str) => decodeURIComponent(str.replace(/%2E/g, '.')));
+
 window.initCompletionInput = () => {
     try {
         window.compDataCache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
         
         const adminInput = document.getElementById('comp_admin_url');
         const pcInput = document.getElementById('comp_pc_url');
-        if (adminInput && window.compDataCache.adminUrl) adminInput.value = window.compDataCache.adminUrl;
-        if (pcInput && window.compDataCache.pcUrl) pcInput.value = window.compDataCache.pcUrl;
+        // undefined 방어 로직 추가 (|| '')
+        if (adminInput) adminInput.value = window.compDataCache.adminUrl || '';
+        if (pcInput) pcInput.value = window.compDataCache.pcUrl || '';
 
         const sList = document.getElementById('comp_server_list');
         if (sList) {
@@ -46,7 +51,20 @@ window.fetchCompPresetsFromFirebase = () => {
             firebase.auth().onAuthStateChanged((user) => {
                 if (user && !user.isAnonymous) {
                     firebase.database().ref(`users/${user.uid}/comp_presets`).on('value', (snapshot) => {
-                        window.qa_comp_presets = snapshot.val() || {};
+                        const rawPresets = snapshot.val() || {};
+                        const decodedPresets = {};
+                        
+                        // Firebase에서 불러올 때 키값 디코딩
+                        Object.keys(rawPresets).forEach(encodedKey => {
+                            try {
+                                const decodedKey = window.decodeSafeKey(encodedKey);
+                                decodedPresets[decodedKey] = rawPresets[encodedKey];
+                            } catch (err) {
+                                decodedPresets[encodedKey] = rawPresets[encodedKey];
+                            }
+                        });
+                        
+                        window.qa_comp_presets = decodedPresets;
                         window.renderCompPresets();
                     }, (error) => {
                         if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Comp Preset Firebase Fetch');
@@ -180,10 +198,11 @@ window.saveCompPreset = () => {
         }
 
         const newData = window.getCompFormData();
+        const encodedName = window.encodeSafeKey(name); // 저장 시 키 인코딩
         
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             const uid = firebase.auth().currentUser.uid;
-            firebase.database().ref(`users/${uid}/comp_presets/${name}`).set(newData).then(() => {
+            firebase.database().ref(`users/${uid}/comp_presets/${encodedName}`).set(newData).then(() => {
                 if (nameEl) nameEl.value = '';
                 const selectEl = document.getElementById('compPresetSelect');
                 if (selectEl) selectEl.value = name;
@@ -228,10 +247,13 @@ window.editCompPreset = () => {
             const uid = firebase.auth().currentUser.uid;
             const presetsRef = firebase.database().ref(`users/${uid}/comp_presets`);
             
+            const encodedNewName = window.encodeSafeKey(newName);
+            const encodedOriginalName = window.encodeSafeKey(originalName);
+            
             if (newName !== originalName) {
                 const updates = {};
-                updates[originalName] = null;
-                updates[newName] = newData;
+                updates[encodedOriginalName] = null;
+                updates[encodedNewName] = newData;
                 presetsRef.update(updates).then(() => {
                     if (selectEl) selectEl.value = newName;
                     if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`);
@@ -240,7 +262,7 @@ window.editCompPreset = () => {
                     if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
                 });
             } else {
-                presetsRef.child(originalName).set(newData).then(() => {
+                presetsRef.child(encodedOriginalName).set(newData).then(() => {
                     if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`);
                     if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
                 }).catch(err => {
@@ -264,9 +286,11 @@ window.deleteCompPreset = () => {
 
         if (!confirm(`정말 프리셋 [${name}]을(를) 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) return;
 
+        const encodedName = window.encodeSafeKey(name); // 삭제 시 키 인코딩
+
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             const uid = firebase.auth().currentUser.uid;
-            firebase.database().ref(`users/${uid}/comp_presets/${name}`).remove().then(() => {
+            firebase.database().ref(`users/${uid}/comp_presets/${encodedName}`).remove().then(() => {
                 selectEl.value = '';
                 const nameInput = document.getElementById('newCompPresetName');
                 if (nameInput) nameInput.value = '';
@@ -314,7 +338,9 @@ window.applyCompPreset = (name) => {
         const data = presets[name];
         if (!data) return;
 
+        // 값이 undefined일 경우 빈 칸으로 처리하도록 방어 코드(|| '') 적용
         const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        
         setVal('comp_check', data.check);
         setVal('comp_rate_num', data.rate);
         setVal('comp_admin_url', data.adminUrl);
