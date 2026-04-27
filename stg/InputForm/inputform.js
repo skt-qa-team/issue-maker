@@ -1,6 +1,9 @@
 window.isInitialRender = true;
 window.qa_input_presets = {};
 
+window.encodeSafeKey = (str) => encodeURIComponent(str).replace(/\./g, '%2E');
+window.decodeSafeKey = (str) => decodeURIComponent(str.replace(/%2E/g, '.'));
+
 const DEFAULT_PREFIX_ORDER = [
     { id: 'env', order: 1 },
     { id: 'os', order: 2 },
@@ -237,7 +240,19 @@ window.fetchPresetsFromFirebase = () => {
             firebase.auth().onAuthStateChanged((user) => {
                 if (user && !user.isAnonymous) {
                     firebase.database().ref(`users/${user.uid}/presets`).on('value', (snapshot) => {
-                        window.qa_input_presets = snapshot.val() || {};
+                        const rawPresets = snapshot.val() || {};
+                        const decodedPresets = {};
+                        
+                        Object.keys(rawPresets).forEach(encodedKey => {
+                            try {
+                                const decodedKey = window.decodeSafeKey(encodedKey);
+                                decodedPresets[decodedKey] = rawPresets[encodedKey];
+                            } catch (err) {
+                                decodedPresets[encodedKey] = rawPresets[encodedKey];
+                            }
+                        });
+                        
+                        window.qa_input_presets = decodedPresets;
                         window.renderInputPresets();
                     }, (error) => {
                         if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Preset Firebase Fetch');
@@ -300,10 +315,11 @@ window.saveInputPreset = () => {
     if (Object.keys(presets).length >= 10 && !presets[name]) return window.showToast?.('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
 
     const newData = window.getFormDataForPreset();
+    const encodedName = window.encodeSafeKey(name);
     
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         const uid = firebase.auth().currentUser.uid;
-        firebase.database().ref(`users/${uid}/presets/${name}`).set(newData).then(() => {
+        firebase.database().ref(`users/${uid}/presets/${encodedName}`).set(newData).then(() => {
             if (nameInput) nameInput.value = '';
             const selectEl = document.getElementById('inputPresetSelect');
             if (selectEl) {
@@ -336,10 +352,13 @@ window.editInputPreset = () => {
         const uid = firebase.auth().currentUser.uid;
         const presetsRef = firebase.database().ref(`users/${uid}/presets`);
         
+        const encodedNewName = window.encodeSafeKey(newName);
+        const encodedOriginalName = window.encodeSafeKey(originalName);
+        
         if (newName !== originalName) {
             const updates = {};
-            updates[originalName] = null;
-            updates[newName] = newData;
+            updates[encodedOriginalName] = null;
+            updates[encodedNewName] = newData;
             presetsRef.update(updates).then(() => {
                 if (selectEl) selectEl.value = newName;
                 window.showToast?.(`✏️ '${newName}' 프리셋이 서버에서 수정되었습니다.`);
@@ -347,7 +366,7 @@ window.editInputPreset = () => {
                 if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Preset Firebase');
             });
         } else {
-            presetsRef.child(originalName).set(newData).then(() => {
+            presetsRef.child(encodedOriginalName).set(newData).then(() => {
                 window.showToast?.(`✏️ '${newName}' 프리셋이 서버에서 수정되었습니다.`);
             }).catch(err => {
                 if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Preset Firebase');
@@ -361,10 +380,11 @@ window.deleteInputPreset = () => {
     if (!selectEl || !selectEl.value) return window.showToast?.('⚠️ 삭제할 프리셋을 선택해주세요.');
     
     const name = selectEl.value;
+    const encodedName = window.encodeSafeKey(name);
     
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         const uid = firebase.auth().currentUser.uid;
-        firebase.database().ref(`users/${uid}/presets/${name}`).remove().then(() => {
+        firebase.database().ref(`users/${uid}/presets/${encodedName}`).remove().then(() => {
             selectEl.value = '';
             const nameInput = document.getElementById('newPresetName');
             if (nameInput) nameInput.value = '';
