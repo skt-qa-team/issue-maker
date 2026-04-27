@@ -437,21 +437,24 @@ window.syncScheduleToKpi = async () => {
         const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
         if (!sch) return;
 
-        const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
-        const defaultDevices = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
-        const targetDevice = defaultDevices.length > 0 ? defaultDevices[0] : null;
+        let targetName = localStorage.getItem('qa_system_tester_name') || "";
+        const nameInput = prompt("이 구글 시트에서 검색할 '본인 이름'을 입력해주세요:", targetName);
+        
+        if (nameInput === null || nameInput.trim() === "") return;
+        targetName = nameInput.trim();
+        localStorage.setItem('qa_system_tester_name', targetName);
 
         let totalItems = 1; 
         const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
-        if (urlMatch && targetDevice) {
+        if (urlMatch) {
             const sheetId = urlMatch[1];
 
             try {
                 const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
                 const SECRET_KEY = "Qpalzm123"; 
 
-                const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${encodeURIComponent(SECRET_KEY)}`);
+                const response = await fetch(`${GAS_URL}?id=${sheetId}&name=${encodeURIComponent(targetName)}&key=${encodeURIComponent(SECRET_KEY)}`);
                 
                 if (response.ok) {
                     const result = await response.json();
@@ -466,7 +469,7 @@ window.syncScheduleToKpi = async () => {
 
             } catch (e) {
                 console.warn("[Schedule] GAS Proxy Failed, falling back to prompt.", e);
-                const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요:`, "65");
                 if (manualInput !== null) {
                     totalItems = parseInt(manualInput, 10) || 1;
                 } else {
@@ -474,7 +477,7 @@ window.syncScheduleToKpi = async () => {
                 }
             }
         } else {
-            const manualInput = prompt("검증에 수행된 총항목(TC) 개수를 입력해주세요:", "1");
+            const manualInput = prompt(`[${sch.title}]\nURL이 없습니다. 본인이 검증한 총항목(TC) 개수를 입력해주세요:`, "1");
             if (manualInput !== null) {
                 totalItems = parseInt(manualInput, 10) || 1;
             } else {
