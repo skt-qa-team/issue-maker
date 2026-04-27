@@ -1,81 +1,97 @@
 window.currentViewingScheduleId = null;
 
 document.addEventListener('componentsLoaded', () => {
-    window.updateQuotaDisplay();
+    try {
+        window.updateQuotaDisplay();
+    } catch (e) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Schedule ComponentsLoaded');
+    }
 });
 
 document.addEventListener('change', (e) => {
-    const target = e.target;
+    try {
+        const target = e.target;
 
-    if (target.name === 'sch_color') {
-        window.handleScheduleTypeChange();
-    }
-    
-    if (target.id === 'sch_start') {
-        const startVal = target.value;
-        const endInput = document.getElementById('sch_end');
-        const typeRadio = document.querySelector('input[name="sch_color"]:checked');
-        const type = typeRadio ? typeRadio.getAttribute('data-type') : '';
+        if (target.name === 'sch_color') {
+            window.handleScheduleTypeChange();
+        }
         
-        if (startVal) {
-            const year = parseInt(startVal.split('-')[0]);
-            if (year > 9999) {
-                alert("연도는 9999년까지만 입력 가능합니다.");
-                target.value = '';
-                return;
+        if (target.id === 'sch_start') {
+            const startVal = target.value;
+            const endInput = document.getElementById('sch_end');
+            const typeRadio = document.querySelector('input[name="sch_color"]:checked');
+            const type = typeRadio ? typeRadio.getAttribute('data-type') : '';
+            
+            if (startVal) {
+                const year = parseInt(startVal.split('-')[0]);
+                if (year > 9999) {
+                    alert("연도는 9999년까지만 입력 가능합니다.");
+                    target.value = '';
+                    return;
+                }
+            }
+
+            if (type !== '검증' && type !== '할 일') {
+                if (endInput) endInput.value = startVal;
+            } else if (endInput && endInput.value && endInput.value < startVal) {
+                endInput.value = startVal;
             }
         }
 
-        if (type !== '검증' && type !== '할 일') {
-            if (endInput) endInput.value = startVal;
-        } else if (endInput && endInput.value && endInput.value < startVal) {
-            endInput.value = startVal;
-        }
-    }
+        if (target.id === 'sch_end') {
+            const endVal = target.value;
+            const startInput = document.getElementById('sch_start');
 
-    if (target.id === 'sch_end') {
-        const endVal = target.value;
-        const startInput = document.getElementById('sch_start');
+            if (endVal) {
+                const year = parseInt(endVal.split('-')[0]);
+                if (year > 9999) {
+                    alert("연도는 9999년까지만 입력 가능합니다.");
+                    target.value = '';
+                    return;
+                }
+            }
 
-        if (endVal) {
-            const year = parseInt(endVal.split('-')[0]);
-            if (year > 9999) {
-                alert("연도는 9999년까지만 입력 가능합니다.");
-                target.value = '';
-                return;
+            if (startInput && startInput.value && endVal < startInput.value) {
+                alert("종료일이 시작일보다 이전일 수 없습니다.");
+                target.value = startInput.value;
             }
         }
-
-        if (startInput && startInput.value && endVal < startInput.value) {
-            alert("종료일이 시작일보다 이전일 수 없습니다.");
-            target.value = startInput.value;
-        }
+    } catch (e) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Schedule Change Event');
     }
 });
 
 document.addEventListener('paste', async (e) => {
-    const modal = document.getElementById('scheduleModal');
-    if (modal && modal.classList.contains('active')) {
-        const items = e.clipboardData?.items || [];
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) await window.processScreenshot(file);
-                break;
+    try {
+        const modal = document.getElementById('scheduleModal');
+        if (modal && modal.classList.contains('active')) {
+            const items = e.clipboardData?.items || [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) await window.processScreenshot(file);
+                    break;
+                }
             }
         }
+    } catch (e) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Schedule Paste Event');
     }
 });
 
 document.addEventListener('click', (e) => {
-    const target = e.target;
-    if (target.id === 'btn-close-sch-modal-top' || target.id === 'btn-close-sch-modal-bot') window.closeScheduleModal();
-    if (target.id === 'btn-save-sch') window.saveSchedule();
-    if (target.id === 'btn-close-detail') window.closeScheduleDetail();
-    if (target.id === 'btn-delete-sch') window.deleteSchedule();
-    if (target.id === 'btn-edit-sch') window.editSchedule();
-    if (target.id === 'btn-start-workflow') window.startScheduleWorkflow();
-    if (target.id === 'btn-sync-kpi') window.syncScheduleToKpi();
+    try {
+        const target = e.target;
+        if (target.id === 'btn-close-sch-modal-top' || target.id === 'btn-close-sch-modal-bot') window.closeScheduleModal();
+        if (target.id === 'btn-save-sch') window.saveSchedule();
+        if (target.id === 'btn-close-detail') window.closeScheduleDetail();
+        if (target.id === 'btn-delete-sch') window.deleteSchedule();
+        if (target.id === 'btn-edit-sch') window.editSchedule();
+        if (target.id === 'btn-start-workflow') window.startScheduleWorkflow();
+        if (target.id === 'btn-sync-kpi') window.syncScheduleToKpi();
+    } catch (err) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Schedule Click Event');
+    }
 });
 
 window.handleScheduleTypeChange = () => {
@@ -181,7 +197,9 @@ window.processScreenshot = async (file) => {
                     }
                     window.closeScheduleModal();
                 }
-            } catch (innerError) { console.error(innerError); }
+            } catch (innerError) { 
+                if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(innerError, 'Gemini API Parsed'); 
+            }
             finally {
                 if (dropzoneContent && loadingContent) {
                     dropzoneContent.classList.remove('d-none');
@@ -189,7 +207,9 @@ window.processScreenshot = async (file) => {
                 }
             }
         };
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Process Screenshot'); 
+    }
 };
 
 window.openScheduleModal = (id = null) => {
@@ -270,6 +290,8 @@ window.saveSchedule = () => {
     if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
         firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
             window.closeScheduleModal();
+        }).catch(err => {
+            if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Save Schedule Firebase');
         });
     }
 };
@@ -380,6 +402,8 @@ window.deleteSchedule = () => {
     if (!window.currentViewingScheduleId || !confirm("일정을 삭제하시겠습니까?")) return;
     firebase.database().ref('shared_schedules/' + window.currentViewingScheduleId).remove().then(() => {
         window.closeScheduleDetail();
+    }).catch(err => {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Delete Schedule Firebase');
     });
 };
 
@@ -407,40 +431,100 @@ window.startScheduleWorkflow = () => {
     }
 };
 
-window.syncScheduleToKpi = () => {
-    if (!window.currentViewingScheduleId) return;
-    const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
-    if (!sch) return;
-
-    let kpiData;
+window.syncScheduleToKpi = async () => {
     try {
-        kpiData = JSON.parse(localStorage.getItem('skm_kpi_data')) || { tcRows: [] };
-    } catch (e) {
-        kpiData = { tcRows: [] };
-    }
+        if (!window.currentViewingScheduleId) return;
+        const sch = window.calSchedules.find(s => s.id === window.currentViewingScheduleId);
+        if (!sch) return;
 
-    const ticketName = sch.title;
-    const newTcRow = {
-        poc: sch.poc || '기타',
-        name: ticketName,
-        ticket: sch.opTicket || '',
-        total: 1,
-        isTwoDev: false
-    };
+        const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
+        const defaultDevices = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
+        const targetDevice = defaultDevices.length > 0 ? defaultDevices[0] : null;
 
-    kpiData.tcRows.push(newTcRow);
-    localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+        let totalItems = 1; 
 
-    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-        const user = firebase.auth().currentUser;
-        if (user && !user.isAnonymous) {
-            firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
+        const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
+
+        if (urlMatch && targetDevice) {
+            const sheetId = urlMatch[1];
+            const gidMatch = urlMatch[0].match(/gid=([0-9]+)/);
+            const gid = gidMatch ? gidMatch[1] : '0';
+
+            try {
+                const queryUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+                const response = await fetch(queryUrl);
+                
+                if (response.ok) {
+                    const csvText = await response.text();
+                    const rows = csvText.split('\n');
+                    for (let row of rows) {
+                        if (row.includes(targetDevice)) {
+                            const cols = row.split('","').map(c => c.replace(/(^"|"$)/g, ''));
+                            const deviceIdx = cols.findIndex(c => c.includes(targetDevice));
+                            
+                            if (deviceIdx !== -1 && cols.length > deviceIdx + 2) {
+                                const parsedTotal = parseInt(cols[deviceIdx + 2].replace(/,/g, ''), 10);
+                                if (!isNaN(parsedTotal)) {
+                                    totalItems = parsedTotal;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    throw new Error("비공개 시트 차단");
+                }
+            } catch (e) {
+                const manualInput = prompt(`[보안 정책] 비공개 시트는 자동 읽기가 제한됩니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                if (manualInput !== null) {
+                    totalItems = parseInt(manualInput, 10) || 1;
+                } else {
+                    return; 
+                }
+            }
+        } else {
+            const manualInput = prompt("검증에 수행된 총항목(TC) 개수를 입력해주세요:", "1");
+            if (manualInput !== null) {
+                totalItems = parseInt(manualInput, 10) || 1;
+            } else {
+                return;
+            }
         }
-    }
 
-    if (typeof window.showToast === 'function') {
-        window.showToast("📊 KPI 리포트에 검증 내역이 추가되었습니다.");
-    } else {
-        alert("📊 KPI 리포트에 검증 내역이 추가되었습니다.");
+        let kpiData;
+        try {
+            kpiData = JSON.parse(localStorage.getItem('skm_kpi_data')) || { tcRows: [] };
+        } catch (e) {
+            kpiData = { tcRows: [] };
+        }
+
+        const ticketName = sch.title;
+        const newTcRow = {
+            poc: sch.poc || '기타',
+            name: ticketName,
+            ticket: sch.opTicket || '',
+            total: totalItems,
+            isTwoDev: false
+        };
+
+        kpiData.tcRows.push(newTcRow);
+        localStorage.setItem('skm_kpi_data', JSON.stringify(kpiData));
+
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            const user = firebase.auth().currentUser;
+            if (user && !user.isAnonymous) {
+                firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData).catch(err => {
+                    if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'KPI Firebase Sync');
+                });
+            }
+        }
+
+        if (typeof window.showToast === 'function') {
+            window.showToast(`📊 KPI 리포트에 검증 내역이 추가되었습니다. (TC: ${totalItems}건)`);
+        } else {
+            alert(`📊 KPI 리포트에 검증 내역이 추가되었습니다. (TC: ${totalItems}건)`);
+        }
+    } catch (err) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Sync Schedule To KPI');
     }
 };
