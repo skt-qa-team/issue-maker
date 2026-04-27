@@ -104,7 +104,8 @@ window.loadDraft = () => {
         Object.entries(data).forEach(([id, val]) => {
             const el = document.getElementById(id);
             if (el && !['selectedDevices', 'selectedServers', 'selectedVerCbs'].includes(id)) {
-                el.value = val;
+                // 값이 undefined일 경우 빈 칸으로 처리
+                el.value = val || ''; 
                 if (id.includes('_custom')) {
                     const baseId = id.replace('_custom', '');
                     const baseEl = document.getElementById(baseId);
@@ -407,7 +408,8 @@ window.applyInputPreset = (name) => {
 
     window.isInitialRender = false;
 
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    // 값이 undefined일 경우 빈 칸으로 처리하도록 방어 코드(|| '') 추가
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
     const setCheck = (id, checked) => { const el = document.getElementById(id); if (el) el.checked = checked; };
     const toggleDnone = (id, isCustom) => { const el = document.getElementById(id); if (el) el.classList.toggle('d-none', !isCustom); };
 
