@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const components = [
         { id: 'header-placeholder', url: 'Header/header.html' },
         { id: 'input-form-placeholder', url: 'InputForm/inputform.html' },
@@ -19,35 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const versionTag = new Date().getTime();
 
-    Promise.all(components.map(comp => 
-        fetch(`${comp.url}?v=${versionTag}`) 
-            .then(response => {
-                if (!response.ok) throw new Error(`[HTTP ${response.status}] ${comp.url}`);
-                return response.text();
-            })
-            .then(html => {
-                const placeholder = document.getElementById(comp.id);
-                if (placeholder) {
-                    placeholder.innerHTML = html;
-                    placeholder.classList.add('component-loaded'); 
-                }
-            })
-            .catch(err => console.error(`Load Failure: ${comp.id} -> ${err.message}`))
-    )).then(() => {
-        return fetch(`Completion/completion-result.html?v=${versionTag}`)
-            .then(response => {
-                if (!response.ok) throw new Error(`[HTTP ${response.status}] Completion Result`);
-                return response.text();
-            })
-            .then(html => {
-                const innerPlaceholder = document.getElementById('completion-result-placeholder');
-                if (innerPlaceholder) {
-                    innerPlaceholder.innerHTML = html;
-                    innerPlaceholder.classList.add('component-loaded');
-                }
-            })
-            .catch(err => console.error(`Nested Load Failure: ${err.message}`));
-    }).then(() => {
+    try {
+        await Promise.all(components.map(async (comp) => {
+            const response = await fetch(`${comp.url}?v=${versionTag}`);
+            if (!response.ok) throw new Error(`[HTTP ${response.status}] ${comp.url}`);
+            
+            const html = await response.text();
+            const placeholder = document.getElementById(comp.id);
+            if (placeholder) {
+                placeholder.innerHTML = html;
+                placeholder.classList.add('component-loaded');
+            }
+        }));
+
+        const compResponse = await fetch(`Completion/completion-result.html?v=${versionTag}`);
+        if (!compResponse.ok) throw new Error(`[HTTP ${compResponse.status}] Completion Result`);
+        
+        const compHtml = await compResponse.text();
+        const innerPlaceholder = document.getElementById('completion-result-placeholder');
+        if (innerPlaceholder) {
+            innerPlaceholder.innerHTML = compHtml;
+            innerPlaceholder.classList.add('component-loaded');
+        }
+
         setTimeout(() => {
             const initFunctions = [
                 () => window.startClock?.(),
@@ -64,10 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
 
             initFunctions.forEach(fn => {
-                try { fn(); } catch(e) { console.error("Initialization Failure:", e); }
+                try { 
+                    fn(); 
+                } catch(e) { 
+                    if (window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Loader Init');
+                    else console.error("Initialization Failure:", e); 
+                }
             });
 
             document.dispatchEvent(new CustomEvent('componentsLoaded'));
-        }, 150); 
-    });
+        }, 150);
+
+    } catch (error) {
+        console.error("Component Load Failure:", error.message);
+    }
 });
