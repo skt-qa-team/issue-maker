@@ -449,14 +449,15 @@ window.syncScheduleToKpi = async () => {
 
             try {
                 const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
-                const SECRET_KEY = "Qpalzm123"; 
+                const SECRET_KEY = "Qpalzm123!@#"; 
 
                 const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${encodeURIComponent(SECRET_KEY)}`);
                 
                 if (response.ok) {
                     const result = await response.json();
                     if (result.error) {
-                        throw new Error(`GAS Server Error: ${result.error}`);
+                        console.error("💡 GAS 디버깅 정보:", result);
+                        throw new Error(`GAS Server Error: ${result.error} (사유: ${result.reason || '알수없음'})`);
                     }
                     totalItems = result.total || 1;
                 } else {
@@ -465,7 +466,7 @@ window.syncScheduleToKpi = async () => {
 
             } catch (e) {
                 console.warn("[Schedule] GAS Proxy Failed, falling back to prompt.", e);
-                const manualInput = prompt(`[보안/네트워크 오류] 데이터 자동 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
                 if (manualInput !== null) {
                     totalItems = parseInt(manualInput, 10) || 1;
                 } else {
