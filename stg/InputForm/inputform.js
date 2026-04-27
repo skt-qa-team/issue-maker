@@ -1,4 +1,5 @@
 window.isInitialRender = true;
+window.qa_input_presets = {};
 
 const DEFAULT_PREFIX_ORDER = [
     { id: 'env', order: 1 },
@@ -230,8 +231,27 @@ window.getFormDataForPreset = () => {
     };
 };
 
+window.fetchPresetsFromFirebase = () => {
+    try {
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user && !user.isAnonymous) {
+                    firebase.database().ref(`users/${user.uid}/presets`).on('value', (snapshot) => {
+                        window.qa_input_presets = snapshot.val() || {};
+                        window.renderInputPresets();
+                    }, (error) => {
+                        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Preset Firebase Fetch');
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Fetch Presets From Firebase');
+    }
+};
+
 window.renderInputPresets = () => {
-    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    const presets = window.qa_input_presets || {};
     const selectEl = document.getElementById('inputPresetSelect');
     if (!selectEl) return;
     
@@ -276,22 +296,27 @@ window.saveInputPreset = () => {
     
     if (!name) return window.showToast?.('⚠️ 프리셋 이름을 입력해주세요.');
     
-    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    let presets = window.qa_input_presets || {};
     if (Object.keys(presets).length >= 10 && !presets[name]) return window.showToast?.('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.');
 
-    presets[name] = window.getFormDataForPreset();
-    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    const newData = window.getFormDataForPreset();
     
-    if (nameInput) nameInput.value = '';
-    window.renderInputPresets();
-    
-    const selectEl = document.getElementById('inputPresetSelect');
-    if (selectEl) {
-        selectEl.value = name;
-        window.handlePresetDropdownChange();
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        const uid = firebase.auth().currentUser.uid;
+        firebase.database().ref(`users/${uid}/presets/${name}`).set(newData).then(() => {
+            if (nameInput) nameInput.value = '';
+            const selectEl = document.getElementById('inputPresetSelect');
+            if (selectEl) {
+                selectEl.value = name;
+                window.handlePresetDropdownChange();
+            }
+            window.showToast?.('✅ 프리셋이 서버에 저장되었습니다.');
+        }).catch(err => {
+            if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Save Preset Firebase');
+        });
+    } else {
+        window.showToast?.('⚠️ 로그인 정보가 없어 프리셋을 저장할 수 없습니다.');
     }
-    
-    window.showToast?.('✅ 프리셋이 저장되었습니다.');
 };
 
 window.editInputPreset = () => {
@@ -305,21 +330,30 @@ window.editInputPreset = () => {
 
     if (!newName) return window.showToast?.('⚠️ 프리셋 이름을 입력해주세요.');
 
-    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
     const newData = window.getFormDataForPreset();
 
-    if (newName !== originalName) {
-        delete presets[originalName];
-        presets[newName] = newData;
-        localStorage.setItem('qa_input_presets', JSON.stringify(presets));
-        window.renderInputPresets();
-        if (selectEl) selectEl.value = newName;
-    } else {
-        presets[originalName] = newData;
-        localStorage.setItem('qa_input_presets', JSON.stringify(presets));
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        const uid = firebase.auth().currentUser.uid;
+        const presetsRef = firebase.database().ref(`users/${uid}/presets`);
+        
+        if (newName !== originalName) {
+            const updates = {};
+            updates[originalName] = null;
+            updates[newName] = newData;
+            presetsRef.update(updates).then(() => {
+                if (selectEl) selectEl.value = newName;
+                window.showToast?.(`✏️ '${newName}' 프리셋이 서버에서 수정되었습니다.`);
+            }).catch(err => {
+                if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Preset Firebase');
+            });
+        } else {
+            presetsRef.child(originalName).set(newData).then(() => {
+                window.showToast?.(`✏️ '${newName}' 프리셋이 서버에서 수정되었습니다.`);
+            }).catch(err => {
+                if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Preset Firebase');
+            });
+        }
     }
-    
-    window.showToast?.(`✏️ '${newName}' 프리셋이 수정되었습니다.`);
 };
 
 window.deleteInputPreset = () => {
@@ -327,25 +361,27 @@ window.deleteInputPreset = () => {
     if (!selectEl || !selectEl.value) return window.showToast?.('⚠️ 삭제할 프리셋을 선택해주세요.');
     
     const name = selectEl.value;
-    let presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
-    delete presets[name];
-    localStorage.setItem('qa_input_presets', JSON.stringify(presets));
     
-    selectEl.value = '';
-    const nameInput = document.getElementById('newPresetName');
-    if (nameInput) nameInput.value = '';
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+        const uid = firebase.auth().currentUser.uid;
+        firebase.database().ref(`users/${uid}/presets/${name}`).remove().then(() => {
+            selectEl.value = '';
+            const nameInput = document.getElementById('newPresetName');
+            if (nameInput) nameInput.value = '';
 
-    window.handlePresetDropdownChange();
-    window.renderInputPresets();
-    
-    window.showToast?.('🗑️ 프리셋이 삭제되었습니다.');
+            window.handlePresetDropdownChange();
+            window.showToast?.('🗑️ 프리셋이 서버에서 삭제되었습니다.');
+        }).catch(err => {
+            if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Delete Preset Firebase');
+        });
+    }
 };
 
 window.applyInputPreset = (name) => {
     const nameInput = document.getElementById('newPresetName');
     if (nameInput) nameInput.value = name || '';
 
-    const presets = JSON.parse(localStorage.getItem('qa_input_presets') || '{}');
+    const presets = window.qa_input_presets || {};
     const data = presets[name];
     if (!data) return;
 
@@ -611,7 +647,7 @@ window.updateVersionTextbox = () => {
 document.addEventListener('componentsLoaded', () => {
     setTimeout(() => {
         if (typeof window.loadPrefixOrder === 'function') window.loadPrefixOrder();
-        if (typeof window.renderInputPresets === 'function') window.renderInputPresets();
+        if (typeof window.fetchPresetsFromFirebase === 'function') window.fetchPresetsFromFirebase();
     }, 500);
 
     const inputFormContainer = document.getElementById('input-form-placeholder');
