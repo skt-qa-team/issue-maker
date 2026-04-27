@@ -1,4 +1,5 @@
 window.compDataCache = {};
+window.qa_comp_presets = {};
 
 window.initCompletionInput = () => {
     try {
@@ -28,7 +29,7 @@ window.initCompletionInput = () => {
         }
 
         window.renderCompDevices();
-        window.renderCompPresets();
+        window.fetchCompPresetsFromFirebase();
         window.initCompletionInputEvents();
 
         if (typeof window.updateCompletionPreview === 'function') {
@@ -36,6 +37,25 @@ window.initCompletionInput = () => {
         }
     } catch (e) {
         console.error("initCompletionInput Error:", e);
+    }
+};
+
+window.fetchCompPresetsFromFirebase = () => {
+    try {
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user && !user.isAnonymous) {
+                    firebase.database().ref(`users/${user.uid}/comp_presets`).on('value', (snapshot) => {
+                        window.qa_comp_presets = snapshot.val() || {};
+                        window.renderCompPresets();
+                    }, (error) => {
+                        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Comp Preset Firebase Fetch');
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Fetch Comp Presets From Firebase');
     }
 };
 
@@ -151,7 +171,7 @@ window.saveCompPreset = () => {
             return;
         }
 
-        let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+        let presets = window.qa_comp_presets || {};
         
         if (presets[name]) {
             if (!confirm(`[${name}] 프리셋이 이미 존재합니다. 덮어쓰시겠습니까?`)) return;
@@ -159,16 +179,21 @@ window.saveCompPreset = () => {
             if (!confirm(`새로운 프리셋 [${name}]을(를) 저장하시겠습니까?`)) return;
         }
 
-        presets[name] = window.getCompFormData();
-        localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+        const newData = window.getCompFormData();
         
-        nameEl.value = '';
-        window.renderCompPresets();
-        
-        const selectEl = document.getElementById('compPresetSelect');
-        if (selectEl) selectEl.value = name;
-        
-        if (typeof window.showToast === 'function') window.showToast('✅ 완료문 프리셋이 저장되었습니다.');
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            const uid = firebase.auth().currentUser.uid;
+            firebase.database().ref(`users/${uid}/comp_presets/${name}`).set(newData).then(() => {
+                if (nameEl) nameEl.value = '';
+                const selectEl = document.getElementById('compPresetSelect');
+                if (selectEl) selectEl.value = name;
+                if (typeof window.showToast === 'function') window.showToast('✅ 완료문 프리셋이 서버에 저장되었습니다.');
+            }).catch(err => {
+                if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Save Comp Preset Firebase');
+            });
+        } else {
+            if (typeof window.showToast === 'function') window.showToast('⚠️ 로그인 정보가 없어 프리셋을 저장할 수 없습니다.');
+        }
     } catch (e) {
         console.error("saveCompPreset Error:", e);
     }
@@ -197,22 +222,32 @@ window.editCompPreset = () => {
 
         if (!confirm(confirmMsg)) return;
 
-        let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
         const newData = window.getCompFormData();
 
-        if (newName !== originalName) {
-            delete presets[originalName];
-            presets[newName] = newData;
-            localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
-            window.renderCompPresets();
-            if (selectEl) selectEl.value = newName;
-        } else {
-            presets[originalName] = newData;
-            localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            const uid = firebase.auth().currentUser.uid;
+            const presetsRef = firebase.database().ref(`users/${uid}/comp_presets`);
+            
+            if (newName !== originalName) {
+                const updates = {};
+                updates[originalName] = null;
+                updates[newName] = newData;
+                presetsRef.update(updates).then(() => {
+                    if (selectEl) selectEl.value = newName;
+                    if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`);
+                    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                }).catch(err => {
+                    if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
+                });
+            } else {
+                presetsRef.child(originalName).set(newData).then(() => {
+                    if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`);
+                    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                }).catch(err => {
+                    if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
+                });
+            }
         }
-        
-        if (typeof window.showToast === 'function') window.showToast(`✅ [${newName}] 프리셋이 수정되었습니다.`);
-        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
     } catch (e) {
         console.error("editCompPreset Error:", e);
     }
@@ -229,18 +264,19 @@ window.deleteCompPreset = () => {
 
         if (!confirm(`정말 프리셋 [${name}]을(를) 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) return;
 
-        let presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
-        delete presets[name];
-        localStorage.setItem('qa_comp_presets', JSON.stringify(presets));
-        
-        selectEl.value = '';
-        const nameInput = document.getElementById('newCompPresetName');
-        if (nameInput) nameInput.value = '';
-
-        window.renderCompPresets();
-        
-        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
-        if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 삭제되었습니다.');
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            const uid = firebase.auth().currentUser.uid;
+            firebase.database().ref(`users/${uid}/comp_presets/${name}`).remove().then(() => {
+                selectEl.value = '';
+                const nameInput = document.getElementById('newCompPresetName');
+                if (nameInput) nameInput.value = '';
+                
+                if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                if (typeof window.showToast === 'function') window.showToast('🗑️ 프리셋이 서버에서 삭제되었습니다.');
+            }).catch(err => {
+                if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Delete Comp Preset Firebase');
+            });
+        }
     } catch (e) {
         console.error("deleteCompPreset Error:", e);
     }
@@ -250,12 +286,13 @@ window.renderCompPresets = () => {
     try {
         const selectEl = document.getElementById('compPresetSelect');
         if (!selectEl) return;
-        const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+        const presets = window.qa_comp_presets || {};
         
         const currentVal = selectEl.value;
         let html = '<option value="">💾 프리셋 선택...</option>';
         Object.keys(presets).forEach(name => {
-            html += `<option value="${name}">${name}</option>`;
+            const safeName = window.escapeHTMLTemplate ? window.escapeHTMLTemplate(name) : name;
+            html += `<option value="${safeName}">${safeName}</option>`;
         });
         selectEl.innerHTML = html;
         
@@ -273,7 +310,7 @@ window.applyCompPreset = (name) => {
         if (nameInput) nameInput.value = name || '';
 
         if (!name) return;
-        const presets = JSON.parse(localStorage.getItem('qa_comp_presets') || '{}');
+        const presets = window.qa_comp_presets || {};
         const data = presets[name];
         if (!data) return;
 
