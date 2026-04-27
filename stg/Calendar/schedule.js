@@ -451,7 +451,7 @@ window.syncScheduleToKpi = async () => {
                 const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
                 const SECRET_KEY = "Qpalzm123!@#"; 
 
-                const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${SECRET_KEY}`);
+                const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${encodeURIComponent(SECRET_KEY)}`);
                 
                 if (response.ok) {
                     const result = await response.json();
