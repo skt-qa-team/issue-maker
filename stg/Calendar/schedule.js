@@ -442,40 +442,30 @@ window.syncScheduleToKpi = async () => {
         const targetDevice = defaultDevices.length > 0 ? defaultDevices[0] : null;
 
         let totalItems = 1; 
-
         const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
         if (urlMatch && targetDevice) {
             const sheetId = urlMatch[1];
-            const gidMatch = urlMatch[0].match(/gid=([0-9]+)/);
-            const gid = gidMatch ? gidMatch[1] : '0';
 
             try {
-                const queryUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
-                const response = await fetch(queryUrl);
+                const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
+                const SECRET_KEY = "QA_SYSTEM_SECRET_2026"; 
+
+                const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${SECRET_KEY}`);
                 
                 if (response.ok) {
-                    const csvText = await response.text();
-                    const rows = csvText.split('\n');
-                    for (let row of rows) {
-                        if (row.includes(targetDevice)) {
-                            const cols = row.split('","').map(c => c.replace(/(^"|"$)/g, ''));
-                            const deviceIdx = cols.findIndex(c => c.includes(targetDevice));
-                            
-                            if (deviceIdx !== -1 && cols.length > deviceIdx + 2) {
-                                const parsedTotal = parseInt(cols[deviceIdx + 2].replace(/,/g, ''), 10);
-                                if (!isNaN(parsedTotal)) {
-                                    totalItems = parsedTotal;
-                                    break;
-                                }
-                            }
-                        }
+                    const result = await response.json();
+                    if (result.error) {
+                        throw new Error(`GAS Server Error: ${result.error}`);
                     }
+                    totalItems = result.total || 1;
                 } else {
-                    throw new Error("비공개 시트 차단");
+                    throw new Error("Proxy Server Network Error");
                 }
+
             } catch (e) {
-                const manualInput = prompt(`[보안 정책] 비공개 시트는 자동 읽기가 제한됩니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                console.warn("[Schedule] GAS Proxy Failed, falling back to prompt.", e);
+                const manualInput = prompt(`[보안/네트워크 오류] 데이터 자동 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
                 if (manualInput !== null) {
                     totalItems = parseInt(manualInput, 10) || 1;
                 } else {
