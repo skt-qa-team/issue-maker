@@ -304,6 +304,13 @@ window.syncMonthToKpi = async () => {
 
         if (!confirm(`현재 월의 검증 일정 ${targetSchedules.length}건을 KPI 리포트에 일괄 연동하시겠습니까?`)) return;
 
+        let targetName = localStorage.getItem('qa_system_tester_name') || "";
+        const nameInput = prompt("모든 시트에서 검색할 '본인 이름'을 입력해주세요:", targetName);
+        
+        if (nameInput === null || nameInput.trim() === "") return;
+        targetName = nameInput.trim();
+        localStorage.setItem('qa_system_tester_name', targetName);
+
         progressOverlay = document.createElement('div');
         progressOverlay.id = 'sync-progress-overlay';
         progressOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;';
@@ -330,10 +337,6 @@ window.syncMonthToKpi = async () => {
         progressOverlay.appendChild(progressBarContainer);
         document.body.appendChild(progressOverlay);
 
-        const config = JSON.parse(localStorage.getItem('qa_system_config_master')) || {};
-        const defaultDevices = [...(config.andDefaultDevices || []), ...(config.iosDefaultDevices || [])];
-        const targetDevice = defaultDevices.length > 0 ? defaultDevices[0] : null;
-
         let kpiData;
         try {
             kpiData = JSON.parse(localStorage.getItem('skm_kpi_data')) || { tcRows: [] };
@@ -355,10 +358,10 @@ window.syncMonthToKpi = async () => {
             let totalItems = 1;
             const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
-            if (urlMatch && targetDevice) {
+            if (urlMatch) {
                 const sheetId = urlMatch[1];
                 try {
-                    const response = await fetch(`${GAS_URL}?id=${sheetId}&device=${encodeURIComponent(targetDevice)}&key=${encodeURIComponent(SECRET_KEY)}`);
+                    const response = await fetch(`${GAS_URL}?id=${sheetId}&name=${encodeURIComponent(targetName)}&key=${encodeURIComponent(SECRET_KEY)}`);
                     
                     if (response.ok) {
                         const result = await response.json();
@@ -374,7 +377,7 @@ window.syncMonthToKpi = async () => {
                     console.warn(`[Calendar] GAS Proxy Failed for [${sch.title}].`, e);
                     
                     progressOverlay.style.display = 'none';
-                    const manualInput = prompt(`[보안/권한 정책] [${sch.title}]의 데이터 수집에 실패했습니다.\n설정하신 기본 단말(${targetDevice})의 총항목(TC) 개수를 직접 입력해주세요:`, "65");
+                    const manualInput = prompt(`[보안/권한 정책] [${sch.title}]의 데이터 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요:`, "65");
                     if (manualInput !== null) {
                         totalItems = parseInt(manualInput, 10) || 1;
                     }
