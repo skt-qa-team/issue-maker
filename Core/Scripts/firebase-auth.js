@@ -7,7 +7,7 @@ window.QA_CORE.CONSTANTS.FIREBASE_CONFIG = {
     databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "skm-issue-helper",
     storageBucket: "skm-issue-helper.firebasestorage.app",
-    messagingSenderId: "YOUR_SENDER_ID",
+    messagingSenderId: "315338055920",
     appId: "1:315338055920:web:bd1129cc9afb1569aba235",
     measurementId: "G-98H9S1FQB0"
 };
@@ -21,14 +21,23 @@ window.QA_CORE.Auth = {
 
     login: () => {
         if (!window.QA_CORE.Auth.provider) return;
+        
+        const loginBtn = document.getElementById('btn-do-login');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = "로그인 중...";
+        }
+
         firebase.auth().signInWithPopup(window.QA_CORE.Auth.provider).catch((error) => {
-            if (window.QA_CORE && window.QA_CORE.ErrorHandler) {
-                window.QA_CORE.ErrorHandler.handle(error, 'Login Error');
-            } else {
-                console.error(error);
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Google 로그인";
             }
-            if (window.QA_CORE.UI && typeof window.QA_CORE.UI.showToast === 'function') {
-                window.QA_CORE.UI.showToast("❌ 로그인에 실패했습니다.", "error");
+            if (window.QA_CORE.ErrorHandler) {
+                window.QA_CORE.ErrorHandler.handle(error, 'Firebase Login');
+            }
+            if (window.QA_CORE.UI) {
+                window.QA_CORE.UI.showToast("로그인에 실패했습니다.", "error");
             }
         });
     },
@@ -63,8 +72,8 @@ window.QA_CORE.Auth = {
             if (!userData) {
                 const newUser = {
                     uid: user.uid,
-                    email: user.email || '이메일 없음',
-                    displayName: user.displayName || user.email.split('@')[0] || '이름 없음',
+                    email: user.email || '',
+                    displayName: user.displayName || user.email.split('@')[0] || 'Unknown',
                     photoURL: user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
                     status: "pending",
                     requestedAt: firebase.database.ServerValue.TIMESTAMP
@@ -83,6 +92,8 @@ window.QA_CORE.Auth = {
                     window.QA_CORE.Auth.showOverlay(status === "rejected" ? "rejected" : "pending");
                 }
             }
+        }, (error) => {
+            if (window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'Auth User Sync');
         });
     },
 
@@ -123,22 +134,22 @@ window.QA_CORE.Auth = {
         if (mode === "login") {
             contentHtml = `
                 <div class="auth-box">
-                    <h2>🔒 접근 제한</h2>
-                    <p>승인된 인원만 사용할 수 있습니다.<br>로그인 후 승인을 요청해 주세요.</p>
+                    <h2>🔒 Access Restricted</h2>
+                    <p>승인된 인원만 이용 가능한 시스템입니다.<br>로그인 후 관리자 승인을 요청해 주세요.</p>
                     <button id="btn-do-login" class="btn-login-google">Google 로그인</button>
                 </div>`;
         } else if (mode === "pending") {
             contentHtml = `
                 <div class="auth-box">
-                    <h2>⏳ 승인 대기 중</h2>
-                    <p>권한을 요청했습니다.<br>관리자의 승인을 기다려 주세요.</p>
+                    <h2>⏳ Approval Pending</h2>
+                    <p>계정 승인 요청이 전송되었습니다.<br>관리자의 승인이 완료될 때까지 기다려 주세요.</p>
                     <button id="btn-do-logout" class="btn-logout-sub">다른 계정으로 로그인</button>
                 </div>`;
         } else if (mode === "rejected") {
             contentHtml = `
                 <div class="auth-box">
-                    <h2>🚫 접근 거부</h2>
-                    <p>사용 권한이 거부된 계정입니다.</p>
+                    <h2>🚫 Access Denied</h2>
+                    <p>죄송합니다. 사용 권한이 거부되었습니다.<br>문의 사항은 관리자에게 연락 바랍니다.</p>
                     <button id="btn-do-logout" class="btn-logout-sub">로그아웃</button>
                 </div>`;
         }
@@ -157,7 +168,7 @@ window.QA_CORE.Auth = {
         if (typeof firebase === 'undefined') return;
         const presenceRef = firebase.database().ref('presence/' + user.uid);
         const data = {
-            name: user.displayName || user.email.split('@')[0] || '알 수 없음',
+            name: user.displayName || user.email.split('@')[0] || 'Unknown',
             photo: user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
             lastActive: firebase.database.ServerValue.TIMESTAMP
         };
@@ -183,6 +194,4 @@ window.QA_CORE.Auth = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.QA_CORE.Auth.init();
-});
+window.QA_CORE.Auth.init();
