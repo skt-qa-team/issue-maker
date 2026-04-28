@@ -1,0 +1,210 @@
+/* ==========================================
+   [InputForm 컴포넌트 전용 레이아웃] 
+   * 공용 input, textarea, select, checkbox 스타일은 Core/Styles 로 이관됨
+========================================== */
+
+.preset-controls-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.preset-select {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: var(--radius-sm);
+    background: var(--panel-bg) !important;
+    cursor: pointer;
+    width: 100% !important;
+}
+
+.preset-name-input {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--panel-bg);
+    color: var(--text-main);
+    outline: none;
+    transition: var(--transition-fast);
+    width: 100%;
+}
+
+.preset-name-input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.preset-btn-group {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-delete-preset:hover {
+    background: var(--accent-red);
+    color: white;
+    border-color: var(--accent-red);
+}
+
+.pill-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.pill-label {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    cursor: pointer;
+    background: var(--panel-bg);
+    color: var(--text-sub);
+    text-align: left;
+    font-weight: 600;
+    box-sizing: border-box;
+    transition: var(--transition-fast);
+}
+
+.pill-label:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.02);
+}
+
+input[type="checkbox"].pill-cb {
+    display: none !important;
+}
+
+input[type="checkbox"].pill-cb:checked + .pill-label {
+    background: var(--accent-green);
+    color: white;
+    border-color: var(--accent-green);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.prefix-grid {
+    display: grid;
+    grid-template-rows: repeat(4, auto);
+    grid-auto-flow: column;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.prefix-panel {
+    background: var(--bg-color);
+    padding: 18px;
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--border-color);
+    margin-bottom: 25px;
+}
+
+.prefix-item {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+}
+
+.prefix-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.prefix-order-input {
+    width: 40px !important;
+    padding: 4px !important;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--panel-bg);
+    color: var(--text-main);
+    font-size: 0.8rem !important;
+}
+
+.prefix-order-input::-webkit-inner-spin-button, 
+.prefix-order-input::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+.device-split-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.device-col {
+    flex: 1;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.device-col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.device-col-header span {
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.label-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.case-ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.case-num-group {
+    display: flex;
+    gap: 12px;
+}
+
+.case-num-group span {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.case-num-group span:hover {
+    color: var(--accent-blue);
+    transform: scale(1.1);
+}

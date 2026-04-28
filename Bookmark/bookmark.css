@@ -1,0 +1,303 @@
+#bookmark-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-color);
+}
+
+.bm-header {
+    padding: 15px 25px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bm-header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bm-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.bm-badge {
+    background: var(--accent-green);
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    animation: pulse 2s infinite;
+}
+
+.bm-body {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    flex: 1;
+    overflow: hidden;
+}
+
+.bm-sidebar {
+    background: var(--panel-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.bm-sidebar-actions {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    background: var(--panel-bg);
+    z-index: 5;
+}
+
+.bm-sidebar-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-weight: 800;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bm-sidebar-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.bm-folder-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.bm-main {
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.02);
+    overflow-x: hidden;
+}
+
+.bm-folder {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.bm-folder:hover {
+    background: var(--bg-color);
+    color: var(--text-main);
+}
+
+.bm-folder.active {
+    background: var(--bg-color);
+    color: var(--accent-blue);
+    border-left: 4px solid var(--accent-blue);
+    box-shadow: var(--shadow-sm);
+}
+
+.bm-folder.drag-over {
+    background: var(--bg-color) !important;
+    border-color: var(--accent-green) !important;
+    border-style: dashed !important;
+    transform: scale(1.02);
+    color: var(--accent-green);
+}
+
+.drag-over-top {
+    border-top: 3px solid var(--accent-blue) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.drag-over-bottom {
+    border-bottom: 3px solid var(--accent-blue) !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.bm-folder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bm-current-folder-title {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.bm-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.bm-link-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.bm-link-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.bm-link-card.dragging {
+    opacity: 0.4;
+    border: 2px dashed var(--accent-blue);
+    background: var(--bg-color);
+    transform: scale(0.98);
+    box-shadow: none;
+}
+
+.bm-link-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.bm-link-info b {
+    font-size: 1rem;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bm-link-info small {
+    color: var(--text-sub);
+    font-size: 0.85rem;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bm-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bm-btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-sub);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.bm-btn-icon:hover {
+    background: var(--bg-color);
+    color: var(--accent-blue);
+}
+
+.bm-btn-icon.del:hover {
+    color: var(--accent-red);
+}
+
+.bm-add-link-form {
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--accent-blue);
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.bm-add-link-form.active {
+    display: flex;
+}
+
+.bm-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.bm-btn-save {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.bm-btn-cancel {
+    background: var(--text-sub);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.bm-btn-save:hover, .bm-btn-cancel:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}

@@ -1,0 +1,109 @@
+#completionModal.modal-overlay {
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.completion-container {
+    width: 100%; /* 화면 너비 꽉 채우도록 수정 */
+    max-width: none; /* 최대 너비 제한 해제 */
+    height: 100%; /* 부모 탭 컨테이너 높이 꽉 채우도록 수정 */
+    background: var(--bg-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: var(--transition-medium);
+}
+
+.panel-header {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--panel-bg);
+}
+
+.panel-title-group h2 {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.fix-owner-alert {
+    background: rgba(244, 63, 94, 0.08);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    padding: 8px 15px;
+    border-radius: var(--radius-md);
+    color: #e11d48;
+    font-weight: 800;
+    font-size: 0.9rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.completion-panel-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(15px, 2vw, 30px);
+    flex: 1;
+    min-height: 0;
+    padding: clamp(15px, 2.5vh, 25px);
+    background: var(--bg-color);
+}
+
+/* [추가] 그리드 내부 Placeholder 및 입력 영역 강제 확장 */
+#completion-result-placeholder,
+.completion-form-side {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모 그리드 셀 높이 꽉 채우도록 강제 */
+    width: 100%; /* 부모 그리드 셀 너비 꽉 채우도록 강제 */
+    min-height: 0; /* 컨텐츠에 의한 버그 방지 */
+}
+
+/* [추가] 입력폼 영역 내부 스크롤 강제 */
+.completion-form-side {
+    overflow-y: auto;
+    gap: 20px;
+}
+
+/* [추가] 결과 미리보기 영역 내부 레이아웃 유지 */
+.completion-preview-side {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+}
+
+@media (max-width: 1400px) {
+    .form-group-horizontal > .form-label-sm,
+    .form-group-horizontal > .form-label-accent {
+        flex: 0 0 130px;
+    }
+}
+
+@media (min-width: 1600px) {
+    .form-group-horizontal > .form-label-sm,
+    .form-group-horizontal > .form-label-accent {
+        flex: 0 0 160px;
+    }
+}
