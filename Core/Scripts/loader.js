@@ -23,13 +23,14 @@ window.QA_CORE.Loader = {
         const initFunctions = [
             () => window.QA_CORE.UI?.startClock?.(),
             () => window.QA_CORE.UI?.renderPresence?.(),
-            () => window.renderChangelog?.(), 
-            () => window.initCustomTheme?.(), 
+            () => window.QA_CORE.UI?.renderChangelog?.() || window.renderChangelog?.(), 
+            () => window.QA_CORE.Theme?.init?.(), 
             () => {
-                if (localStorage.getItem('skm_draft') && window.QA_CORE.InputForm?.loadDraft) {
-                    window.QA_CORE.InputForm.loadDraft();
-                } else if (window.QA_CORE.InputForm?.syncEnvironment) {
-                    window.QA_CORE.InputForm.syncEnvironment();
+                const inputForm = window.QA_CORE.InputForm;
+                if (localStorage.getItem('skm_draft') && inputForm?.loadDraft) {
+                    inputForm.loadDraft();
+                } else if (inputForm?.syncEnvironment) {
+                    inputForm.syncEnvironment();
                 }
             },
             () => window.QA_CORE.UI?.switchMainTab?.('issue'),
@@ -82,7 +83,11 @@ window.QA_CORE.Loader = {
             }, 150);
 
         } catch (error) {
-            console.error("Component Load Failure:", error.message);
+            if (window.QA_CORE.ErrorHandler) {
+                window.QA_CORE.ErrorHandler.handle(error, 'Component Load Failure');
+            } else {
+                console.error("Component Load Failure:", error.message);
+            }
         }
     }
 };
