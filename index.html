@@ -3,77 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[SKM] 이슈틀 생성기 - V21.18</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="css/main.css">
+    <title>QA System Pro</title>
+    
+    <link rel="stylesheet" href="Core/Styles/main.css?v=qa260421">
+    
+    <script src="Core/Scripts/error-handler.js?v=qa260421"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    
+    <script src="Core/Scripts/firebase-auth.js?v=qa260421" defer></script>
+    <script src="Core/Scripts/ui.js?v=qa260421" defer></script>
+    <script src="Core/Scripts/ux.js?v=qa260421" defer></script>
+    
+    <script src="Admin/admin.js?v=qa260421" defer></script>
+    <script src="Bookmark/bookmark.js?v=qa260421" defer></script>
+    <script src="Bugreport/bugreport.js?v=qa260421" defer></script>
+    <script src="Calendar/calendar.js?v=qa260421" defer></script>
+    <script src="Calendar/schedule.js?v=qa260421" defer></script>
+    <script src="Completion/completion-input.js?v=qa260421" defer></script>
+    <script src="Completion/completion-result.js?v=qa260421" defer></script>
+    <script src="Condition/condition.js?v=qa260421" defer></script>
+    <script src="InputForm/inputform.js?v=qa260421" defer></script>
+    <script src="Kpi/kpi.js?v=qa260421" defer></script>
+    <script src="ResultForm/resultform.js?v=qa260421" defer></script>
+    <script src="Setting/setting.js?v=qa260421" defer></script>
+    <script src="Theme/theme.js?v=qa260421" defer></script>
+    <script src="GuideForm/guideform.js?v=qa260421" defer></script>
+    
+    <script src="Core/Scripts/loader.js?v=qa260421" defer></script>
 </head>
 <body>
-    <div id="comp-header"></div>
-    <div class="header-horizontal-divider"></div>
-    
-    <div id="tab-issue-maker" class="main-tab-content">
-        <div class="wrapper">
-            <div id="comp-guide"></div>
-            <div id="comp-input"></div>
-            <div id="comp-result"></div>
+    <div id="header-placeholder"></div>
+
+    <main class="main-container">
+        <div class="main-tab-nav">
+            <button class="main-tab-btn active" data-target="panel-issue">이슈 작성</button>
+            <button class="main-tab-btn" data-target="panel-calendar">일정 관리</button>
+            <button class="main-tab-btn" data-target="panel-completion">완료문</button>
+            <button class="main-tab-btn" data-target="panel-bookmark">북마크</button>
         </div>
-    </div>
 
-    <div id="tab-calendar" class="main-tab-content" style="display: none;">
-        <div id="comp-calendar"></div>
-    </div>
+        <div id="panel-issue" class="main-panel-content active">
+            <div class="split-layout">
+                <div class="panel-col-guide">
+                    <div id="guide-panel-placeholder"></div>
+                </div>
+                <div class="panel-col-input">
+                    <div id="input-form-placeholder"></div>
+                </div>
+                <div class="panel-col-result">
+                    <div id="result-panel-placeholder"></div>
+                </div>
+            </div>
+        </div>
 
-    <div id="modal-placeholder-condition"></div>
-    <div id="modal-placeholder-history"></div>
-    <div id="modal-placeholder-completion"></div>
-    <div id="modal-placeholder-kpi"></div>
-    <div id="modal-placeholder-theme"></div>
-    <div id="modal-placeholder-setting"></div>
-    <div id="modal-placeholder-changelog"></div>
-    <div id="modal-placeholder-bookmark"></div>
-    <div id="modal-placeholder-schedule"></div> 
-    <div id="modal-placeholder-schedule-detail"></div>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyABC8d0MA-JVpc9muPo1pjAnCp6xSabckw",
-            authDomain: "skm-issue-helper.firebaseapp.com",
-            databaseURL: "https://skm-issue-helper-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "skm-issue-helper",
-            storageBucket: "skm-issue-helper.firebasestorage.app",
-            messagingSenderId: "315338055920",
-            appId: "1:315338055920:web:bd1129cc9afb1569aba235",
-            measurementId: "G-98H9S1FQB0"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-    </script>
-    <script src="js/changelog.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/firebase-auth.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/history.js"></script>
-    <script src="js/completion.js"></script>
-    <script src="js/kpi.js"></script>
-    <script src="js/condition.js"></script>
-    <script src="js/template.js"></script>
-    <script src="js/loader.js"></script>
-    <script src="js/ux.js"></script>
-    <script src="js/bookmark.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/calendar.js"></script>
-    <script>
-        window.openCompletionModal = window.openCompletionModal || function() {
-            document.getElementById('completionModal').style.display = 'flex';
-            if (typeof loadCompletionLocal === 'function') loadCompletionLocal();
-        };
-        window.closeCompletionModal = window.closeCompletionModal || function() {
-            document.getElementById('completionModal').style.display = 'none';
-        };
-    </script>
+        <div id="panel-calendar" class="main-panel-content d-none">
+            <div id="calendar-placeholder"></div>
+        </div>
+
+        <div id="panel-completion" class="main-panel-content d-none">
+            <div id="completion-panel-placeholder"></div>
+        </div>
+
+        <div id="panel-bookmark" class="main-panel-content d-none">
+            <div id="bookmark-panel-placeholder"></div>
+        </div>
+    </main>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <div id="modal-container">
+        <div id="bugreport-modal-placeholder"></div>
+        <div id="changelog-modal-placeholder"></div>
+        <div id="condition-modal-placeholder"></div>
+        <div id="kpi-modal-placeholder"></div>
+        <div id="schedule-detail-modal-placeholder"></div>
+        <div id="schedule-modal-placeholder"></div>
+        <div id="setting-modal-placeholder"></div>
+        <div id="theme-modal-placeholder"></div>
+        <div id="admin-modal-placeholder"></div>
+    </div>
 </body>
 </html>

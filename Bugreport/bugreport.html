@@ -1,0 +1,54 @@
+<div id="bugReportModal" class="bug-modal-overlay d-none">
+    <div class="bug-modal-container">
+        <div class="bug-modal-header">
+            <div class="header-title-group">
+                <span class="header-icon">🛡️</span>
+                <h2>QA 관리 콘솔</h2>
+            </div>
+            <button id="btn-close-bug-top" class="bug-close-btn">×</button>
+        </div>
+        
+        <div class="bug-modal-body">
+            <div class="bug-list-side">
+                <div class="section-header">
+                    <h3 class="bug-list-title">📋 이슈 파이프라인</h3>
+                    <div id="bug_pagination" class="bug-pagination"></div>
+                </div>
+                <div id="bug_list_container" class="bug-list-container">
+                    <p class="bug-empty-text">데이터를 불러오는 중...</p>
+                </div>
+            </div>
+
+            <div class="bug-action-side">
+                <div class="bug-score-section">
+                    <h3 class="bug-list-title">🏆 우수 기여자</h3>
+                    <div id="score_rank_list" class="score-rank-container">
+                        <p class="bug-empty-text">랭킹 집계 중...</p>
+                    </div>
+                </div>
+
+                <div class="bug-write-section">
+                    <h3 class="bug-list-title">✍️ 신규 이슈 제보</h3>
+                    
+                    <div class="bug-form-group flex-grow">
+                        <label class="form-label-accent">이슈 상세 내용</label>
+                        <textarea id="bug_description" class="bug-form-control flex-textarea" placeholder="발생 위치와 재현 현상을 입력하세요."></textarea>
+                    </div>
+                    
+                    <div class="bug-form-group mt-15">
+                        <label class="form-label-accent">이슈 유형 및 가점</label>
+                        <select id="bug_type" class="bug-form-control">
+                            <option value="ui">🎨 UI/UX 이슈 (0.5pt)</option>
+                            <option value="functional">⚙️ 기능 결함 (1.0pt)</option>
+                        </select>
+                    </div>
+
+                    <div class="bug-write-footer">
+                        <button id="btn-submit-bug" class="bug-btn-primary">제출하기</button>
+                    </div>
+                    <p class="bug-policy-tip">※ 관리자 최종 승인 시 점수가 지급됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

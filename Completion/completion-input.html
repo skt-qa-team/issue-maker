@@ -1,0 +1,118 @@
+<div class="panel completion-container">
+    <div class="panel-header mb-2">
+        <div class="header-title-group">
+            <h2 class="panel-title">✅ 완료문 작성</h2>
+            <div class="fix-owner-alert">🚨 <u>이슈 수정 후 Fix Owner 잊지 말기</u></div>
+        </div>
+    </div>
+    
+    <div class="completion-panel-body">
+        <div class="setting-box completion-form-side">
+            
+            <div class="preset-wrapper-top comp-item-box">
+                <select id="compPresetSelect" class="form-control-sm preset-select">
+                    <option value="">💾 프리셋 선택...</option>
+                </select>
+                <input type="text" id="newCompPresetName" class="form-control-sm preset-name-input" placeholder="프리셋명">
+                <div class="preset-btn-group">
+                    <button id="btnSaveCompPreset" class="btn-outline-sm">저장</button>
+                    <button id="btnEditCompPreset" class="btn-outline-sm">수정</button>
+                    <button id="btnDeleteCompPreset" class="btn-outline-sm btn-delete-preset">삭제</button>
+                    <button id="btnResetCompForm" class="btn-outline-sm">초기화</button>
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-accent">
+                        <input type="checkbox" id="toggle_check" class="template-trigger" checked> ■ 현상 check
+                    </label>
+                    <textarea id="comp_check" class="form-control comp-check-textarea template-trigger" placeholder="확인 내용을 상세히 입력하세요"></textarea>
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_version" class="template-trigger" checked> ■ 버전
+                    </label>
+                    <div id="comp_version_list" class="checkbox-group horizontal-list template-trigger"></div>
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_server" class="template-trigger" checked> ■ 서버
+                    </label>
+                    <div id="comp_server_list" class="checkbox-group horizontal-list template-trigger"></div>
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_rate" class="template-trigger" checked> ■ 재현율 (N / 10)
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="comp_rate_num" class="form-control template-trigger" min="0" max="10" value="10">
+                        <span class="input-group-text">/ 10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_admin_url" class="template-trigger" checked> ■ Admin URL
+                    </label>
+                    <input type="text" id="comp_admin_url" class="form-control template-trigger" placeholder="Admin 접속 주소">
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_pc_url" class="template-trigger" checked> ■ PC URL
+                    </label>
+                    <input type="text" id="comp_pc_url" class="form-control template-trigger" placeholder="PC Web 접속 주소">
+                </div>
+            </div>
+
+            <div class="comp-item-box">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_mode" class="template-trigger" checked> ■ 모드
+                    </label>
+                    <div id="comp_mode_list" class="checkbox-group horizontal-list template-trigger">
+                        <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="일반 모드"> 일반 모드</label>
+                        <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="QA 모드"> QA 모드</label>
+                        <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="테스트 모드"> 테스트 모드</label>
+                        <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="A Bucket"> A Bucket</label>
+                        <label class="checkbox-label"><input type="checkbox" class="comp-mode-cb template-trigger" value="B Bucket"> B Bucket</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comp-item-box" id="comp_device_group">
+                <div class="form-group-horizontal">
+                    <label class="form-label-sm">
+                        <input type="checkbox" id="toggle_device" class="template-trigger" checked> ■ Device (OS Ver.)
+                    </label>
+                    <div id="comp_device_area" class="comp-device-scroll border-box radius-md p-2">
+                        <div id="comp_and_section">
+                            <div class="text-accent-green mb-1 text-sm font-bold">Android</div>
+                            <div id="comp_and_list" class="pill-group mb-2"></div>
+                        </div>
+                        <div id="comp_ios_section">
+                            <div class="text-accent-blue mb-1 text-sm font-bold">iOS</div>
+                            <div id="comp_ios_list" class="pill-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="completion-result-placeholder"></div>
+    </div>
+</div>

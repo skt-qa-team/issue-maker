@@ -1,0 +1,107 @@
+<div id="scheduleModal" class="modal-overlay d-none">
+    <div class="modal-content modal-schedule-fixed">
+        <div class="modal-header">
+            <h2 id="modal_title">📅 일정 등록/수정</h2>
+            <button id="btn-close-sch-modal-top" class="close-btn">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="sch_id">
+            
+            <div class="form-group">
+                <label>구분 *</label>
+                <div class="radio-tab-group">
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_color" value="#3b82f6" data-type="검증" checked>
+                        <span>검증</span>
+                    </label>
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_color" value="#8b5cf6" data-type="할 일">
+                        <span>할 일</span>
+                    </label>
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_color" value="#10b981" data-type="회의">
+                        <span>회의</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label id="label_sch_start">시작일 *</label>
+                    <input type="date" id="sch_start" max="9999-12-31">
+                </div>
+
+                <div class="form-group" id="group_sch_end">
+                    <label>종료일 *</label>
+                    <input type="date" id="sch_end" max="9999-12-31">
+                </div>
+            </div>
+
+            <div class="form-group" id="group_sch_poc">
+                <label>POC</label>
+                <div class="radio-tab-group">
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_poc" value="T 멤버십">
+                        <span>T 멤버십</span>
+                    </label>
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_poc" value="PC Web">
+                        <span>PC Web</span>
+                    </label>
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_poc" value="AI Layer">
+                        <span>AI Layer</span>
+                    </label>
+                    <label class="radio-tab">
+                        <input type="radio" name="sch_poc" value="기타" checked>
+                        <span>기타</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>일정 제목 *</label>
+                <input type="text" id="sch_title" placeholder="일정 제목을 입력하세요">
+            </div>
+
+            <div class="form-group" id="group_sch_op_ticket">
+                <label>운영티켓</label>
+                <input type="text" id="sch_op_ticket" placeholder="MKGPFPJT-">
+            </div>
+
+            <div class="form-group" id="group_sch_ticket">
+                <label>검증티켓</label>
+                <input type="text" id="sch_ticket" placeholder="MOON-">
+            </div>
+
+            <div class="form-group d-none" id="group_sch_author">
+                <label>작성자</label>
+                <input type="text" id="sch_author" placeholder="이름을 입력하세요">
+            </div>
+
+            <div class="form-group">
+                <label>상세 설명</label>
+                <textarea id="sch_desc" placeholder="추가적인 메모를 입력하세요"></textarea>
+            </div>
+
+            <hr class="modal-divider">
+
+            <div id="ai_dropzone" class="ai-dropzone">
+                <div id="ai_dropzone_content">
+                    <span>📸 일정표 스크린샷 붙여넣기 (Ctrl+V)</span>
+                </div>
+                <div id="ai_loading_content" class="d-none">
+                    <div class="spinner"></div>
+                    <span>AI가 일정을 분석 중입니다...</span>
+                </div>
+            </div>
+            <div id="ai_quota_info" class="ai-quota-info">⚡ 오늘 AI 자동 등록 남은 횟수: 20 / 20</div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="btn-close-sch-modal-bot" class="btn-secondary">취소</button>
+            <button id="btn-save-sch" class="btn-primary">저장하기</button>
+        </div>
+    </div>
+</div>

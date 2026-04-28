@@ -1,0 +1,37 @@
+/* ==========================================
+   [Toast Notification 전용 스타일]
+   * 복사 애니메이션(flashSuccess) 등은 inputs.css 도메인으로 이관/삭제됨
+========================================== */
+
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast-msg {
+    background: rgba(15, 23, 42, 0.9);
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
+}
+
+.toast-msg.show {
+    transform: translateY(0);
+    opacity: 1;
+}
