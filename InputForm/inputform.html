@@ -1,161 +1,136 @@
 <div class="panel" id="panel-issue">
-    <div class="modal-header kpi-header" style="padding: 0; border-bottom: none; margin-bottom: 20px; flex-direction: row; justify-content: space-between; align-items: center;">
-        <h2 class="kpi-title" style="font-size: 1.4rem;">📝 이슈 내용 입력</h2>
+    <div class="panel-header-flex">
+        <h2 class="panel-title mb-0">📝 이슈 내용 입력</h2>
         <div class="preset-controls-inline">
-            <select id="inputPresetSelect" class="preset-select" onchange="window.QA_CORE.InputForm.loadPreset()">
+            <select id="inputPresetSelect" class="form-control-sm preset-select">
                 <option value="">💾 프리셋 선택...</option>
             </select>
-            <input type="text" id="newPresetName" class="preset-name-input" placeholder="프리셋명 입력">
+            <input type="text" id="newPresetName" class="form-control-sm preset-name-input" placeholder="프리셋명 입력">
             <div class="preset-btn-group">
-                <button id="btnSavePreset" class="btn-outline-sm" onclick="window.QA_CORE.InputForm.savePreset()">저장</button>
-                <button id="btnEditPreset" class="btn-outline-sm d-none" onclick="window.QA_CORE.InputForm.editPreset()">수정</button>
-                <button id="btnDeletePreset" class="btn-outline-sm btn-delete-preset" onclick="window.QA_CORE.InputForm.deletePreset()">삭제</button>
+                <button id="btnSavePreset" class="btn-outline-sm">저장</button>
+                <button id="btnEditPreset" class="btn-outline-sm d-none">수정</button>
+                <button id="btnDeletePreset" class="btn-outline-sm btn-delete-preset">삭제</button>
             </div>
         </div>
     </div>
 
     <div class="form-group">
         <label class="label-accent-red">📌 현상 요약 (AS-IS 경로 제외)</label>
-        <input type="text" id="title" class="template-trigger" placeholder="현상을 입력하세요" spellcheck="true" lang="ko" oninput="window.QA_CORE.InputForm.generate()">
+        <input type="text" id="title" class="form-control template-trigger" placeholder="현상을 입력하세요" spellcheck="true" lang="ko">
     </div>
 
     <div class="prefix-panel">
-        <div class="label-action-row mb-3">
-            <label class="form-label-accent" style="margin-bottom: 0;">🔹 제목 Prefix 상세 조건 (선택)</label>
+        <div class="label-action-row mb-2">
+            <label class="prefix-title d-block">🔹 제목 Prefix 상세 조건 (선택)</label>
             <div class="case-ctrl-row">
-                <button id="btnSavePrefixOrder" class="btn-outline-sm" onclick="window.QA_CORE.InputForm.saveOrder()">저장</button>
-                <button id="btnResetPrefixOrder" class="btn-outline-sm" onclick="window.QA_CORE.InputForm.resetOrder()">초기화</button>
+                <button id="btnSavePrefixOrder" class="btn-outline-sm">저장</button>
+                <button id="btnResetPrefixOrder" class="btn-outline-sm">초기화</button>
             </div>
         </div>
-
-        <div class="prefix-grid" id="prefixContainer">
-            <div class="prefix-column">
-                <div class="prefix-item" data-id="env">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">1</span>
-                            <label>환경</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="env" min="1" max="7" value="1" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <div class="input-stack">
-                        <select id="prefix_env" class="template-trigger" onchange="window.QA_CORE.InputForm.toggleCustomInput('prefix_env')">
-                            <option value="">선택</option>
-                            <option value="상용">상용</option>
-                            <option value="STG/상용">STG/상용</option>
-                            <option value="direct">기타</option>
-                        </select>
-                        <input type="text" id="prefix_env_custom" class="template-trigger d-none" placeholder="환경 직접 입력" oninput="window.QA_CORE.InputForm.generate()">
-                    </div>
+        <div class="grid-2 prefix-grid" id="prefixContainer">
+            <div class="form-group-sm prefix-item" data-id="env">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">환경</label>
+                    <input type="number" class="prefix-order-input" data-target="env" min="1" max="7" value="1">
                 </div>
-
-                <div class="prefix-item" data-id="os">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">2</span>
-                            <label>OS</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="os" min="1" max="7" value="2" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <div class="input-stack">
-                        <select id="osType" class="template-trigger" onchange="window.QA_CORE.InputForm.toggleCustomInput('osType')">
-                            <option value="">해당없음</option>
-                            <option value="Android/iOS">Android/iOS</option>
-                            <option value="Android">Android</option>
-                            <option value="iOS">iOS</option>
-                            <option value="모바일">모바일</option>
-                            <option value="태블릿">태블릿</option>
-                            <option value="모바일/태블릿">모바일/태블릿</option>
-                            <option value="direct">기타</option>
-                        </select>
-                        <input type="text" id="osType_custom" class="template-trigger d-none" placeholder="OS 직접 입력" oninput="window.QA_CORE.InputForm.generate()">
-                    </div>
+                <div class="input-stack">
+                    <select id="prefix_env" class="form-control template-trigger">
+                        <option value="">선택</option>
+                        <option value="상용">상용</option>
+                        <option value="STG/상용">STG/상용</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="prefix_env_custom" class="form-control template-trigger d-none" placeholder="환경 입력">
                 </div>
-
-                <div class="prefix-item" data-id="poc">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">3</span>
-                            <label>PoC</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="poc" min="1" max="7" value="3" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <div class="input-stack">
-                        <select id="poc" class="template-trigger" onchange="window.QA_CORE.InputForm.toggleCustomInput('poc')">
-                            <option value="T 멤버십">T 멤버십</option>
-                            <option value="PC Web">PC Web</option>
-                            <option value="PC M.Web">PC M.Web</option>
-                            <option value="AI Layer">AI Layer</option>
-                            <option value="Admin">Admin</option>
-                            <option value="direct">기타</option>
-                        </select>
-                        <input type="text" id="poc_custom" class="template-trigger d-none" placeholder="PoC 직접 입력" oninput="window.QA_CORE.InputForm.generate()">
-                    </div>
+            </div>
+            
+            <div class="form-group-sm prefix-item" data-id="os">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">OS</label>
+                    <input type="number" class="prefix-order-input" data-target="os" min="1" max="7" value="2">
                 </div>
-
-                <div class="prefix-item" data-id="critical">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">4</span>
-                            <label>Critical 구분</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="critical" min="1" max="7" value="4" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <div class="input-stack">
-                        <select id="prefix_critical" class="template-trigger" onchange="window.QA_CORE.InputForm.toggleCustomInput('prefix_critical')">
-                            <option value="">해당없음</option>
-                            <option value="Block">Block</option>
-                            <option value="Crash">Crash</option>
-                            <option value="direct">기타</option>
-                        </select>
-                        <input type="text" id="prefix_critical_custom" class="template-trigger d-none" placeholder="Critical 직접 입력" oninput="window.QA_CORE.InputForm.generate()">
-                    </div>
+                <div class="input-stack">
+                    <select id="osType" class="form-control template-trigger">
+                        <option value="">해당없음</option>
+                        <option value="Android/iOS">Android/iOS</option>
+                        <option value="Android">Android</option>
+                        <option value="iOS">iOS</option>
+                        <option value="모바일">모바일</option>
+                        <option value="태블릿">태블릿</option>
+                        <option value="모바일/태블릿">모바일/태블릿</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="osType_custom" class="form-control template-trigger d-none" placeholder="OS 입력">
                 </div>
             </div>
 
-            <div class="prefix-column">
-                <div class="prefix-item" data-id="device">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">5</span>
-                            <label>Device</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="device" min="1" max="7" value="5" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <div class="input-stack">
-                        <div class="checkbox-wrap-group">
-                            <label class="checkbox-label"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked class="template-trigger" onchange="window.QA_CORE.InputForm.handleBrowserNone(this)"> 해당없음</label>
-                            <label class="checkbox-label"><input type="checkbox" class="prefix-browser-cb template-trigger" value="삼성인터넷" onchange="window.QA_CORE.InputForm.generate()"> 삼성</label>
-                            <label class="checkbox-label"><input type="checkbox" class="prefix-browser-cb template-trigger" value="Safari" onchange="window.QA_CORE.InputForm.generate()"> Safari</label>
-                            <label class="checkbox-label"><input type="checkbox" class="prefix-browser-cb template-trigger" value="Chrome" onchange="window.QA_CORE.InputForm.generate()"> Chrome</label>
-                            <label class="checkbox-label"><input type="checkbox" class="prefix-browser-cb template-trigger" id="prefix_browser_etc" value="기타" onchange="window.QA_CORE.InputForm.toggleBrowserCustom()"> 기타</label>
-                        </div>
-                        <input type="text" id="prefix_browser_custom" class="template-trigger d-none mt-2" placeholder="브라우저 직접 입력" oninput="window.QA_CORE.InputForm.generate()">
-                        <input type="text" id="prefix_device_input" class="template-trigger mt-2" placeholder="상세 기기명 (예: 폴드6)" oninput="window.QA_CORE.InputForm.generate()">
-                    </div>
+            <div class="form-group-sm prefix-item" data-id="poc">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">PoC</label>
+                    <input type="number" class="prefix-order-input" data-target="poc" min="1" max="7" value="3">
                 </div>
+                <div class="input-stack">
+                    <select id="poc" class="form-control template-trigger">
+                        <option value="T 멤버십">T 멤버십</option>
+                        <option value="PC Web">PC Web</option>
+                        <option value="PC M.Web">PC M.Web</option>
+                        <option value="AI Layer">AI Layer</option>
+                        <option value="Admin">Admin</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="poc_custom" class="form-control template-trigger d-none" placeholder="PoC 입력">
+                </div>
+            </div>
 
-                <div class="prefix-item" data-id="account">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">6</span>
-                            <label>계정</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="account" min="1" max="7" value="6" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <input type="text" id="prefix_account" class="template-trigger" placeholder="계정 정보 (예: VIP / 미로그인)" oninput="window.QA_CORE.InputForm.generate()">
+            <div class="form-group-sm prefix-item" data-id="critical">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">Critical 구분</label>
+                    <input type="number" class="prefix-order-input" data-target="critical" min="1" max="7" value="4">
                 </div>
+                <div class="input-stack">
+                    <select id="prefix_critical" class="form-control template-trigger">
+                        <option value="">해당없음</option>
+                        <option value="Block">Block</option>
+                        <option value="Crash">Crash</option>
+                        <option value="direct">기타</option>
+                    </select>
+                    <input type="text" id="prefix_critical_custom" class="form-control template-trigger d-none" placeholder="Critical 입력">
+                </div>
+            </div>
 
-                <div class="prefix-item" data-id="page">
-                    <div class="prefix-label-row">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="prefix-badge">7</span>
-                            <label>발생 페이지</label>
-                        </div>
-                        <input type="number" class="prefix-order-input" data-target="page" min="1" max="7" value="7" oninput="window.QA_CORE.InputForm.updateOrder()">
-                    </div>
-                    <input type="text" id="prefix_page" class="template-trigger" placeholder="이슈 위치 (예: 혜택포커스 상단)" oninput="window.QA_CORE.InputForm.generate()">
+            <div class="form-group-sm prefix-item" data-id="device">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">Device</label>
+                    <input type="number" class="prefix-order-input" data-target="device" min="1" max="7" value="5">
                 </div>
+                <div class="input-stack">
+                    <div class="checkbox-wrap-group">
+                        <label class="checkbox-label text-sm"><input type="checkbox" id="prefix_browser_none" value="해당없음" checked class="template-trigger"> 해당없음</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb template-trigger" value="삼성인터넷"> 삼성인터넷</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb template-trigger" value="Safari"> Safari</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb template-trigger" value="Chrome"> Chrome</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb template-trigger" value="Edge"> Edge</label>
+                        <label class="checkbox-label text-sm"><input type="checkbox" class="prefix-browser-cb template-trigger" id="prefix_browser_etc" value="기타"> 기타</label>
+                    </div>
+                    <input type="text" id="prefix_browser_custom" class="form-control template-trigger d-none mt-1" placeholder="브라우저 입력">
+                    <input type="text" id="prefix_device_input" class="form-control template-trigger mt-1" placeholder="예: 폴드">
+                </div>
+            </div>
+            
+            <div class="form-group-sm prefix-item" data-id="account">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">계정</label>
+                    <input type="number" class="prefix-order-input" data-target="account" min="1" max="7" value="6">
+                </div>
+                <input type="text" id="prefix_account" class="form-control template-trigger" placeholder="예: VIP">
+            </div>
+            
+            <div class="form-group-sm prefix-item" data-id="page">
+                <div class="prefix-label-row">
+                    <label class="form-label-sm">이슈 발생 페이지</label>
+                    <input type="number" class="prefix-order-input" data-target="page" min="1" max="7" value="7">
+                </div>
+                <input type="text" id="prefix_page" class="form-control template-trigger" placeholder="예: 출석체크">
             </div>
         </div>
     </div>
@@ -163,12 +138,12 @@
     <div class="form-group">
         <label>서버</label>
         <div class="checkbox-group">
-            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="STG" checked onchange="window.QA_CORE.InputForm.generate()"> STG</label>
-            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="GRN" onchange="window.QA_CORE.InputForm.generate()"> GRN</label>
-            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="PRD" onchange="window.QA_CORE.InputForm.generate()"> 상용(PRD)</label>
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="STG" checked> STG</label>
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="GRN"> GRN</label>
+            <label class="checkbox-label"><input type="checkbox" class="issue-server-cb template-trigger" value="PRD"> 상용(PRD)</label>
         </div>
     </div>
-
+    
     <div class="form-group" id="deviceGroup">
         <label>디바이스 선택</label>
         <div class="device-split-container">
@@ -176,8 +151,8 @@
                 <div class="device-col-header">
                     <span class="text-accent-green">Android</span>
                     <div class="radio-tab-group small">
-                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked class="template-trigger" onchange="window.QA_CORE.InputForm.switchDeviceMode('and', 'normal')"> <span>검증</span></label>
-                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" class="template-trigger" onchange="window.QA_CORE.InputForm.switchDeviceMode('and', 'special')"> <span>특수</span></label>
+                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="normal" checked class="template-trigger"> <span>검증</span></label>
+                        <label class="radio-tab"><input type="radio" name="and_dev_mode" value="special" class="template-trigger"> <span>특수</span></label>
                     </div>
                 </div>
                 <div id="andNormalList" class="pill-group"></div>
@@ -187,8 +162,8 @@
                 <div class="device-col-header">
                     <span class="text-accent-blue">iOS</span>
                     <div class="radio-tab-group small">
-                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked class="template-trigger" onchange="window.QA_CORE.InputForm.switchDeviceMode('ios', 'normal')"> <span>검증</span></label>
-                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" class="template-trigger" onchange="window.QA_CORE.InputForm.switchDeviceMode('ios', 'special')"> <span>특수</span></label>
+                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="normal" checked class="template-trigger"> <span>검증</span></label>
+                        <label class="radio-tab"><input type="radio" name="ios_dev_mode" value="special" class="template-trigger"> <span>특수</span></label>
                     </div>
                 </div>
                 <div id="iosNormalList" class="pill-group"></div>
@@ -198,25 +173,32 @@
     </div>
 
     <div class="form-group" id="appVersionGroup">
-        <div class="label-action-row mb-2">
-            <label id="appVersionLabel" style="margin-bottom: 0;">버전</label>
-            <div id="ios-ver-toggle" class="d-none radio-tab-group small" style="width: auto;">
-                <label class="radio-tab"><input type="radio" name="ios_ver_type" value="TestFlight" checked class="template-trigger" onchange="window.QA_CORE.InputForm.generate()"> <span>TF</span></label>
-                <label class="radio-tab"><input type="radio" name="ios_ver_type" value="App Distribution" class="template-trigger" onchange="window.QA_CORE.InputForm.generate()"> <span>AD</span></label>
+        <div class="label-action-row">
+            <label id="appVersionLabel">버전</label>
+            <div id="ios-ver-toggle" class="d-none radio-tab-group-sm">
+                <label class="checkbox-label text-sm"><input type="radio" name="ios_ver_type" value="TestFlight" checked class="template-trigger"> TestFlight</label>
+                <label class="checkbox-label text-sm"><input type="radio" name="ios_ver_type" value="App Distribution" class="template-trigger"> App Distribution</label>
             </div>
         </div>
         <div class="checkbox-wrap-group mb-2">
-            <label class="checkbox-label"><input type="checkbox" id="ver_cb_android" class="ver-type-cb template-trigger" value="Android" onchange="window.QA_CORE.InputForm.generate()"> Android</label>
-            <label class="checkbox-label"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb template-trigger" value="iOS" onchange="window.QA_CORE.InputForm.generate()"> iOS</label>
-            <label class="checkbox-label"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb template-trigger" value="삼성인터넷" onchange="window.QA_CORE.InputForm.generate()"> 삼성</label>
-            <label class="checkbox-label"><input type="checkbox" id="ver_cb_safari" class="ver-type-cb template-trigger" value="Safari" onchange="window.QA_CORE.InputForm.generate()"> Safari</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_android" class="ver-type-cb template-trigger" value="Android"> Android</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb template-trigger" value="iOS"> iOS</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb template-trigger" value="삼성인터넷"> 삼성인터넷</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_safari" class="ver-type-cb template-trigger" value="Safari"> Safari</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_chrome" class="ver-type-cb template-trigger" value="Chrome"> Chrome</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_edge" class="ver-type-cb template-trigger" value="Edge"> Edge</label>
         </div>
-        <input type="text" id="appVersion" class="template-trigger" oninput="window.QA_CORE.InputForm.generate()">
+        <input type="text" id="appVersion" class="form-control template-trigger">
     </div>
 
-    <div class="form-group" id="aiModeGroup">
+    <div class="form-group d-none" id="urlGroup">
+        <label id="urlLabel">URL</label>
+        <input type="text" id="targetUrl" class="form-control template-trigger">
+    </div>
+
+    <div class="form-group d-none" id="aiModeGroup">
         <label>■ 모드</label>
-        <select id="aiMode" class="template-trigger" onchange="window.QA_CORE.InputForm.generate()">
+        <select id="aiMode" class="form-control template-trigger">
             <option value="자동(default)">자동(default)</option>
             <option value="테스트 모드">테스트 모드</option>
             <option value="QA 모드">QA 모드</option>
@@ -228,47 +210,60 @@
 
     <div class="form-group">
         <label>[Pre-Condition]</label>
-        <textarea id="preCondition" class="template-trigger" oninput="window.QA_CORE.InputForm.generate()"></textarea>
+        <textarea id="preCondition" class="form-control template-trigger"></textarea>
     </div>
 
     <div class="form-group">
-        <div class="label-action-row mb-2">
-            <label style="margin-bottom: 0;">[재현스텝]</label>
+        <div class="label-action-row">
+            <label>[재현스텝]</label>
             <div class="case-ctrl-row">
-                <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('steps')">CASE +</button>
+                <button class="btn-case-main btn-add-case" data-target="steps">CASE +</button>
                 <div class="case-num-group">
-                    <span onclick="window.QA_CORE.InputForm.applyCasePreset('steps', 1)">1</span>
-                    <span onclick="window.QA_CORE.InputForm.applyCasePreset('steps', 2)">2</span>
-                    <span onclick="window.QA_CORE.InputForm.applyCasePreset('steps', 3)">3</span>
+                    <span class="btn-apply-preset" data-target="steps" data-preset="1">1</span>
+                    <span class="btn-apply-preset" data-target="steps" data-preset="2">2</span>
+                    <span class="btn-apply-preset" data-target="steps" data-preset="3">3</span>
+                    <span class="btn-apply-preset" data-target="steps" data-preset="4">4</span>
                 </div>
             </div>
         </div>
-        <textarea id="steps" class="template-trigger" oninput="window.QA_CORE.InputForm.generate()"></textarea>
+        <textarea id="steps" class="form-control template-trigger"></textarea>
     </div>
 
     <div class="form-group">
-        <div class="label-action-row mb-2">
-            <label style="margin-bottom: 0;">[실행결과-문제현상]</label>
+        <div class="label-action-row">
+            <label>[실행결과-문제현상]</label>
             <div class="case-ctrl-row">
-                <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('actualResult')">CASE +</button>
+                <button class="btn-case-main btn-add-case" data-target="actualResult">CASE +</button>
+                <div class="case-num-group">
+                    <span class="btn-apply-preset" data-target="actualResult" data-preset="1">1</span>
+                    <span class="btn-apply-preset" data-target="actualResult" data-preset="2">2</span>
+                    <span class="btn-apply-preset" data-target="actualResult" data-preset="3">3</span>
+                    <span class="btn-apply-preset" data-target="actualResult" data-preset="4">4</span>
+                </div>
             </div>
         </div>
-        <textarea id="actualResult" class="template-trigger" oninput="window.QA_CORE.InputForm.generate()"></textarea>
+        <textarea id="actualResult" class="form-control template-trigger"></textarea>
     </div>
 
     <div class="form-group">
-        <div class="label-action-row mb-2">
-            <label style="margin-bottom: 0;">[기대결과]</label>
+        <div class="label-action-row">
+            <label>[기대결과]</label>
             <div class="case-ctrl-row">
-                <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('expectedResult')">CASE +</button>
+                <button class="btn-case-main btn-add-case" data-target="expectedResult">CASE +</button>
+                <div class="case-num-group">
+                    <span class="btn-apply-preset" data-target="expectedResult" data-preset="1">1</span>
+                    <span class="btn-apply-preset" data-target="expectedResult" data-preset="2">2</span>
+                    <span class="btn-apply-preset" data-target="expectedResult" data-preset="3">3</span>
+                    <span class="btn-apply-preset" data-target="expectedResult" data-preset="4">4</span>
+                </div>
             </div>
         </div>
-        <textarea id="expectedResult" class="template-trigger" oninput="window.QA_CORE.InputForm.generate()"></textarea>
+        <textarea id="expectedResult" class="form-control template-trigger"></textarea>
     </div>
     
     <div class="form-group">
         <label>[참고사항]</label>
-        <input type="text" id="ref_prd" class="mb-2 template-trigger" placeholder="1. 상용 재현 여부" oninput="window.QA_CORE.InputForm.generate()">
-        <textarea id="ref_notes" class="template-trigger" placeholder="기타 참고 내용" oninput="window.QA_CORE.InputForm.generate()"></textarea>
+        <input type="text" id="ref_prd" class="form-control mb-2 template-trigger" placeholder="1. 상용 재현 여부">
+        <textarea id="ref_notes" class="form-control template-trigger" placeholder="기타 참고 내용"></textarea>
     </div>
 </div>
