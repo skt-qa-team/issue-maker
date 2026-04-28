@@ -1,5 +1,7 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const components = [
+window.QA_CORE = window.QA_CORE || {};
+
+window.QA_CORE.Loader = {
+    components: [
         { id: 'header-placeholder', url: 'Header/header.html' },
         { id: 'input-form-placeholder', url: 'InputForm/inputform.html' },
         { id: 'guide-panel-placeholder', url: 'GuideForm/GuideForm.html' },
@@ -15,61 +17,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         { id: 'schedule-detail-modal-placeholder', url: 'Calendar/schedule-detail.html' },
         { id: 'bugreport-modal-placeholder', url: 'Bugreport/bugreport.html' },
         { id: 'admin-modal-placeholder', url: 'Admin/admin.html' }
-    ];
+    ],
 
-    const versionTag = new Date().getTime();
-
-    try {
-        await Promise.all(components.map(async (comp) => {
-            const response = await fetch(`${comp.url}?v=${versionTag}`);
-            if (!response.ok) throw new Error(`[HTTP ${response.status}] ${comp.url}`);
-            
-            const html = await response.text();
-            const placeholder = document.getElementById(comp.id);
-            if (placeholder) {
-                placeholder.innerHTML = html;
-                placeholder.classList.add('component-loaded');
-            }
-        }));
-
-        const compResponse = await fetch(`Completion/completion-result.html?v=${versionTag}`);
-        if (!compResponse.ok) throw new Error(`[HTTP ${compResponse.status}] Completion Result`);
-        
-        const compHtml = await compResponse.text();
-        const innerPlaceholder = document.getElementById('completion-result-placeholder');
-        if (innerPlaceholder) {
-            innerPlaceholder.innerHTML = compHtml;
-            innerPlaceholder.classList.add('component-loaded');
-        }
-
-        setTimeout(() => {
-            const initFunctions = [
-                () => window.startClock?.(),
-                () => window.renderPresence?.(),
-                () => window.renderChangelog?.(),
-                () => window.initCustomTheme?.(),
-                () => {
-                    if (localStorage.getItem('skm_draft') && window.loadDraft) window.loadDraft();
-                    else if (window.syncEnvironmentByOS) window.syncEnvironmentByOS();
-                },
-                () => window.switchMainTab?.('issue'),
-                () => window.initCompletionInput?.(),
-                () => window.initCompletionResult?.()
-            ];
-
-            initFunctions.forEach(fn => {
-                try { 
-                    fn(); 
-                } catch(e) { 
-                    if (window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Loader Init');
-                    else console.error("Initialization Failure:", e); 
+    initModules: () => {
+        const initFunctions = [
+            () => window.QA_CORE.UI?.startClock?.(),
+            () => window.QA_CORE.UI?.renderPresence?.(),
+            () => window.renderChangelog?.(), 
+            () => window.initCustomTheme?.(), 
+            () => {
+                if (localStorage.getItem('skm_draft') && window.QA_CORE.InputForm?.loadDraft) {
+                    window.QA_CORE.InputForm.loadDraft();
+                } else if (window.QA_CORE.InputForm?.syncEnvironment) {
+                    window.QA_CORE.InputForm.syncEnvironment();
                 }
-            });
+            },
+            () => window.QA_CORE.UI?.switchMainTab?.('issue'),
+            () => window.QA_CORE.CompletionInput?.init?.(),
+            () => window.QA_CORE.CompletionResult?.init?.()
+        ];
 
-            document.dispatchEvent(new CustomEvent('componentsLoaded'));
-        }, 150);
+        initFunctions.forEach(fn => {
+            try { 
+                fn(); 
+            } catch(e) { 
+                if (window.QA_CORE && window.QA_CORE.ErrorHandler) {
+                    window.QA_CORE.ErrorHandler.handle(e, 'Loader Init');
+                } else {
+                    console.error("Initialization Failure:", e); 
+                }
+            }
+        });
+    },
 
-    } catch (error) {
-        console.error("Component Load Failure:", error.message);
+    load: async () => {
+        const versionTag = new Date().getTime();
+
+        try {
+            await Promise.all(window.QA_CORE.Loader.components.map(async (comp) => {
+                const response = await fetch(`${comp.url}?v=${versionTag}`);
+                if (!response.ok) throw new Error(`[HTTP ${response.status}] ${comp.url}`);
+                
+                const html = await response.text();
+                const placeholder = document.getElementById(comp.id);
+                if (placeholder) {
+                    placeholder.innerHTML = html;
+                    placeholder.classList.add('component-loaded');
+                }
+            }));
+
+            const compResponse = await fetch(`Completion/completion-result.html?v=${versionTag}`);
+            if (!compResponse.ok) throw new Error(`[HTTP ${compResponse.status}] Completion Result`);
+            
+            const compHtml = await compResponse.text();
+            const innerPlaceholder = document.getElementById('completion-result-placeholder');
+            if (innerPlaceholder) {
+                innerPlaceholder.innerHTML = compHtml;
+                innerPlaceholder.classList.add('component-loaded');
+            }
+
+            setTimeout(() => {
+                window.QA_CORE.Loader.initModules();
+                document.dispatchEvent(new CustomEvent('componentsLoaded'));
+            }, 150);
+
+        } catch (error) {
+            console.error("Component Load Failure:", error.message);
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.QA_CORE && window.QA_CORE.Loader) {
+        window.QA_CORE.Loader.load();
     }
 });
