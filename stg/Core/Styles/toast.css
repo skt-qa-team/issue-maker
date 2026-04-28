@@ -1,37 +1,53 @@
-/* ==========================================
-   [Toast Notification 전용 스타일]
-   * 복사 애니메이션(flashSuccess) 등은 inputs.css 도메인으로 이관/삭제됨
-========================================== */
-
 #toast-container {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
     z-index: 9999;
     pointer-events: none;
 }
 
 .toast-msg {
-    background: rgba(15, 23, 42, 0.9);
-    color: #ffffff;
-    padding: 12px 24px;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    font-weight: 700;
-    box-shadow: var(--shadow-lg);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    transform: translateY(100px);
+    background: var(--panel-bg-translucent);
+    color: var(--text-main);
+    padding: 14px 28px;
+    border-radius: var(--radius-pill);
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    transform: translateY(-50px) scale(0.9);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-bounce);
+    border: 1px solid var(--border-color);
     pointer-events: auto;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .toast-msg.show {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
+}
+
+.toast-msg.success {
+    color: var(--accent-green);
+    border-color: rgba(52, 199, 89, 0.3);
+}
+
+.toast-msg.warning {
+    color: var(--accent-orange);
+    border-color: rgba(255, 149, 0, 0.3);
+}
+
+.toast-msg.error {
+    color: var(--accent-red);
+    border-color: rgba(255, 59, 48, 0.3);
 }
