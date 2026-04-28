@@ -4,24 +4,39 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(0, 0, 0, 0.4); /* 애플 스타일의 부드러운 딤(Dim) 처리 */
     z-index: 999999;
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(6px);
+    backdrop-filter: var(--blur-md);
+    opacity: 0;
+    animation: errorFadeIn var(--transition-normal) forwards;
+}
+
+@keyframes errorFadeIn {
+    to { opacity: 1; }
 }
 
 .system-error-modal {
     background: var(--panel-bg);
     border-radius: var(--radius-lg);
-    padding: 24px;
+    padding: 30px;
     width: 90%;
-    max-width: 550px;
+    max-width: 500px;
     box-shadow: var(--shadow-lg);
-    font-family: 'Pretendard', '-apple-system', sans-serif;
-    border-left: 8px solid var(--accent-red);
+    border-left: 6px solid var(--accent-red);
     box-sizing: border-box;
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+    animation: errorBounce var(--transition-bounce) forwards;
+}
+
+@keyframes errorBounce {
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
 .system-error-header {
@@ -35,19 +50,20 @@
     margin: 0;
     color: var(--accent-red);
     font-size: 1.25rem;
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.5px;
 }
 
 .system-error-title {
     margin: 0 0 12px 0;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text-main);
     font-size: 1rem;
+    letter-spacing: -0.2px;
 }
 
 .system-error-body {
-    background: var(--bg-color);
+    background: rgba(0, 0, 0, 0.04);
     padding: 16px;
     border-radius: var(--radius-md);
     font-family: 'JetBrains Mono', 'Consolas', monospace;
@@ -57,11 +73,21 @@
     word-break: break-all;
     max-height: 250px;
     overflow-y: auto;
-    border: 1px solid var(--border-color);
+    border: 1px solid transparent;
+}
+
+/* 에러 코드 스크롤바 디자인 */
+.system-error-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.system-error-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-pill);
 }
 
 .system-error-footer {
-    margin-top: 20px;
+    margin-top: 24px;
     text-align: right;
 }
 
@@ -69,15 +95,23 @@
     background: var(--accent-red);
     color: #ffffff;
     border: none;
-    padding: 10px 20px;
-    border-radius: var(--radius-sm);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 800;
-    font-size: 0.9rem;
-    transition: all var(--transition-fast);
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all var(--transition-snappy);
+    box-shadow: var(--shadow-sm);
 }
 
 .system-error-footer button:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.05);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.system-error-footer button:active {
+    transform: translateY(1px) scale(0.96);
+    filter: brightness(0.9);
+    box-shadow: none;
 }
