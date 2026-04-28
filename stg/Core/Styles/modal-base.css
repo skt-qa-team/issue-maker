@@ -4,8 +4,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.4); /* 애플 스타일의 부드러운 딤(Dim) 처리 */
+    backdrop-filter: var(--blur-md);
     display: flex;
     visibility: hidden;
     pointer-events: none;
@@ -15,7 +15,7 @@
     padding: 20px;
     box-sizing: border-box;
     opacity: 0;
-    transition: opacity var(--transition-smooth), visibility var(--transition-smooth);
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
 }
 
 .modal-overlay.active {
@@ -27,26 +27,28 @@
 .modal-content {
     background: var(--panel-bg);
     border-radius: var(--radius-lg);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-lg); /* 다중 레이어 소프트 그림자 */
     border: 1px solid var(--border-color);
     position: relative;
     width: 100%;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
-    transform: translateY(30px) scale(0.98);
+    /* 팝업이 나타날 때 튀어오르는(Bounce) 시작점 */
+    transform: scale(0.95) translateY(10px);
     opacity: 0;
-    transition: transform var(--transition-smooth), opacity var(--transition-smooth);
+    transition: transform var(--transition-bounce), opacity var(--transition-normal);
     box-sizing: border-box;
 }
 
 .modal-overlay.active .modal-content {
-    transform: translateY(0) scale(1);
+    /* 스프링처럼 원래 크기로 복귀 */
+    transform: scale(1) translateY(0);
     opacity: 1;
 }
 
 .modal-header {
-    padding: 30px 40px;
+    padding: 24px 30px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -57,38 +59,15 @@
 .modal-header h2 {
     margin: 0;
     font-size: 1.4rem;
-    font-weight: 900;
+    font-weight: 800; /* HIG 표준 볼드 텍스트 */
     color: var(--text-main);
+    letter-spacing: -0.5px;
 }
 
-.close-btn {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    font-size: 20px;
-    color: var(--text-sub);
-    cursor: pointer;
-    transition: all var(--transition-smooth);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    z-index: 10;
-}
-
-.close-btn:hover {
-    background: var(--accent-red);
-    color: white;
-    border-color: var(--accent-red);
-    transform: rotate(90deg) scale(1.1);
-}
+/* .close-btn 스타일은 Core/Styles/buttons.css 로 일관되게 위임되어 삭제됨 */
 
 .modal-body {
-    padding: 30px 40px;
+    padding: 30px;
     overflow-y: auto;
     flex: 1;
     scrollbar-width: thin;
@@ -101,11 +80,11 @@
 
 .modal-body::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 10px;
+    border-radius: var(--radius-pill);
 }
 
 .modal-footer {
-    padding: 20px 40px;
+    padding: 20px 30px;
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
@@ -116,18 +95,21 @@
     flex-shrink: 0;
 }
 
-.modal-lg { max-width: 1280px; }
+.modal-lg { max-width: 1200px; }
 .modal-md { max-width: 800px; }
 .modal-sm { max-width: 500px; }
 
+/* 애플식 패스워드 오류 감쇠 진동 모션 */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
 }
 
 .modal-error {
-    animation: shake 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) 0s 2;
+    animation: shake 0.4s var(--transition-snappy) forwards;
     border-color: var(--accent-red);
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 59, 48, 0.2), var(--shadow-lg);
 }
