@@ -154,8 +154,8 @@ window.QA_CORE.ResultForm = {
             
             if (target.classList.contains('btn-copy-target')) {
                 const targetId = target.dataset.target;
-                if (targetId && window.QA_CORE.Utils && typeof window.QA_CORE.Utils.copySpecific === 'function') {
-                    window.QA_CORE.Utils.copySpecific(targetId);
+                if (targetId && window.QA_CORE.UX && typeof window.QA_CORE.UX.copySpecific === 'function') {
+                    window.QA_CORE.UX.copySpecific(targetId);
                 }
             }
         });
