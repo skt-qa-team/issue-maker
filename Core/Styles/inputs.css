@@ -1,60 +1,72 @@
+/* 공통 입력 필드 (Apple Style) */
 input[type="text"], 
 input[type="number"],
 input[type="password"],
 input[type="email"],
+input[type="date"],
 textarea, 
 select {
     width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 0.92rem;
-    background: var(--bg-color);
+    padding: 14px 16px;
+    border: 1px solid transparent; /* 평소엔 테두리 숨김 */
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.04); /* 애플 스타일의 옅은 회색 음영 */
     color: var(--text-main);
     box-sizing: border-box;
     font-family: inherit;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-snappy);
     outline: none;
+    -webkit-appearance: none; /* iOS 기본 스타일 제거 */
 }
 
+/* 입력 필드 포커스 (Focus Ring 효과) */
 input[type="text"]:focus, 
 input[type="number"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
+input[type="date"]:focus,
 textarea:focus, 
 select:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     background: var(--panel-bg);
+    border-color: var(--accent-blue);
+    /* 애플 특유의 부드럽고 넓은 포커스 링 */
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15), var(--shadow-sm);
 }
 
+/* 플레이스홀더 텍스트 */
 input::placeholder,
 textarea::placeholder {
     color: var(--text-sub);
-    opacity: 0.6;
+    opacity: 0.7;
+    font-weight: 500;
 }
 
+/* 텍스트 영역 (Textarea) */
 textarea {
     height: 120px;
-    resize: none;
+    resize: vertical; /* 세로 크기 조절만 허용 */
     line-height: 1.6;
 }
 
+/* 드롭다운 (Select) */
 select {
-    appearance: none;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    /* 부드러운 라운드 쉐입의 커스텀 SVG 화살표 (SF Symbols 느낌) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: calc(100% - 12px) center;
-    padding-right: 35px !important;
+    background-position: calc(100% - 16px) center;
+    padding-right: 40px !important;
 }
 
+/* 숫자 입력 화살표 숨김 */
 input[type="number"]::-webkit-inner-spin-button, 
 input[type="number"]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
     margin: 0; 
 }
 
+/* 접근성 숨김 처리 */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -66,20 +78,21 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 0;
 }
 
+/* 복사 성공 등 긍정적 피드백 애니메이션 */
 .copy-feedback {
-    animation: flashSuccess 0.5s ease-out !important;
+    animation: flashSuccess 0.5s var(--transition-snappy) !important;
 }
 
 @keyframes flashSuccess {
     0% {
-        background-color: rgba(16, 185, 129, 0.2) !important;
+        background-color: rgba(52, 199, 89, 0.15) !important;
         border-color: var(--accent-green) !important;
         color: var(--accent-green) !important;
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
+        box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.2) !important;
     }
     100% {
-        background-color: var(--bg-color);
-        border-color: var(--border-color);
+        background-color: rgba(0, 0, 0, 0.04);
+        border-color: transparent;
         color: var(--text-main);
         box-shadow: none;
     }
