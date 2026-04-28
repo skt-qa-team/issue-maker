@@ -1,5 +1,9 @@
-window.QA_ErrorHandler = {
-    lastError: { message: '', time: 0 },
+window.QA_CORE = window.QA_CORE || {};
+
+window.QA_CORE.ErrorHandler = {
+    State: {
+        lastError: { message: '', time: 0 }
+    },
 
     init() {
         window.addEventListener('error', (e) => this.handleRuntimeError(e));
@@ -22,7 +26,7 @@ window.QA_ErrorHandler = {
         let reasonStr = e.reason ? (e.reason.stack || e.reason.message || String(e.reason)) : 'No reason provided';
         
         if (reasonStr.includes('Firebase') || reasonStr.includes('PERMISSION_DENIED')) {
-            title = "🔥 Firebase 데이터베이스/인증 에러";
+            title = "🔥 Firebase 시스템 에러";
         }
         
         this.showModal(title, `상세 이유: ${reasonStr}`);
@@ -37,21 +41,21 @@ window.QA_ErrorHandler = {
             if (errStrings.includes('Component Load Failure')) {
                 this.showModal("HTML 컴포넌트 로드 실패 (404)", errStrings + "\n\nloader.js의 경로명과 실제 파일명이 일치하는지 확인하십시오.");
             } else if (errStrings.includes('Firebase')) {
-                this.showModal("🔥 Firebase 내부 시스템 에러", errStrings);
+                this.showModal("🔥 Firebase 내부 에러", errStrings);
             }
         };
     },
 
     showModal(title, details) {
         const now = Date.now();
-        if (this.lastError.message === details && now - this.lastError.time < 2000) return;
-        this.lastError = { message: details, time: now };
+        if (this.State.lastError.message === details && now - this.State.lastError.time < 2000) return;
+        this.State.lastError = { message: details, time: now };
 
         let overlay = document.getElementById('global-error-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.id = 'global-error-overlay';
-            overlay.className = 'system-error-overlay active';
+            overlay.className = 'system-error-overlay';
             document.body.appendChild(overlay);
         }
 
@@ -77,15 +81,19 @@ window.QA_ErrorHandler = {
 
         const btnCopy = document.createElement('button');
         btnCopy.className = 'btn-secondary';
+        btnCopy.style.marginRight = '8px';
         btnCopy.textContent = '로그 복사';
         btnCopy.onclick = () => {
             navigator.clipboard.writeText(`[${title}]\n${details}`).then(() => {
-                if (typeof window.showToast === 'function') window.showToast('에러 로그가 복사되었습니다.');
+                if (window.QA_CORE.UI && typeof window.QA_CORE.UI.showToast === 'function') {
+                    window.QA_CORE.UI.showToast('에러 로그가 복사되었습니다.', 'success');
+                }
             });
         };
 
         const btnReload = document.createElement('button');
         btnReload.className = 'btn-secondary';
+        btnReload.style.marginRight = '8px';
         btnReload.textContent = '새로고침';
         btnReload.onclick = () => window.location.reload();
 
@@ -108,15 +116,18 @@ window.QA_ErrorHandler = {
     }
 };
 
-window.requireElement = (id, contextName = "알 수 없는 컨텍스트") => {
+window.QA_CORE.Utils = window.QA_CORE.Utils || {};
+window.QA_CORE.Utils.requireElement = (id, contextName = "알 수 없는 컨텍스트") => {
     const el = document.getElementById(id);
     if (!el) {
         const errTitle = `필수 DOM 요소 누락 (${contextName})`;
-        const errDetails = `ID가 '${id}'인 HTML 요소를 화면에서 찾을 수 없습니다.\n해당 파일이 로드되지 않았거나, 내부 ID가 다릅니다.`;
-        window.QA_ErrorHandler.showModal(errTitle, errDetails);
+        const errDetails = `ID가 '${id}'인 HTML 요소를 화면에서 찾을 수 없습니다.`;
+        window.QA_CORE.ErrorHandler.showModal(errTitle, errDetails);
         throw new Error(`DOM Element Missing: ${id}`);
     }
     return el;
 };
 
-window.QA_ErrorHandler.init();
+window.requireElement = window.QA_CORE.Utils.requireElement;
+
+window.QA_CORE.ErrorHandler.init();
