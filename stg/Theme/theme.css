@@ -1,6 +1,6 @@
-.modal-md {
+#theme-modal .modal-md {
     max-width: 550px;
-    width: 90%;
+    width: 95%;
 }
 
 .theme-category-container {
@@ -44,7 +44,7 @@
 .theme-category-btn.active {
     border-color: var(--accent-blue);
     background: var(--accent-blue);
-    color: var(--panel-bg);
+    color: #ffffff;
 }
 
 .theme-preset-grid { 
@@ -123,7 +123,7 @@
     font-size: 0.85rem;
 }
 
-input[type="color"] {
+#theme-modal input[type="color"] {
     -webkit-appearance: none;
     border: none;
     width: 32px;
@@ -132,7 +132,7 @@ input[type="color"] {
     background: transparent;
 }
 
-input[type="color"]::-webkit-color-swatch {
+#theme-modal input[type="color"]::-webkit-color-swatch {
     border: 2px solid var(--border-color);
     border-radius: var(--radius-sm);
 }
@@ -141,6 +141,7 @@ input[type="color"]::-webkit-color-swatch {
     margin-top: 20px; 
     gap: 12px; 
     display: flex;
+    width: 100%;
 }
 
 .btn-theme-reset { 
@@ -149,12 +150,18 @@ input[type="color"]::-webkit-color-swatch {
     background: var(--text-sub); 
     border: none; 
     border-radius: var(--radius-md); 
-    color: var(--panel-bg); 
+    color: #ffffff; 
     cursor: pointer; 
     font-weight: 800;
+    transition: var(--transition-fast);
+}
+
+.btn-theme-reset:hover {
+    opacity: 0.9;
+    transform: scale(0.98);
 }
 
 .btn-theme-save { 
-    flex: 1;
+    flex: 2;
     padding: 14px; 
 }
