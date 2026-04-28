@@ -9,50 +9,57 @@ html, body {
     height: calc(100vh - 75px);
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 24px 32px;
     box-sizing: border-box;
 }
 
 .main-tab-nav {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
 }
 
 .main-tab-btn {
     background: transparent;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     font-size: 1.1rem;
-    font-weight: 800;
+    font-weight: 600;
     color: var(--text-sub);
     cursor: pointer;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transition: all var(--transition-fast) ease-in-out;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-snappy);
     position: relative;
 }
 
 .main-tab-btn:hover {
     color: var(--text-main);
-    background: rgba(0, 0, 0, 0.02);
+    background: rgba(0, 0, 0, 0.04);
+    transform: scale(1.02);
+}
+
+.main-tab-btn:active {
+    transform: scale(0.96);
 }
 
 .main-tab-btn.active {
     color: var(--accent-blue);
-    background: var(--panel-bg);
+    background: transparent;
+    font-weight: 700;
+    transform: none;
 }
 
 .main-tab-btn.active::after {
     content: '';
     position: absolute;
-    bottom: -12px;
-    left: 0;
-    width: 100%;
+    bottom: -9px;
+    left: 10%;
+    width: 80%;
     height: 3px;
     background: var(--accent-blue);
-    border-radius: 3px 3px 0 0;
+    border-radius: var(--radius-pill);
 }
 
 .main-panel-content {
@@ -60,17 +67,26 @@ html, body {
     min-height: 0;
     display: none;
     flex-direction: column;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUpIn 0.4s var(--transition-smooth) forwards;
 }
 
 .main-panel-content.active {
     display: flex !important;
 }
 
-/* 3단 분할 그리드 코어 */
+@keyframes fadeUpIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .split-layout {
     display: grid;
     grid-template-columns: 320px 1.2fr 1fr;
-    gap: 20px;
+    gap: 24px;
     flex: 1;
     min-height: 0;
 }
@@ -80,7 +96,7 @@ html, body {
 .panel-col-result {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
     overflow-y: auto;
     min-height: 0;
 }
@@ -88,10 +104,11 @@ html, body {
 .panel {
     background: var(--panel-bg);
     border-radius: var(--radius-lg);
-    padding: 25px;
+    padding: 30px;
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-sm);
     transition: all var(--transition-normal);
     box-sizing: border-box;
     height: 100%;
