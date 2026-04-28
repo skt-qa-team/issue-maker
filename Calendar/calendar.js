@@ -374,7 +374,9 @@ window.QA_CORE.Calendar = {
                     if (target.id === 'btn-next-month') window.QA_CORE.Calendar.changeMonth(1);
                     if (target.id === 'btn-today') window.QA_CORE.Calendar.goToday();
                     if (target.id === 'btn-add-schedule') {
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.initModal('schedule-modal');
+                        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
+                            window.QA_CORE.ScheduleDetail.openModal();
+                        }
                     }
                     if (target.id === 'btn-sync-month-kpi') {
                         window.QA_CORE.Calendar.syncToKPI();
