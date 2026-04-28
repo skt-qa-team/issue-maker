@@ -1,4 +1,4 @@
-.cal-detail-color-bar {
+#schedule-detail-modal .cal-detail-color-bar {
     height: 6px;
     width: 100%;
     background-color: var(--detail-bg, var(--accent-blue));
@@ -6,7 +6,7 @@
     border-top-right-radius: var(--radius-lg);
 }
 
-.cal-detail-date-badge {
+#schedule-detail-modal .cal-detail-date-badge {
     display: inline-block;
     background: var(--bg-color);
     padding: 6px 14px;
@@ -15,27 +15,27 @@
     border: 1px solid var(--border-color);
 }
 
-#detail_date {
+#schedule-detail-modal #detail_date {
     font-size: 0.85rem;
     font-weight: 800;
     color: var(--text-sub);
     letter-spacing: -0.2px;
 }
 
-.cal-detail-info-box {
+#schedule-detail-modal .cal-detail-info-box {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
 
-.cal-detail-value-author {
+#schedule-detail-modal .cal-detail-value-author {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-main);
     padding: 2px 0;
 }
 
-.cal-detail-value-text {
+#schedule-detail-modal .cal-detail-value-text {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     font-size: 0.95rem;
     color: var(--text-main);
@@ -48,7 +48,7 @@
     width: 100%;
 }
 
-.cal-detail-value-desc {
+#schedule-detail-modal .cal-detail-value-desc {
     font-size: 0.92rem;
     line-height: 1.7;
     color: var(--text-main);
@@ -59,20 +59,20 @@
     padding: 5px 0;
 }
 
-.modal-footer {
+#schedule-detail-modal .modal-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px 30px;
 }
 
-.modal-footer-left,
-.modal-footer-right {
+#schedule-detail-modal .modal-footer-left,
+#schedule-detail-modal .modal-footer-right {
     display: flex;
     gap: 10px;
 }
 
-.modal-footer button {
+#schedule-detail-modal .modal-footer button {
     min-width: 100px;
     justify-content: center;
     height: 42px;
@@ -80,7 +80,7 @@
     padding: 0 15px;
 }
 
-#detail_title {
+#schedule-detail-modal #detail_title {
     font-size: 1.5rem;
     font-weight: 900;
     color: var(--text-main);
