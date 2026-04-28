@@ -7,14 +7,9 @@
 }
 
 html, body {
-    /* [삭제] layout.css와 충돌하는 height, overflow, flex, padding 속성 완전 소거 */
-    
-    /* [수정] 네이티브 Apple 폰트 스택 최적화 (-apple-system 추가) */
     font-family: 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-main);
-    
-    /* [수정] 테마 변경 시 극강의 부드러움을 위해 transition-smooth로 업그레이드 */
     transition: background-color var(--transition-smooth), color var(--transition-smooth);
 }
 
@@ -25,8 +20,8 @@ html, body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 10px;
-    transition: background-color var(--transition-smooth); /* [추가] 스크롤바 호버 시 부드러운 전환 */
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition-smooth);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -52,7 +47,6 @@ ul, ol {
     list-style: none;
 }
 
-/* [추가] 반응형 미디어를 위해 svg, video 추가 */
 img, svg, video {
     max-width: 100%;
     height: auto;
