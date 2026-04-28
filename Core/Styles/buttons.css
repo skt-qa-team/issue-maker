@@ -1,58 +1,94 @@
+/* 공통 닫기 버튼 (Apple Style) */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    background: rgba(134, 134, 139, 0.15); /* 애플 특유의 반투명 회색 배경 */
+    color: var(--text-sub);
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-snappy);
+    z-index: 100;
+    backdrop-filter: var(--blur-md);
+}
+
+.close-btn:hover {
+    background: rgba(134, 134, 139, 0.3);
+    color: var(--text-main);
+    transform: scale(1.05); /* 호버 시 살짝 커짐 */
+}
+
+.close-btn:active {
+    transform: scale(0.9); /* 클릭 시 쏙 들어감 */
+    opacity: 0.8;
+}
+
+/* 주요 동작 버튼 (Primary) */
 .btn-primary {
     background: var(--accent-blue);
     color: #ffffff;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: var(--radius-md);
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all var(--transition-snappy);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
 }
 
 .btn-primary:active {
-    transform: translateY(0);
-    filter: brightness(0.9);
+    transform: translateY(1px) scale(0.98);
+    filter: brightness(0.95);
     box-shadow: none;
 }
 
+/* 보조 동작 버튼 (Secondary) */
 .btn-secondary {
     background: var(--panel-bg);
     color: var(--text-main);
     border: 1px solid var(--border-color);
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: var(--radius-md);
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-snappy);
 }
 
 .btn-secondary:hover {
     background: var(--bg-color);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary:active {
     transform: translateY(0) scale(0.98);
     background: var(--border-color);
-    box-shadow: none;
 }
 
+/* 작은 외곽선 버튼 */
 .btn-outline-sm {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     color: var(--text-sub);
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-snappy);
     font-weight: 600;
 }
 
@@ -60,15 +96,14 @@
     background: var(--panel-bg);
     color: var(--text-main);
     border-color: var(--text-sub);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: scale(1.02);
 }
 
 .btn-outline-sm:active {
-    transform: translateY(0) scale(0.96);
-    box-shadow: none;
+    transform: scale(0.96);
 }
 
+/* 특정 동작 버튼들 (위험, 삭제 등) */
 .btn-delete-preset:hover {
     background: var(--accent-red);
     color: #ffffff;
@@ -85,17 +120,18 @@
     font-weight: 800;
     cursor: pointer;
     margin-top: 4px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all var(--transition-snappy);
+    box-shadow: var(--shadow-sm);
 }
 
 .auth-btn:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
 }
 
 .auth-btn:active {
-    transform: translateY(0);
+    transform: translateY(1px) scale(0.96);
     filter: brightness(0.9);
     box-shadow: none;
 }
@@ -104,150 +140,139 @@
     background: var(--accent-blue);
     color: #ffffff;
     border: none;
-    padding: 6px 12px;
+    padding: 8px 14px;
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all var(--transition-snappy);
 }
 
 .btn-clear-top:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+    filter: brightness(1.05);
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 113, 227, 0.25);
 }
 
 .btn-clear-top:active {
-    transform: translateY(0) scale(0.96);
+    transform: scale(0.96);
     filter: brightness(0.95);
     box-shadow: none;
 }
 
 .btn-copy-mini {
     background: var(--text-main);
-    color: var(--border-color);
-    border: 1px solid var(--text-sub);
-    padding: 3px 8px;
+    color: var(--panel-bg);
+    border: none;
+    padding: 4px 10px;
     border-radius: var(--radius-sm);
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-snappy);
 }
 
 .btn-copy-mini:hover {
     background: var(--text-sub);
-    color: #ffffff;
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-copy-mini:active {
-    transform: translateY(0);
+    transform: scale(0.95);
     box-shadow: none;
-    filter: brightness(0.9);
 }
 
-.btn-copy-all {
-    padding: 18px;
-    width: 100%;
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 800;
-    cursor: pointer;
-    color: #ffffff;
-    background: var(--accent-blue);
-    font-size: 1.1rem;
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
-    margin-top: 20px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.btn-copy-all:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
-    filter: brightness(1.05);
-}
-
-.btn-copy-all:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-    filter: brightness(0.95);
-}
-
-.btn-save {
-    background: linear-gradient(135deg, var(--accent-green), #059669);
+.btn-copy-all, .btn-save {
     width: 100%;
     padding: 16px;
     border: none;
     border-radius: var(--radius-md);
-    color: #ffffff;
-    font-weight: 800;
+    font-weight: 700;
+    font-size: 1.05rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    color: #ffffff;
+    transition: all var(--transition-snappy);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-copy-all {
+    background: var(--accent-blue);
+    margin-top: 20px;
+}
+
+.btn-copy-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 113, 227, 0.3);
+    filter: brightness(1.05);
+}
+
+.btn-copy-all:active {
+    transform: translateY(1px) scale(0.99);
+    box-shadow: none;
+}
+
+.btn-save {
+    background: var(--accent-green);
 }
 
 .btn-save:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
     filter: brightness(1.05);
 }
 
 .btn-save:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-    filter: brightness(0.95);
+    transform: translateY(1px) scale(0.99);
+    box-shadow: none;
 }
 
 .btn-case-main {
     background: var(--panel-bg);
     color: var(--text-main);
-    border: 1.5px solid var(--border-color);
-    padding: 4px 10px;
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-snappy);
 }
 
 .btn-case-main:hover {
     border-color: var(--accent-blue);
     color: var(--accent-blue);
-    background: rgba(59, 130, 246, 0.05);
-    transform: translateY(-1px);
+    background: var(--bg-color);
+    transform: scale(1.02);
 }
 
 .btn-case-main:active {
-    transform: translateY(0) scale(0.95);
-    background: rgba(59, 130, 246, 0.1);
+    transform: scale(0.96);
 }
 
 .btn-remove {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(255, 59, 48, 0.1);
     color: var(--accent-red);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    padding: 6px 12px;
+    border: none;
+    padding: 8px 14px;
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-snappy);
 }
 
 .btn-remove:hover {
     background: var(--accent-red);
     color: #ffffff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.2);
 }
 
 .btn-remove:active {
-    transform: translateY(0) scale(0.96);
+    transform: scale(0.96);
     box-shadow: none;
 }
