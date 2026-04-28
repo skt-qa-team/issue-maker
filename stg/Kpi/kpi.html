@@ -1,6 +1,6 @@
-<div class="modal-overlay" id="kpiModal">
+<div class="modal-overlay d-none" id="kpi-modal">
     <div class="modal-content modal-kpi">
-        <button class="close-btn" onclick="closeKpiModal()">×</button>
+        <button class="close-btn" onclick="window.QA_CORE.KPI.closeModal()">×</button>
         <div class="modal-header kpi-header">
             <h2 class="kpi-title">📊 개인 KPI 목표 수행 현황</h2>
         </div>
@@ -8,16 +8,16 @@
             
             <div class="setting-box kpi-main-box">
                 <div class="kpi-tab-header">
-                    <button class="kpi-tab-btn active" id="btn-tab-perf" onclick="switchKpiTab('perf')">1. 업무 성과</button>
-                    <button class="kpi-tab-btn" id="btn-tab-contrib" onclick="switchKpiTab('contrib')">2. 팀 기여도</button>
-                    <button class="kpi-tab-btn" id="btn-tab-capa" onclick="switchKpiTab('capa')">3. 개인 역량</button>
+                    <button class="kpi-tab-btn active" id="btn-tab-perf" onclick="window.QA_CORE.KPI.switchTab('perf')">1. 업무 성과</button>
+                    <button class="kpi-tab-btn" id="btn-tab-contrib" onclick="window.QA_CORE.KPI.switchTab('contrib')">2. 팀 기여도</button>
+                    <button class="kpi-tab-btn" id="btn-tab-capa" onclick="window.QA_CORE.KPI.switchTab('capa')">3. 개인 역량</button>
                 </div>
                 
                 <div class="kpi-tab-body kpi-tab-container">
                     
                     <div id="tab-perf" class="kpi-tab-content active">
                         <div class="kpi-action-right">
-                            <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('perf')">🗑️ 현재 탭 초기화</button>
+                            <button class="btn-remove btn-kpi-clear" onclick="window.QA_CORE.KPI.clearTab('perf')">🗑️ 현재 탭 초기화</button>
                         </div>
 
                         <div class="form-group">
@@ -25,29 +25,29 @@
                             <div class="kpi-defect-box" style="max-width: 450px;">
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Blocker</label>
-                                    <input type="number" id="def_blocker" min="0" oninput="generateKPI()" class="kpi-defect-input">
+                                    <input type="number" id="def_blocker" min="0" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
                                 </div>
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Critical</label>
-                                    <input type="number" id="def_critical" min="0" oninput="generateKPI()" class="kpi-defect-input">
+                                    <input type="number" id="def_critical" min="0" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
                                 </div>
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Major</label>
-                                    <input type="number" id="def_major" min="0" oninput="generateKPI()" class="kpi-defect-input">
+                                    <input type="number" id="def_major" min="0" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
                                 </div>
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Minor</label>
-                                    <input type="number" id="def_minor" min="0" oninput="generateKPI()" class="kpi-defect-input">
+                                    <input type="number" id="def_minor" min="0" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
                                 </div>
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">Trivial</label>
-                                    <input type="number" id="def_trivial" min="0" oninput="generateKPI()" class="kpi-defect-input">
+                                    <input type="number" id="def_trivial" min="0" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
                                 </div>
                                 <hr class="kpi-divider">
                                 <div class="kpi-form-input-group">
                                     <label class="kpi-defect-label">전월 팀 평균</label>
-                                    <input type="number" id="prev_avg" min="0" step="0.1" oninput="generateKPI()" class="kpi-defect-input">
-                                    <button class="btn-avg-reset" onclick="resetTeamAverage()">초기화</button>
+                                    <input type="number" id="prev_avg" min="0" step="0.1" oninput="window.QA_CORE.KPI.generate()" class="kpi-defect-input">
+                                    <button class="btn-avg-reset" onclick="window.QA_CORE.KPI.resetTeamAverage()">초기화</button>
                                 </div>
                             </div>
                         </div>
@@ -55,14 +55,14 @@
                         <div class="form-group">
                             <div class="kpi-tc-header">
                                 <label class="kpi-section-heading-inline">2. TC 수행 업무 (PoC별 취합)</label>
-                                <button class="btn-clear-top btn-tc-add" onclick="addTcRow()">➕ TC 추가</button>
+                                <button class="btn-clear-top btn-tc-add" onclick="window.QA_CORE.KPI.addTcRow()">➕ TC 추가</button>
                             </div>
                             <div id="tc_container" class="kpi-tc-list"></div>
                         </div>
                         
                         <div class="form-group kpi-update-group">
                             <label class="kpi-section-heading mb-2">3. 본인영역 TC 작성 및 수정 업무</label>
-                            <textarea id="tc_update_text" class="kpi-textarea-md" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="generateKPI()"></textarea>
+                            <textarea id="tc_update_text" class="kpi-textarea-md" placeholder="TC 최신화 유지 > 변경사항 즉시 반영 내역을 입력하세요" oninput="window.QA_CORE.KPI.generate()"></textarea>
                         </div>
                     </div>
 
@@ -70,19 +70,19 @@
                         <div class="kpi-tc-header mb-3">
                             <label class="kpi-section-heading-bold">팀 기여도 및 업무태도</label>
                             <div class="kpi-contrib-actions">
-                                <button class="btn-kpi-auto" onclick="generateNarrativeReport()">✨ 성과 요약 자동 작성</button>
-                                <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('contrib')">🗑️ 현재 탭 초기화</button>
+                                <button class="btn-kpi-auto" onclick="window.QA_CORE.KPI.generateNarrative()">✨ 성과 요약 자동 작성</button>
+                                <button class="btn-remove btn-kpi-clear" onclick="window.QA_CORE.KPI.clearTab('contrib')">🗑️ 현재 탭 초기화</button>
                             </div>
                         </div>
-                        <textarea id="kpi_contrib_text" class="kpi-textarea-lg" placeholder="기여 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        <textarea id="kpi_contrib_text" class="kpi-textarea-lg" placeholder="기여 내역을 작성하세요." oninput="window.QA_CORE.KPI.generate()"></textarea>
                     </div>
 
                     <div id="tab-capa" class="kpi-tab-content d-none">
                         <div class="kpi-tc-header mb-3">
                             <label class="kpi-section-heading-bold">역량강화 (개인 역량)</label>
-                            <button class="btn-remove btn-kpi-clear" onclick="clearKpiTab('capa')">🗑️ 현재 탭 초기화</button>
+                            <button class="btn-remove btn-kpi-clear" onclick="window.QA_CORE.KPI.clearTab('capa')">🗑️ 현재 탭 초기화</button>
                         </div>
-                        <textarea id="kpi_capa_text" class="kpi-textarea-lg" placeholder="개인 역량 강화 내역을 작성하세요." oninput="generateKPI()"></textarea>
+                        <textarea id="kpi_capa_text" class="kpi-textarea-lg" placeholder="개인 역량 강화 내역을 작성하세요." oninput="window.QA_CORE.KPI.generate()"></textarea>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <label id="kpi_preview_label" class="mb-2 d-block">📊 [업무 성과] 리포트 미리보기</label>
                     <textarea id="output_kpi_result" class="output-field preview-area" readonly></textarea>
                 </div>
-                <button class="btn-save btn-kpi-copy" onclick="copyKpiReport()">📋 전체 KPI 리포트 복사하기</button>
+                <button class="btn-save btn-kpi-copy" id="btn-kpi-copy">📋 전체 KPI 리포트 복사하기</button>
             </div>
         </div>
     </div>
