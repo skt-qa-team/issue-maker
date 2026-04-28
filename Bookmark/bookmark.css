@@ -5,7 +5,7 @@
     background: var(--bg-color);
 }
 
-.bm-header {
+#bookmark-panel .bm-header {
     padding: 15px 25px;
     background: var(--panel-bg);
     border-bottom: 1px solid var(--border-color);
@@ -14,20 +14,20 @@
     align-items: center;
 }
 
-.bm-header-title-group {
+#bookmark-panel .bm-header-title-group {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.bm-title {
+#bookmark-panel .bm-title {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 800;
     color: var(--text-main);
 }
 
-.bm-badge {
+#bookmark-panel .bm-badge {
     background: var(--accent-green);
     color: white;
     font-size: 0.6rem;
@@ -36,14 +36,14 @@
     animation: pulse 2s infinite;
 }
 
-.bm-body {
+#bookmark-panel .bm-body {
     display: grid;
     grid-template-columns: 280px 1fr;
     flex: 1;
     overflow: hidden;
 }
 
-.bm-sidebar {
+#bookmark-panel .bm-sidebar {
     background: var(--panel-bg);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -51,7 +51,7 @@
     overflow: hidden;
 }
 
-.bm-sidebar-actions {
+#bookmark-panel .bm-sidebar-actions {
     padding: 15px;
     display: flex;
     flex-direction: column;
@@ -62,7 +62,7 @@
     z-index: 5;
 }
 
-.bm-sidebar-btn {
+#bookmark-panel .bm-sidebar-btn {
     width: 100%;
     padding: 10px;
     background: var(--bg-color);
@@ -78,14 +78,14 @@
     align-items: center;
 }
 
-.bm-sidebar-btn:hover {
+#bookmark-panel .bm-sidebar-btn:hover {
     border-color: var(--accent-blue);
     color: var(--accent-blue);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }
 
-.bm-folder-tree {
+#bookmark-panel .bm-folder-tree {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -94,7 +94,7 @@
     flex: 1;
 }
 
-.bm-main {
+#bookmark-panel .bm-main {
     padding: 25px;
     overflow-y: auto;
     display: flex;
@@ -104,7 +104,7 @@
     overflow-x: hidden;
 }
 
-.bm-folder {
+#bookmark-panel .bm-folder {
     padding: 12px 16px;
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -117,19 +117,19 @@
     border: 2px solid transparent;
 }
 
-.bm-folder:hover {
+#bookmark-panel .bm-folder:hover {
     background: var(--bg-color);
     color: var(--text-main);
 }
 
-.bm-folder.active {
+#bookmark-panel .bm-folder.active {
     background: var(--bg-color);
     color: var(--accent-blue);
     border-left: 4px solid var(--accent-blue);
     box-shadow: var(--shadow-sm);
 }
 
-.bm-folder.drag-over {
+#bookmark-panel .bm-folder.drag-over {
     background: var(--bg-color) !important;
     border-color: var(--accent-green) !important;
     border-style: dashed !important;
@@ -137,38 +137,38 @@
     color: var(--accent-green);
 }
 
-.drag-over-top {
+#bookmark-panel .drag-over-top {
     border-top: 3px solid var(--accent-blue) !important;
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
 }
 
-.drag-over-bottom {
+#bookmark-panel .drag-over-bottom {
     border-bottom: 3px solid var(--accent-blue) !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
 }
 
-.bm-folder-header {
+#bookmark-panel .bm-folder-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.bm-current-folder-title {
+#bookmark-panel .bm-current-folder-title {
     margin: 0;
     color: var(--text-main);
     font-size: 1.1rem;
     font-weight: 800;
 }
 
-.bm-link-list {
+#bookmark-panel .bm-link-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
-.bm-link-card {
+#bookmark-panel .bm-link-card {
     background: var(--panel-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -180,13 +180,13 @@
     transition: var(--transition-normal);
 }
 
-.bm-link-card:hover {
+#bookmark-panel .bm-link-card:hover {
     border-color: var(--accent-blue);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-.bm-link-card.dragging {
+#bookmark-panel .bm-link-card.dragging {
     opacity: 0.4;
     border: 2px dashed var(--accent-blue);
     background: var(--bg-color);
@@ -194,7 +194,7 @@
     box-shadow: none;
 }
 
-.bm-link-info {
+#bookmark-panel .bm-link-info {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -203,7 +203,7 @@
     min-width: 0;
 }
 
-.bm-link-info b {
+#bookmark-panel .bm-link-info b {
     font-size: 1rem;
     color: var(--text-main);
     white-space: nowrap;
@@ -211,7 +211,7 @@
     text-overflow: ellipsis;
 }
 
-.bm-link-info small {
+#bookmark-panel .bm-link-info small {
     color: var(--text-sub);
     font-size: 0.85rem;
     display: block;
@@ -220,13 +220,13 @@
     text-overflow: ellipsis;
 }
 
-.bm-actions {
+#bookmark-panel .bm-actions {
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.bm-btn-icon {
+#bookmark-panel .bm-btn-icon {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -236,16 +236,16 @@
     transition: var(--transition-fast);
 }
 
-.bm-btn-icon:hover {
+#bookmark-panel .bm-btn-icon:hover {
     background: var(--bg-color);
     color: var(--accent-blue);
 }
 
-.bm-btn-icon.del:hover {
+#bookmark-panel .bm-btn-icon.del:hover {
     color: var(--accent-red);
 }
 
-.bm-add-link-form {
+#bookmark-panel .bm-add-link-form {
     background: var(--panel-bg);
     padding: 20px;
     border-radius: var(--radius-md);
@@ -257,17 +257,17 @@
     box-shadow: var(--shadow-md);
 }
 
-.bm-add-link-form.active {
+#bookmark-panel .bm-add-link-form.active {
     display: flex;
 }
 
-.bm-form-actions {
+#bookmark-panel .bm-form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
 }
 
-.bm-btn-save {
+#bookmark-panel .bm-btn-save {
     background: var(--accent-blue);
     color: white;
     border: none;
@@ -279,7 +279,7 @@
     transition: var(--transition-fast);
 }
 
-.bm-btn-cancel {
+#bookmark-panel .bm-btn-cancel {
     background: var(--text-sub);
     color: white;
     border: none;
@@ -291,7 +291,7 @@
     transition: var(--transition-fast);
 }
 
-.bm-btn-save:hover, .bm-btn-cancel:hover {
+#bookmark-panel .bm-btn-save:hover, #bookmark-panel .bm-btn-cancel:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
 }
