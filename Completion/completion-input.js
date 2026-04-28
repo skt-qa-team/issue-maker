@@ -8,7 +8,7 @@ window.QA_CORE.CompletionInput = {
 
     init: () => {
         try {
-            window.QA_CORE.CompletionInput.State.cache = (typeof loadConfig === 'function' ? loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
+            window.QA_CORE.CompletionInput.State.cache = (typeof window.loadConfig === 'function' ? window.loadConfig() : JSON.parse(localStorage.getItem('qa_system_config_master'))) || {};
             
             const adminInput = document.getElementById('comp_admin_url');
             const pcInput = document.getElementById('comp_pc_url');
@@ -37,8 +37,8 @@ window.QA_CORE.CompletionInput = {
             window.QA_CORE.CompletionInput.fetchPresets();
             window.QA_CORE.CompletionInput.initEvents();
 
-            if (typeof window.updateCompletionPreview === 'function') {
-                window.updateCompletionPreview();
+            if (window.QA_CORE.CompletionResult && typeof window.QA_CORE.CompletionResult.updatePreview === 'function') {
+                window.QA_CORE.CompletionResult.updatePreview();
             }
         } catch (e) {
             console.error(e);
@@ -57,7 +57,9 @@ window.QA_CORE.CompletionInput = {
                             
                             Object.keys(rawPresets).forEach(encodedKey => {
                                 try {
-                                    const decodedKey = window.QA_CORE.Utils.decodeSafeKey(encodedKey);
+                                    const decodedKey = (window.QA_CORE.Utils && window.QA_CORE.Utils.decodeSafeKey) 
+                                        ? window.QA_CORE.Utils.decodeSafeKey(encodedKey) 
+                                        : decodeURIComponent(encodedKey);
                                     decodedPresets[decodedKey] = rawPresets[encodedKey];
                                 } catch (err) {
                                     decodedPresets[encodedKey] = rawPresets[encodedKey];
@@ -67,13 +69,13 @@ window.QA_CORE.CompletionInput = {
                             window.QA_CORE.CompletionInput.State.presets = decodedPresets;
                             window.QA_CORE.CompletionInput.renderPresets();
                         }, (error) => {
-                            if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(error, 'Comp Preset Firebase Fetch');
+                            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'Comp Preset Firebase Fetch');
                         });
                     }
                 });
             }
         } catch (e) {
-            if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(e, 'Fetch Comp Presets From Firebase');
+            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Fetch Comp Presets From Firebase');
         }
     },
 
@@ -87,7 +89,9 @@ window.QA_CORE.CompletionInput = {
 
             container.addEventListener('input', (e) => {
                 if (e.target.classList.contains('template-trigger')) {
-                    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                    if (window.QA_CORE.CompletionResult && typeof window.QA_CORE.CompletionResult.updatePreview === 'function') {
+                        window.QA_CORE.CompletionResult.updatePreview();
+                    }
                 }
             });
 
@@ -96,7 +100,9 @@ window.QA_CORE.CompletionInput = {
                     if (e.target.classList.contains('comp-dev-cb')) {
                         window.QA_CORE.CompletionInput.syncDeviceHighlight();
                     }
-                    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                    if (window.QA_CORE.CompletionResult && typeof window.QA_CORE.CompletionResult.updatePreview === 'function') {
+                        window.QA_CORE.CompletionResult.updatePreview();
+                    }
                 }
                 if (e.target.id === 'compPresetSelect') {
                     window.QA_CORE.CompletionInput.applyPreset(e.target.value);
@@ -146,7 +152,7 @@ window.QA_CORE.CompletionInput = {
                 container.innerHTML = list.map(dev => {
                     const isChecked = defaultDevices.includes(dev) ? 'checked' : '';
                     return `<label class="pill-label"><input type="checkbox" class="pill-cb comp-dev-cb template-trigger" data-platform="${platform}" value="${dev}" ${isChecked}> ${dev}</label>`;
-                });
+                }).join('');
             };
 
             render(andList, andDevices, 'android');
@@ -186,7 +192,7 @@ window.QA_CORE.CompletionInput = {
             const nameEl = document.getElementById('newCompPresetName');
             const name = nameEl ? nameEl.value.trim() : '';
             if (!name) {
-                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.VALIDATION_ERROR, 'warning');
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 프리셋 이름을 입력해주세요.', 'warning');
                 return;
             }
 
@@ -199,7 +205,9 @@ window.QA_CORE.CompletionInput = {
             }
 
             const newData = window.QA_CORE.CompletionInput.getFormData();
-            const encodedName = window.QA_CORE.Utils.encodeSafeKey(name);
+            const encodedName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) 
+                ? window.QA_CORE.Utils.encodeSafeKey(name) 
+                : encodeURIComponent(name);
             
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSaveCompPreset', true);
@@ -210,15 +218,15 @@ window.QA_CORE.CompletionInput = {
                     if (nameEl) nameEl.value = '';
                     const selectEl = document.getElementById('compPresetSelect');
                     if (selectEl) selectEl.value = name;
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.SAVE_SUCCESS, 'success');
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 프리셋이 저장되었습니다.', 'success');
                 }).catch(err => {
-                    if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Save Comp Preset Firebase');
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.SAVE_ERROR, 'error');
+                    if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Save Comp Preset Firebase');
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 저장 실패', 'error');
                 }).finally(() => {
                     if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSaveCompPreset', false);
                 });
             } else {
-                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.AUTH_ERROR, 'warning');
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('🔒 로그인이 필요합니다.', 'warning');
             }
         } catch (e) {
             console.error(e);
@@ -238,7 +246,7 @@ window.QA_CORE.CompletionInput = {
             const newName = nameInput ? nameInput.value.trim() : originalName;
 
             if (!newName) {
-                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.VALIDATION_ERROR, 'warning');
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 프리셋 이름을 입력해주세요.', 'warning');
                 return;
             }
 
@@ -256,8 +264,8 @@ window.QA_CORE.CompletionInput = {
                 const path = window.QA_CORE.CONSTANTS?.FIREBASE_PATHS?.COMP_PRESETS || 'comp_presets';
                 const presetsRef = firebase.database().ref(`users/${uid}/${path}`);
                 
-                const encodedNewName = window.QA_CORE.Utils.encodeSafeKey(newName);
-                const encodedOriginalName = window.QA_CORE.Utils.encodeSafeKey(originalName);
+                const encodedNewName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) ? window.QA_CORE.Utils.encodeSafeKey(newName) : encodeURIComponent(newName);
+                const encodedOriginalName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) ? window.QA_CORE.Utils.encodeSafeKey(originalName) : encodeURIComponent(originalName);
                 
                 if (newName !== originalName) {
                     const updates = {};
@@ -265,21 +273,19 @@ window.QA_CORE.CompletionInput = {
                     updates[encodedNewName] = newData;
                     presetsRef.update(updates).then(() => {
                         if (selectEl) selectEl.value = newName;
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`, 'success');
-                        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`✅ [${newName}] 프리셋 수정 완료`, 'success');
+                        if (window.QA_CORE.CompletionResult) window.QA_CORE.CompletionResult.updatePreview();
                     }).catch(err => {
-                        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.SAVE_ERROR, 'error');
+                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
                     }).finally(() => {
                         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnEditCompPreset', false);
                     });
                 } else {
                     presetsRef.child(encodedOriginalName).set(newData).then(() => {
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`✅ [${newName}] 프리셋이 서버에서 수정되었습니다.`, 'success');
-                        if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`✅ [${newName}] 프리셋 수정 완료`, 'success');
+                        if (window.QA_CORE.CompletionResult) window.QA_CORE.CompletionResult.updatePreview();
                     }).catch(err => {
-                        if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.SAVE_ERROR, 'error');
+                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Edit Comp Preset Firebase');
                     }).finally(() => {
                         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnEditCompPreset', false);
                     });
@@ -299,10 +305,9 @@ window.QA_CORE.CompletionInput = {
                 return;
             }
 
-            const confirmMsg = window.QA_CORE.CONSTANTS?.MESSAGES?.DELETE_CONFIRM || `정말 프리셋 [${name}]을(를) 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`;
-            if (!confirm(confirmMsg)) return;
+            if (!confirm(`정말 프리셋 [${name}]을(를) 삭제하시겠습니까?`)) return;
 
-            const encodedName = window.QA_CORE.Utils.encodeSafeKey(name);
+            const encodedName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) ? window.QA_CORE.Utils.encodeSafeKey(name) : encodeURIComponent(name);
 
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnDeleteCompPreset', true);
@@ -314,11 +319,10 @@ window.QA_CORE.CompletionInput = {
                     const nameInput = document.getElementById('newCompPresetName');
                     if (nameInput) nameInput.value = '';
                     
-                    if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('🗑️ 프리셋이 서버에서 삭제되었습니다.', 'success');
+                    if (window.QA_CORE.CompletionResult) window.QA_CORE.CompletionResult.updatePreview();
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('🗑️ 프리셋 삭제 완료', 'success');
                 }).catch(err => {
-                    if(window.QA_ErrorHandler) window.QA_ErrorHandler.handle(err, 'Delete Comp Preset Firebase');
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(window.QA_CORE.CONSTANTS.MESSAGES.SAVE_ERROR, 'error');
+                    if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Delete Comp Preset Firebase');
                 }).finally(() => {
                     if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnDeleteCompPreset', false);
                 });
@@ -337,7 +341,7 @@ window.QA_CORE.CompletionInput = {
             const currentVal = selectEl.value;
             let html = '<option value="">💾 프리셋 선택...</option>';
             Object.keys(presets).forEach(name => {
-                const safeName = window.QA_CORE.Utils.escapeHTML ? window.QA_CORE.Utils.escapeHTML(name) : name;
+                const safeName = (window.QA_CORE.Utils && window.QA_CORE.Utils.escapeHTML) ? window.QA_CORE.Utils.escapeHTML(name) : name;
                 html += `<option value="${safeName}">${safeName}</option>`;
             });
             selectEl.innerHTML = html;
@@ -377,7 +381,9 @@ window.QA_CORE.CompletionInput = {
             
             window.QA_CORE.CompletionInput.syncDeviceHighlight();
             
-            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+            if (window.QA_CORE.CompletionResult && typeof window.QA_CORE.CompletionResult.updatePreview === 'function') {
+                window.QA_CORE.CompletionResult.updatePreview();
+            }
         } catch (e) {
             console.error(e);
         }
@@ -398,9 +404,7 @@ window.QA_CORE.CompletionInput = {
             if (pcInput) pcInput.value = window.QA_CORE.CompletionInput.State.cache.pcUrl || '';
 
             document.querySelectorAll('.comp-mode-cb').forEach(cb => cb.checked = false);
-            
             document.querySelectorAll('.comp-srv-cb').forEach(cb => cb.checked = (cb.value === 'STG'));
-            
             document.querySelectorAll('.comp-ver-cb').forEach(cb => cb.checked = false);
 
             const cache = window.QA_CORE.CompletionInput.State.cache;
@@ -416,8 +420,8 @@ window.QA_CORE.CompletionInput = {
             const nameInput = document.getElementById('newCompPresetName');
             if (nameInput) nameInput.value = '';
 
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('🔄 모든 값이 초기화되었습니다.', 'info');
-            if (typeof window.updateCompletionPreview === 'function') window.updateCompletionPreview();
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('🔄 초기화 완료', 'info');
+            if (window.QA_CORE.CompletionResult) window.QA_CORE.CompletionResult.updatePreview();
         } catch (e) {
             console.error(e);
         }
