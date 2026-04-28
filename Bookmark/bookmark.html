@@ -8,8 +8,8 @@
     <div class="bm-body">
         <div class="bm-sidebar">
             <div class="bm-sidebar-actions">
-                <button class="bm-sidebar-btn" onclick="addNewFolder()">+ 폴더 추가</button>
-                <button class="bm-sidebar-btn" onclick="openAddForm()">+ 링크 추가</button>
+                <button class="bm-sidebar-btn" onclick="window.QA_CORE.Bookmark.addFolder()">+ 폴더 추가</button>
+                <button class="bm-sidebar-btn" onclick="window.QA_CORE.Bookmark.openAdd()">+ 링크 추가</button>
             </div>
             <div id="bm_folder_list" class="bm-folder-tree"></div>
         </div>
@@ -19,8 +19,8 @@
                 <input type="text" id="bm_input_name" class="bm-input" placeholder="사이트 닉네임">
                 <input type="text" id="bm_input_url" class="bm-input" placeholder="URL (예: https://...)">
                 <div class="bm-form-actions">
-                    <button class="bm-btn-cancel" onclick="toggleAddForm(false)">취소</button>
-                    <button class="bm-btn-save" id="bm_save_btn" onclick="saveNewLink()">저장하기</button>
+                    <button class="bm-btn-cancel" onclick="window.QA_CORE.Bookmark.toggleForm(false)">취소</button>
+                    <button class="bm-btn-save" id="bm_save_btn" onclick="window.QA_CORE.Bookmark.saveLink()">저장하기</button>
                 </div>
             </div>
             <div class="bm-folder-header">
