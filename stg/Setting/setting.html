@@ -1,8 +1,8 @@
-<div class="modal-overlay" id="settingModal">
+<div class="modal-overlay" id="setting-modal">
     <div class="modal-content modal-lg">
         <div class="modal-header">
             <h2>⚙️ 환경 설정</h2>
-            <button class="close-btn" onclick="window.closeSettingModal()">×</button>
+            <button class="close-btn" onclick="window.QA_CORE.Setting.closeModal()">×</button>
         </div>
         
         <div class="modal-body">
@@ -92,9 +92,9 @@
             </div>
         </div>
 
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-            <button class="btn-outline-sm" onclick="window.copyAdminSettings()">👑 Admin 설정 가져오기</button>
-            <button class="btn-save" onclick="window.saveSettings()">✅ 설정 저장 및 동기화</button>
+        <div class="modal-footer setting-footer-flex">
+            <button id="btnCopyAdminSettings" class="btn-outline-sm" onclick="window.QA_CORE.Setting.copyAdmin()">👑 Admin 설정 가져오기</button>
+            <button id="btnSaveSettings" class="btn-save" onclick="window.QA_CORE.Setting.save()">✅ 설정 저장 및 동기화</button>
         </div>
     </div>
 </div>
