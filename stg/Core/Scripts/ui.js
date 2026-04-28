@@ -8,6 +8,26 @@ window.QA_CORE.CONSTANTS.TABS = {
     'bookmark': 'panel-bookmark'
 };
 
+window.QA_CORE.Utils = {
+    escapeHTML: (str) => {
+        if (!str) return '';
+        return str.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    },
+    
+    encodeSafeKey: (str) => {
+        return encodeURIComponent(str).replace(/\./g, '%2E');
+    },
+
+    decodeSafeKey: (str) => {
+        return decodeURIComponent(str.replace(/%2E/g, '.'));
+    }
+};
+
 window.QA_CORE.UI = {
     startClock: () => {
         setInterval(() => {
@@ -19,12 +39,12 @@ window.QA_CORE.UI = {
         }, 1000);
     },
 
-    showToast: (message) => {
+    showToast: (message, type = 'info') => {
         const container = document.getElementById('toast-container');
         if (!container) return;
 
         const toast = document.createElement('div');
-        toast.className = 'toast-msg';
+        toast.className = `toast-msg toast-${type}`;
         toast.textContent = message;
         container.appendChild(toast);
         
@@ -36,6 +56,20 @@ window.QA_CORE.UI = {
                 if (toast.parentNode) container.removeChild(toast);
             }, 400);
         }, 2500);
+    },
+
+    toggleLoading: (btnId, isLoading) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        if (isLoading) {
+            btn.disabled = true;
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> 처리 중...';
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = btn.dataset.originalHtml || btn.innerHTML;
+        }
     },
 
     switchMainTab: (tabName) => {
@@ -62,16 +96,32 @@ window.QA_CORE.UI = {
             activeBtn.classList.add('active');
         }
 
-        if (tabName === 'calendar' && typeof window.renderCalendar === 'function') {
-            window.renderCalendar();
+        if (tabName === 'calendar' && window.QA_CORE.Calendar && typeof window.QA_CORE.Calendar.render === 'function') {
+            window.QA_CORE.Calendar.render();
         }
         
-        if (tabName === 'completion' && typeof window.initCompletionPanel === 'function') {
-            window.initCompletionPanel();
+        if (tabName === 'completion' && window.QA_CORE.CompletionInput && typeof window.QA_CORE.CompletionInput.init === 'function') {
+            window.QA_CORE.CompletionInput.init();
         }
 
-        if (tabName === 'bookmark' && typeof window.renderBookmarks === 'function') {
-            window.renderBookmarks();
+        if (tabName === 'bookmark' && window.QA_CORE.Bookmark && typeof window.QA_CORE.Bookmark.render === 'function') {
+            window.QA_CORE.Bookmark.render();
+        }
+    },
+
+    initModal: (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    },
+
+    closeModal: (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
         }
     },
 
@@ -98,6 +148,26 @@ window.QA_CORE.UI = {
                 }
             });
         }
+    },
+
+    initEvents: () => {
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-close-trigger') || e.target.classList.contains('modal-overlay')) {
+                const modal = e.target.closest('.modal-base');
+                if (modal) window.QA_CORE.UI.closeModal(modal.id);
+            }
+            
+            const tabBtn = e.target.closest('.main-tab-btn');
+            if (tabBtn) {
+                const targetId = tabBtn.getAttribute('data-target');
+                if (targetId) {
+                    const tabName = targetId.replace('panel-', '');
+                    if (typeof window.QA_CORE.UI.switchMainTab === 'function') {
+                        window.QA_CORE.UI.switchMainTab(tabName);
+                    }
+                }
+            }
+        });
     }
 };
 
@@ -113,7 +183,10 @@ window.QA_CORE.Form = {
         }
         const prefix = el.value.trim() === '' ? '' : '\n\n';
         el.value += `${prefix}CASE ${nextNum}.\n`;
-        if (typeof window.generateTemplate === 'function') window.generateTemplate();
+        
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
         el.focus();
     },
 
@@ -133,56 +206,18 @@ window.QA_CORE.Form = {
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             
-            if (typeof window.generateTemplate === 'function') window.generateTemplate();
-            window.QA_CORE.UI.showToast('🔄 초기화되었습니다.');
+            if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+                window.QA_CORE.ResultForm.generate();
+            }
+            if (window.QA_CORE.UI && typeof window.QA_CORE.UI.showToast === 'function') {
+                window.QA_CORE.UI.showToast('🔄 초기화되었습니다.', 'success');
+            }
         }
     }
 };
 
-window.QA_CORE.Utils = {
-    copySpecific: async (id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        
-        const textToCopy = el.value;
-
-        if (navigator.clipboard && window.isSecureContext) {
-            try {
-                await navigator.clipboard.writeText(textToCopy);
-                window.QA_CORE.UI.showToast('복사되었습니다.');
-            } catch (err) {
-                window.QA_CORE.Utils.fallbackCopyText(textToCopy);
-            }
-        } else {
-            window.QA_CORE.Utils.fallbackCopyText(textToCopy);
-        }
-    },
-
-    fallbackCopyText: (text) => {
-        const t = document.createElement("textarea");
-        t.className = 'sr-only';
-        document.body.appendChild(t);
-        t.value = text;
-        t.select();
-        try {
-            document.execCommand("copy");
-            window.QA_CORE.UI.showToast('복사 완료!');
-        } catch (err) {
-            console.error(err);
-        }
-        document.body.removeChild(t);
-    }
-};
-
-document.addEventListener('click', (e) => {
-    const tabBtn = e.target.closest('.main-tab-btn');
-    if (tabBtn) {
-        const targetId = tabBtn.getAttribute('data-target');
-        if (targetId) {
-            const tabName = targetId.replace('panel-', '');
-            if (typeof window.QA_CORE.UI.switchMainTab === 'function') {
-                window.QA_CORE.UI.switchMainTab(tabName);
-            }
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.QA_CORE.UI && typeof window.QA_CORE.UI.initEvents === 'function') {
+        window.QA_CORE.UI.initEvents();
     }
 });
