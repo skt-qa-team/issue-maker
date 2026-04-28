@@ -1,4 +1,4 @@
-.setting-box {
+#setting-modal .setting-box {
     background: var(--bg-color);
     padding: 25px 30px;
     border-radius: var(--radius-lg);
@@ -7,19 +7,19 @@
     box-shadow: var(--shadow-sm);
 }
 
-.setting-grid-3 {
+#setting-modal .setting-grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
-.grid-2 {
+#setting-modal .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-.setting-textarea {
+#setting-modal .setting-textarea {
     height: 120px;
     width: 100%;
     resize: none;
@@ -36,13 +36,22 @@
     transition: var(--transition-fast);
 }
 
-.setting-textarea:focus {
+#setting-modal .setting-textarea:focus {
     border-color: var(--accent-blue);
     background: var(--bg-color);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.os-title {
+#setting-modal .setting-textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+#setting-modal .setting-textarea::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+#setting-modal .os-title {
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -53,22 +62,22 @@
     border-bottom: 2px solid var(--border-color);
 }
 
-.and-title {
+#setting-modal .and-title {
     color: var(--accent-green);
     border-image: linear-gradient(to right, var(--accent-green), transparent) 1;
 }
 
-.ios-title {
+#setting-modal .ios-title {
     color: var(--accent-blue);
     border-image: linear-gradient(to right, var(--accent-blue), transparent) 1;
 }
 
-.browser-title {
+#setting-modal .browser-title {
     color: var(--text-main);
     border-image: linear-gradient(to right, var(--border-color), transparent) 1;
 }
 
-.sub-label {
+#setting-modal .sub-label {
     font-size: 0.8rem;
     display: inline-block;
     margin-bottom: 8px;
@@ -76,14 +85,30 @@
     font-weight: 700;
 }
 
-.form-group {
+#setting-modal .form-group {
     margin-bottom: 15px;
 }
 
-.btn-save {
+.setting-footer-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
     width: 100%;
+}
+
+#setting-modal #btnCopyAdminSettings {
+    flex: 1;
     padding: 16px;
     font-size: 1rem;
     font-weight: 800;
-    margin-top: 10px;
+}
+
+#setting-modal .btn-save {
+    flex: 2;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-top: 0; 
 }
