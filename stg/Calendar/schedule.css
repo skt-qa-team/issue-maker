@@ -1,16 +1,16 @@
-.modal-schedule-fixed {
+#schedule-modal .modal-schedule-fixed {
     max-width: 500px !important;
     width: 95% !important;
 }
 
-.modal-divider {
+#schedule-modal .modal-divider {
     border: 0;
     border-top: 1px solid var(--border-color);
     margin: 25px 0;
     opacity: 0.5;
 }
 
-.ai-dropzone {
+#schedule-modal .ai-dropzone {
     border: 2px dashed var(--border-color);
     border-radius: var(--radius-md);
     padding: 20px;
@@ -26,19 +26,19 @@
     min-height: 100px;
 }
 
-.ai-dropzone:hover {
+#schedule-modal .ai-dropzone:hover {
     border-color: var(--accent-blue);
     background: rgba(59, 130, 246, 0.03);
     transform: translateY(-2px);
 }
 
-.ai-dropzone span {
+#schedule-modal .ai-dropzone span {
     font-weight: 700;
     color: var(--text-sub);
     font-size: 0.85rem;
 }
 
-.ai-quota-info {
+#schedule-modal .ai-quota-info {
     font-size: 0.75rem;
     color: var(--text-sub);
     text-align: right;
@@ -46,19 +46,19 @@
     font-weight: 800;
 }
 
-#ai_loading_content {
+#schedule-modal #ai_loading_content {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
 }
 
-#ai_loading_content span {
+#schedule-modal #ai_loading_content span {
     color: var(--accent-blue);
     font-size: 0.85rem;
 }
 
-.spinner {
+#schedule-modal .spinner {
     width: 24px;
     height: 24px;
     border: 3px solid var(--border-color);
@@ -72,11 +72,11 @@
     100% { transform: rotate(360deg); }
 }
 
-.color-blue { color: var(--accent-blue) !important; }
-.color-green { color: var(--accent-green) !important; }
-.color-orange { color: var(--accent-orange) !important; }
+#schedule-modal .color-blue { color: var(--accent-blue) !important; }
+#schedule-modal .color-green { color: var(--accent-green) !important; }
+#schedule-modal .color-orange { color: var(--accent-orange) !important; }
 
-.grid-2 {
+#schedule-modal .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
