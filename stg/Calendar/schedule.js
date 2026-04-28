@@ -351,7 +351,7 @@ window.QA_CORE.ScheduleDetail = {
                 const sheetId = urlMatch[1];
                 try {
                     const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
-                    const SECRET_KEY = "********"; 
+                    const SECRET_KEY = "Qpalzm123"; 
 
                     const response = await fetch(`${GAS_URL}?id=${sheetId}&name=${encodeURIComponent(targetName)}&key=${encodeURIComponent(SECRET_KEY)}`);
                     
