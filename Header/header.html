@@ -8,12 +8,12 @@
     </div>
 
     <div class="top-bar-btns">
-        <div class="menu-item-wrapper" onclick="openConditionModal()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.UI.initModal('condition-modal')">
             <div class="setting-btn-float btn-condition">🧩</div>
             <span class="menu-label">조건 조합기(점검중)</span>
         </div>
 
-        <div class="menu-item-wrapper" onclick="openKpiModal()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.UI.initModal('kpi-modal')">
             <div class="setting-btn-float btn-kpi">📊</div>
             <span class="menu-label">KPI</span>
         </div>
@@ -23,22 +23,22 @@
             <span class="menu-label">그룹웨어</span>
         </a>
 
-        <div class="menu-item-wrapper" onclick="openThemeModal()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.UI.initModal('theme-modal')">
             <div class="setting-btn-float btn-theme">🎨</div>
             <span class="menu-label">테마</span>
         </div>
 
-        <div class="menu-item-wrapper" onclick="openSettingModal()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.UI.initModal('setting-modal')">
             <div class="setting-btn-float btn-setting">⚙️</div>
             <span class="menu-label">설정</span>
         </div>
 
-        <div class="menu-item-wrapper" onclick="openBugReportModal()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.UI.initModal('bugreport-modal')">
             <div class="setting-btn-float btn-bugreport">🐛</div>
             <span class="menu-label">버그 제보</span>
         </div>
 
-        <div class="menu-item-wrapper" onclick="toggleAuth()">
+        <div class="menu-item-wrapper" onclick="window.QA_CORE.Auth.toggle()">
             <div class="setting-btn-float btn-auth" id="auth-btn-icon">G</div>
             <span class="menu-label" id="auth-btn-label">⏳ 대기중</span>
         </div>
