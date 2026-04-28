@@ -107,7 +107,7 @@ window.QA_CORE.ScheduleDetail = {
                             const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, opTicket: '', ticket: '', desc: 'AI 추출', color: '#3b82f6', author: '', poc: '기타' };
                             await firebase.database().ref('shared_schedules/' + id).set(newSch);
                         }
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-modal');
+                        window.QA_CORE.ScheduleDetail.closeForm();
                     }
                 } catch (innerError) { 
                     if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(innerError, 'Gemini API Parsed'); 
@@ -124,8 +124,14 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
+    // 등록/수정 모달 열기 로직
     openModal: (id = null) => {
-        if (window.QA_CORE.UI) window.QA_CORE.UI.initModal('schedule-modal');
+        const modal = document.getElementById('schedule-modal');
+        if (modal) {
+            modal.classList.remove('d-none');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
         const idField = document.getElementById('sch_id');
         if (idField) idField.value = id || '';
         
@@ -159,6 +165,15 @@ window.QA_CORE.ScheduleDetail = {
             if (defaultRadio) defaultRadio.checked = true;
         }
         window.QA_CORE.ScheduleDetail.handleTypeChange(); 
+    },
+
+    // 등록/수정 모달 닫기 로직
+    closeForm: () => {
+        const modal = document.getElementById('schedule-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('d-none'), 300);
+        }
     },
 
     save: () => {
@@ -197,19 +212,24 @@ window.QA_CORE.ScheduleDetail = {
         
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
-                if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-modal');
+                window.QA_CORE.ScheduleDetail.closeForm();
             }).catch(err => {
                 if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Save Schedule Firebase');
             });
         }
     },
 
+    // 상세 모달 열기 로직
     open: (id) => {
         const sch = window.QA_CORE.Calendar.State.schedules.find(s => s.id === id);
         if (!sch) return;
         window.QA_CORE.Calendar.State.activeSchId = id;
 
-        if (window.QA_CORE.UI) window.QA_CORE.UI.initModal('schedule-detail-modal');
+        const modal = document.getElementById('schedule-detail-modal');
+        if (modal) {
+            modal.classList.remove('d-none');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
         
         const colorBar = document.getElementById('detail_color_bar');
         if (colorBar) colorBar.style.setProperty('--detail-bg', sch.color);
@@ -292,12 +312,23 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
+    // 상세 모달 닫기 로직
+    closeDetail: () => {
+        const modal = document.getElementById('schedule-detail-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('d-none');
+                window.QA_CORE.Calendar.State.activeSchId = null;
+            }, 300);
+        }
+    },
+
     delete: () => {
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (!id || !confirm("일정을 삭제하시겠습니까?")) return;
         firebase.database().ref('shared_schedules/' + id).remove().then(() => {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-detail-modal');
-            window.QA_CORE.Calendar.State.activeSchId = null;
+            window.QA_CORE.ScheduleDetail.closeDetail();
         }).catch(err => {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Delete Schedule Firebase');
         });
@@ -306,7 +337,7 @@ window.QA_CORE.ScheduleDetail = {
     edit: () => {
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (id) {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-detail-modal');
+            window.QA_CORE.ScheduleDetail.closeDetail();
             setTimeout(() => window.QA_CORE.ScheduleDetail.openModal(id), 350);
         }
     },
@@ -317,7 +348,7 @@ window.QA_CORE.ScheduleDetail = {
         const sch = window.QA_CORE.Calendar.State.schedules.find(s => s.id === id);
         if (!sch || !sch.ticket) return;
         
-        if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-detail-modal');
+        window.QA_CORE.ScheduleDetail.closeDetail();
         if (typeof window.switchMainTab === 'function') window.switchMainTab('issue');
         
         const epicInput = document.getElementById('guide_epic') || document.getElementById('targetUrl');
@@ -488,12 +519,11 @@ window.QA_CORE.ScheduleDetail = {
             document.addEventListener('click', (e) => {
                 const target = e.target;
                 if (target.id === 'btn-close-sch-modal-top' || target.id === 'btn-close-sch-modal-bot') {
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-modal');
+                    window.QA_CORE.ScheduleDetail.closeForm();
                 }
                 if (target.id === 'btn-save-sch') window.QA_CORE.ScheduleDetail.save();
                 if (target.id === 'btn-close-detail') {
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.closeModal('schedule-detail-modal');
-                    window.QA_CORE.Calendar.State.activeSchId = null;
+                    window.QA_CORE.ScheduleDetail.closeDetail();
                 }
                 if (target.id === 'btn-delete-sch') window.QA_CORE.ScheduleDetail.delete();
                 if (target.id === 'btn-edit-sch') window.QA_CORE.ScheduleDetail.edit();
