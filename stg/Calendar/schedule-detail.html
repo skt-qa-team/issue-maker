@@ -4,7 +4,7 @@
         
         <div class="modal-header">
             <h2 id="detail_title"></h2>
-            <button id="btn-close-detail" class="close-btn">×</button>
+            <button type="button" class="close-btn" onclick="window.QA_CORE.ScheduleDetail.closeDetail()">×</button>
         </div>
 
         <div class="modal-body">
@@ -13,41 +13,41 @@
             </div>
 
             <div class="cal-detail-info-box">
-                <div class="form-group d-none" id="detail_author_wrapper">
+                <section id="detail_author_wrapper" class="form-group d-none">
                     <label>작성자</label>
                     <div id="detail_author" class="cal-detail-value-author"></div>
-                </div>
+                </section>
 
-                <div class="form-group d-none" id="detail_poc_wrapper">
+                <section id="detail_poc_wrapper" class="form-group d-none">
                     <label>POC</label>
                     <div id="detail_poc" class="cal-detail-value-text"></div>
-                </div>
+                </section>
 
-                <div class="form-group d-none" id="detail_op_ticket_wrapper">
+                <section id="detail_op_ticket_wrapper" class="form-group d-none">
                     <label>운영티켓</label>
                     <div id="detail_op_ticket" class="cal-detail-value-text"></div>
-                </div>
+                </section>
 
-                <div class="form-group d-none" id="detail_ticket_wrapper">
+                <section id="detail_ticket_wrapper" class="form-group d-none">
                     <label>검증티켓</label>
                     <div id="detail_ticket" class="cal-detail-value-text"></div>
-                </div>
+                </section>
                 
-                <div class="form-group">
+                <section class="form-group">
                     <label>상세 내용</label>
                     <div id="detail_desc" class="cal-detail-value-desc"></div>
-                </div>
+                </section>
             </div>
         </div>
 
         <div class="modal-footer">
             <div class="modal-footer-left">
-                <button id="btn-delete-sch" class="btn-remove">삭제</button>
+                <button type="button" id="btn-delete-sch" class="btn-remove" onclick="window.QA_CORE.ScheduleDetail.delete()">삭제</button>
             </div>
             <div class="modal-footer-right">
-                <button id="btn-sync-kpi" class="btn-secondary d-none">📊 KPI와 연동</button>
-                <button id="btn-edit-sch" class="btn-secondary">수정</button>
-                <button id="btn-start-workflow" class="btn-primary d-none">🚀 일정 시작</button>
+                <button type="button" id="btn-sync-kpi" class="btn-secondary d-none" onclick="window.QA_CORE.ScheduleDetail.syncToKpi()">📊 KPI와 연동</button>
+                <button type="button" id="btn-edit-sch" class="btn-secondary" onclick="window.QA_CORE.ScheduleDetail.edit()">수정</button>
+                <button type="button" id="btn-start-workflow" class="btn-primary d-none" onclick="window.QA_CORE.ScheduleDetail.startWorkflow()">🚀 일정 시작</button>
             </div>
         </div>
     </div>
