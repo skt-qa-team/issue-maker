@@ -552,6 +552,28 @@ window.QA_CORE.ScheduleDetail = {
                     }
                 }
             });
+
+            // 🎯 버튼 이벤트 강제 바인딩 (HTML 속성 누락 대응)
+            const bindBtn = (id, handler) => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.removeEventListener('click', handler); // 중복 방지
+                    btn.addEventListener('click', handler);
+                }
+            };
+
+            // 상세 모달 버튼
+            bindBtn('btn-delete-sch', window.QA_CORE.ScheduleDetail.delete);
+            bindBtn('btn-sync-kpi', window.QA_CORE.ScheduleDetail.syncToKpi);
+            bindBtn('btn-edit-sch', window.QA_CORE.ScheduleDetail.edit);
+            bindBtn('btn-start-workflow', window.QA_CORE.ScheduleDetail.startWorkflow);
+            bindBtn('btn-close-detail', window.QA_CORE.ScheduleDetail.closeDetail);
+
+            // 등록/수정 모달 닫기, 저장 버튼
+            bindBtn('btn-save-sch', window.QA_CORE.ScheduleDetail.save);
+            bindBtn('btn-close-sch-modal-top', window.QA_CORE.ScheduleDetail.closeForm);
+            bindBtn('btn-close-sch-modal-bot', window.QA_CORE.ScheduleDetail.closeForm);
+
         } catch (e) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Schedule Init Events');
         }
