@@ -1,9 +1,15 @@
 window.QA_CORE = window.QA_CORE || {};
+window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
 
-window.QA_CORE.KPI = window.QA_CORE.KPI || {};
-window.QA_CORE.KPI.syncMonthSchedule = () => {
-    if (window.QA_CORE.Calendar && typeof window.QA_CORE.Calendar.syncToKPI === 'function') {
-        window.QA_CORE.Calendar.syncToKPI();
+window.QA_CORE.CONSTANTS.CALENDAR = {
+    GAS_URL: "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec",
+    SECRET_KEY: "Qpalzm123",
+    HOLIDAYS: {
+        "01-01": "신정", "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
+        "03-01": "삼일절", "03-02": "대체공휴일", "05-05": "어린이날", "05-24": "부처님오신날",
+        "05-25": "대체공휴일", "06-03": "전국동시지방선거일", "06-06": "현충일", "08-15": "광복절", "08-17": "대체공휴일",
+        "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴", "09-28": "대체공휴일",
+        "10-03": "개천절", "10-05": "대체공휴일", "10-09": "한글날", "12-25": "성탄절"
     }
 };
 
@@ -12,16 +18,6 @@ window.QA_CORE.Calendar = {
         currentDate: new Date(),
         schedules: [],
         activeSchId: null
-    },
-
-    CONSTANTS: {
-        HOLIDAYS: {
-            "01-01": "신정", "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
-            "03-01": "삼일절", "03-02": "대체공휴일", "05-05": "어린이날", "05-24": "부처님오신날",
-            "05-25": "대체공휴일", "06-03": "전국동시지방선거일", "06-06": "현충일", "08-15": "광복절", "08-17": "대체공휴일",
-            "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴", "09-28": "대체공휴일",
-            "10-03": "개천절", "10-05": "대체공휴일", "10-09": "한글날", "12-25": "성탄절"
-        }
     },
 
     Utils: {
@@ -81,7 +77,7 @@ window.QA_CORE.Calendar = {
 
             const state = window.QA_CORE.Calendar.State;
             const utils = window.QA_CORE.Calendar.Utils;
-            const holidays = window.QA_CORE.Calendar.CONSTANTS.HOLIDAYS;
+            const holidays = window.QA_CORE.CONSTANTS.CALENDAR.HOLIDAYS;
 
             const now = new Date();
             const todayStr = utils.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
@@ -201,6 +197,10 @@ window.QA_CORE.Calendar = {
                                     schDiv.style.setProperty('--sch-bg', item.sch.color);
                                     schDiv.style.setProperty('--sch-span', item.span);
                                     schDiv.textContent = item.sch.title;
+
+                                    schDiv.onclick = () => window.QA_CORE.Calendar.openDetail(item.sch.id);
+                                    schDiv.onmouseover = () => window.QA_CORE.Calendar.handleMouseOver(item.sch.id);
+                                    schDiv.onmouseout = (e) => window.QA_CORE.Calendar.handleMouseOut(e, item.sch.id);
                                 } else { 
                                     schDiv.className = 'cal-schedule spacer'; 
                                 }
@@ -220,8 +220,56 @@ window.QA_CORE.Calendar = {
         }
     },
 
+    handleMouseOver: (schId) => {
+        const state = window.QA_CORE.Calendar.State;
+        const grid = document.getElementById('cal-grid');
+        if (!grid) return;
+        
+        if (state.activeSchId !== schId) {
+            state.activeSchId = schId;
+            grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
+                el.classList.add('sch-active');
+                const parentDay = el.closest('.cal-day');
+                if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
+                    parentDay.classList.add('highlight-range');
+                }
+            });
+        }
+    },
+
+    handleMouseOut: (e, schId) => {
+        const state = window.QA_CORE.Calendar.State;
+        const grid = document.getElementById('cal-grid');
+        if (!grid) return;
+
+        const relatedTarget = e.relatedTarget;
+        const isStillSameSchedule = relatedTarget && 
+                                    relatedTarget.closest('.cal-schedule') && 
+                                    relatedTarget.closest('.cal-schedule').dataset.schId === state.activeSchId;
+
+        if (!isStillSameSchedule) {
+            state.activeSchId = null;
+            grid.querySelectorAll('.cal-day.highlight-range').forEach(el => el.classList.remove('highlight-range'));
+            grid.querySelectorAll('.cal-schedule.sch-active').forEach(el => el.classList.remove('sch-active'));
+        }
+    },
+
+    openDetail: (schId) => {
+        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.open === 'function') {
+            window.QA_CORE.ScheduleDetail.open(schId);
+        }
+    },
+
+    openAddModal: () => {
+        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
+            window.QA_CORE.ScheduleDetail.openModal();
+        }
+    },
+
     syncToKPI: async () => {
+        const btn = document.getElementById('btn-sync-month-kpi');
         let progressOverlay = null;
+
         try {
             const state = window.QA_CORE.Calendar.State;
             const utils = window.QA_CORE.Calendar.Utils;
@@ -253,6 +301,12 @@ window.QA_CORE.Calendar = {
             if (nameInput === null || nameInput.trim() === "") return;
             targetName = nameInput.trim();
             localStorage.setItem('qa_system_tester_name', targetName);
+
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.textContent = '연동 중...';
+            }
 
             progressOverlay = document.createElement('div');
             progressOverlay.id = 'sync-progress-overlay';
@@ -287,8 +341,8 @@ window.QA_CORE.Calendar = {
                 kpiData = { tcRows: [] };
             }
 
-            const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
-            const SECRET_KEY = "Qpalzm123"; 
+            const GAS_URL = window.QA_CORE.CONSTANTS.CALENDAR.GAS_URL;
+            const SECRET_KEY = window.QA_CORE.CONSTANTS.CALENDAR.SECRET_KEY; 
 
             let currentCount = 0;
             let skippedCount = 0;
@@ -348,13 +402,9 @@ window.QA_CORE.Calendar = {
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 const user = firebase.auth().currentUser;
                 if (user && !user.isAnonymous) {
-                    firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData).catch(err => {
-                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'KPI Firebase Sync (Month)');
-                    });
+                    await firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
                 }
             }
-
-            if (progressOverlay) progressOverlay.remove();
 
             const successCount = totalCount - skippedCount;
             let finalMsg = `📊 연동 완료: ${successCount}건 추가`;
@@ -363,85 +413,21 @@ window.QA_CORE.Calendar = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(finalMsg, 'success');
 
         } catch (err) {
-            if (progressOverlay) progressOverlay.remove();
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar Sync Month To KPI');
-        }
-    },
-
-    openAddModal: () => {
-        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
-            window.QA_CORE.ScheduleDetail.openModal();
+        } finally {
+            if (progressOverlay) progressOverlay.remove();
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.textContent = '📊 월별 KPI 연동';
+            }
         }
     },
 
     initEvents: () => {
         try {
-            const calContainer = document.getElementById('calendar-placeholder');
-            if (!calContainer) return;
-
             window.QA_CORE.Calendar.fetch();
             window.QA_CORE.Calendar.render();
-
-            calContainer.addEventListener('click', (e) => {
-                try {
-                    const target = e.target;
-                    const scheduleEl = target.closest('.cal-schedule[data-sch-id]');
-                    if (scheduleEl) {
-                        const schId = scheduleEl.dataset.schId;
-                        if (schId && window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.open === 'function') {
-                            window.QA_CORE.ScheduleDetail.open(schId);
-                        }
-                    }
-                } catch (err) {
-                    if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar Click Event');
-                }
-            });
-
-            const grid = document.getElementById('cal-grid');
-            if (grid) {
-                grid.addEventListener('mouseover', (e) => {
-                    try {
-                        const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                        if (schItem) {
-                            const schId = schItem.dataset.schId;
-                            const state = window.QA_CORE.Calendar.State;
-                            if (state.activeSchId !== schId) {
-                                state.activeSchId = schId;
-                                grid.querySelectorAll(`.cal-schedule[data-sch-id="${schId}"]`).forEach(el => {
-                                    el.classList.add('sch-active');
-                                    const parentDay = el.closest('.cal-day');
-                                    if (parentDay && !parentDay.classList.contains('sun') && !parentDay.classList.contains('sat')) {
-                                        parentDay.classList.add('highlight-range');
-                                    }
-                                });
-                            }
-                        }
-                    } catch (err) {
-                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar MouseOver Event');
-                    }
-                });
-
-                grid.addEventListener('mouseout', (e) => {
-                    try {
-                        const schItem = e.target.closest('.cal-schedule[data-sch-id]');
-                        if (schItem) {
-                            const relatedTarget = e.relatedTarget;
-                            const state = window.QA_CORE.Calendar.State;
-                            const isStillSameSchedule = relatedTarget && 
-                                                        relatedTarget.closest('.cal-schedule') && 
-                                                        relatedTarget.closest('.cal-schedule').dataset.schId === state.activeSchId;
-
-                            if (!isStillSameSchedule) {
-                                state.activeSchId = null;
-                                grid.querySelectorAll('.cal-day.highlight-range').forEach(el => el.classList.remove('highlight-range'));
-                                grid.querySelectorAll('.cal-schedule.sch-active').forEach(el => el.classList.remove('sch-active'));
-                            }
-                        }
-                    } catch (err) {
-                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar MouseOut Event');
-                    }
-                });
-            }
         } catch (e) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Calendar Init Events');
         }
