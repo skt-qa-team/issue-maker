@@ -540,42 +540,8 @@ window.QA_CORE.ScheduleDetail = {
 
     initEvents: () => {
         try {
-            // 1. 입력 필드 이벤트 위임 (동적 렌더링 완벽 대응)
-            document.addEventListener('change', (e) => {
-                const target = e.target;
-                if (target.id === 'sch_start' || target.id === 'sch_end') {
-                    window.QA_CORE.ScheduleDetail.handleDateChange(target);
-                } else if (target.name === 'sch_color') {
-                    window.QA_CORE.ScheduleDetail.handleTypeChange();
-                }
-            });
-
-            // 2. 버튼 클릭 이벤트 전역 위임 (Race Condition 원천 차단)
-            // HTML이 언제 렌더링되더라도 무조건 클릭 이벤트를 낚아챕니다.
-            document.addEventListener('click', (e) => {
-                const btn = e.target.closest('button');
-                if (!btn) return;
-
-                const id = btn.id;
-                
-                // 상세 모달 액션
-                if (id === 'btn-delete-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.delete(); }
-                else if (id === 'btn-sync-kpi') { e.preventDefault(); window.QA_CORE.ScheduleDetail.syncToKpi(); }
-                else if (id === 'btn-edit-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.edit(); }
-                else if (id === 'btn-start-workflow') { e.preventDefault(); window.QA_CORE.ScheduleDetail.startWorkflow(); }
-                
-                // 등록/수정 모달 액션
-                else if (id === 'btn-save-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.save(); }
-                
-                // 닫기 버튼 공통 처리 (X 버튼 또는 취소 버튼)
-                else if (id === 'btn-close-sch-modal-bot' || id === 'btn-close-sch-modal-top' || btn.classList.contains('close-btn')) {
-                    e.preventDefault();
-                    if (btn.closest('#schedule-detail-modal')) window.QA_CORE.ScheduleDetail.closeDetail();
-                    else if (btn.closest('#schedule-modal')) window.QA_CORE.ScheduleDetail.closeForm();
-                }
-            });
-
-            // 3. AI 스크린샷 붙여넣기 이벤트
+            // 인라인 속성을 지원할 수 없는 paste 이벤트만 순수하게 유지합니다.
+            // 나머지 억지스러운 전역(Delegation) 클릭 방식을 모두 걷어냈습니다.
             document.addEventListener('paste', async (e) => {
                 const modal = document.getElementById('schedule-modal');
                 if (modal && modal.classList.contains('active')) {
