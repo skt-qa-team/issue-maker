@@ -1,35 +1,55 @@
 .result-panel {
-    background: var(--panel-bg);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-lg);
-    flex: 1;
+    box-shadow: var(--shadow-lg);
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.result-panel h2 {
-    color: var(--text-main);
-    border-left: 5px solid var(--accent-blue);
-    padding-left: 12px;
-    margin-top: 0;
-    font-size: 1.25rem;
+    flex: 1;
+    transition: var(--transition-bounce);
 }
 
 .result-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 16px;
+}
+
+.result-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+.btn-clear-top {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: var(--transition-bounce);
+}
+
+.btn-clear-top:hover {
+    background: var(--accent-red);
+    color: white;
+    border-color: var(--accent-red);
+    transform: scale(1.05);
 }
 
 .output-section {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .output-label-group {
@@ -39,60 +59,87 @@
     margin-bottom: 10px;
 }
 
-.output-label-group label {
-    color: var(--text-sub);
+.output-label {
     font-size: 0.85rem;
-    font-weight: 800;
+    font-weight: 700;
+    color: var(--text-sub);
+    letter-spacing: -0.2px;
 }
 
-.output-field {
+.btn-copy-mini {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-bounce);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-copy-mini:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.btn-copy-mini:active {
+    transform: scale(0.95);
+}
+
+.output-field-title,
+.result-textarea {
     width: 100%;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     padding: 16px;
-    background: var(--bg-color); 
+    background: var(--bg-color);
     color: var(--text-main);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
     border-radius: var(--radius-md);
-    line-height: 1.6;
     font-size: 0.92rem;
+    line-height: 1.6;
     outline: none;
     box-sizing: border-box;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition: var(--transition-bounce);
     resize: none;
-    overflow-y: auto;
 }
 
-.output-field:focus {
+.output-field-title {
+    font-weight: 800;
+    color: var(--accent-blue) !important;
+    border-color: rgba(0, 122, 255, 0.2);
+}
+
+.output-field-title:focus,
+.result-textarea:focus {
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-/* 커스텀 스크롤바 적용 */
-.output-field::-webkit-scrollbar {
-    width: 8px;
-}
-
-.output-field::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    background: var(--panel-bg);
 }
 
 .result-body-section {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 200px;
-    margin-bottom: 0;
+    min-height: 300px;
 }
 
 .result-textarea {
     flex: 1;
+    overflow-y: auto;
 }
 
-#outputTitle {
-    font-weight: 800;
-    color: var(--accent-blue);
-    border-color: var(--accent-blue);
-    border-width: 2px;
-    flex: none;
+.result-textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.result-textarea::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-pill);
+}
+
+.result-textarea::-webkit-scrollbar-track {
+    background: transparent;
 }
