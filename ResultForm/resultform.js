@@ -1,30 +1,39 @@
 window.QA_CORE = window.QA_CORE || {};
+window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
+window.QA_CORE.CONSTANTS.RESULT_FORM = {
+    POC_M_WEB: 'PC M.Web',
+    POC_WEB: 'PC Web',
+    POC_ADMIN: 'Admin',
+    POC_AI: 'AI Layer',
+    OS_GROUP_MOBILE: ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"]
+};
 
 window.QA_CORE.ResultForm = {
-    generate: () => {
-        const getDropdownOrCustom = (dropdownId, customId) => {
-            const el = document.getElementById(dropdownId);
-            if (!el) return '';
-            if (el.value === 'direct') {
-                const customEl = document.getElementById(customId);
-                return customEl ? customEl.value.trim() : '';
-            }
-            return el.value.trim();
-        };
+    getDropdownOrCustom: (dropdownId, customId) => {
+        const el = document.getElementById(dropdownId);
+        if (!el) return '';
+        if (el.value === 'direct') {
+            const customEl = document.getElementById(customId);
+            return customEl ? customEl.value.trim() : '';
+        }
+        return el.value.trim();
+    },
 
+    generate: () => {
+        const CONST = window.QA_CORE.CONSTANTS.RESULT_FORM;
         const prefixMap = { 'env': '', 'os': '', 'poc': '', 'critical': '', 'device': '', 'account': '', 'page': '' };
 
-        const envVal = getDropdownOrCustom('prefix_env', 'prefix_env_custom');
+        const envVal = window.QA_CORE.ResultForm.getDropdownOrCustom('prefix_env', 'prefix_env_custom');
         if (envVal) prefixMap['env'] = `[${envVal}]`;
 
-        const osVal = getDropdownOrCustom('osType', 'osType_custom');
+        const osVal = window.QA_CORE.ResultForm.getDropdownOrCustom('osType', 'osType_custom');
         if (osVal) prefixMap['os'] = `[${osVal}]`;
 
-        let pocVal = getDropdownOrCustom('poc', 'poc_custom');
-        if (pocVal === 'PC M.Web') pocVal = 'PCWeb';
+        let pocVal = window.QA_CORE.ResultForm.getDropdownOrCustom('poc', 'poc_custom');
+        if (pocVal === CONST.POC_M_WEB) pocVal = 'PCWeb';
         if (pocVal && pocVal !== 'T 멤버십') prefixMap['poc'] = `[${pocVal}]`;
 
-        const critVal = getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
+        const critVal = window.QA_CORE.ResultForm.getDropdownOrCustom('prefix_critical', 'prefix_critical_custom');
         if (critVal) prefixMap['critical'] = `[${critVal}]`;
 
         let deviceVal = '';
@@ -71,7 +80,7 @@ window.QA_CORE.ResultForm = {
 
         const pocDropdownVal = document.getElementById('poc')?.value || '';
         const osDropdownVal = document.getElementById('osType')?.value || '';
-        const isPureWeb = pocDropdownVal === 'Admin' || pocDropdownVal === 'PC Web';
+        const isPureWeb = pocDropdownVal === CONST.POC_ADMIN || pocDropdownVal === CONST.POC_WEB;
         const servers = Array.from(document.querySelectorAll('.issue-server-cb:checked')).map(cb => cb.value);
         let devices = "";
         
@@ -80,9 +89,8 @@ window.QA_CORE.ResultForm = {
             const andMode = document.querySelector('input[name="and_dev_mode"]:checked')?.value;
             const iosMode = document.querySelector('input[name="ios_dev_mode"]:checked')?.value;
             
-            const osGroup = ["Android/iOS", "Android", "iOS", "모바일", "태블릿", "모바일/태블릿", "direct"];
-            const showAnd = (osDropdownVal === "Android/iOS" || osDropdownVal === "Android" || osGroup.slice(3).includes(osDropdownVal));
-            const showIos = (osDropdownVal === "Android/iOS" || osDropdownVal === "iOS" || osGroup.slice(3).includes(osDropdownVal));
+            const showAnd = (osDropdownVal === "Android/iOS" || osDropdownVal === "Android" || CONST.OS_GROUP_MOBILE.slice(3).includes(osDropdownVal));
+            const showIos = (osDropdownVal === "Android/iOS" || osDropdownVal === "iOS" || CONST.OS_GROUP_MOBILE.slice(3).includes(osDropdownVal));
 
             if (showAnd) activeDeviceLists.push(document.getElementById(`and${andMode === 'normal' ? 'Normal' : 'Special'}List`));
             if (showIos) activeDeviceLists.push(document.getElementById(`ios${iosMode === 'normal' ? 'Normal' : 'Special'}List`));
@@ -103,20 +111,20 @@ window.QA_CORE.ResultForm = {
             .filter(val => ['삼성인터넷', 'Safari', 'Chrome', 'Edge'].includes(val))
             .join(' / ');
 
-        let envSection = `[Environment]\n■ POC : ${pocDropdownVal === 'PC M.Web' ? 'PC M.Web' : pocDropdownVal === 'direct' ? document.getElementById('poc_custom')?.value.trim() : pocDropdownVal}\n`;
+        let envSection = `[Environment]\n■ POC : ${pocDropdownVal === CONST.POC_M_WEB ? CONST.POC_M_WEB : pocDropdownVal === 'direct' ? document.getElementById('poc_custom')?.value.trim() : pocDropdownVal}\n`;
 
-        if (pocDropdownVal === 'PC Web') {
+        if (pocDropdownVal === CONST.POC_WEB) {
             if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
             envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${document.getElementById('targetUrl')?.value || ''}`;
-        } else if (pocDropdownVal === 'PC M.Web') {
+        } else if (pocDropdownVal === CONST.POC_M_WEB) {
             envSection += `■ Device : ${devices || '-'}\n`;
             if (searchEngines) envSection += `■ 검색 엔진 : ${searchEngines}\n`;
             envSection += `■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}\n■ URL : ${document.getElementById('targetUrl')?.value || ''}`;
-        } else if (pocDropdownVal === 'Admin') {
+        } else if (pocDropdownVal === CONST.POC_ADMIN) {
             envSection += `■ 서버 : ${servers.join(' / ')}\n■ URL : ${document.getElementById('targetUrl')?.value || ''}`;
         } else {
             envSection += `■ Device : ${devices || '-'}\n■ 서버 : ${servers.join(' / ')}\n■ 버전 : ${ver}`;
-            if (pocDropdownVal === 'AI Layer') {
+            if (pocDropdownVal === CONST.POC_AI) {
                 const aiModeVal = document.getElementById('aiMode')?.value || '';
                 if (aiModeVal) envSection += `\n■ 모드 : ${aiModeVal}`;
             }
@@ -140,25 +148,9 @@ window.QA_CORE.ResultForm = {
     },
 
     initEvents: () => {
-        const resultContainer = document.getElementById('result-panel-placeholder');
-        if (!resultContainer) return;
-
-        resultContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            
-            if (target.id === 'btnResultClear') {
-                if (window.QA_CORE.Form && typeof window.QA_CORE.Form.clearForm === 'function') {
-                    window.QA_CORE.Form.clearForm();
-                }
-            }
-            
-            if (target.classList.contains('btn-copy-target')) {
-                const targetId = target.dataset.target;
-                if (targetId && window.QA_CORE.UX && typeof window.QA_CORE.UX.copySpecific === 'function') {
-                    window.QA_CORE.UX.copySpecific(targetId);
-                }
-            }
-        });
+        if (window.QA_CORE.ResultForm.generate) {
+            window.QA_CORE.ResultForm.generate();
+        }
     }
 };
 
