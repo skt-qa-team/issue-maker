@@ -1,5 +1,12 @@
 window.QA_CORE = window.QA_CORE || {};
 
+window.QA_CORE.KPI = window.QA_CORE.KPI || {};
+window.QA_CORE.KPI.syncMonthSchedule = () => {
+    if (window.QA_CORE.Calendar && typeof window.QA_CORE.Calendar.syncToKPI === 'function') {
+        window.QA_CORE.Calendar.syncToKPI();
+    }
+};
+
 window.QA_CORE.Calendar = {
     State: {
         currentDate: new Date(),
@@ -170,6 +177,8 @@ window.QA_CORE.Calendar = {
 
                     if (dayIdx === 0 || holidays[keyMMDD]) cell.classList.add('sun');
                     else if (dayIdx === 6) cell.classList.add('sat');
+
+                    if (dateStr === todayStr) cell.classList.add('today');
 
                     const dayNumDiv = document.createElement('div');
                     dayNumDiv.className = 'day-number';
@@ -359,6 +368,12 @@ window.QA_CORE.Calendar = {
         }
     },
 
+    openAddModal: () => {
+        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
+            window.QA_CORE.ScheduleDetail.openModal();
+        }
+    },
+
     initEvents: () => {
         try {
             const calContainer = document.getElementById('calendar-placeholder');
@@ -370,18 +385,6 @@ window.QA_CORE.Calendar = {
             calContainer.addEventListener('click', (e) => {
                 try {
                     const target = e.target;
-                    if (target.id === 'btn-prev-month') window.QA_CORE.Calendar.changeMonth(-1);
-                    if (target.id === 'btn-next-month') window.QA_CORE.Calendar.changeMonth(1);
-                    if (target.id === 'btn-today') window.QA_CORE.Calendar.goToday();
-                    if (target.id === 'btn-add-schedule') {
-                        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
-                            window.QA_CORE.ScheduleDetail.openModal();
-                        }
-                    }
-                    if (target.id === 'btn-sync-month-kpi') {
-                        window.QA_CORE.Calendar.syncToKPI();
-                    }
-                    
                     const scheduleEl = target.closest('.cal-schedule[data-sch-id]');
                     if (scheduleEl) {
                         const schId = scheduleEl.dataset.schId;
