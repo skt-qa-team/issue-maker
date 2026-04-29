@@ -37,6 +37,14 @@
     gap: 15px;
 }
 
+/* [수정] 이미지 4번의 수직 정렬 문제를 해결하기 위한 네비게이션 컨트롤 영역 */
+.cal-wrapper .cal-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1; /* 텍스트 높이 간섭 제거 */
+}
+
 .cal-wrapper #cal-month-year {
     font-size: 1.8rem;
     font-weight: 900;
@@ -45,6 +53,9 @@
     min-width: 160px;
     text-align: center;
     letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cal-wrapper .cal-nav-btn {
@@ -60,6 +71,7 @@
     justify-content: center;
     transition: all var(--transition-normal);
     font-size: 1.2rem;
+    padding: 0; /* 불필요한 패딩 제거 */
 }
 
 .cal-wrapper .cal-nav-btn:hover {
