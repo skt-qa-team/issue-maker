@@ -1,4 +1,18 @@
 window.QA_CORE = window.QA_CORE || {};
+window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
+window.QA_CORE.CONSTANTS.INPUT_FORM = {
+    DEFAULT_PREFIX_ORDER: [
+        { id: 'env', order: 1 },
+        { id: 'os', order: 2 },
+        { id: 'poc', order: 3 },
+        { id: 'critical', order: 4 },
+        { id: 'device', order: 5 },
+        { id: 'account', order: 6 },
+        { id: 'page', order: 7 }
+    ],
+    PRESET_LIMIT: 10,
+    MAX_NAME_LENGTH: 20
+};
 
 window.QA_CORE.InputForm = {
     State: {
@@ -6,16 +20,23 @@ window.QA_CORE.InputForm = {
         presets: {}
     },
 
-    CONSTANTS: {
-        DEFAULT_PREFIX_ORDER: [
-            { id: 'env', order: 1 },
-            { id: 'os', order: 2 },
-            { id: 'poc', order: 3 },
-            { id: 'critical', order: 4 },
-            { id: 'device', order: 5 },
-            { id: 'account', order: 6 },
-            { id: 'page', order: 7 }
-        ]
+    initEvents: () => {
+        window.QA_CORE.InputForm.loadPrefixOrder();
+        window.QA_CORE.InputForm.fetchPresets();
+    },
+
+    addCase: (targetId) => {
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        const currentVal = el.value.trim();
+        const caseMatch = currentVal.match(/CASE (\d+)\./g);
+        const nextNum = caseMatch ? caseMatch.length + 1 : 1;
+        const prefix = currentVal ? '\n\n' : '';
+        el.value += `${prefix}CASE ${nextNum}.\n`;
+        el.focus();
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
     },
 
     applyIndividualPreset: (id, count) => {
@@ -112,12 +133,12 @@ window.QA_CORE.InputForm = {
     resetPrefixOrder: () => {
         localStorage.removeItem('qa_prefix_order_map_v3');
         document.querySelectorAll('.prefix-order-input').forEach(input => {
-            const defaultItem = window.QA_CORE.InputForm.CONSTANTS.DEFAULT_PREFIX_ORDER.find(item => item.id === input.dataset.target);
+            const defaultItem = window.QA_CORE.CONSTANTS.INPUT_FORM.DEFAULT_PREFIX_ORDER.find(item => item.id === input.dataset.target);
             if (defaultItem) input.value = defaultItem.order;
         });
         const container = document.getElementById('prefixContainer');
         if (container) {
-            window.QA_CORE.InputForm.CONSTANTS.DEFAULT_PREFIX_ORDER.forEach(item => {
+            window.QA_CORE.CONSTANTS.INPUT_FORM.DEFAULT_PREFIX_ORDER.forEach(item => {
                 const el = container.querySelector(`.prefix-item[data-id="${item.id}"]`);
                 if (el) container.appendChild(el);
             });
@@ -255,22 +276,32 @@ window.QA_CORE.InputForm = {
     savePreset: () => {
         const nameInput = document.getElementById('newPresetName');
         const name = nameInput ? nameInput.value.trim() : '';
+        const limit = window.QA_CORE.CONSTANTS.INPUT_FORM.PRESET_LIMIT;
+        const maxLen = window.QA_CORE.CONSTANTS.INPUT_FORM.MAX_NAME_LENGTH;
+
         if (!name) {
             if(window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 프리셋 이름을 입력해주세요.', 'warning');
             return;
         }
+        if (name.length > maxLen) {
+            if(window.QA_CORE.UI) window.QA_CORE.UI.showToast(`⚠️ 프리셋 이름은 ${maxLen}자를 초과할 수 없습니다.`, 'warning');
+            return;
+        }
         
         const presets = window.QA_CORE.InputForm.State.presets || {};
-        if (Object.keys(presets).length >= 10 && !presets[name]) {
-            if(window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 프리셋은 최대 10개까지만 저장 가능합니다.', 'warning');
+        if (Object.keys(presets).length >= limit && !presets[name]) {
+            if(window.QA_CORE.UI) window.QA_CORE.UI.showToast(`⚠️ 프리셋은 최대 ${limit}개까지만 저장 가능합니다.`, 'warning');
             return;
         }
 
         const newData = window.QA_CORE.InputForm.getFormData();
         const encodedName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) ? window.QA_CORE.Utils.encodeSafeKey(name) : encodeURIComponent(name);
+        const btnSave = document.getElementById('btnSavePreset');
         
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSavePreset', true);
+            if(btnSave) btnSave.disabled = true;
+
             const uid = firebase.auth().currentUser.uid;
             const path = window.QA_CORE.CONSTANTS?.FIREBASE_PATHS?.PRESETS || 'presets';
             
@@ -287,6 +318,7 @@ window.QA_CORE.InputForm = {
                 if(window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 저장 실패', 'error');
             }).finally(() => {
                 if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSavePreset', false);
+                if(btnSave) btnSave.disabled = false;
             });
         }
     },
@@ -294,6 +326,8 @@ window.QA_CORE.InputForm = {
     editPreset: () => {
         const selectEl = document.getElementById('inputPresetSelect');
         const originalName = selectEl ? selectEl.value : '';
+        const maxLen = window.QA_CORE.CONSTANTS.INPUT_FORM.MAX_NAME_LENGTH;
+
         if (!originalName) {
             if(window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 수정할 프리셋을 선택해주세요.', 'warning');
             return;
@@ -305,11 +339,18 @@ window.QA_CORE.InputForm = {
             if(window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 프리셋 이름을 입력해주세요.', 'warning');
             return;
         }
+        if (newName.length > maxLen) {
+            if(window.QA_CORE.UI) window.QA_CORE.UI.showToast(`⚠️ 프리셋 이름은 ${maxLen}자를 초과할 수 없습니다.`, 'warning');
+            return;
+        }
 
         const newData = window.QA_CORE.InputForm.getFormData();
+        const btnEdit = document.getElementById('btnEditPreset');
 
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnEditPreset', true);
+            if(btnEdit) btnEdit.disabled = true;
+
             const uid = firebase.auth().currentUser.uid;
             const path = window.QA_CORE.CONSTANTS?.FIREBASE_PATHS?.PRESETS || 'presets';
             const presetsRef = firebase.database().ref(`users/${uid}/${path}`);
@@ -328,6 +369,7 @@ window.QA_CORE.InputForm = {
                     if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Edit Preset Firebase');
                 }).finally(() => {
                     if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnEditPreset', false);
+                    if(btnEdit) btnEdit.disabled = false;
                 });
             } else {
                 presetsRef.child(encodedOriginalName).set(newData).then(() => {
@@ -336,6 +378,7 @@ window.QA_CORE.InputForm = {
                     if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Edit Preset Firebase');
                 }).finally(() => {
                     if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnEditPreset', false);
+                    if(btnEdit) btnEdit.disabled = false;
                 });
             }
         }
@@ -352,9 +395,12 @@ window.QA_CORE.InputForm = {
         if (!confirm(`정말 프리셋 '${name}'을(를) 삭제하시겠습니까?`)) return;
 
         const encodedName = (window.QA_CORE.Utils && window.QA_CORE.Utils.encodeSafeKey) ? window.QA_CORE.Utils.encodeSafeKey(name) : encodeURIComponent(name);
+        const btnDelete = document.getElementById('btnDeletePreset');
         
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnDeletePreset', true);
+            if(btnDelete) btnDelete.disabled = true;
+
             const uid = firebase.auth().currentUser.uid;
             const path = window.QA_CORE.CONSTANTS?.FIREBASE_PATHS?.PRESETS || 'presets';
             
@@ -368,6 +414,7 @@ window.QA_CORE.InputForm = {
                 if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Delete Preset Firebase');
             }).finally(() => {
                 if(window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnDeletePreset', false);
+                if(btnDelete) btnDelete.disabled = false;
             });
         }
     },
@@ -430,8 +477,8 @@ window.QA_CORE.InputForm = {
         const deviceInputEl = document.getElementById('prefix_device_input');
         if (deviceInputEl) deviceInputEl.classList.toggle('d-none', !data.prefix_browser_none);
 
-        window.QA_CORE.InputForm.toggleDeviceMode('and');
-        window.QA_CORE.InputForm.toggleDeviceMode('ios');
+        window.QA_CORE.InputForm.switchDeviceMode('and', data.and_dev_mode || 'normal');
+        window.QA_CORE.InputForm.switchDeviceMode('ios', data.ios_dev_mode || 'normal');
         window.QA_CORE.InputForm.handlePocChange();
         window.QA_CORE.InputForm.syncEnvironment();
 
@@ -439,6 +486,59 @@ window.QA_CORE.InputForm = {
         document.querySelectorAll('.ver-type-cb').forEach(cb => cb.checked = data.versions?.includes(cb.value));
 
         window.QA_CORE.InputForm.updateVersionTextbox();
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
+    },
+
+    toggleCustomInput: (id) => {
+        const selectEl = document.getElementById(id);
+        const customEl = document.getElementById(id + '_custom');
+        if(selectEl && customEl) {
+            customEl.classList.toggle('d-none', selectEl.value !== 'direct');
+            if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+                window.QA_CORE.ResultForm.generate();
+            }
+        }
+    },
+
+    handleOsChange: () => {
+        const target = document.getElementById('osType');
+        if(!target) return;
+        const customEl = document.getElementById('osType_custom');
+        if(customEl) customEl.classList.toggle('d-none', target.value !== 'direct');
+        window.QA_CORE.InputForm.syncEnvironment();
+    },
+
+    handleBrowserNone: (el) => {
+        if (el.checked) {
+            document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false);
+            const customInput = document.getElementById('prefix_browser_custom');
+            const deviceInput = document.getElementById('prefix_device_input');
+            if (customInput) customInput.classList.add('d-none');
+            if (deviceInput) deviceInput.classList.remove('d-none');
+        }
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
+    },
+
+    toggleBrowserCustom: () => {
+        const etcCb = document.getElementById('prefix_browser_etc');
+        const noneCb = document.getElementById('prefix_browser_none');
+        const customInput = document.getElementById('prefix_browser_custom');
+        const deviceInput = document.getElementById('prefix_device_input');
+
+        const anyChecked = Array.from(document.querySelectorAll('.prefix-browser-cb')).some(cb => cb.checked);
+        if (anyChecked && noneCb) {
+            noneCb.checked = false;
+            if (deviceInput) deviceInput.classList.add('d-none');
+        }
+        
+        if (customInput) {
+            customInput.classList.toggle('d-none', !(etcCb && etcCb.checked));
+        }
+
         if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
             window.QA_CORE.ResultForm.generate();
         }
@@ -513,7 +613,7 @@ window.QA_CORE.InputForm = {
                 const safeDevName = (window.QA_CORE.Utils && window.QA_CORE.Utils.escapeHTML) ? window.QA_CORE.Utils.escapeHTML(dev) : dev;
                 const domId = `${idPrefix}_${safeDevName.replace(/\s+/g, '_')}`;
                 const isChecked = currentSelected.includes(dev) ? 'checked' : '';
-                html += `<input type="checkbox" id="${domId}" class="pill-cb issue-device-cb template-trigger" value="${safeDevName}" ${isChecked}><label for="${domId}" class="pill-label">${safeDevName}</label>`;
+                html += `<input type="checkbox" id="${domId}" class="pill-cb issue-device-cb" value="${safeDevName}" onchange="window.QA_CORE.InputForm.handleDeviceClick(this)" ${isChecked}><label for="${domId}" class="pill-label">${safeDevName}</label>`;
             });
             container.innerHTML = html;
         };
@@ -575,12 +675,13 @@ window.QA_CORE.InputForm = {
                 }
             }
         }
+        window.QA_CORE.InputForm.updateVersionTextbox();
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
     },
 
-    toggleDeviceMode: (platform) => {
-        const modeEl = document.querySelector(`input[name="${platform}_dev_mode"]:checked`);
-        if(!modeEl) return;
-        const mode = modeEl.value;
+    switchDeviceMode: (platform, mode) => {
         const normalList = document.getElementById(`${platform}NormalList`);
         const specialList = document.getElementById(`${platform}SpecialList`);
         
@@ -595,6 +696,8 @@ window.QA_CORE.InputForm = {
         const pocEl = document.getElementById('poc');
         if(!pocEl) return;
         const poc = pocEl.value;
+        const customEl = document.getElementById('poc_custom');
+        if(customEl) customEl.classList.toggle('d-none', poc !== 'direct');
         
         const isPureWeb = poc === 'Admin' || poc === 'PC Web';
         const needsUrl = poc === 'Admin' || poc === 'PC Web' || poc === 'PC M.Web';
@@ -621,8 +724,9 @@ window.QA_CORE.InputForm = {
         
         window.QA_CORE.InputForm.updateVersionCheckboxes();
         
-        if (!isPureWeb) window.QA_CORE.InputForm.syncEnvironment();
-        else {
+        if (!isPureWeb) {
+            window.QA_CORE.InputForm.syncEnvironment();
+        } else {
             window.QA_CORE.InputForm.updateVersionTextbox();
             if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
                 window.QA_CORE.ResultForm.generate();
@@ -651,95 +755,10 @@ window.QA_CORE.InputForm = {
 
         const verInput = document.getElementById('appVersion');
         if (verInput) verInput.value = versionParts.join(' / ');
-    },
-
-    initEvents: () => {
-        window.QA_CORE.InputForm.loadPrefixOrder();
-        window.QA_CORE.InputForm.fetchPresets();
-
-        const inputFormContainer = document.getElementById('input-form-placeholder');
-        if (!inputFormContainer) return;
-
-        inputFormContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            
-            if (target.id === 'btnSavePreset') window.QA_CORE.InputForm.savePreset();
-            if (target.id === 'btnEditPreset') window.QA_CORE.InputForm.editPreset();
-            if (target.id === 'btnDeletePreset') window.QA_CORE.InputForm.deletePreset();
-            if (target.id === 'btnSavePrefixOrder') window.QA_CORE.InputForm.applyAndSavePrefixOrder();
-            if (target.id === 'btnResetPrefixOrder') window.QA_CORE.InputForm.resetPrefixOrder();
-            
-            if (target.classList.contains('btn-add-case')) {
-                if(window.QA_CORE.Form && typeof window.QA_CORE.Form.addCase === 'function') {
-                    window.QA_CORE.Form.addCase(target.dataset.target);
-                }
-            }
-            
-            if (target.classList.contains('btn-apply-preset')) {
-                window.QA_CORE.InputForm.applyIndividualPreset(target.dataset.target, parseInt(target.dataset.preset));
-            }
-        });
-
-        inputFormContainer.addEventListener('change', (e) => {
-            const target = e.target;
-
-            if (target.id === 'inputPresetSelect') window.QA_CORE.InputForm.handleDropdown();
-            if (target.id === 'prefix_env') document.getElementById('prefix_env_custom').classList.toggle('d-none', target.value !== 'direct');
-            if (target.id === 'osType') {
-                document.getElementById('osType_custom').classList.toggle('d-none', target.value !== 'direct');
-                window.QA_CORE.InputForm.syncEnvironment();
-            }
-            if (target.id === 'poc') {
-                document.getElementById('poc_custom').classList.toggle('d-none', target.value !== 'direct');
-                window.QA_CORE.InputForm.handlePocChange();
-            }
-            if (target.id === 'prefix_critical') document.getElementById('prefix_critical_custom').classList.toggle('d-none', target.value !== 'direct');
-            
-            if (target.id === 'prefix_browser_none') {
-                if (target.checked) {
-                    document.querySelectorAll('.prefix-browser-cb').forEach(cb => cb.checked = false);
-                    document.getElementById('prefix_browser_custom').classList.add('d-none');
-                    document.getElementById('prefix_device_input').classList.remove('d-none');
-                }
-            }
-            
-            if (target.classList.contains('prefix-browser-cb')) {
-                if (target.id === 'prefix_browser_etc') {
-                    document.getElementById('prefix_browser_none').checked = false;
-                    document.getElementById('prefix_browser_custom').classList.toggle('d-none', !target.checked);
-                    document.getElementById('prefix_device_input').classList.toggle('d-none', target.checked);
-                } else if (target.checked) {
-                    document.getElementById('prefix_browser_none').checked = false;
-                    document.getElementById('prefix_device_input').classList.add('d-none');
-                }
-            }
-
-            if (target.name === 'and_dev_mode') window.QA_CORE.InputForm.toggleDeviceMode('and');
-            if (target.name === 'ios_dev_mode') window.QA_CORE.InputForm.toggleDeviceMode('ios');
-            if (target.name === 'ios_ver_type') window.QA_CORE.InputForm.syncEnvironment();
-            
-            if (target.id === 'ver_cb_android') { window.QA_CORE.InputForm.syncDeviceFromVersion('and'); window.QA_CORE.InputForm.updateVersionTextbox(); }
-            if (target.id === 'ver_cb_ios') { window.QA_CORE.InputForm.syncDeviceFromVersion('ios'); window.QA_CORE.InputForm.updateVersionTextbox(); }
-            if (['ver_cb_samsung', 'ver_cb_safari', 'ver_cb_chrome', 'ver_cb_edge'].includes(target.id)) {
-                window.QA_CORE.InputForm.updateVersionTextbox();
-            }
-
-            if (target.classList.contains('issue-device-cb')) window.QA_CORE.InputForm.handleDeviceClick(target);
-
-            if (target.classList.contains('template-trigger')) {
-                if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
-                    window.QA_CORE.ResultForm.generate();
-                }
-            }
-        });
-
-        inputFormContainer.addEventListener('input', (e) => {
-            if (e.target.classList.contains('template-trigger')) {
-                if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
-                    window.QA_CORE.ResultForm.generate();
-                }
-            }
-        });
+        
+        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
+            window.QA_CORE.ResultForm.generate();
+        }
     }
 };
 
