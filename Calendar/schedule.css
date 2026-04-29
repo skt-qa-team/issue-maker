@@ -1,174 +1,171 @@
 #schedule-modal {
-backdrop-filter: blur(var(--blur-md));
--webkit-backdrop-filter: blur(var(--blur-md));
+    transition: opacity var(--transition-bounce);
 }
 
 #schedule-modal .modal-schedule-fixed {
-max-width: 500px !important;
-width: 95% !important;
-background: rgba(255, 255, 255, 0.85);
-backdrop-filter: blur(var(--blur-lg));
--webkit-backdrop-filter: blur(var(--blur-lg));
-border-radius: var(--radius-lg);
-box-shadow: var(--shadow-lg);
-border: 1px solid rgba(255, 255, 255, 0.4);
-transition: transform var(--transition-bounce), opacity var(--transition-bounce);
+    max-width: 500px !important;
+    width: 95% !important;
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    transition: transform var(--transition-bounce), opacity var(--transition-bounce);
 }
 
 #schedule-modal .modal-header {
-padding: 24px 30px;
-border-bottom: 1px solid var(--border-color);
+    padding: 24px 30px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 #schedule-modal #modal_title {
-font-size: 1.4rem;
-font-weight: 900;
-color: var(--text-main);
-letter-spacing: -0.5px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
 }
 
 #schedule-modal .modal-body {
-padding: 30px;
-display: flex;
-flex-direction: column;
-gap: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 #schedule-modal .form-section {
-display: flex;
-flex-direction: column;
-gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 #schedule-modal .section-label {
-font-size: 0.9rem;
-font-weight: 800;
-color: var(--text-sub);
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-sub);
 }
 
 #schedule-modal .grid-2 {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
 }
 
 #schedule-modal input[type="text"],
 #schedule-modal input[type="date"],
 #schedule-modal textarea {
-width: 100%;
-padding: 12px 16px;
-background: rgba(255, 255, 255, 0.5);
-border: 1px solid var(--border-color);
-border-radius: var(--radius-md);
-font-size: 0.95rem;
-color: var(--text-main);
-transition: all var(--transition-bounce);
-box-shadow: var(--shadow-sm);
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: all var(--transition-bounce);
+    box-shadow: var(--shadow-sm);
 }
 
 #schedule-modal input:focus,
 #schedule-modal textarea:focus {
-background: #fff;
-border-color: var(--accent-blue);
-box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-outline: none;
+    background: #fff;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    outline: none;
 }
 
 #schedule-modal .ai-integration-area {
-margin-top: 10px;
-display: flex;
-flex-direction: column;
-gap: 8px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 #schedule-modal .ai-dropzone {
-border: 2px dashed var(--border-color);
-border-radius: var(--radius-md);
-padding: 24px;
-text-align: center;
-background: rgba(0, 0, 0, 0.02);
-transition: all var(--transition-bounce);
-cursor: pointer;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 120px;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    background: var(--bg-color);
+    transition: all var(--transition-bounce);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
 }
 
 #schedule-modal .ai-dropzone:hover {
-border-color: var(--accent-blue);
-background: rgba(59, 130, 246, 0.05);
-transform: scale(1.02);
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.05);
+    transform: scale(1.02);
 }
 
 #schedule-modal .ai-dropzone span {
-font-weight: 700;
-color: var(--text-sub);
-font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    font-size: 0.85rem;
 }
 
 #schedule-modal .ai-quota-info {
-font-size: 0.75rem;
-color: var(--text-sub);
-text-align: right;
-font-weight: 800;
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    text-align: right;
+    font-weight: 800;
 }
 
 #schedule-modal #ai_loading_content {
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
 
 #schedule-modal #ai_loading_content span {
-color: var(--accent-blue);
-font-size: 0.85rem;
-font-weight: 700;
+    color: var(--accent-blue);
+    font-size: 0.85rem;
+    font-weight: 700;
 }
 
 #schedule-modal .spinner {
-width: 28px;
-height: 28px;
-border: 3px solid rgba(0, 0, 0, 0.05);
-border-top-color: var(--accent-blue);
-border-radius: 50%;
-animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 #schedule-modal .modal-footer {
-padding: 24px 30px;
-display: flex;
-gap: 12px;
-justify-content: flex-end;
-background: rgba(0, 0, 0, 0.02);
-border-top: 1px solid var(--border-color);
+    padding: 24px 30px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
 }
 
 #schedule-modal .btn-primary,
 #schedule-modal .btn-secondary {
-min-width: 100px;
-height: 46px;
-border-radius: var(--radius-md);
-font-weight: 700;
-transition: all var(--transition-bounce);
+    min-width: 100px;
+    height: 46px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    transition: all var(--transition-bounce);
 }
 
 #schedule-modal .btn-primary:hover,
 #schedule-modal .btn-secondary:hover {
-transform: translateY(-2px);
-filter: brightness(1.05);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
 }
 
 #schedule-modal .btn-primary:active,
 #schedule-modal .btn-secondary:active {
-transform: scale(0.96);
+    transform: scale(0.96);
 }
 
 #schedule-modal .color-blue { color: var(--accent-blue) !important; }
