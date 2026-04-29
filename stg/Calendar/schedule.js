@@ -1,4 +1,12 @@
 window.QA_CORE = window.QA_CORE || {};
+window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
+
+window.QA_CORE.CONSTANTS.SCHEDULE = {
+    GAS_URL: "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec",
+    SECRET_KEY: "Qpalzm123",
+    MAX_AI_QUOTA: 20,
+    GEMINI_MODEL: "gemini-2.0-flash"
+};
 
 window.QA_CORE.ScheduleDetail = {
     handleTypeChange: () => {
@@ -34,6 +42,51 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
+    handleDateChange: (target) => {
+        if (!target) return;
+
+        if (target.id === 'sch_start') {
+            const startVal = target.value;
+            const endInput = document.getElementById('sch_end');
+            const typeRadio = document.querySelector('input[name="sch_color"]:checked');
+            const type = typeRadio ? typeRadio.getAttribute('data-type') : '';
+            
+            if (startVal) {
+                const year = parseInt(startVal.split('-')[0]);
+                if (year > 9999) {
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 9999년까지만 입력 가능합니다.", 'warning');
+                    target.value = '';
+                    return;
+                }
+            }
+
+            if (type !== '검증' && type !== '할 일') {
+                if (endInput) endInput.value = startVal;
+            } else if (endInput && endInput.value && endInput.value < startVal) {
+                endInput.value = startVal;
+            }
+        }
+
+        if (target.id === 'sch_end') {
+            const endVal = target.value;
+            const startInput = document.getElementById('sch_start');
+
+            if (endVal) {
+                const year = parseInt(endVal.split('-')[0]);
+                if (year > 9999) {
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 9999년까지만 입력 가능합니다.", 'warning');
+                    target.value = '';
+                    return;
+                }
+            }
+
+            if (startInput && startInput.value && endVal < startInput.value) {
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("종료일이 시작일보다 이전일 수 없습니다.", 'warning');
+                target.value = startInput.value;
+            }
+        }
+    },
+
     updateQuotaDisplay: () => {
         const quotaInfo = document.getElementById('ai_quota_info');
         if (!quotaInfo) return;
@@ -48,8 +101,8 @@ window.QA_CORE.ScheduleDetail = {
             usageData = { date: todayStr, count: 0 };
             localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
         }
-        const remaining = Math.max(0, 20 - usageData.count);
-        quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / 20`;
+        const remaining = Math.max(0, window.QA_CORE.CONSTANTS.SCHEDULE.MAX_AI_QUOTA - usageData.count);
+        quotaInfo.textContent = `⚡ 오늘 AI 자동 등록 남은 횟수: ${remaining} / ${window.QA_CORE.CONSTANTS.SCHEDULE.MAX_AI_QUOTA}`;
     },
 
     processScreenshot: async (file) => {
@@ -64,8 +117,8 @@ window.QA_CORE.ScheduleDetail = {
         let usageData = JSON.parse(localStorage.getItem('GEMINI_USAGE')) || { date: todayStr, count: 0 };
         if (usageData.date !== todayStr) usageData = { date: todayStr, count: 0 };
         
-        if (usageData.count >= 20) {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("오늘 무료 제공량(20회)을 모두 소진했습니다.", 'warning');
+        if (usageData.count >= window.QA_CORE.CONSTANTS.SCHEDULE.MAX_AI_QUOTA) {
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("오늘 무료 제공량을 모두 소진했습니다.", 'warning');
             return;
         }
 
@@ -75,13 +128,15 @@ window.QA_CORE.ScheduleDetail = {
             dropzoneContent.classList.add('d-none');
             loadingContent.classList.remove('d-none');
         }
+
         try {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 try {
                     const base64Image = reader.result.split(',')[1];
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${savedKey}`, {
+                    const modelEndpoint = window.QA_CORE.CONSTANTS.SCHEDULE.GEMINI_MODEL;
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelEndpoint}:generateContent?key=${savedKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -97,22 +152,24 @@ window.QA_CORE.ScheduleDetail = {
                     let textResult = result.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
                     textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
                     const parsedArray = JSON.parse(textResult);
+                    
                     if (Array.isArray(parsedArray)) {
                         usageData.count++;
                         localStorage.setItem('GEMINI_USAGE', JSON.stringify(usageData));
                         window.QA_CORE.ScheduleDetail.updateQuotaDisplay();
+                        
                         for (const [index, item] of parsedArray.entries()) {
                             if (!item.title || !item.start) continue;
                             const id = Date.now().toString() + index;
                             const newSch = { id, title: item.title, start: item.start, end: item.end || item.start, opTicket: '', ticket: '', desc: 'AI 추출', color: '#3b82f6', author: '', poc: '기타' };
                             await firebase.database().ref('shared_schedules/' + id).set(newSch);
                         }
+                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("AI 일정 추출 및 등록이 완료되었습니다.", "success");
                         window.QA_CORE.ScheduleDetail.closeForm();
                     }
                 } catch (innerError) { 
                     if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(innerError, 'Gemini API Parsed'); 
-                }
-                finally {
+                } finally {
                     if (dropzoneContent && loadingContent) {
                         dropzoneContent.classList.remove('d-none');
                         loadingContent.classList.add('d-none');
@@ -124,7 +181,6 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
-    // 등록/수정 모달 열기 로직
     openModal: (id = null) => {
         const modal = document.getElementById('schedule-modal');
         if (modal) {
@@ -167,7 +223,6 @@ window.QA_CORE.ScheduleDetail = {
         window.QA_CORE.ScheduleDetail.handleTypeChange(); 
     },
 
-    // 등록/수정 모달 닫기 로직
     closeForm: () => {
         const modal = document.getElementById('schedule-modal');
         if (modal) {
@@ -176,7 +231,8 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
-    save: () => {
+    save: async () => {
+        const btn = document.getElementById('btn-save-sch');
         const idField = document.getElementById('sch_id');
         const id = (idField && idField.value) ? idField.value : Date.now().toString();
         const title = document.getElementById('sch_title')?.value.trim();
@@ -195,6 +251,7 @@ window.QA_CORE.ScheduleDetail = {
         const ticket = document.getElementById('sch_ticket')?.value.trim() || '';
 
         if (type !== '검증' && type !== '할 일') end = start;
+        
         if (!title || !start || !end) {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("필수 정보를 입력하세요.", 'warning');
             return;
@@ -203,23 +260,36 @@ window.QA_CORE.ScheduleDetail = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 4자리까지만 가능합니다.", 'warning');
             return;
         }
-        
-        const newSch = { 
-            id, title, start, end, author, poc, opTicket, ticket,
-            desc: document.getElementById('sch_desc')?.value || '', 
-            color 
-        };
-        
-        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-            firebase.database().ref('shared_schedules/' + id).set(newSch).then(() => {
+
+        try {
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.textContent = '저장 중...';
+            }
+
+            const newSch = { 
+                id, title, start, end, author, poc, opTicket, ticket,
+                desc: document.getElementById('sch_desc')?.value || '', 
+                color 
+            };
+            
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                await firebase.database().ref('shared_schedules/' + id).set(newSch);
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("일정이 성공적으로 저장되었습니다.", "success");
                 window.QA_CORE.ScheduleDetail.closeForm();
-            }).catch(err => {
-                if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Save Schedule Firebase');
-            });
+            }
+        } catch (err) {
+            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Save Schedule Firebase');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.textContent = '저장하기';
+            }
         }
     },
 
-    // 상세 모달 열기 로직
     open: (id) => {
         const sch = window.QA_CORE.Calendar.State.schedules.find(s => s.id === id);
         if (!sch) return;
@@ -242,7 +312,7 @@ window.QA_CORE.ScheduleDetail = {
             let rawDesc = sch.desc || '-';
             rawDesc = rawDesc.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             const urlRegex = /(https?:\/\/[^\s]+)/g;
-            rawDesc = rawDesc.replace(urlRegex, '<a href="$1" target="_blank" style="color: var(--accent-blue); text-decoration: underline; word-break: break-all;">$1</a>');
+            rawDesc = rawDesc.replace(urlRegex, '<a href="$1" target="_blank" class="color-blue" style="text-decoration: underline; word-break: break-all;">$1</a>');
             rawDesc = rawDesc.replace(/\n/g, '<br>');
             descEl.innerHTML = rawDesc;
         }
@@ -269,7 +339,7 @@ window.QA_CORE.ScheduleDetail = {
                 const aTag = document.createElement('a');
                 aTag.href = link;
                 aTag.target = '_blank';
-                aTag.style.cssText = 'color: var(--accent-blue); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--accent-blue); padding-bottom: 1px;';
+                aTag.className = 'color-blue';
                 aTag.textContent = `${val} 🔗`;
                 elOp.appendChild(aTag);
             }
@@ -293,7 +363,7 @@ window.QA_CORE.ScheduleDetail = {
                 const aTag = document.createElement('a');
                 aTag.href = link;
                 aTag.target = '_blank';
-                aTag.style.cssText = 'color: var(--accent-blue); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--accent-blue); padding-bottom: 1px;';
+                aTag.className = 'color-blue';
                 aTag.textContent = `${val} 🔗`;
                 elTicket.appendChild(aTag);
             }
@@ -312,7 +382,6 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
-    // 상세 모달 닫기 로직
     closeDetail: () => {
         const modal = document.getElementById('schedule-detail-modal');
         if (modal) {
@@ -324,14 +393,21 @@ window.QA_CORE.ScheduleDetail = {
         }
     },
 
-    delete: () => {
+    delete: async () => {
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (!id || !confirm("일정을 삭제하시겠습니까?")) return;
-        firebase.database().ref('shared_schedules/' + id).remove().then(() => {
+
+        const btn = document.getElementById('btn-delete-sch');
+        try {
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+            await firebase.database().ref('shared_schedules/' + id).remove();
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("일정이 삭제되었습니다.", "success");
             window.QA_CORE.ScheduleDetail.closeDetail();
-        }).catch(err => {
+        } catch (err) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Delete Schedule Firebase');
-        });
+        } finally {
+            if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        }
     },
 
     edit: () => {
@@ -362,6 +438,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     syncToKpi: async () => {
+        const btn = document.getElementById('btn-sync-kpi');
         try {
             const id = window.QA_CORE.Calendar.State.activeSchId;
             if (!id) return;
@@ -375,21 +452,22 @@ window.QA_CORE.ScheduleDetail = {
             targetName = nameInput.trim();
             localStorage.setItem('qa_system_tester_name', targetName);
 
+            if (btn) { btn.disabled = true; btn.textContent = '연동 중...'; }
+
             let totalItems = 0; 
             const urlMatch = sch.desc ? sch.desc.match(/https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)[^\s]*/) : null;
 
             if (urlMatch) {
                 const sheetId = urlMatch[1];
                 try {
-                    const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
-                    const SECRET_KEY = "Qpalzm123"; 
+                    const GAS_URL = window.QA_CORE.CONSTANTS.SCHEDULE.GAS_URL;
+                    const SECRET_KEY = window.QA_CORE.CONSTANTS.SCHEDULE.SECRET_KEY; 
 
                     const response = await fetch(`${GAS_URL}?id=${sheetId}&name=${encodeURIComponent(targetName)}&key=${encodeURIComponent(SECRET_KEY)}`);
                     
                     if (response.ok) {
                         const result = await response.json();
                         if (result.error) {
-                            console.error("💡 GAS 디버깅 정보:", result);
                             throw new Error(`GAS Server Error: ${result.error}`);
                         }
                         totalItems = result.total || 0;
@@ -398,7 +476,6 @@ window.QA_CORE.ScheduleDetail = {
                     }
 
                 } catch (e) {
-                    console.warn("[Schedule] GAS Proxy Failed, falling back to prompt.", e);
                     const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요 (0 입력 시 추가 안 함):`, "0");
                     if (manualInput !== null) {
                         totalItems = parseInt(manualInput, 10) || 0;
@@ -442,65 +519,25 @@ window.QA_CORE.ScheduleDetail = {
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 const user = firebase.auth().currentUser;
                 if (user && !user.isAnonymous) {
-                    firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData).catch(err => {
-                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'KPI Firebase Sync');
-                    });
+                    await firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
                 }
             }
 
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`📊 KPI 리포트에 검증 내역이 추가되었습니다. (TC: ${totalItems}건)`, 'success');
         } catch (err) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Sync Schedule To KPI');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '📊 KPI와 연동'; }
         }
     },
 
     initEvents: () => {
         try {
-            document.addEventListener('change', (e) => {
-                const target = e.target;
-                if (target.name === 'sch_color') window.QA_CORE.ScheduleDetail.handleTypeChange();
-                
-                if (target.id === 'sch_start') {
-                    const startVal = target.value;
-                    const endInput = document.getElementById('sch_end');
-                    const typeRadio = document.querySelector('input[name="sch_color"]:checked');
-                    const type = typeRadio ? typeRadio.getAttribute('data-type') : '';
-                    
-                    if (startVal) {
-                        const year = parseInt(startVal.split('-')[0]);
-                        if (year > 9999) {
-                            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 9999년까지만 입력 가능합니다.", 'warning');
-                            target.value = '';
-                            return;
-                        }
-                    }
-
-                    if (type !== '검증' && type !== '할 일') {
-                        if (endInput) endInput.value = startVal;
-                    } else if (endInput && endInput.value && endInput.value < startVal) {
-                        endInput.value = startVal;
-                    }
-                }
-
-                if (target.id === 'sch_end') {
-                    const endVal = target.value;
-                    const startInput = document.getElementById('sch_start');
-
-                    if (endVal) {
-                        const year = parseInt(endVal.split('-')[0]);
-                        if (year > 9999) {
-                            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 9999년까지만 입력 가능합니다.", 'warning');
-                            target.value = '';
-                            return;
-                        }
-                    }
-
-                    if (startInput && startInput.value && endVal < startInput.value) {
-                        if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("종료일이 시작일보다 이전일 수 없습니다.", 'warning');
-                        target.value = startInput.value;
-                    }
-                }
-            });
+            const startEl = document.getElementById('sch_start');
+            const endEl = document.getElementById('sch_end');
+            
+            if (startEl) startEl.addEventListener('change', (e) => window.QA_CORE.ScheduleDetail.handleDateChange(e.target));
+            if (endEl) endEl.addEventListener('change', (e) => window.QA_CORE.ScheduleDetail.handleDateChange(e.target));
 
             document.addEventListener('paste', async (e) => {
                 const modal = document.getElementById('schedule-modal');
@@ -514,21 +551,6 @@ window.QA_CORE.ScheduleDetail = {
                         }
                     }
                 }
-            });
-
-            document.addEventListener('click', (e) => {
-                const target = e.target;
-                if (target.id === 'btn-close-sch-modal-top' || target.id === 'btn-close-sch-modal-bot') {
-                    window.QA_CORE.ScheduleDetail.closeForm();
-                }
-                if (target.id === 'btn-save-sch') window.QA_CORE.ScheduleDetail.save();
-                if (target.id === 'btn-close-detail') {
-                    window.QA_CORE.ScheduleDetail.closeDetail();
-                }
-                if (target.id === 'btn-delete-sch') window.QA_CORE.ScheduleDetail.delete();
-                if (target.id === 'btn-edit-sch') window.QA_CORE.ScheduleDetail.edit();
-                if (target.id === 'btn-start-workflow') window.QA_CORE.ScheduleDetail.startWorkflow();
-                if (target.id === 'btn-sync-kpi') window.QA_CORE.ScheduleDetail.syncToKpi();
             });
         } catch (e) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Schedule Init Events');
