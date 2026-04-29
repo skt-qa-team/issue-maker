@@ -1,43 +1,30 @@
 .admin-icon {
-    background: var(--accent-red) !important; 
-    border-color: #b91c1c !important;
+    background: var(--accent-red) !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+    transition: all var(--transition-snappy);
 }
 
-.modal-admin {
-    max-width: 600px;
-    width: 90%;
-    background: var(--panel-bg);
-    border-radius: var(--radius-lg);
-    padding: 25px;
+.admin-icon:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 15px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
 }
 
 .admin-title {
     margin: 0;
     color: var(--text-main);
-    font-size: 1.3rem;
-}
-
-.admin-close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-sub);
-    padding: 0;
-    line-height: 1;
-}
-
-.admin-close-btn:hover {
-    color: var(--text-main);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
 .admin-user-list {
@@ -46,82 +33,94 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-right: 5px;
+    padding-right: 8px;
+}
+
+.admin-user-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-user-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-pill);
 }
 
 .admin-loading-text, .admin-empty-text {
     text-align: center;
-    padding: 20px;
+    padding: 40px;
     color: var(--text-sub);
-    margin: 0;
+    font-weight: 500;
 }
 
 .admin-user-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px;
-    background: var(--bg-color);
+    padding: 16px;
+    background: var(--panel-bg);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    gap: 10px;
+    gap: 16px;
+    transition: all var(--transition-snappy);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-blue);
 }
 
 .admin-user-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     min-width: 0;
     flex: 1;
 }
 
 .admin-user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--panel-bg);
-    box-shadow: var(--shadow-sm);
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--bg-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     flex-shrink: 0;
     object-fit: cover;
 }
 
 .admin-user-details {
     min-width: 0;
-    overflow: hidden;
 }
 
 .admin-user-name {
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 1rem;
     display: flex;
     align-items: center;
+    gap: 6px;
 }
 
 .admin-user-email {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--text-sub);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     margin-top: 2px;
 }
 
 .admin-badge-me {
     font-size: 0.7rem;
     color: var(--accent-red);
-    border: 1px solid var(--accent-red);
-    padding: 1px 4px;
-    border-radius: var(--radius-sm);
-    margin-left: 6px;
-    display: inline-block;
+    background: rgba(255, 59, 48, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
 }
 
 .admin-action-group {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 8px;
     flex-shrink: 0;
 }
@@ -129,30 +128,40 @@
 .admin-status-badge {
     font-size: 0.75rem;
     font-weight: 700;
-    color: white;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: var(--radius-sm);
     white-space: nowrap;
 }
 
-.status-approved { background: var(--accent-green); }
-.status-pending { background: var(--accent-orange); }
-.status-rejected { background: var(--accent-red); }
+.status-approved { 
+    background: rgba(52, 199, 89, 0.12); 
+    color: var(--accent-green);
+}
+
+.status-pending { 
+    background: rgba(255, 149, 0, 0.12); 
+    color: var(--accent-orange);
+}
+
+.status-rejected { 
+    background: rgba(255, 59, 48, 0.12); 
+    color: var(--accent-red);
+}
 
 .admin-status-select {
-    padding: 6px;
+    padding: 6px 10px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-main);
-    background: var(--panel-bg);
-    white-space: nowrap;
+    background: var(--bg-color);
+    transition: all var(--transition-snappy);
     outline: none;
-    transition: var(--transition-fast);
 }
 
-.admin-status-select:hover, .admin-status-select:focus {
+.admin-status-select:hover {
     border-color: var(--accent-blue);
+    background: var(--panel-bg);
 }
