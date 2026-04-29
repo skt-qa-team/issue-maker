@@ -1,9 +1,12 @@
-<div class="modal-overlay" id="adminModal">
+<div class="modal-overlay" id="admin-modal">
     <div class="modal-content modal-admin">
-        <div class="modal-header admin-header">
+        <div class="modal-header">
             <h2 class="admin-title">👑 멤버 승인 센터</h2>
-            <button onclick="closeAdminModal()" class="close-btn admin-close-btn">×</button>
+            <button class="close-btn" onclick="window.QA_CORE.Admin.closeModal()">×</button>
         </div>
-        <div id="admin_user_list" class="admin-user-list"></div>
+        <div class="modal-body">
+            <div id="admin_user_list" class="admin-user-list">
+            </div>
+        </div>
     </div>
 </div>
