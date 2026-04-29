@@ -1,6 +1,20 @@
 window.QA_CORE = window.QA_CORE || {};
 window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
 
+// 🚨 [DEBUG] 전역 디버거 유틸리티 (콘솔에 로그를 예쁘게 찍어줍니다)
+window.QA_DEBUG = (action, detail = "") => {
+    const time = new Date().toLocaleTimeString();
+    console.log(`%c[🔍 QA_DEBUG | ${time}] ${action}`, 'color: #3b82f6; font-weight: bold;', detail);
+};
+
+// 🚨 [DEBUG] 화면 전체 클릭 추적기 (클릭이 막히는지, 버튼이 눌리는지 확인)
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (btn) {
+        console.log(`%c[🖱️ CLICK_TRACKER] 버튼 눌림 -> ID: ${btn.id || '없음'} | ONCLICK: ${btn.getAttribute('onclick') || '없음'}`, 'color: #10b981;');
+    }
+});
+
 window.QA_CORE.CONSTANTS.SCHEDULE = {
     GAS_URL: "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec",
     SECRET_KEY: "Qpalzm123",
@@ -182,10 +196,13 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     openModal: (id = null) => {
+        window.QA_DEBUG("openModal() 호출됨", { id });
         const modal = document.getElementById('schedule-modal');
         if (modal) {
             modal.classList.remove('d-none');
             setTimeout(() => modal.classList.add('active'), 10);
+        } else {
+            console.error("🚨 [ERROR] 'schedule-modal' 요소를 찾을 수 없습니다.");
         }
 
         const idField = document.getElementById('sch_id');
@@ -224,6 +241,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     closeForm: () => {
+        window.QA_DEBUG("closeForm() 호출됨");
         const modal = document.getElementById('schedule-modal');
         if (modal) {
             modal.classList.remove('active');
@@ -232,6 +250,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     save: async () => {
+        window.QA_DEBUG("save() 호출됨");
         const btn = document.getElementById('btn-save-sch');
         if (btn && btn.disabled) return;
 
@@ -258,10 +277,6 @@ window.QA_CORE.ScheduleDetail = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("필수 정보를 입력하세요.", 'warning');
             return;
         }
-        if (start.split('-')[0].length > 4 || end.split('-')[0].length > 4) {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("연도는 4자리까지만 가능합니다.", 'warning');
-            return;
-        }
 
         try {
             if (btn) {
@@ -276,12 +291,16 @@ window.QA_CORE.ScheduleDetail = {
                 color 
             };
             
+            window.QA_DEBUG("Firebase에 저장 시도", newSch);
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 await firebase.database().ref('shared_schedules/' + id).set(newSch);
                 if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("일정이 성공적으로 저장되었습니다.", "success");
                 window.QA_CORE.ScheduleDetail.closeForm();
+            } else {
+                console.error("🚨 [ERROR] Firebase가 정의되지 않았거나 로그인이 풀렸습니다.");
             }
         } catch (err) {
+            console.error("🚨 [ERROR] 저장 중 에러 발생", err);
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Save Schedule Firebase');
         } finally {
             if (btn) {
@@ -293,14 +312,20 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     open: (id) => {
+        window.QA_DEBUG("open() 상세 모달 호출됨", { id });
         const sch = window.QA_CORE.Calendar.State.schedules.find(s => s.id === id);
-        if (!sch) return;
+        if (!sch) {
+            console.error("🚨 [ERROR] 일정 ID를 찾을 수 없습니다:", id);
+            return;
+        }
         window.QA_CORE.Calendar.State.activeSchId = id;
 
         const modal = document.getElementById('schedule-detail-modal');
         if (modal) {
             modal.classList.remove('d-none');
             setTimeout(() => modal.classList.add('active'), 10);
+        } else {
+            console.error("🚨 [ERROR] 'schedule-detail-modal' 요소를 찾을 수 없습니다.");
         }
         
         const colorBar = document.getElementById('detail_color_bar');
@@ -385,6 +410,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     closeDetail: () => {
+        window.QA_DEBUG("closeDetail() 호출됨");
         const modal = document.getElementById('schedule-detail-modal');
         if (modal) {
             modal.classList.remove('active');
@@ -396,6 +422,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     delete: async () => {
+        window.QA_DEBUG("delete() 호출됨");
         const btn = document.getElementById('btn-delete-sch');
         if (btn && btn.disabled) return;
 
@@ -408,6 +435,7 @@ window.QA_CORE.ScheduleDetail = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("일정이 삭제되었습니다.", "success");
             window.QA_CORE.ScheduleDetail.closeDetail();
         } catch (err) {
+            console.error("🚨 [ERROR] 삭제 중 에러", err);
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Delete Schedule Firebase');
         } finally {
             if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
@@ -415,15 +443,19 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     edit: () => {
+        window.QA_DEBUG("edit() 호출됨");
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (id) {
             window.QA_CORE.Calendar.State.activeSchId = null;
             window.QA_CORE.ScheduleDetail.closeDetail();
             setTimeout(() => window.QA_CORE.ScheduleDetail.openModal(id), 350);
+        } else {
+            console.error("🚨 [ERROR] 활성화된 일정 ID가 없습니다.");
         }
     },
 
     startWorkflow: () => {
+        window.QA_DEBUG("startWorkflow() 호출됨");
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (!id) return;
         const sch = window.QA_CORE.Calendar.State.schedules.find(s => s.id === id);
@@ -443,6 +475,7 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     syncToKpi: async () => {
+        window.QA_DEBUG("syncToKpi() 호출됨");
         const btn = document.getElementById('btn-sync-kpi');
         if (btn && btn.disabled) return;
 
@@ -470,6 +503,7 @@ window.QA_CORE.ScheduleDetail = {
                     const GAS_URL = window.QA_CORE.CONSTANTS.SCHEDULE.GAS_URL;
                     const SECRET_KEY = window.QA_CORE.CONSTANTS.SCHEDULE.SECRET_KEY; 
 
+                    window.QA_DEBUG("GAS 연동 시작", { sheetId });
                     const response = await fetch(`${GAS_URL}?id=${sheetId}&name=${encodeURIComponent(targetName)}&key=${encodeURIComponent(SECRET_KEY)}`);
                     
                     if (response.ok) {
@@ -483,6 +517,7 @@ window.QA_CORE.ScheduleDetail = {
                     }
 
                 } catch (e) {
+                    console.warn("GAS 연동 실패, 수동 입력 전환", e);
                     const manualInput = prompt(`[보안/권한 정책] 데이터 자동 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 직접 입력해주세요 (0 입력 시 추가 안 함):`, "0");
                     if (manualInput !== null) {
                         totalItems = parseInt(manualInput, 10) || 0;
@@ -532,6 +567,7 @@ window.QA_CORE.ScheduleDetail = {
 
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`📊 KPI 리포트에 검증 내역이 추가되었습니다. (TC: ${totalItems}건)`, 'success');
         } catch (err) {
+            console.error("🚨 [ERROR] KPI 연동 중 에러", err);
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Sync Schedule To KPI');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = '📊 KPI와 연동'; }
@@ -540,8 +576,7 @@ window.QA_CORE.ScheduleDetail = {
 
     initEvents: () => {
         try {
-            // 인라인 속성을 지원할 수 없는 paste 이벤트만 순수하게 유지합니다.
-            // 나머지 억지스러운 전역(Delegation) 클릭 방식을 모두 걷어냈습니다.
+            window.QA_DEBUG("initEvents() 바인딩 시작");
             document.addEventListener('paste', async (e) => {
                 const modal = document.getElementById('schedule-modal');
                 if (modal && modal.classList.contains('active')) {
@@ -556,13 +591,14 @@ window.QA_CORE.ScheduleDetail = {
                 }
             });
         } catch (e) {
-            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Schedule Init Events');
+            console.error("🚨 [ERROR] initEvents 초기화 실패", e);
         }
     }
 };
 
 document.addEventListener('componentsLoaded', () => {
     if (window.QA_CORE && window.QA_CORE.ScheduleDetail) {
+        window.QA_DEBUG("componentsLoaded 이벤트 감지 -> 초기화 실행");
         window.QA_CORE.ScheduleDetail.updateQuotaDisplay();
         window.QA_CORE.ScheduleDetail.initEvents();
     }
