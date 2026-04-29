@@ -1,26 +1,26 @@
 <div class="cal-wrapper">
     <div class="cal-header">
         <div class="cal-title-group">
-            <div class="cal-nav-controls">
-                <button id="btn-prev-month" class="cal-nav-btn" onclick="window.QA_CORE.Calendar.changeMonth(-1)">◀</button>
-                <h2 id="cal-month-year"></h2>
-                <button id="btn-next-month" class="cal-nav-btn" onclick="window.QA_CORE.Calendar.changeMonth(1)">▶</button>
+            <div class="cal-nav-container">
+                <button class="cal-nav-btn" onclick="window.QA_CORE.Calendar.changeMonth(-1)">◀</button>
+                <h2 id="cal-month-year" class="cal-display-title"></h2>
+                <button class="cal-nav-btn" onclick="window.QA_CORE.Calendar.changeMonth(1)">▶</button>
             </div>
-            <button id="btn-today" class="btn-outline-sm" onclick="window.QA_CORE.Calendar.goToday()">오늘</button>
+            <button class="btn-today-apple" onclick="window.QA_CORE.Calendar.goToday()">오늘</button>
         </div>
         
         <div class="cal-actions">
-            <button id="btn-sync-month-kpi" class="btn-secondary" onclick="window.QA_CORE.KPI.syncMonthSchedule()">
+            <button class="btn-secondary-glass" onclick="window.QA_CORE.Calendar.syncToKPI()">
                 📊 월별 검증일정 KPI 연동
             </button>
-            <button id="btn-add-schedule" class="btn-primary" onclick="window.QA_CORE.Calendar.openAddModal()">
+            <button class="btn-primary-apple" onclick="window.QA_CORE.ScheduleDetail.openModal()">
                 + 일정 추가
             </button>
         </div>
     </div>
     
     <div class="cal-body">
-        <div class="cal-weekdays">
+        <div class="cal-weekdays-header">
             <div class="weekday sun">일</div>
             <div class="weekday">월</div>
             <div class="weekday">화</div>
@@ -29,6 +29,6 @@
             <div class="weekday">금</div>
             <div class="weekday sat">토</div>
         </div>
-        <div id="cal-grid" class="cal-grid"></div>
+        <div id="cal-grid" class="cal-grid-container"></div>
     </div>
 </div>
