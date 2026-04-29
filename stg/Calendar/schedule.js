@@ -233,6 +233,8 @@ window.QA_CORE.ScheduleDetail = {
 
     save: async () => {
         const btn = document.getElementById('btn-save-sch');
+        if (btn && btn.disabled) return;
+
         const idField = document.getElementById('sch_id');
         const id = (idField && idField.value) ? idField.value : Date.now().toString();
         const title = document.getElementById('sch_title')?.value.trim();
@@ -394,10 +396,12 @@ window.QA_CORE.ScheduleDetail = {
     },
 
     delete: async () => {
+        const btn = document.getElementById('btn-delete-sch');
+        if (btn && btn.disabled) return;
+
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (!id || !confirm("일정을 삭제하시겠습니까?")) return;
 
-        const btn = document.getElementById('btn-delete-sch');
         try {
             if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
             await firebase.database().ref('shared_schedules/' + id).remove();
@@ -413,6 +417,7 @@ window.QA_CORE.ScheduleDetail = {
     edit: () => {
         const id = window.QA_CORE.Calendar.State.activeSchId;
         if (id) {
+            window.QA_CORE.Calendar.State.activeSchId = null;
             window.QA_CORE.ScheduleDetail.closeDetail();
             setTimeout(() => window.QA_CORE.ScheduleDetail.openModal(id), 350);
         }
@@ -439,6 +444,8 @@ window.QA_CORE.ScheduleDetail = {
 
     syncToKpi: async () => {
         const btn = document.getElementById('btn-sync-kpi');
+        if (btn && btn.disabled) return;
+
         try {
             const id = window.QA_CORE.Calendar.State.activeSchId;
             if (!id) return;
@@ -533,12 +540,42 @@ window.QA_CORE.ScheduleDetail = {
 
     initEvents: () => {
         try {
-            const startEl = document.getElementById('sch_start');
-            const endEl = document.getElementById('sch_end');
-            
-            if (startEl) startEl.addEventListener('change', (e) => window.QA_CORE.ScheduleDetail.handleDateChange(e.target));
-            if (endEl) endEl.addEventListener('change', (e) => window.QA_CORE.ScheduleDetail.handleDateChange(e.target));
+            // 1. 입력 필드 이벤트 위임 (동적 렌더링 완벽 대응)
+            document.addEventListener('change', (e) => {
+                const target = e.target;
+                if (target.id === 'sch_start' || target.id === 'sch_end') {
+                    window.QA_CORE.ScheduleDetail.handleDateChange(target);
+                } else if (target.name === 'sch_color') {
+                    window.QA_CORE.ScheduleDetail.handleTypeChange();
+                }
+            });
 
+            // 2. 버튼 클릭 이벤트 전역 위임 (Race Condition 원천 차단)
+            // HTML이 언제 렌더링되더라도 무조건 클릭 이벤트를 낚아챕니다.
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+
+                const id = btn.id;
+                
+                // 상세 모달 액션
+                if (id === 'btn-delete-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.delete(); }
+                else if (id === 'btn-sync-kpi') { e.preventDefault(); window.QA_CORE.ScheduleDetail.syncToKpi(); }
+                else if (id === 'btn-edit-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.edit(); }
+                else if (id === 'btn-start-workflow') { e.preventDefault(); window.QA_CORE.ScheduleDetail.startWorkflow(); }
+                
+                // 등록/수정 모달 액션
+                else if (id === 'btn-save-sch') { e.preventDefault(); window.QA_CORE.ScheduleDetail.save(); }
+                
+                // 닫기 버튼 공통 처리 (X 버튼 또는 취소 버튼)
+                else if (id === 'btn-close-sch-modal-bot' || id === 'btn-close-sch-modal-top' || btn.classList.contains('close-btn')) {
+                    e.preventDefault();
+                    if (btn.closest('#schedule-detail-modal')) window.QA_CORE.ScheduleDetail.closeDetail();
+                    else if (btn.closest('#schedule-modal')) window.QA_CORE.ScheduleDetail.closeForm();
+                }
+            });
+
+            // 3. AI 스크린샷 붙여넣기 이벤트
             document.addEventListener('paste', async (e) => {
                 const modal = document.getElementById('schedule-modal');
                 if (modal && modal.classList.contains('active')) {
@@ -552,28 +589,6 @@ window.QA_CORE.ScheduleDetail = {
                     }
                 }
             });
-
-            // 🎯 버튼 이벤트 강제 바인딩 (HTML 속성 누락 대응)
-            const bindBtn = (id, handler) => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.removeEventListener('click', handler); // 중복 방지
-                    btn.addEventListener('click', handler);
-                }
-            };
-
-            // 상세 모달 버튼
-            bindBtn('btn-delete-sch', window.QA_CORE.ScheduleDetail.delete);
-            bindBtn('btn-sync-kpi', window.QA_CORE.ScheduleDetail.syncToKpi);
-            bindBtn('btn-edit-sch', window.QA_CORE.ScheduleDetail.edit);
-            bindBtn('btn-start-workflow', window.QA_CORE.ScheduleDetail.startWorkflow);
-            bindBtn('btn-close-detail', window.QA_CORE.ScheduleDetail.closeDetail);
-
-            // 등록/수정 모달 닫기, 저장 버튼
-            bindBtn('btn-save-sch', window.QA_CORE.ScheduleDetail.save);
-            bindBtn('btn-close-sch-modal-top', window.QA_CORE.ScheduleDetail.closeForm);
-            bindBtn('btn-close-sch-modal-bot', window.QA_CORE.ScheduleDetail.closeForm);
-
         } catch (e) {
             if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(e, 'Schedule Init Events');
         }
