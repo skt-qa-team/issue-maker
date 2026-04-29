@@ -1,13 +1,9 @@
 window.QA_CORE = window.QA_CORE || {};
-window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
 
-window.QA_CORE.CONSTANTS.CALENDAR = {
-    HOLIDAYS: {
-        "01-01": "신정", "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
-        "03-01": "삼일절", "03-02": "대체공휴일", "05-05": "어린이날", "05-24": "부처님오신날",
-        "05-25": "대체공휴일", "06-03": "전국동시지방선거일", "06-06": "현충일", "08-15": "광복절", "08-17": "대체공휴일",
-        "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴", "09-28": "대체공휴일",
-        "10-03": "개천절", "10-05": "대체공휴일", "10-09": "한글날", "12-25": "성탄절"
+window.QA_CORE.KPI = window.QA_CORE.KPI || {};
+window.QA_CORE.KPI.syncMonthSchedule = () => {
+    if (window.QA_CORE.Calendar && typeof window.QA_CORE.Calendar.syncToKPI === 'function') {
+        window.QA_CORE.Calendar.syncToKPI();
     }
 };
 
@@ -16,6 +12,16 @@ window.QA_CORE.Calendar = {
         currentDate: new Date(),
         schedules: [],
         activeSchId: null
+    },
+
+    CONSTANTS: {
+        HOLIDAYS: {
+            "01-01": "신정", "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
+            "03-01": "삼일절", "03-02": "대체공휴일", "05-05": "어린이날", "05-24": "부처님오신날",
+            "05-25": "대체공휴일", "06-03": "전국동시지방선거일", "06-06": "현충일", "08-15": "광복절", "08-17": "대체공휴일",
+            "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴", "09-28": "대체공휴일",
+            "10-03": "개천절", "10-05": "대체공휴일", "10-09": "한글날", "12-25": "성탄절"
+        }
     },
 
     Utils: {
@@ -75,7 +81,7 @@ window.QA_CORE.Calendar = {
 
             const state = window.QA_CORE.Calendar.State;
             const utils = window.QA_CORE.Calendar.Utils;
-            const holidays = window.QA_CORE.CONSTANTS.CALENDAR.HOLIDAYS;
+            const holidays = window.QA_CORE.Calendar.CONSTANTS.HOLIDAYS;
 
             const now = new Date();
             const todayStr = utils.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
@@ -169,9 +175,10 @@ window.QA_CORE.Calendar = {
                     const dd = String(dateObj.getDate()).padStart(2, '0');
                     const keyMMDD = `${mm}-${dd}`;
 
-                    if (dateStr === todayStr) cell.classList.add('today');
                     if (dayIdx === 0 || holidays[keyMMDD]) cell.classList.add('sun');
                     else if (dayIdx === 6) cell.classList.add('sat');
+
+                    if (dateStr === todayStr) cell.classList.add('today');
 
                     const dayNumDiv = document.createElement('div');
                     dayNumDiv.className = 'day-number';
@@ -188,8 +195,6 @@ window.QA_CORE.Calendar = {
                             const schDiv = document.createElement('div');
                             if (item) {
                                 schDiv.dataset.schId = item.sch.id;
-                                schDiv.setAttribute('onclick', `window.QA_CORE.ScheduleDetail.open('${item.sch.id}')`);
-                                
                                 if (item.isHead) {
                                     const isPast = item.sch.end < todayStr && item.sch.color !== '#10b981';
                                     schDiv.className = `cal-schedule span-head ${isPast ? 'is-past' : ''}`;
@@ -217,8 +222,6 @@ window.QA_CORE.Calendar = {
 
     syncToKPI: async () => {
         let progressOverlay = null;
-        const syncBtn = document.querySelector('button[onclick*="syncToKPI"]');
-        
         try {
             const state = window.QA_CORE.Calendar.State;
             const utils = window.QA_CORE.Calendar.Utils;
@@ -251,18 +254,13 @@ window.QA_CORE.Calendar = {
             targetName = nameInput.trim();
             localStorage.setItem('qa_system_tester_name', targetName);
 
-            if (syncBtn) {
-                syncBtn.disabled = true;
-                syncBtn.style.opacity = '0.5';
-            }
-
             progressOverlay = document.createElement('div');
             progressOverlay.id = 'sync-progress-overlay';
-            progressOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; backdrop-filter: blur(var(--blur-md)); -webkit-backdrop-filter: blur(var(--blur-md));';
+            progressOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;';
             
             const spinner = document.createElement('div');
             spinner.innerHTML = '⏳';
-            spinner.style.cssText = 'font-size: 3rem; margin-bottom: 20px; animation: var(--transition-bounce);';
+            spinner.style.cssText = 'font-size: 3rem; margin-bottom: 20px;';
             
             const statusText = document.createElement('h3');
             statusText.id = 'sync-progress-text';
@@ -274,7 +272,7 @@ window.QA_CORE.Calendar = {
             
             const progressBar = document.createElement('div');
             progressBar.id = 'sync-progress-bar';
-            progressBar.style.cssText = 'width: 0%; height: 100%; background: var(--accent-blue); transition: width 0.3s ease;';
+            progressBar.style.cssText = 'width: 0%; height: 100%; background: #3b82f6; transition: width 0.3s ease;';
 
             progressBarContainer.appendChild(progressBar);
             progressOverlay.appendChild(spinner);
@@ -289,8 +287,8 @@ window.QA_CORE.Calendar = {
                 kpiData = { tcRows: [] };
             }
 
-            const GAS_URL = "****"; 
-            const SECRET_KEY = "****"; 
+            const GAS_URL = "https://script.google.com/macros/s/AKfycbza7-LwOx9sS6V0RUemwMxzggzw-ikOCJqUJ4uACI4PXT48Thu_ql_THytZUPgIxect/exec";
+            const SECRET_KEY = "Qpalzm123"; 
 
             let currentCount = 0;
             let skippedCount = 0;
@@ -312,6 +310,7 @@ window.QA_CORE.Calendar = {
                         if (response.ok) {
                             const result = await response.json();
                             if (result.error) {
+                                console.error(`💡 [${sch.title}] GAS 디버깅 정보:`, result);
                                 throw new Error(`GAS Server Error: ${result.error}`);
                             }
                             totalItems = result.total || 0;
@@ -319,6 +318,7 @@ window.QA_CORE.Calendar = {
                             throw new Error("Proxy Server Network Error");
                         }
                     } catch (e) {
+                        console.warn(`[Calendar] GAS Proxy Failed for [${sch.title}].`, e);
                         progressOverlay.style.display = 'none';
                         const manualInput = prompt(`[보안/권한 정책] [${sch.title}]의 데이터 수집에 실패했습니다.\n본인(${targetName})이 검증한 총항목(TC) 개수를 입력해주세요 (0 입력 시 추가 안 함):`, "0");
                         if (manualInput !== null) {
@@ -348,9 +348,13 @@ window.QA_CORE.Calendar = {
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 const user = firebase.auth().currentUser;
                 if (user && !user.isAnonymous) {
-                    await firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData);
+                    firebase.database().ref(`users/${user.uid}/kpi`).set(kpiData).catch(err => {
+                        if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'KPI Firebase Sync (Month)');
+                    });
                 }
             }
+
+            if (progressOverlay) progressOverlay.remove();
 
             const successCount = totalCount - skippedCount;
             let finalMsg = `📊 연동 완료: ${successCount}건 추가`;
@@ -359,13 +363,14 @@ window.QA_CORE.Calendar = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(finalMsg, 'success');
 
         } catch (err) {
-            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar Sync Month To KPI');
-        } finally {
             if (progressOverlay) progressOverlay.remove();
-            if (syncBtn) {
-                syncBtn.disabled = false;
-                syncBtn.style.opacity = '1';
-            }
+            if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar Sync Month To KPI');
+        }
+    },
+
+    openAddModal: () => {
+        if (window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.openModal === 'function') {
+            window.QA_CORE.ScheduleDetail.openModal();
         }
     },
 
@@ -376,6 +381,21 @@ window.QA_CORE.Calendar = {
 
             window.QA_CORE.Calendar.fetch();
             window.QA_CORE.Calendar.render();
+
+            calContainer.addEventListener('click', (e) => {
+                try {
+                    const target = e.target;
+                    const scheduleEl = target.closest('.cal-schedule[data-sch-id]');
+                    if (scheduleEl) {
+                        const schId = scheduleEl.dataset.schId;
+                        if (schId && window.QA_CORE.ScheduleDetail && typeof window.QA_CORE.ScheduleDetail.open === 'function') {
+                            window.QA_CORE.ScheduleDetail.open(schId);
+                        }
+                    }
+                } catch (err) {
+                    if(window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(err, 'Calendar Click Event');
+                }
+            });
 
             const grid = document.getElementById('cal-grid');
             if (grid) {
