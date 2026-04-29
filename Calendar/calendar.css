@@ -1,23 +1,18 @@
-#calendar-placeholder.main-tab-content {
-    height: 100%;
-    min-height: 700px;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
 .cal-wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
     height: 100%;
-    background: #ffffff;
-    border-radius: 30px; 
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     padding: 30px;
     box-sizing: border-box;
     min-height: 0;
     min-width: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cal-header {
@@ -26,22 +21,32 @@
     align-items: center;
     padding-bottom: 25px;
     margin-bottom: 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
 }
 
 .cal-title-group {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
+}
+
+/* [수정] < > 버튼과 날짜를 일직선으로 맞추는 전용 컨테이너 스타일 추가 */
+.cal-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
 }
 
 #cal-month-year {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 900;
-    color: #1d1d1f;
+    color: var(--text-main);
     margin: 0;
-    min-width: 160px;
+    min-width: 140px;
     text-align: center;
     letter-spacing: -1px;
 }
@@ -49,21 +54,21 @@
 .cal-nav-btn {
     background: transparent;
     border: none;
-    color: #86868b;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    color: var(--text-sub);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-round);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 1.2rem;
+    transition: all var(--transition-bounce);
+    font-size: 1.1rem;
 }
 
 .cal-nav-btn:hover {
-    background: #f5f5f7;
-    color: #0071e3;
+    background: var(--bg-color);
+    color: var(--accent-blue);
     transform: scale(1.1);
 }
 
@@ -81,7 +86,7 @@
     text-align: center;
     font-weight: 800;
     padding-bottom: 15px;
-    color: #86868b;
+    color: var(--text-sub);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -99,10 +104,11 @@
     min-width: 0;
 }
 
+/* [유지] 기존의 가로형 주단위 레이아웃 보존 */
 .cal-week {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    grid-template-rows: minmax(100px, auto);
+    grid-template-rows: minmax(110px, auto);
     gap: 2px;
     min-width: 0;
     flex-shrink: 0;
@@ -113,37 +119,35 @@
 }
 
 .cal-grid::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
+    background: var(--border-color);
+    border-radius: var(--radius-pill);
 }
 
 .cal-day {
-    background-color: #f5f5f7;
-    border: 1.5px solid rgba(0, 0, 0, 0.15);
-    border-radius: 18px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     padding: 0;
     display: flex;
     flex-direction: column;
     cursor: pointer;
     position: relative;
     overflow: visible;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: all var(--transition-fast);
     box-sizing: border-box;
     min-width: 0;
 }
 
 .cal-day:hover,
 .cal-day.highlight-range {
-    background-color: #ffffff;
-    border-color: #0071e3;
+    background-color: var(--panel-bg);
+    border-color: var(--accent-blue);
 }
 
-.cal-day.dimmed {
-    opacity: 0.3;
-    background-color: rgba(235, 235, 240, 0.5);
-    border-color: rgba(0, 0, 0, 0.05);
-    pointer-events: none;
-    filter: grayscale(0.5);
+.cal-day.today {
+    background-color: rgba(0, 122, 255, 0.03);
+    border-color: var(--accent-blue);
+    border-width: 2px;
 }
 
 .day-number {
@@ -152,7 +156,7 @@
     justify-content: flex-start;
     font-weight: 800;
     font-size: 1rem;
-    color: #1d1d1f;
+    color: var(--text-main);
     padding: 8px 15px 4px 15px;
     position: relative;
     z-index: 2;
@@ -162,34 +166,13 @@
 
 .holiday-label {
     font-size: 0.7rem;
-    color: #ff3b30;
+    color: var(--accent-red);
     font-weight: 700;
     white-space: nowrap;
 }
 
-.cal-day.sun .day-number { color: #ff3b30; }
-.cal-day.sat .day-number { color: #0071e3; }
-
-.cal-day.today {
-    background-color: #ffffff;
-    border-color: #0071e3;
-}
-
-.cal-day.today .day-number {
-    color: #0071e3 !important;
-}
-
-.cal-day.today::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 10px;
-    width: 30px;
-    height: 30px;
-    background: rgba(0, 113, 227, 0.1);
-    border-radius: 10px;
-    z-index: 1;
-}
+.cal-day.sun .day-number { color: var(--accent-red); }
+.cal-day.sat .day-number { color: var(--accent-blue); }
 
 .sch-container {
     display: flex;
@@ -203,21 +186,22 @@
     min-width: 0;
 }
 
+/* [유지] 대장님이 구현하신 핵심 일정 띠 로직 보존 */
 .cal-schedule {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
-    height: 22px;
-    line-height: 22px;
+    height: 24px;
+    line-height: 24px;
     padding: 0 10px;
     white-space: nowrap;
-    color: #ffffff;
+    color: #ffffff; 
     cursor: pointer;
-    transition: filter 0.15s ease;
+    transition: filter var(--transition-bounce);
     box-sizing: border-box;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-radius: 6px;
+    border-radius: 4px;
     pointer-events: auto;
     min-width: 0;
     flex-shrink: 0; 
@@ -227,15 +211,15 @@
     position: relative;
     margin-left: 8px;
     margin-right: -2000px; 
-    border-radius: 8px;
     z-index: 20;
     background-color: var(--sch-bg);
-    width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 5px) - 16px);
+    /* 기존 계산식 유지 */
+    width: calc((100% * var(--sch-span)) + ((var(--sch-span) - 1) * 2px) - 16px);
 }
 
 .cal-schedule.is-past {
     filter: grayscale(0.6) brightness(0.8);
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .cal-schedule.spacer {
@@ -244,7 +228,7 @@
     visibility: hidden;
 }
 
-.cal-schedule:hover,
-.cal-schedule.sch-active {
-    filter: brightness(1.15) !important;
+.cal-schedule:hover {
+    filter: brightness(1.1) scale(1.02) !important;
+    z-index: 30;
 }
