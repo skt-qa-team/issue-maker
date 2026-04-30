@@ -1,0 +1,138 @@
+<div class="panel" id="panel-device">
+    <div class="panel-header-flex">
+        <div class="title-with-info">
+            <h2 class="panel-title">📱 단말 관리</h2>
+            <span class="text-sm text-sub ml-2" id="deviceLastSyncLabel">마지막 동기화: 없음</span>
+        </div>
+        <div class="preset-controls-inline">
+            <button id="btnSyncDevice" class="btn-primary-sm" onclick="window.QA_CORE.DeviceManager.syncFromGAS()">
+                🔄 시트 동기화
+            </button>
+        </div>
+    </div>
+
+    <div class="os-segment-wrapper">
+        <div class="segmented-control">
+            <button class="segment-btn active" data-target="android" onclick="window.QA_CORE.DeviceManager.switchOS('android')">Android</button>
+            <button class="segment-btn" data-target="ios" onclick="window.QA_CORE.DeviceManager.switchOS('ios')">iOS</button>
+        </div>
+    </div>
+
+    <div id="device-view-android" class="device-os-view active">
+        <div class="device-section">
+            <div class="section-header">
+                <h3 class="section-title text-accent-green">✅ 검증 단말 (Android)</h3>
+                <span class="badge-count" id="count-and-verify">0대</span>
+            </div>
+            <div class="glass-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>대장 No</th>
+                            <th>단말명(OS)</th>
+                            <th>OS ver</th>
+                            <th>해상도</th>
+                            <th>모델명</th>
+                            <th>사용자</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-and-verify">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="device-section mt-4">
+            <div class="section-header">
+                <h3 class="section-title">전체 단말 대장 (Android)</h3>
+                <div class="filter-group">
+                    <select id="filter-and-status" class="form-control-sm" onchange="window.QA_CORE.DeviceManager.filterMasterList('android')">
+                        <option value="all">상태 전체</option>
+                        <option value="내부">내부</option>
+                        <option value="보유">보유</option>
+                        <option value="대여">대여</option>
+                        <option value="이상">이상</option>
+                    </select>
+                </div>
+            </div>
+            <div class="glass-table-wrapper master-table-height">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>제조사</th>
+                            <th>단말명</th>
+                            <th>모델명</th>
+                            <th>일련번호</th>
+                            <th>OS</th>
+                            <th>상태</th>
+                            <th>현재사용자</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-and-master">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="device-view-ios" class="device-os-view d-none">
+        <div class="device-section">
+            <div class="section-header">
+                <h3 class="section-title text-accent-blue">✅ 검증 단말 (iOS)</h3>
+                <span class="badge-count" id="count-ios-verify">0대</span>
+            </div>
+            <div class="glass-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>대장 No</th>
+                            <th>단말명(OS)</th>
+                            <th>OS ver</th>
+                            <th>해상도</th>
+                            <th>모델명</th>
+                            <th>사용자</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-ios-verify">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="device-section mt-4">
+            <div class="section-header">
+                <h3 class="section-title">전체 단말 대장 (iOS)</h3>
+                <div class="filter-group">
+                    <select id="filter-ios-status" class="form-control-sm" onchange="window.QA_CORE.DeviceManager.filterMasterList('ios')">
+                        <option value="all">상태 전체</option>
+                        <option value="내부">내부</option>
+                        <option value="보유">보유</option>
+                        <option value="대여">대여</option>
+                        <option value="이상">이상</option>
+                    </select>
+                </div>
+            </div>
+            <div class="glass-table-wrapper master-table-height">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>제조사</th>
+                            <th>단말명</th>
+                            <th>모델명</th>
+                            <th>일련번호</th>
+                            <th>OS</th>
+                            <th>상태</th>
+                            <th>현재사용자</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-ios-master">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
