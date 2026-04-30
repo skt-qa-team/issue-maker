@@ -39,22 +39,14 @@ window.QA_CORE.InputForm = {
         }
     },
 
-    applyIndividualPreset: (id, count) => {
-        const el = document.getElementById(id);
+    resetCase: (targetId) => {
+        const el = document.getElementById(targetId);
         if (!el) return;
-        if (count === 1) {
-            el.value = '';
-        } else {
-            let text = '';
-            for (let i = 1; i <= count; i++) {
-                text += `CASE ${i}.\n${i < count ? '\n' : ''}`;
-            }
-            el.value = text;
-        }
+        el.value = '';
+        el.focus();
         if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
             window.QA_CORE.ResultForm.generate();
         }
-        el.focus();
     },
 
     saveDraft: () => {
@@ -639,42 +631,7 @@ window.QA_CORE.InputForm = {
                 return;
             }
         }
-
-        const andChecked = document.querySelectorAll('#andDeviceCol .issue-device-cb:checked').length > 0;
-        const iosChecked = document.querySelectorAll('#iosDeviceCol .issue-device-cb:checked').length > 0;
         
-        const cbAnd = document.getElementById('ver_cb_android');
-        const cbIos = document.getElementById('ver_cb_ios');
-        if (cbAnd) cbAnd.checked = andChecked;
-        if (cbIos) cbIos.checked = iosChecked;
-
-        window.QA_CORE.InputForm.updateVersionTextbox();
-        if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
-            window.QA_CORE.ResultForm.generate();
-        }
-    },
-
-    syncDeviceFromVersion: (platform) => {
-        const cb = document.getElementById(platform === 'and' ? 'ver_cb_android' : 'ver_cb_ios');
-        if (!cb) return;
-        const col = document.getElementById(`${platform}DeviceCol`);
-        
-        if (col) {
-            if (!cb.checked) {
-                col.querySelectorAll('.issue-device-cb').forEach(box => box.checked = false);
-            } else {
-                const checkedCount = col.querySelectorAll('.issue-device-cb:checked').length;
-                if (checkedCount === 0) {
-                    const modeEl = document.querySelector(`input[name="${platform}_dev_mode"]:checked`);
-                    const mode = modeEl ? modeEl.value : 'normal';
-                    const activeList = document.getElementById(`${platform}${mode === 'normal' ? 'Normal' : 'Special'}List`);
-                    if (activeList) {
-                        const firstCb = activeList.querySelector('.issue-device-cb');
-                        if (firstCb) firstCb.checked = true;
-                    }
-                }
-            }
-        }
         window.QA_CORE.InputForm.updateVersionTextbox();
         if (window.QA_CORE.ResultForm && typeof window.QA_CORE.ResultForm.generate === 'function') {
             window.QA_CORE.ResultForm.generate();
