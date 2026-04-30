@@ -34,6 +34,7 @@ window.QA_CORE.DeviceManager = {
         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', true);
         try {
             const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL, { redirect: 'follow' });
+            if (!response.ok) throw new Error('Network response was not ok');
             const result = await response.json();
             if (!result || !Array.isArray(result.data)) throw new Error('Data format error');
             window.QA_CORE.DeviceManager.State.devices = result.data;
@@ -64,13 +65,16 @@ window.QA_CORE.DeviceManager = {
 
     saveToFirebase: async (list, time) => {
         const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
-        await firebase.database().ref(path).set({ list: list, lastSync: time });
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            await firebase.database().ref(path).set({ list: list, lastSync: time });
+        }
     },
 
     formatDate: (t) => {
         if (!t) return '없음';
         const d = new Date(t);
-        return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     },
 
     renderTables: () => {
