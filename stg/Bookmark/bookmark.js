@@ -115,6 +115,22 @@ window.QA_CORE.Bookmark = {
         return false;
     },
 
+    isValidDropTarget: (targetFolderId) => {
+        const state = window.QA_CORE.Bookmark.State;
+        if (!state.dragState) return false;
+        
+        if (state.dragState.type === 'folder') {
+            if (state.dragState.id === targetFolderId || window.QA_CORE.Bookmark.checkDescendant(state.dragState.id, targetFolderId)) {
+                return false;
+            }
+        } else if (state.dragState.type === 'link') {
+            if (state.dragState.sourceFid === targetFolderId) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     buildSidebarFolder: (folder) => {
         const div = document.createElement('div');
         const state = window.QA_CORE.Bookmark.State;
@@ -128,7 +144,7 @@ window.QA_CORE.Bookmark = {
         const escapeHTML = window.QA_CORE.Utils?.escapeHTML || (str => str);
 
         div.innerHTML = `<span class="bm-drag-handle">⋮⋮</span> 
-                         <span class="bm-folder-name" style="display:flex; align-items:center;">📁 ${escapeHTML(folder.name)}</span>
+                         <span class="bm-folder-name">📁 ${escapeHTML(folder.name)}</span>
                          <div class="bm-actions">
                              <button class="bm-btn-icon" onclick="event.stopPropagation(); window.QA_CORE.Bookmark.editFolder('${folder.id}')">✏️</button>
                              ${deleteFolderBtn}
@@ -147,8 +163,6 @@ window.QA_CORE.Bookmark = {
     buildMainFolderCard: (folder) => {
         const card = document.createElement('div');
         card.className = 'bm-link-card bm-subfolder-card';
-        card.style.cursor = 'pointer';
-        card.style.borderLeft = '4px solid var(--text-sub)';
         card.draggable = true;
         
         const state = window.QA_CORE.Bookmark.State;
@@ -158,7 +172,7 @@ window.QA_CORE.Bookmark = {
 
         card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                           <div class="bm-link-info">
-                              <b style="color: var(--text-main);">📁 ${escapeHTML(folder.name)}</b>
+                              <b class="color-text-main">📁 ${escapeHTML(folder.name)}</b>
                               <small>하위 폴더</small>
                           </div>
                           <div class="bm-actions" onclick="event.stopPropagation()">
@@ -179,25 +193,41 @@ window.QA_CORE.Bookmark = {
     setupDragAndDrop: (element, folderId) => {
         element.ondragstart = (e) => { 
             e.stopPropagation();
+            e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', 'folder'); 
             window.QA_CORE.Bookmark.State.dragState = { type: 'folder', id: folderId };
-            element.classList.add('dragging'); 
+            setTimeout(() => element.classList.add('dragging'), 0);
         };
         
         element.ondragend = () => { 
             element.classList.remove('dragging'); 
             window.QA_CORE.Bookmark.State.dragState = null; 
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        };
+
+        element.ondragenter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (window.QA_CORE.Bookmark.isValidDropTarget(folderId)) {
+                element.classList.add('drag-over');
+            }
         };
         
         element.ondragover = (e) => { 
-            e.preventDefault(); 
             e.stopPropagation();
-            if (!window.QA_CORE.Bookmark.State.dragState) return;
-            element.classList.add('drag-over');
+            if (window.QA_CORE.Bookmark.isValidDropTarget(folderId)) {
+                e.preventDefault(); 
+                e.dataTransfer.dropEffect = 'move';
+            } else {
+                e.dataTransfer.dropEffect = 'none';
+            }
         };
         
-        element.ondragleave = () => { 
-            element.classList.remove('drag-over'); 
+        element.ondragleave = (e) => { 
+            e.stopPropagation();
+            if (!element.contains(e.relatedTarget)) {
+                element.classList.remove('drag-over'); 
+            }
         };
         
         element.ondrop = (e) => {
@@ -206,24 +236,21 @@ window.QA_CORE.Bookmark = {
             element.classList.remove('drag-over');
             
             const state = window.QA_CORE.Bookmark.State;
-            if (!state.dragState) return;
+            if (!state.dragState || !window.QA_CORE.Bookmark.isValidDropTarget(folderId)) return;
             
             if (state.dragState.type === 'folder') {
                 const draggedId = state.dragState.id;
-                if (draggedId === folderId || window.QA_CORE.Bookmark.checkDescendant(draggedId, folderId)) {
-                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("❌ 유효하지 않은 이동입니다.", 'warning');
-                    return;
-                }
                 const folderToMove = state.bookmarks.find(bf => bf.id === draggedId);
                 if (folderToMove) {
                     folderToMove.parentId = folderId;
                     window.QA_CORE.Bookmark.save();
                     window.QA_CORE.Bookmark.render();
+                    if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`📂 폴더가 이동되었습니다.`, 'success');
                 }
             } else if (state.dragState.type === 'link') {
                 const sourceFolder = state.bookmarks.find(f => f.id === state.dragState.sourceFid);
                 const targetFolder = state.bookmarks.find(f => f.id === folderId);
-                if (sourceFolder && targetFolder && state.dragState.sourceFid !== folderId) {
+                if (sourceFolder && targetFolder) {
                     const linkIndex = sourceFolder.links.findIndex(link => link.id === state.dragState.lId);
                     if (linkIndex !== -1) {
                         const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
@@ -263,9 +290,8 @@ window.QA_CORE.Bookmark = {
                 titleText.innerHTML = '';
                 if (activeF.parentId) {
                     const upBtn = document.createElement('span');
+                    upBtn.className = 'bm-btn-up';
                     upBtn.innerHTML = '🔙 ';
-                    upBtn.style.cursor = 'pointer';
-                    upBtn.style.marginRight = '8px';
                     upBtn.onclick = () => { 
                         state.currentFolderId = activeF.parentId; 
                         window.QA_CORE.Bookmark.render(); 
@@ -293,21 +319,23 @@ window.QA_CORE.Bookmark = {
                     const deleteLinkBtn = state.currentUserUid === adminUid ? `<button class="bm-btn-icon del" onclick="event.stopPropagation(); window.QA_CORE.Bookmark.deleteLink('${activeF.id}', '${l.id}')">🗑️</button>` : '';
                     
                     card.innerHTML = `<span class="bm-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
-                                     <div class="bm-link-info"><b>${escapeHTML(l.name)}</b><small>${escapeHTML(l.url)}</small></div>
-                                     <div class="bm-actions" onclick="event.stopPropagation()">
-                                        <button class="bm-btn-icon" onclick="window.QA_CORE.Bookmark.openEdit('${l.id}')">✏️</button>
-                                        ${deleteLinkBtn}
-                                     </div>`;
+                                      <div class="bm-link-info"><b>${escapeHTML(l.name)}</b><small>${escapeHTML(l.url)}</small></div>
+                                      <div class="bm-actions" onclick="event.stopPropagation()">
+                                         <button class="bm-btn-icon" onclick="window.QA_CORE.Bookmark.openEdit('${l.id}')">✏️</button>
+                                         ${deleteLinkBtn}
+                                      </div>`;
                     
                     card.ondragstart = (e) => { 
                         e.stopPropagation();
+                        e.dataTransfer.effectAllowed = 'move';
                         e.dataTransfer.setData('text/plain', 'link'); 
                         state.dragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
-                        card.classList.add('dragging'); 
+                        setTimeout(() => card.classList.add('dragging'), 0); 
                     };
                     card.ondragend = () => { 
                         card.classList.remove('dragging'); 
                         state.dragState = null; 
+                        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
                     };
                     
                     mainFragment.appendChild(card);
