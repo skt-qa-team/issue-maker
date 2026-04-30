@@ -124,9 +124,8 @@ window.QA_CORE.Bookmark = {
                 return false;
             }
         } else if (state.dragState.type === 'link') {
-            if (state.dragState.sourceFid === targetFolderId) {
-                return false;
-            }
+            // [수정] 링크를 동일한 폴더 내의 다른 위치로 이동(순서 변경)할 수 있도록 조건을 완화합니다.
+            // if (state.dragState.sourceFid === targetFolderId) return false; 
         }
         return true;
     },
@@ -202,7 +201,9 @@ window.QA_CORE.Bookmark = {
         element.ondragend = () => { 
             element.classList.remove('dragging'); 
             window.QA_CORE.Bookmark.State.dragState = null; 
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            document.querySelectorAll('.drag-over, .drag-over-top, .drag-over-bottom').forEach(el => {
+                el.classList.remove('drag-over', 'drag-over-top', 'drag-over-bottom');
+            });
         };
 
         element.ondragenter = (e) => {
@@ -250,7 +251,17 @@ window.QA_CORE.Bookmark = {
             } else if (state.dragState.type === 'link') {
                 const sourceFolder = state.bookmarks.find(f => f.id === state.dragState.sourceFid);
                 const targetFolder = state.bookmarks.find(f => f.id === folderId);
-                if (sourceFolder && targetFolder) {
+                
+                // [추가] 같은 폴더 내에서 드롭할 경우 처리 (폴더 위로 드롭)
+                if (sourceFolder && targetFolder && state.dragState.sourceFid === folderId) {
+                     const linkIndex = sourceFolder.links.findIndex(link => link.id === state.dragState.lId);
+                     if (linkIndex !== -1) {
+                         const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
+                         targetFolder.links.push(movingLink);
+                         window.QA_CORE.Bookmark.save();
+                         window.QA_CORE.Bookmark.render();
+                     }
+                } else if (sourceFolder && targetFolder) {
                     const linkIndex = sourceFolder.links.findIndex(link => link.id === state.dragState.lId);
                     if (linkIndex !== -1) {
                         const movingLink = sourceFolder.links.splice(linkIndex, 1)[0];
@@ -260,6 +271,106 @@ window.QA_CORE.Bookmark = {
                         if (window.QA_CORE.UI) window.QA_CORE.UI.showToast(`📍 링크가 이동되었습니다.`, 'success');
                     }
                 }
+            }
+        };
+    },
+
+    // [추가] 링크 요소에 드래그 앤 드롭 이벤트를 설정하는 함수
+    setupLinkDragAndDrop: (card, activeF, l) => {
+        const state = window.QA_CORE.Bookmark.State;
+        
+        card.ondragstart = (e) => { 
+            e.stopPropagation();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', 'link'); 
+            state.dragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
+            setTimeout(() => card.classList.add('dragging'), 0); 
+        };
+        
+        card.ondragend = () => { 
+            card.classList.remove('dragging'); 
+            state.dragState = null; 
+            document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+                el.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+        };
+
+        card.ondragenter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if(state.dragState && state.dragState.type === 'link' && state.dragState.lId !== l.id) {
+                // 드래그 방향에 따라 top/bottom 클래스 부여
+                 const rect = card.getBoundingClientRect();
+                 const midY = rect.top + rect.height / 2;
+                 if (e.clientY < midY) {
+                     card.classList.add('drag-over-top');
+                 } else {
+                     card.classList.add('drag-over-bottom');
+                 }
+            }
+        };
+
+        card.ondragover = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+             if(state.dragState && state.dragState.type === 'link' && state.dragState.lId !== l.id) {
+                 e.dataTransfer.dropEffect = 'move';
+                 const rect = card.getBoundingClientRect();
+                 const midY = rect.top + rect.height / 2;
+                 
+                 // 위치 업데이트
+                 if (e.clientY < midY) {
+                     card.classList.add('drag-over-top');
+                     card.classList.remove('drag-over-bottom');
+                 } else {
+                     card.classList.add('drag-over-bottom');
+                     card.classList.remove('drag-over-top');
+                 }
+             } else {
+                 e.dataTransfer.dropEffect = 'none';
+             }
+        };
+
+        card.ondragleave = (e) => {
+            e.stopPropagation();
+            card.classList.remove('drag-over-top', 'drag-over-bottom');
+        };
+
+        card.ondrop = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            card.classList.remove('drag-over-top', 'drag-over-bottom');
+
+            if (!state.dragState || state.dragState.type !== 'link' || state.dragState.lId === l.id) return;
+
+            const sourceFolder = state.bookmarks.find(f => f.id === state.dragState.sourceFid);
+            const targetFolder = activeF; // 드롭 타겟은 현재 렌더링된 폴더
+
+            if (sourceFolder && targetFolder) {
+                 const sourceIndex = sourceFolder.links.findIndex(link => link.id === state.dragState.lId);
+                 const targetIndex = targetFolder.links.findIndex(link => link.id === l.id);
+
+                 if (sourceIndex !== -1 && targetIndex !== -1) {
+                     const rect = card.getBoundingClientRect();
+                     const midY = rect.top + rect.height / 2;
+                     const movingLink = sourceFolder.links.splice(sourceIndex, 1)[0];
+                     
+                     // 위쪽으로 드롭했는지 아래쪽으로 드롭했는지 판단
+                     let insertIndex = targetIndex;
+                     // 다른 폴더에서 가져왔거나, 같은 폴더에서 아래에서 위로 올리는 경우
+                     if(state.dragState.sourceFid !== activeF.id || sourceIndex > targetIndex) {
+                         insertIndex = e.clientY < midY ? targetIndex : targetIndex + 1;
+                     } 
+                     // 같은 폴더에서 위에서 아래로 내리는 경우
+                     else if (sourceIndex < targetIndex) {
+                         insertIndex = e.clientY < midY ? targetIndex - 1 : targetIndex;
+                     }
+
+                     targetFolder.links.splice(insertIndex, 0, movingLink);
+                     
+                     window.QA_CORE.Bookmark.save();
+                     window.QA_CORE.Bookmark.render();
+                 }
             }
         };
     },
@@ -325,18 +436,8 @@ window.QA_CORE.Bookmark = {
                                          ${deleteLinkBtn}
                                       </div>`;
                     
-                    card.ondragstart = (e) => { 
-                        e.stopPropagation();
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.setData('text/plain', 'link'); 
-                        state.dragState = { type: 'link', sourceFid: activeF.id, lId: l.id };
-                        setTimeout(() => card.classList.add('dragging'), 0); 
-                    };
-                    card.ondragend = () => { 
-                        card.classList.remove('dragging'); 
-                        state.dragState = null; 
-                        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-                    };
+                    // [수정] 링크 요소에 대한 드래그 앤 드롭 이벤트 설정
+                    window.QA_CORE.Bookmark.setupLinkDragAndDrop(card, activeF, l);
                     
                     mainFragment.appendChild(card);
                 });
@@ -514,7 +615,7 @@ window.QA_CORE.Bookmark = {
     deleteLink: (fid, lid) => {
         try {
             const state = window.QA_CORE.Bookmark.State;
-            const adminUid = window.QA_CORE.CONSTANTS?.SETTINGS?.ADMIN_UID || "4LLzBg1Y9zOhcXAGhJK8OLYoUCQ2";
+            const adminUid = window.QA_CORE.CONSTANTS?.SETTINGS?.ADMIN_UID || "4LLzBg1Y9zOhcXAGhJK8OL বুঝতেOLYoUCQ2";
             if (state.currentUserUid !== adminUid) return;
 
             if (confirm('이 링크를 삭제하시겠습니까?')) {
