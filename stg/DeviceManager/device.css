@@ -8,6 +8,9 @@
 }
 
 .panel-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-shrink: 0;
     padding: 20px 24px 0 24px;
 }
@@ -22,6 +25,34 @@
     font-size: 0.85rem;
     color: var(--text-sub);
     margin-left: 8px;
+}
+
+.header-controls .btn-primary-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(0, 122, 255, 0.08);
+    color: var(--accent-blue);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    transition: all var(--transition-bounce);
+    box-shadow: var(--shadow-sm);
+}
+
+.header-controls .btn-primary-sm:hover {
+    background: rgba(0, 122, 255, 0.15);
+    border-color: rgba(0, 122, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.header-controls .btn-primary-sm:active {
+    transform: translateY(1px);
 }
 
 .os-segment-wrapper {
@@ -266,6 +297,11 @@
 .status-error {
     background: rgba(255, 59, 48, 0.1);
     color: var(--accent-red);
+}
+
+.status-return {
+    background: rgba(150, 150, 150, 0.15);
+    color: var(--text-sub);
 }
 
 .user-tag {
