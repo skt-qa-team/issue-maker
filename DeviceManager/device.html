@@ -47,7 +47,9 @@
 
             <article class="device-section section-spacing">
                 <header class="section-header">
-                    <h3 class="section-title">전체 단말 대장 (Android)</h3>
+                    <div class="section-title-group">
+                        <h3 class="section-title">전체 단말 대장 (Android)</h3>
+                    </div>
                     <div class="filter-controls">
                         <input type="text" id="search-and-device" class="form-control-sm search-input" placeholder="모델명/단말명 검색" onkeyup="window.QA_CORE.DeviceManager.filterMasterList('android')">
                         <select id="filter-and-status" class="form-control-sm" onchange="window.QA_CORE.DeviceManager.filterMasterList('android')">
@@ -56,6 +58,7 @@
                             <option value="보유">보유</option>
                             <option value="대여">대여</option>
                             <option value="이상">이상</option>
+                            <option value="반납">반납</option>
                         </select>
                     </div>
                 </header>
@@ -69,8 +72,14 @@
                                 <th>모델명</th>
                                 <th>일련번호</th>
                                 <th>OS</th>
-                                <th>상태</th>
+                                <th>OS Ver</th>
+                                <th>해상도</th>
+                                <th>대여구분</th>
+                                <th>비고</th>
+                                <th>이전사용자1</th>
+                                <th>이전사용자2</th>
                                 <th>현재사용자</th>
+                                <th>상태</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-and-master"></tbody>
@@ -107,7 +116,9 @@
 
             <article class="device-section section-spacing">
                 <header class="section-header">
-                    <h3 class="section-title">전체 단말 대장 (iOS)</h3>
+                    <div class="section-title-group">
+                        <h3 class="section-title">전체 단말 대장 (iOS)</h3>
+                    </div>
                     <div class="filter-controls">
                         <input type="text" id="search-ios-device" class="form-control-sm search-input" placeholder="모델명/단말명 검색" onkeyup="window.QA_CORE.DeviceManager.filterMasterList('ios')">
                         <select id="filter-ios-status" class="form-control-sm" onchange="window.QA_CORE.DeviceManager.filterMasterList('ios')">
@@ -116,6 +127,7 @@
                             <option value="보유">보유</option>
                             <option value="대여">대여</option>
                             <option value="이상">이상</option>
+                            <option value="반납">반납</option>
                         </select>
                     </div>
                 </header>
@@ -129,8 +141,14 @@
                                 <th>모델명</th>
                                 <th>일련번호</th>
                                 <th>OS</th>
-                                <th>상태</th>
+                                <th>OS Ver</th>
+                                <th>해상도</th>
+                                <th>대여구분</th>
+                                <th>비고</th>
+                                <th>이전사용자1</th>
+                                <th>이전사용자2</th>
                                 <th>현재사용자</th>
+                                <th>상태</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-ios-master"></tbody>
