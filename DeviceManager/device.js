@@ -2,7 +2,7 @@ window.QA_CORE = window.QA_CORE || {};
 window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
 
 window.QA_CORE.CONSTANTS.DEVICE_MANAGER = {
-    GAS_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbw_YOUR_ACTUAL_GAS_URL_HERE/exec',
+    GAS_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyLuRt_rWMEu47uUKzP74XitMzoS5_UZRprVKV2IYhqeTaFSuEOwBAv5LYIsDfbzLnfXg/exec',
     FIREBASE_PATH: 'system/device_master'
 };
 
