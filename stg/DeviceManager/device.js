@@ -85,6 +85,18 @@ window.QA_CORE.DeviceManager = {
         return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     },
 
+    compareVersions: (v1, v2) => {
+        const p1 = String(v1 || '').split('.');
+        const p2 = String(v2 || '').split('.');
+        const len = Math.max(p1.length, p2.length);
+        for (let i = 0; i < len; i++) {
+            const n1 = parseInt(p1[i]) || 0;
+            const n2 = parseInt(p2[i]) || 0;
+            if (n1 !== n2) return n2 - n1; 
+        }
+        return 0;
+    },
+
     renderTables: () => {
         const devices = window.QA_CORE.DeviceManager.State.devices || [];
         const syncLabel = document.getElementById('deviceLastSyncLabel');
@@ -105,9 +117,11 @@ window.QA_CORE.DeviceManager = {
     },
 
     renderOSGroup: (prefix, list) => {
-        const verifyList = list.filter(d => d.isVerify || ['검증', '내부'].includes(d.status));
+        const verifyList = list
+            .filter(d => String(d.status).includes('보유'))
+            .sort((a, b) => window.QA_CORE.DeviceManager.compareVersions(a.osVersion, b.osVersion));
+
         const filterVal = window.QA_CORE.DeviceManager.State.filters[prefix === 'and' ? 'android' : 'ios'];
-        
         const searchInput = document.getElementById(`search-${prefix === 'and' ? 'and' : 'ios'}-device`);
         const keyword = searchInput ? searchInput.value.toLowerCase() : '';
 
