@@ -11,10 +11,7 @@ window.QA_CORE.DeviceManager = {
         devices: [],
         lastSync: null,
         currentOS: 'android',
-        filters: {
-            android: 'all',
-            ios: 'all'
-        }
+        filters: { android: 'all', ios: 'all' }
     },
 
     init: () => {
@@ -23,151 +20,91 @@ window.QA_CORE.DeviceManager = {
 
     switchOS: (targetOS) => {
         window.QA_CORE.DeviceManager.State.currentOS = targetOS;
-
         document.querySelectorAll('.segment-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.target === targetOS);
         });
-
-        document.querySelectorAll('.device-os-view').forEach(view => {
-            view.classList.add('d-none');
-            view.classList.remove('active');
-        });
-
+        document.querySelectorAll('.device-os-view').forEach(view => view.classList.add('d-none'));
         const activeView = document.getElementById(`device-view-${targetOS}`);
-        if (activeView) {
-            activeView.classList.remove('d-none');
-            setTimeout(() => activeView.classList.add('active'), 50);
-        }
-    },
-
-    filterMasterList: (os) => {
-        const selectEl = document.getElementById(`filter-${os}-status`);
-        if (selectEl) {
-            window.QA_CORE.DeviceManager.State.filters[os] = selectEl.value;
-            window.QA_CORE.DeviceManager.renderTables();
-        }
+        if (activeView) activeView.classList.remove('d-none');
+        window.QA_CORE.DeviceManager.renderTables();
     },
 
     syncFromGAS: async () => {
         const btn = document.getElementById('btnSyncDevice');
-        
-        if (btn) btn.disabled = true;
         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', true);
-
         try {
-            const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL, {
-                method: 'GET',
-                redirect: 'follow'
-            });
-            
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-            
+            const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL, { redirect: 'follow' });
             const result = await response.json();
-            
-            if (!result || !Array.isArray(result.data)) {
-                throw new Error('Invalid data format from GAS');
-            }
-
+            if (!result || !Array.isArray(result.data)) throw new Error('Data format error');
             window.QA_CORE.DeviceManager.State.devices = result.data;
             window.QA_CORE.DeviceManager.State.lastSync = new Date().getTime();
-
             await window.QA_CORE.DeviceManager.saveToFirebase(result.data, window.QA_CORE.DeviceManager.State.lastSync);
-            
             window.QA_CORE.DeviceManager.renderTables();
-            
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 구글 시트 동기화 완료', 'success');
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 동기화 완료', 'success');
         } catch (error) {
-            if (window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'GAS Sync Error');
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패 (권한 설정 확인 필요)', 'error');
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패', 'error');
         } finally {
-            if (btn) btn.disabled = false;
             if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', false);
         }
     },
 
     fetchFromFirebase: () => {
-        try {
-            if (typeof firebase !== 'undefined' && firebase.database) {
-                const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
-                firebase.database().ref(path).on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && Array.isArray(data.list)) {
-                        window.QA_CORE.DeviceManager.State.devices = data.list;
-                        window.QA_CORE.DeviceManager.State.lastSync = data.lastSync || null;
-                        window.QA_CORE.DeviceManager.renderTables();
-                    }
-                });
-            }
-        } catch (error) {
-            if (window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'Firebase Fetch Devices');
+        const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            firebase.database().ref(path).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data.list)) {
+                    window.QA_CORE.DeviceManager.State.devices = data.list;
+                    window.QA_CORE.DeviceManager.State.lastSync = data.lastSync;
+                    window.QA_CORE.DeviceManager.renderTables();
+                }
+            });
         }
     },
 
-    saveToFirebase: async (deviceList, syncTime) => {
-        try {
-            if (typeof firebase !== 'undefined' && firebase.database) {
-                const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
-                await firebase.database().ref(path).set({
-                    list: deviceList,
-                    lastSync: syncTime
-                });
-            }
-        } catch (error) {
-            throw error;
-        }
+    saveToFirebase: async (list, time) => {
+        const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
+        await firebase.database().ref(path).set({ list: list, lastSync: time });
     },
 
-    formatDate: (timestamp) => {
-        if (!timestamp) return '없음';
-        const d = new Date(timestamp);
-        const pad = (n) => n.toString().padStart(2, '0');
-        return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    },
-
-    getStatusClass: (status) => {
-        const s = status || '';
-        if (s.includes('내부') || s.includes('검증')) return 'status-internal';
-        if (s.includes('보유')) return 'status-owned';
-        if (s.includes('대여')) return 'status-rental';
-        if (s.includes('이상') || s.includes('불량')) return 'status-error';
-        return '';
+    formatDate: (t) => {
+        if (!t) return '없음';
+        const d = new Date(t);
+        return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
     },
 
     renderTables: () => {
-        const state = window.QA_CORE.DeviceManager.State;
-        const devices = state.devices || [];
-
+        const devices = window.QA_CORE.DeviceManager.State.devices || [];
         const syncLabel = document.getElementById('deviceLastSyncLabel');
-        if (syncLabel) {
-            syncLabel.textContent = `마지막 동기화: ${window.QA_CORE.DeviceManager.formatDate(state.lastSync)}`;
-        }
+        if (syncLabel) syncLabel.textContent = `마지막 동기화: ${window.QA_CORE.DeviceManager.formatDate(window.QA_CORE.DeviceManager.State.lastSync)}`;
 
         const isIOS = (d) => {
-            const osStr = String(d.os || '').toLowerCase();
-            const nameStr = String(d.name || '').toLowerCase();
-            return osStr.includes('ios') || nameStr.includes('iphone') || nameStr.includes('ipad');
+            const name = String(d.name || '').toLowerCase();
+            const os = String(d.os || '').toLowerCase();
+            const mf = String(d.manufacturer || '').toLowerCase();
+            return name.includes('iphone') || name.includes('ipad') || name.includes('아이폰') || name.includes('아이패드') || os.includes('ios') || mf.includes('apple');
         };
 
-        const androidDevices = devices.filter(d => !isIOS(d));
-        const iosDevices = devices.filter(d => isIOS(d));
+        const androidList = devices.filter(d => !isIOS(d));
+        const iosList = devices.filter(d => isIOS(d));
 
-        window.QA_CORE.DeviceManager.renderOSGroup('and', androidDevices);
-        window.QA_CORE.DeviceManager.renderOSGroup('ios', iosDevices);
+        window.QA_CORE.DeviceManager.renderOSGroup('and', androidList);
+        window.QA_CORE.DeviceManager.renderOSGroup('ios', iosList);
     },
 
-    renderOSGroup: (osPrefix, osDevices) => {
-        const verifyList = osDevices.filter(d => d.isVerify === true || d.status === '검증' || d.status === '내부');
-        const filterVal = window.QA_CORE.DeviceManager.State.filters[osPrefix === 'and' ? 'android' : 'ios'];
-        const masterList = filterVal === 'all' ? osDevices : osDevices.filter(d => (d.status || '').includes(filterVal));
+    renderOSGroup: (prefix, list) => {
+        const verifyList = list.filter(d => d.isVerify || ['검증', '내부'].includes(d.status));
+        const filterVal = window.QA_CORE.DeviceManager.State.filters[prefix === 'and' ? 'android' : 'ios'];
+        const masterList = filterVal === 'all' ? list : list.filter(d => String(d.status).includes(filterVal));
 
-        const countEl = document.getElementById(`count-${osPrefix}-verify`);
+        const countEl = document.getElementById(`count-${prefix}-verify`);
         if (countEl) countEl.textContent = `${verifyList.length}대`;
 
-        const verifyTbody = document.getElementById(`tbody-${osPrefix}-verify`);
+        const verifyTbody = document.getElementById(`tbody-${prefix}-verify`);
         if (verifyTbody) {
-            verifyTbody.innerHTML = verifyList.map((d, index) => `
+            verifyTbody.innerHTML = verifyList.map((d, i) => `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${i + 1}</td>
                     <td class="td-highlight">${d.deviceNo || '-'}</td>
                     <td>${d.name || '-'}</td>
                     <td>${d.osVersion || '-'}</td>
@@ -178,11 +115,11 @@ window.QA_CORE.DeviceManager = {
             `).join('');
         }
 
-        const masterTbody = document.getElementById(`tbody-${osPrefix}-master`);
+        const masterTbody = document.getElementById(`tbody-${prefix}-master`);
         if (masterTbody) {
-            masterTbody.innerHTML = masterList.map((d, index) => `
+            masterTbody.innerHTML = masterList.map((d, i) => `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${i + 1}</td>
                     <td>${d.manufacturer || '-'}</td>
                     <td class="td-highlight">${d.name || '-'}</td>
                     <td>${d.model || '-'}</td>
@@ -193,13 +130,18 @@ window.QA_CORE.DeviceManager = {
                 </tr>
             `).join('');
         }
+    },
+
+    getStatusClass: (s) => {
+        const status = String(s || '');
+        if (status.includes('내부') || status.includes('검증')) return 'status-internal';
+        if (status.includes('보유')) return 'status-owned';
+        if (status.includes('대여')) return 'status-rental';
+        if (status.includes('이상') || status.includes('불량')) return 'status-error';
+        return '';
     }
 };
 
 document.addEventListener('componentsLoaded', () => {
-    setTimeout(() => {
-        if (window.QA_CORE && window.QA_CORE.DeviceManager) {
-            window.QA_CORE.DeviceManager.init();
-        }
-    }, 600);
+    setTimeout(() => { if (window.QA_CORE.DeviceManager) window.QA_CORE.DeviceManager.init(); }, 600);
 });
