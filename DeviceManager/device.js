@@ -55,7 +55,11 @@ window.QA_CORE.DeviceManager = {
         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', true);
 
         try {
-            const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL);
+            const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+            
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             
             const result = await response.json();
@@ -74,7 +78,7 @@ window.QA_CORE.DeviceManager = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 구글 시트 동기화 완료', 'success');
         } catch (error) {
             if (window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'GAS Sync Error');
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패', 'error');
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패 (CORS 또는 권한 문제)', 'error');
         } finally {
             if (btn) btn.disabled = false;
             if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', false);
