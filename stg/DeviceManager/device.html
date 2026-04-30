@@ -2,7 +2,7 @@
     <div class="panel-header-flex">
         <div class="title-with-info">
             <h2 class="panel-title">📱 단말 관리</h2>
-            <span class="text-sm text-sub ml-2" id="deviceLastSyncLabel">마지막 동기화: 없음</span>
+            <span class="sync-time-label" id="deviceLastSyncLabel">마지막 동기화: 없음</span>
         </div>
         <div class="preset-controls-inline">
             <button id="btnSyncDevice" class="btn-primary-sm" onclick="window.QA_CORE.DeviceManager.syncFromGAS()">
@@ -38,12 +38,12 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-and-verify">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="device-section mt-4">
+        <div class="device-section section-spacing">
             <div class="section-header">
                 <h3 class="section-title">전체 단말 대장 (Android)</h3>
                 <div class="filter-group">
@@ -71,7 +71,7 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-and-master">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -97,12 +97,12 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-ios-verify">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="device-section mt-4">
+        <div class="device-section section-spacing">
             <div class="section-header">
                 <h3 class="section-title">전체 단말 대장 (iOS)</h3>
                 <div class="filter-group">
@@ -130,7 +130,7 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-ios-master">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
