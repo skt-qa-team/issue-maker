@@ -124,18 +124,15 @@ window.QA_CORE.DeviceManager = {
 
         const verifyTbody = document.getElementById(`tbody-${prefix}-verify`);
         if (verifyTbody) {
-            verifyTbody.innerHTML = verifyList.map(d => `
+            verifyTbody.innerHTML = verifyList.map((d, i) => `
                 <tr>
-                    <td>${d.no || '-'}</td>
-                    <td class="td-highlight">${d.deviceNo || '-'}</td>
+                    <td>${i + 1}</td>
+                    <td class="td-highlight">${d.no || '-'}</td>
                     <td>${d.name || '-'}${d.os ? ` (${d.os})` : ''}</td>
                     <td>${d.osVersion || '-'}</td>
                     <td>${d.resolution || '-'}</td>
                     <td>${d.model || '-'}</td>
-                    <td>
-                        ${d.prevUser ? `<span class="text-sub">${d.prevUser} ➔ </span>` : ''}
-                        <span class="user-tag">${d.currentUser || '-'}</span>
-                    </td>
+                    <td><span class="user-tag">${d.currentUser || '-'}</span></td>
                 </tr>
             `).join('');
         }
@@ -150,11 +147,14 @@ window.QA_CORE.DeviceManager = {
                     <td>${d.model || '-'}</td>
                     <td class="text-sub">${d.serial || '-'}</td>
                     <td>${d.os || '-'}</td>
+                    <td>${d.osVersion || '-'}</td>
+                    <td>${d.resolution || '-'}</td>
+                    <td>${d.rentalType || '-'}</td>
+                    <td class="text-sub">${d.note || '-'}</td>
+                    <td class="text-sub">${d.prevUser1 || '-'}</td>
+                    <td class="text-sub">${d.prevUser2 || '-'}</td>
+                    <td><span class="user-tag">${d.currentUser || '-'}</span></td>
                     <td><span class="status-badge ${window.QA_CORE.DeviceManager.getStatusClass(d.status)}">${d.status || '-'}</span></td>
-                    <td>
-                        ${d.prevUser ? `<span class="text-sub">${d.prevUser} ➔ </span>` : ''}
-                        <span class="user-tag">${d.currentUser || '-'}</span>
-                    </td>
                 </tr>
             `).join('');
         }
@@ -166,6 +166,7 @@ window.QA_CORE.DeviceManager = {
         if (status.includes('보유')) return 'status-owned';
         if (status.includes('대여')) return 'status-rental';
         if (status.includes('이상') || status.includes('불량')) return 'status-error';
+        if (status.includes('반납')) return 'status-return';
         return '';
     }
 };
