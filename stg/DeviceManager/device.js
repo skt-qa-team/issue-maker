@@ -29,6 +29,14 @@ window.QA_CORE.DeviceManager = {
         window.QA_CORE.DeviceManager.renderTables();
     },
 
+    filterMasterList: (os) => {
+        const selectEl = document.getElementById(`filter-${os}-status`);
+        if (selectEl) {
+            window.QA_CORE.DeviceManager.State.filters[os] = selectEl.value;
+        }
+        window.QA_CORE.DeviceManager.renderTables();
+    },
+
     syncFromGAS: async () => {
         const btn = document.getElementById('btnSyncDevice');
         if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', true);
@@ -99,38 +107,54 @@ window.QA_CORE.DeviceManager = {
     renderOSGroup: (prefix, list) => {
         const verifyList = list.filter(d => d.isVerify || ['검증', '내부'].includes(d.status));
         const filterVal = window.QA_CORE.DeviceManager.State.filters[prefix === 'and' ? 'android' : 'ios'];
-        const masterList = filterVal === 'all' ? list : list.filter(d => String(d.status).includes(filterVal));
+        
+        const searchInput = document.getElementById(`search-${prefix === 'and' ? 'and' : 'ios'}-device`);
+        const keyword = searchInput ? searchInput.value.toLowerCase() : '';
+
+        const masterList = list.filter(d => {
+            const matchStatus = filterVal === 'all' || String(d.status).includes(filterVal);
+            const matchKeyword = keyword === '' || 
+                String(d.model || '').toLowerCase().includes(keyword) || 
+                String(d.name || '').toLowerCase().includes(keyword);
+            return matchStatus && matchKeyword;
+        });
 
         const countEl = document.getElementById(`count-${prefix}-verify`);
         if (countEl) countEl.textContent = `${verifyList.length}대`;
 
         const verifyTbody = document.getElementById(`tbody-${prefix}-verify`);
         if (verifyTbody) {
-            verifyTbody.innerHTML = verifyList.map((d, i) => `
+            verifyTbody.innerHTML = verifyList.map(d => `
                 <tr>
-                    <td>${i + 1}</td>
+                    <td>${d.no || '-'}</td>
                     <td class="td-highlight">${d.deviceNo || '-'}</td>
-                    <td>${d.name || '-'}</td>
+                    <td>${d.name || '-'}${d.os ? ` (${d.os})` : ''}</td>
                     <td>${d.osVersion || '-'}</td>
                     <td>${d.resolution || '-'}</td>
                     <td>${d.model || '-'}</td>
-                    <td><span class="user-tag">${d.currentUser || '-'}</span></td>
+                    <td>
+                        ${d.prevUser ? `<span class="text-sub">${d.prevUser} ➔ </span>` : ''}
+                        <span class="user-tag">${d.currentUser || '-'}</span>
+                    </td>
                 </tr>
             `).join('');
         }
 
         const masterTbody = document.getElementById(`tbody-${prefix}-master`);
         if (masterTbody) {
-            masterTbody.innerHTML = masterList.map((d, i) => `
+            masterTbody.innerHTML = masterList.map(d => `
                 <tr>
-                    <td>${i + 1}</td>
+                    <td>${d.no || '-'}</td>
                     <td>${d.manufacturer || '-'}</td>
                     <td class="td-highlight">${d.name || '-'}</td>
                     <td>${d.model || '-'}</td>
                     <td class="text-sub">${d.serial || '-'}</td>
                     <td>${d.os || '-'}</td>
                     <td><span class="status-badge ${window.QA_CORE.DeviceManager.getStatusClass(d.status)}">${d.status || '-'}</span></td>
-                    <td>${d.currentUser ? `<span class="user-tag">${d.currentUser}</span>` : '-'}</td>
+                    <td>
+                        ${d.prevUser ? `<span class="text-sub">${d.prevUser} ➔ </span>` : ''}
+                        <span class="user-tag">${d.currentUser || '-'}</span>
+                    </td>
                 </tr>
             `).join('');
         }
