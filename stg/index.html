@@ -31,6 +31,7 @@
     <script src="Setting/setting.js?v=qa260421" defer></script>
     <script src="Theme/theme.js?v=qa260421" defer></script>
     <script src="GuideForm/guideform.js?v=qa260421" defer></script>
+    <script src="DeviceManager/device.js?v=qa260421" defer></script>
     
     <script src="Core/Scripts/loader.js?v=qa260421" defer></script>
 </head>
@@ -43,6 +44,7 @@
             <button class="main-tab-btn" data-target="panel-calendar">일정 관리</button>
             <button class="main-tab-btn" data-target="panel-completion">완료문</button>
             <button class="main-tab-btn" data-target="panel-bookmark">북마크</button>
+            <button class="main-tab-btn" data-target="panel-device">단말 관리</button>
         </div>
 
         <div id="panel-issue" class="main-panel-content active">
@@ -70,6 +72,11 @@
         <div id="panel-bookmark" class="main-panel-content d-none">
             <div id="bookmark-panel-placeholder"></div>
         </div>
+
+        <div id="panel-device" class="main-panel-content d-none">
+            <div id="device-panel-placeholder"></div>
+        </div>
+        
     </main>
 
     <div id="toast-container" class="toast-container"></div>
