@@ -16,7 +16,7 @@ window.QA_CORE.Loader = {
         { id: 'schedule-modal-placeholder', url: 'Calendar/schedule.html' },
         { id: 'schedule-detail-modal-placeholder', url: 'Calendar/schedule-detail.html' },
         { id: 'bugreport-modal-placeholder', url: 'Bugreport/bugreport.html' },
-        { id: 'admin-modal-placeholder', url: 'Admin/admin.html' }
+        { id: 'admin-modal-placeholder', url: 'Admin/admin.html' },
         { id: 'device-panel-placeholder', url: 'DeviceManager/device.html' }
     ],
 
