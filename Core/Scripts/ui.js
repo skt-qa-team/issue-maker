@@ -5,7 +5,8 @@ window.QA_CORE.CONSTANTS.TABS = {
     'issue': 'panel-issue',
     'calendar': 'panel-calendar',
     'completion': 'panel-completion',
-    'bookmark': 'panel-bookmark'
+    'bookmark': 'panel-bookmark',
+    'device': 'panel-device'
 };
 
 window.QA_CORE.Utils = {
@@ -106,6 +107,10 @@ window.QA_CORE.UI = {
 
         if (tabName === 'bookmark' && window.QA_CORE.Bookmark && typeof window.QA_CORE.Bookmark.render === 'function') {
             window.QA_CORE.Bookmark.render();
+        }
+
+        if (tabName === 'device' && window.QA_CORE.DeviceManager && typeof window.QA_CORE.DeviceManager.renderTables === 'function') {
+            window.QA_CORE.DeviceManager.renderTables();
         }
     },
 
