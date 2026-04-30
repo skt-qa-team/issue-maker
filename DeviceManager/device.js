@@ -78,7 +78,7 @@ window.QA_CORE.DeviceManager = {
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 구글 시트 동기화 완료', 'success');
         } catch (error) {
             if (window.QA_CORE.ErrorHandler) window.QA_CORE.ErrorHandler.handle(error, 'GAS Sync Error');
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패 (CORS 또는 권한 문제)', 'error');
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패 (권한 설정 확인 필요)', 'error');
         } finally {
             if (btn) btn.disabled = false;
             if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', false);
@@ -142,8 +142,14 @@ window.QA_CORE.DeviceManager = {
             syncLabel.textContent = `마지막 동기화: ${window.QA_CORE.DeviceManager.formatDate(state.lastSync)}`;
         }
 
-        const androidDevices = devices.filter(d => d.os && !d.os.toLowerCase().includes('ios'));
-        const iosDevices = devices.filter(d => d.os && d.os.toLowerCase().includes('ios'));
+        const isIOS = (d) => {
+            const osStr = String(d.os || '').toLowerCase();
+            const nameStr = String(d.name || '').toLowerCase();
+            return osStr.includes('ios') || nameStr.includes('iphone') || nameStr.includes('ipad');
+        };
+
+        const androidDevices = devices.filter(d => !isIOS(d));
+        const iosDevices = devices.filter(d => isIOS(d));
 
         window.QA_CORE.DeviceManager.renderOSGroup('and', androidDevices);
         window.QA_CORE.DeviceManager.renderOSGroup('ios', iosDevices);
