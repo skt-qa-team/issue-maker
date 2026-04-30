@@ -181,8 +181,8 @@
             </div>
         </div>
         <div class="checkbox-wrap-group mb-2">
-            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_android" class="ver-type-cb" value="Android" onchange="window.QA_CORE.InputForm.syncDeviceFromVersion('and')"> Android</label>
-            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb" value="iOS" onchange="window.QA_CORE.InputForm.syncDeviceFromVersion('ios')"> iOS</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_android" class="ver-type-cb" value="Android" onchange="window.QA_CORE.InputForm.updateVersionTextbox()"> Android</label>
+            <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_ios" class="ver-type-cb" value="iOS" onchange="window.QA_CORE.InputForm.updateVersionTextbox()"> iOS</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_samsung" class="ver-type-cb" value="삼성인터넷" onchange="window.QA_CORE.InputForm.updateVersionTextbox()"> 삼성인터넷</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_safari" class="ver-type-cb" value="Safari" onchange="window.QA_CORE.InputForm.updateVersionTextbox()"> Safari</label>
             <label class="checkbox-label text-sm"><input type="checkbox" id="ver_cb_chrome" class="ver-type-cb" value="Chrome" onchange="window.QA_CORE.InputForm.updateVersionTextbox()"> Chrome</label>
@@ -218,12 +218,7 @@
             <label>[재현스텝]</label>
             <div class="case-ctrl-row">
                 <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('steps')">CASE +</button>
-                <div class="case-num-group">
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('steps', 1)">1</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('steps', 2)">2</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('steps', 3)">3</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('steps', 4)">4</button>
-                </div>
+                <button class="btn-case-reset" onclick="window.QA_CORE.InputForm.resetCase('steps')">초기화</button>
             </div>
         </div>
         <textarea id="steps" class="form-control" oninput="window.QA_CORE.ResultForm.generate()"></textarea>
@@ -234,12 +229,7 @@
             <label>[실행결과-문제현상]</label>
             <div class="case-ctrl-row">
                 <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('actualResult')">CASE +</button>
-                <div class="case-num-group">
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('actualResult', 1)">1</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('actualResult', 2)">2</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('actualResult', 3)">3</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('actualResult', 4)">4</button>
-                </div>
+                <button class="btn-case-reset" onclick="window.QA_CORE.InputForm.resetCase('actualResult')">초기화</button>
             </div>
         </div>
         <textarea id="actualResult" class="form-control" oninput="window.QA_CORE.ResultForm.generate()"></textarea>
@@ -250,12 +240,7 @@
             <label>[기대결과]</label>
             <div class="case-ctrl-row">
                 <button class="btn-case-main" onclick="window.QA_CORE.InputForm.addCase('expectedResult')">CASE +</button>
-                <div class="case-num-group">
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('expectedResult', 1)">1</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('expectedResult', 2)">2</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('expectedResult', 3)">3</button>
-                    <button class="btn-case-num" onclick="window.QA_CORE.InputForm.applyIndividualPreset('expectedResult', 4)">4</button>
-                </div>
+                <button class="btn-case-reset" onclick="window.QA_CORE.InputForm.resetCase('expectedResult')">초기화</button>
             </div>
         </div>
         <textarea id="expectedResult" class="form-control" oninput="window.QA_CORE.ResultForm.generate()"></textarea>
