@@ -23,8 +23,7 @@ window.QA_CORE.Loader = {
         const initFunctions = [
             () => window.QA_CORE.UI?.startClock?.(),
             () => window.QA_CORE.UI?.renderPresence?.(),
-            () => window.QA_CORE.UI?.renderChangelog?.() || window.renderChangelog?.(), 
-            () => window.QA_CORE.Theme?.init?.(), 
+            () => window.QA_CORE.Theme?.init?.(),
             () => {
                 const inputForm = window.QA_CORE.InputForm;
                 if (localStorage.getItem('skm_draft') && inputForm?.loadDraft) {
