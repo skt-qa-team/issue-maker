@@ -38,22 +38,36 @@ window.QA_CORE.DeviceManager = {
     },
 
     syncFromGAS: async () => {
-        const btn = document.getElementById('btnSyncDevice');
-        if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', true);
+        const btnId = 'btnSyncDevice';
+        if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading(btnId, true);
+        
         try {
             const response = await fetch(window.QA_CORE.CONSTANTS.DEVICE_MANAGER.GAS_WEB_APP_URL, { redirect: 'follow' });
             if (!response.ok) throw new Error('Network response was not ok');
+            
             const result = await response.json();
-            if (!result || !Array.isArray(result.data)) throw new Error('Data format error');
+            
+            if (!result || !Array.isArray(result.data)) {
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 유효하지 않은 데이터 형식입니다.', 'error');
+                return;
+            }
+
+            if (result.data.length === 0) {
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('⚠️ 동기화할 데이터가 없습니다.', 'warning');
+                return;
+            }
+
             window.QA_CORE.DeviceManager.State.devices = result.data;
             window.QA_CORE.DeviceManager.State.lastSync = new Date().getTime();
+            
             await window.QA_CORE.DeviceManager.saveToFirebase(result.data, window.QA_CORE.DeviceManager.State.lastSync);
+            
             window.QA_CORE.DeviceManager.renderTables();
             if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 동기화 완료', 'success');
         } catch (error) {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패', 'error');
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 동기화 실패: ' + error.message, 'error');
         } finally {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading('btnSyncDevice', false);
+            if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading(btnId, false);
         }
     },
 
@@ -72,6 +86,7 @@ window.QA_CORE.DeviceManager = {
     },
 
     saveToFirebase: async (list, time) => {
+        if (!list || !Array.isArray(list)) return;
         const path = window.QA_CORE.CONSTANTS.DEVICE_MANAGER.FIREBASE_PATH;
         if (typeof firebase !== 'undefined' && firebase.database) {
             await firebase.database().ref(path).set({ list: list, lastSync: time });
@@ -86,8 +101,8 @@ window.QA_CORE.DeviceManager = {
     },
 
     compareVersions: (v1, v2) => {
-        const p1 = String(v1 || '').split('.');
-        const p2 = String(v2 || '').split('.');
+        const p1 = String(v1 || '').replace(/[^0-9.]/g, '').split('.');
+        const p2 = String(v2 || '').replace(/[^0-9.]/g, '').split('.');
         const len = Math.max(p1.length, p2.length);
         for (let i = 0; i < len; i++) {
             const n1 = parseInt(p1[i]) || 0;
@@ -103,10 +118,9 @@ window.QA_CORE.DeviceManager = {
         if (syncLabel) syncLabel.textContent = `마지막 동기화: ${window.QA_CORE.DeviceManager.formatDate(window.QA_CORE.DeviceManager.State.lastSync)}`;
 
         const isIOS = (d) => {
-            const name = String(d.name || '').toLowerCase();
-            const os = String(d.os || '').toLowerCase();
+            const osVer = String(d.osVersion || '').toLowerCase();
             const mf = String(d.manufacturer || '').toLowerCase();
-            return name.includes('iphone') || name.includes('ipad') || name.includes('아이폰') || name.includes('아이패드') || os.includes('ios') || mf.includes('apple');
+            return osVer.includes('ios') || mf.includes('apple');
         };
 
         const androidList = devices.filter(d => !isIOS(d));
@@ -142,7 +156,7 @@ window.QA_CORE.DeviceManager = {
                 <tr>
                     <td>${i + 1}</td>
                     <td class="td-highlight">${d.no || '-'}</td>
-                    <td>${d.name || '-'}${d.os ? ` (${d.os})` : ''}</td>
+                    <td>${d.name || '-'}</td>
                     <td>${d.osVersion || '-'}</td>
                     <td>${d.resolution || '-'}</td>
                     <td>${d.model || '-'}</td>
@@ -160,10 +174,10 @@ window.QA_CORE.DeviceManager = {
                     <td class="td-highlight">${d.name || '-'}</td>
                     <td>${d.model || '-'}</td>
                     <td class="text-sub">${d.serial || '-'}</td>
-                    <td>${d.os || '-'}</td>
                     <td>${d.osVersion || '-'}</td>
                     <td>${d.resolution || '-'}</td>
                     <td>${d.rentalType || '-'}</td>
+                    <td>${d.date || '-'}</td>
                     <td class="text-sub">${d.note || '-'}</td>
                     <td class="text-sub">${d.prevUser1 || '-'}</td>
                     <td class="text-sub">${d.prevUser2 || '-'}</td>
