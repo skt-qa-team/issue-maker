@@ -1,8 +1,14 @@
 window.QA_CORE = window.QA_CORE || {};
+window.QA_CORE.CONSTANTS = window.QA_CORE.CONSTANTS || {};
+
+window.QA_CORE.CONSTANTS.KPI = {
+    GAS_LOG_API_URL: 'https://script.google.com/macros/s/AKfycbxmrqaxtl1AaJKcFE7ZHVp_dyWJXx3Lr1lYVTVjEQ7urSlAzQpWIbOgWGG2M-6i3B59Xg/exec'
+};
 
 window.QA_CORE.KPI = {
     State: {
-        currentTab: 'perf'
+        currentTab: 'perf',
+        sheetStats: { add: 0, edit: 0, del: 0 }
     },
 
     openModal: () => {
@@ -41,13 +47,16 @@ window.QA_CORE.KPI = {
         if (!confirm('현재 탭의 내용을 초기화하시겠습니까?')) return;
         
         if (tabId === 'perf') {
-            const ids = ['def_blocker', 'def_critical', 'def_major', 'def_minor', 'def_trivial', 'prev_avg', 'tc_update_text'];
+            const ids = ['def_blocker', 'def_critical', 'def_major', 'def_minor', 'def_trivial', 'prev_avg', 'tc_update_text', 'kpi_sheet_url'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) el.value = '';
             });
             const tcContainer = document.getElementById('tc_container');
             if (tcContainer) tcContainer.innerHTML = '';
+            
+            window.QA_CORE.KPI.State.sheetStats = { add: 0, edit: 0, del: 0 };
+            window.QA_CORE.KPI.updateSheetStatUI();
         } else if (tabId === 'contrib') {
             const el = document.getElementById('kpi_contrib_text');
             if(el) el.value = '';
@@ -117,6 +126,61 @@ window.QA_CORE.KPI = {
         }
     },
 
+    updateSheetStatUI: () => {
+        const stats = window.QA_CORE.KPI.State.sheetStats;
+        const addEl = document.getElementById('stat_add_cnt');
+        const editEl = document.getElementById('stat_edit_cnt');
+        const delEl = document.getElementById('stat_del_cnt');
+
+        if(addEl) addEl.textContent = stats.add;
+        if(editEl) editEl.textContent = stats.edit;
+        if(delEl) delEl.textContent = stats.del;
+    },
+
+    fetchSheetLog: async () => {
+        const urlInput = document.getElementById('kpi_sheet_url');
+        if (!urlInput || !urlInput.value.trim()) {
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('추적할 구글 스프레드시트 URL을 입력하세요.', 'warning');
+            return;
+        }
+
+        const btnId = 'btn-fetch-sheet';
+        if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading(btnId, true);
+
+        try {
+            let userEmail = '';
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                userEmail = firebase.auth().currentUser.email || '';
+            }
+
+            const targetUrl = encodeURIComponent(urlInput.value.trim());
+            const emailParam = encodeURIComponent(userEmail);
+            const apiEndpoint = `${window.QA_CORE.CONSTANTS.KPI.GAS_LOG_API_URL}?sheetUrl=${targetUrl}&email=${emailParam}`;
+
+            const response = await fetch(apiEndpoint, { redirect: 'follow' });
+            if (!response.ok) throw new Error('Network Error');
+            
+            const result = await response.json();
+            
+            if (result && result.data) {
+                window.QA_CORE.KPI.State.sheetStats = {
+                    add: parseInt(result.data.add) || 0,
+                    edit: parseInt(result.data.edit) || 0,
+                    del: parseInt(result.data.delete || result.data.del) || 0
+                };
+                window.QA_CORE.KPI.updateSheetStatUI();
+                window.QA_CORE.KPI.generate();
+                if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 시트 기여도 분석 완료', 'success');
+            } else {
+                throw new Error('Invalid Data');
+            }
+        } catch (err) {
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 데이터 동기화 실패. GAS 서버 연동을 확인하세요.', 'error');
+        } finally {
+            if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading(btnId, false);
+        }
+    },
+
     generate: () => {
         try {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
@@ -183,16 +247,26 @@ window.QA_CORE.KPI = {
                     report += `- 수행 내역 없음\n\n`;
                 }
 
+                report += `본인영역 TC 작성 및 수정 업무 (문서 현행화 유지)\n`;
+                
+                const stats = window.QA_CORE.KPI.State.sheetStats;
+                const totalSheetActions = stats.add + stats.edit + stats.del;
+                
+                if (totalSheetActions > 0) {
+                    report += ` * 스프레드시트 활동 로그: 추가 ${stats.add}건 / 수정 ${stats.edit}건 / 삭제 ${stats.del}건 (총합 ${totalSheetActions}건)\n`;
+                }
+
                 const tcUpdate = getVal('tc_update_text');
-                report += `본인영역 TC 작성 및 수정 업무 (TC 최신화 유지 > 변경사항 즉시 반영)\n`;
                 if (tcUpdate) {
                     const lines = tcUpdate.split('\n').map(line => line.trim()).filter(l => l);
                     if (lines.length > 0) {
                         lines.forEach(line => {
-                            report += line.startsWith('-') ? ` ${line}\n` : ` - ${line}\n`;
+                            report += line.startsWith('-') || line.startsWith('*') ? `  ${line}\n` : `  - ${line}\n`;
                         });
-                    } else report += ` - 내용 없음\n`;
-                } else report += ` - 내용 없음\n`;
+                    }
+                } else if (totalSheetActions === 0) {
+                    report += `  - 내용 없음\n`;
+                }
 
             } else if (activeTabId === 'contrib') {
                 if(previewLabel) previewLabel.textContent = '📊 [팀 기여도] 리포트 미리보기';
@@ -259,11 +333,18 @@ window.QA_CORE.KPI = {
                 tcText = `검증 수행 측면에서는 ${pocListStr ? pocListStr + ' 등 주요 프로젝트' : '담당 업무'}를 중심으로 총 ${totalTc}건의 테스트 케이스를 성공적으로 완수하였습니다. 특히 다양한 사용자 환경을 고려한 교차 검증(단말 2대 이상 사용)을 적극 도입하여 검증의 신뢰도를 대폭 강화하였습니다.\n\n`;
             }
 
+            const stats = window.QA_CORE.KPI.State.sheetStats;
+            const totalSheetActions = stats.add + stats.edit + stats.del;
+            let sheetText = "";
+            if (totalSheetActions > 0) {
+                sheetText = `또한 팀 공용 스프레드시트 자산 관리에 기여하여 총 ${totalSheetActions}건(추가 ${stats.add}건, 수정 ${stats.edit}건, 삭제 ${stats.del}건)의 데이터 현행화 작업을 수행, 문서 정합성 유지에 크게 일조하였습니다. `;
+            }
+
             const tcUpdate = getVal('tc_update_text');
             let updateText = "";
             if (tcUpdate.trim().length > 0) {
                 const lines = tcUpdate.split('\n').map(line => line.trim()).filter(l => l);
-                updateText = `테스트 자산 관리 측면에서도 본인 영역의 TC 최신화 업무를 병행하여, 총 ${lines.length}건의 주요 항목에 대한 현행화를 완료함으로써 검증 프로세스의 효율성을 제고하였습니다. 향후에도 지속적인 고도화를 통해 무결점 서비스 구현에 최선을 다하겠습니다.`;
+                updateText = `테스트 자산 관리 측면에서도 본인 영역의 TC 최신화 업무를 병행하여, 총 ${lines.length}건의 주요 항목에 대한 업데이트를 완료함으로써 검증 프로세스의 효율성을 제고하였습니다. 향후에도 지속적인 고도화를 통해 무결점 서비스 구현에 최선을 다하겠습니다.`;
             } else {
                 updateText = `적극적인 이슈 발굴과 체계적인 테스트 관리를 통해 팀 전체의 검증 역량을 강화하고 프로젝트 성공에 기여할 수 있도록 지속 노력하겠습니다.`;
             }
@@ -271,7 +352,7 @@ window.QA_CORE.KPI = {
             const contribEl = document.getElementById('kpi_contrib_text');
             if (contribEl) {
                 if (contribEl.value.trim() !== '' && !confirm('기존 작성된 내용이 자동 생성 내용으로 교체됩니다. 계속하시겠습니까?')) return;
-                contribEl.value = defectText + tcText + updateText;
+                contribEl.value = defectText + tcText + sheetText + updateText;
                 window.QA_CORE.KPI.generate();
                 if (window.QA_CORE.UI) window.QA_CORE.UI.showToast("서술형 리포트가 생성되었습니다.", "success");
             }
@@ -299,6 +380,8 @@ window.QA_CORE.KPI = {
                 trivial: getVal('def_trivial'),
                 prevAvg: getVal('prev_avg'),
                 tcRows: tcData,
+                sheetUrl: getVal('kpi_sheet_url'),
+                sheetStats: window.QA_CORE.KPI.State.sheetStats,
                 tcUpdate: getVal('tc_update_text'),
                 contrib: getVal('kpi_contrib_text'),
                 capa: getVal('kpi_capa_text')
@@ -331,9 +414,15 @@ window.QA_CORE.KPI = {
             
             ['blocker', 'critical', 'major', 'minor', 'trivial'].forEach(lv => setVal(`def_${lv}`, saved[lv]));
             setVal('prev_avg', saved.prevAvg);
+            setVal('kpi_sheet_url', saved.sheetUrl);
             setVal('tc_update_text', saved.tcUpdate);
             setVal('kpi_contrib_text', saved.contrib);
             setVal('kpi_capa_text', saved.capa);
+
+            if (saved.sheetStats) {
+                window.QA_CORE.KPI.State.sheetStats = saved.sheetStats;
+                window.QA_CORE.KPI.updateSheetStatUI();
+            }
 
             const container = document.getElementById('tc_container');
             if (container) {
@@ -382,10 +471,8 @@ window.QA_CORE.KPI = {
     },
 
     initEvents: () => {
-        // 복사 버튼 등 고정된 이벤트 연결 지점
         document.addEventListener('click', (e) => {
             const target = e.target;
-            // 예시: KPI 복사 버튼 클릭 이벤트 (HTML에서 해당 ID 적용 시 자동 연동)
             if (target.id === 'btn-kpi-copy' || target.classList.contains('btn-kpi-copy')) {
                 window.QA_CORE.KPI.copyReport();
             }
@@ -393,7 +480,6 @@ window.QA_CORE.KPI = {
     }
 };
 
-// 모듈 초기화
 document.addEventListener('componentsLoaded', () => {
     if (window.QA_CORE && window.QA_CORE.KPI) {
         window.QA_CORE.KPI.initEvents();
