@@ -162,7 +162,7 @@
     padding: 20px 25px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    max-width: 450px;
+    max-width: 100% !important;
     width: 100%;
     box-sizing: border-box;
 }
@@ -357,66 +357,6 @@
 #kpi-modal .tc-actions .btn-tc-del:hover {
     background: var(--bg-color);
     color: var(--accent-red);
-}
-
-#kpi-modal .kpi-sheet-sync-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-#kpi-modal .flex-1 {
-    flex: 1;
-}
-
-#kpi-modal .kpi-sheet-stats {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 15px;
-}
-
-#kpi-modal .kpi-stat-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    font-weight: 600;
-    backdrop-filter: blur(var(--blur-md));
-    -webkit-backdrop-filter: blur(var(--blur-md));
-    border: 1px solid rgba(150, 150, 150, 0.15);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-bounce);
-}
-
-#kpi-modal .kpi-stat-badge:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-#kpi-modal .kpi-stat-badge b {
-    margin: 0 6px;
-    font-size: 1.15rem;
-    font-weight: 800;
-}
-
-#kpi-modal .stat-add {
-    background: rgba(52, 199, 89, 0.1);
-    color: var(--accent-green, #34c759);
-    border-color: rgba(52, 199, 89, 0.2);
-}
-
-#kpi-modal .stat-edit {
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--accent-blue, #007aff);
-    border-color: rgba(0, 122, 255, 0.2);
-}
-
-#kpi-modal .stat-del {
-    background: rgba(255, 59, 48, 0.1);
-    color: var(--accent-red, #ff3b30);
-    border-color: rgba(255, 59, 48, 0.2);
 }
 
 #kpi-modal .kpi-textarea-md {
