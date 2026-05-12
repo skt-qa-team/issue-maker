@@ -128,6 +128,8 @@ window.QA_CORE.KPI = {
 
     updateSheetStatUI: () => {
         const stats = window.QA_CORE.KPI.State.sheetStats;
+        console.log('[KPI Debug] Updating UI with stats:', stats);
+        
         const addEl = document.getElementById('stat_add_cnt');
         const editEl = document.getElementById('stat_edit_cnt');
         const delEl = document.getElementById('stat_del_cnt');
@@ -157,25 +159,36 @@ window.QA_CORE.KPI = {
             const emailParam = encodeURIComponent(userEmail);
             const apiEndpoint = `${window.QA_CORE.CONSTANTS.KPI.GAS_LOG_API_URL}?sheetUrl=${targetUrl}&email=${emailParam}`;
 
+            console.log('[KPI Debug] Fetching from URL:', apiEndpoint);
+            console.log('[KPI Debug] Target User Email:', userEmail);
+
             const response = await fetch(apiEndpoint, { redirect: 'follow' });
             if (!response.ok) throw new Error('Network Error');
             
             const result = await response.json();
+            console.log('[KPI Debug] Raw Result from GAS:', result);
             
             if (result && result.data) {
                 window.QA_CORE.KPI.State.sheetStats = {
                     add: parseInt(result.data.add) || 0,
                     edit: parseInt(result.data.edit) || 0,
-                    del: parseInt(result.data.delete || result.data.del) || 0
+                    del: parseInt(result.data.del || result.data.delete) || 0
                 };
+                
+                console.log('[KPI Debug] New State Stats:', window.QA_CORE.KPI.State.sheetStats);
+                
                 window.QA_CORE.KPI.updateSheetStatUI();
                 window.QA_CORE.KPI.generate();
                 if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('✅ 시트 기여도 분석 완료', 'success');
+            } else if (result.error) {
+                console.error('[KPI Debug] GAS Server Error:', result.error);
+                throw new Error(result.error);
             } else {
-                throw new Error('Invalid Data');
+                throw new Error('Invalid Data format');
             }
         } catch (err) {
-            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 데이터 동기화 실패. GAS 서버 연동을 확인하세요.', 'error');
+            console.error('[KPI Debug] Fetch Error:', err);
+            if (window.QA_CORE.UI) window.QA_CORE.UI.showToast('❌ 데이터 동기화 실패. 개발자 도구(F12) 로그를 확인하세요.', 'error');
         } finally {
             if (window.QA_CORE.UI) window.QA_CORE.UI.toggleLoading(btnId, false);
         }
@@ -253,7 +266,7 @@ window.QA_CORE.KPI = {
                 const totalSheetActions = stats.add + stats.edit + stats.del;
                 
                 if (totalSheetActions > 0) {
-                    report += ` * 스프레드시트 활동 로그: 추가 ${stats.add}건 / 수정 ${stats.edit}건 / 삭제 ${stats.del}건 (총합 ${totalSheetActions}건)\n`;
+                    report += ` * 스프레드시트 활동 로그(전월 기준): 추가 ${stats.add}건 / 수정 ${stats.edit}건 / 삭제 ${stats.del}건 (총합 ${totalSheetActions}건)\n`;
                 }
 
                 const tcUpdate = getVal('tc_update_text');
@@ -337,7 +350,7 @@ window.QA_CORE.KPI = {
             const totalSheetActions = stats.add + stats.edit + stats.del;
             let sheetText = "";
             if (totalSheetActions > 0) {
-                sheetText = `또한 팀 공용 스프레드시트 자산 관리에 기여하여 총 ${totalSheetActions}건(추가 ${stats.add}건, 수정 ${stats.edit}건, 삭제 ${stats.del}건)의 데이터 현행화 작업을 수행, 문서 정합성 유지에 크게 일조하였습니다. `;
+                sheetText = `또한 팀 공용 스프레드시트 자산 관리에 기여하여 전월 기준 총 ${totalSheetActions}건(추가 ${stats.add}건, 수정 ${stats.edit}건, 삭제 ${stats.del}건)의 데이터 현행화 작업을 수행, 문서 정합성 유지에 크게 일조하였습니다. `;
             }
 
             const tcUpdate = getVal('tc_update_text');
